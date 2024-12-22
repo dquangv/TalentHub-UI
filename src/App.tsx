@@ -7,6 +7,7 @@ import About from '@/pages/About';
 import Contact from '@/pages/Contact';
 import NotFound from '@/pages/NotFound';
 import ScrollToTop from './components/layout/ScrollToTop';
+import Freelancers from './pages/Freelancers';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/freelancers" element={<Freelancers />} />
               <Route path="*" element={<div style={{width: '777px', margin: '0 auto'}}><NotFound /></div>} />
             </Routes>
           </main>
