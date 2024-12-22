@@ -13,7 +13,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
-              <h1 className="text-2xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+              <h1 className=" text-2xl md:text-6xl font-bold pb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                 Kết nối với Freelancer tài năng tại Việt Nam
               </h1>
             </FadeInWhenVisible>
@@ -27,7 +27,7 @@ const Home = () => {
                 <Button size="lg" className="text-lg bg-primary hover:bg-primary-600">
                   Tìm Freelancer
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg border-primary text-primary hover:bg-primary-50">
+                <Button size="lg" variant="outline" className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary">
                   Đăng việc miễn phí
                 </Button>
               </div>
