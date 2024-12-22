@@ -2,18 +2,18 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Search, Briefcase, Users, TrendingUp, Star, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
-
 
 const Home = () => {
   return (
     <div>
-      <section className="relative py-20 bg-gradient-to-b from-primary/10 via-background to-background">
+      {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
+      <section className="relative py-20 bg-gradient-to-b from-primary-100 via-background to-background">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+              <h1 className="text-2xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                 Kết nối với Freelancer tài năng tại Việt Nam
               </h1>
             </FadeInWhenVisible>
@@ -24,10 +24,10 @@ const Home = () => {
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="text-lg">
+                <Button size="lg" className="text-lg bg-primary hover:bg-primary-600">
                   Tìm Freelancer
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg">
+                <Button size="lg" variant="outline" className="text-lg border-primary text-primary hover:bg-primary-50">
                   Đăng việc miễn phí
                 </Button>
               </div>
@@ -36,27 +36,28 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Stats Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FadeInWhenVisible>
-              <Card className="p-6 text-center">
+              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2"><AnimatedNumber start={25000} end={50000} />+</h3>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
                 <p className="text-muted-foreground">Freelancer tài năng</p>
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
-              <Card className="p-6 text-center">
+              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <Briefcase className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2"><AnimatedNumber start={25000} end={50000} />+</h3>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
                 <p className="text-muted-foreground">Dự án đã hoàn thành</p>
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
-              <Card className="p-6 text-center">
+              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2"><AnimatedNumber start={25000} end={50000} />+</h3>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
                 <p className="text-muted-foreground">Doanh nghiệp tin tưởng</p>
               </Card>
             </FadeInWhenVisible>
@@ -64,23 +65,24 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-muted/50">
+      {/* Categories Section */}
+      <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12">Lĩnh vực nổi bật</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Lĩnh vực nổi bật</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.map((category, index) => (
               <FadeInWhenVisible key={category.title} delay={index * 0.1}>
-                <Card className="p-6 hover:shadow-lg transition-shadow">
+                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background">
                   <div className="flex items-start gap-4">
                     {category.icon}
                     <div>
-                      <h3 className="font-semibold mb-2">{category.title}</h3>
+                      <h3 className="font-semibold mb-2 text-primary-700">{category.title}</h3>
                       <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
                       <div className="flex flex-wrap gap-2">
                         {category.skills.map((skill) => (
-                          <Badge key={skill} variant="secondary">
+                          <Badge key={skill} variant="secondary" className="bg-secondary-100 text-secondary-700 hover:bg-secondary-200">
                             {skill}
                           </Badge>
                         ))}
@@ -94,19 +96,20 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Steps Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12">Cách thức hoạt động</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Cách thức hoạt động</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((step, index) => (
               <FadeInWhenVisible key={step.title} delay={index * 0.2}>
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <div className="text-center group">
+                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
                     {step.icon}
                   </div>
-                  <h3 className="text-xl font-semibold mb-4">{step.title}</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-primary-700">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
               </FadeInWhenVisible>
@@ -115,21 +118,26 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
+        <div className="container relative mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto">
             <FadeInWhenVisible>
-              <h2 className="text-3xl font-bold mb-6">
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                 Bắt đầu tìm kiếm freelancer ngay hôm nay
               </h2>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
-              <p className="text-lg mb-8 text-primary-foreground/80">
+              <p className="text-lg mb-8 text-primary-600/80">
                 Đăng ký miễn phí và bắt đầu kết nối với cộng đồng freelancer tài năng
               </p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
-              <Button size="lg" variant="secondary" className="text-lg">
+              <Button
+                size="lg"
+                className="text-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
                 Đăng ký ngay
               </Button>
             </FadeInWhenVisible>
@@ -144,37 +152,37 @@ const categories = [
   {
     title: 'Lập trình & Công nghệ',
     description: 'Phát triển web, mobile app, và các giải pháp phần mềm',
-    icon: <Code className="w-8 h-8 text-primary" />,
+    icon: <Code className="w-8 h-8 text-primary-600" />,
     skills: ['React', 'Node.js', 'Python', 'Mobile App'],
   },
   {
     title: 'Thiết kế & Đồ họa',
     description: 'Thiết kế web, logo, và các sản phẩm đồ họa',
-    icon: <Paintbrush className="w-8 h-8 text-primary" />,
+    icon: <Paintbrush className="w-8 h-8 text-primary-600" />,
     skills: ['UI/UX', 'Branding', 'Illustration', 'Motion'],
   },
   {
     title: 'Digital Marketing',
     description: 'Quảng cáo, SEO, và chiến lược marketing online',
-    icon: <TrendingUp className="w-8 h-8 text-primary" />,
+    icon: <TrendingUp className="w-8 h-8 text-primary-600" />,
     skills: ['SEO', 'Social Media', 'Google Ads', 'Content'],
   },
   {
     title: 'Viết lách & Biên dịch',
     description: 'Viết content, dịch thuật, và biên tập',
-    icon: <PenTool className="w-8 h-8 text-primary" />,
+    icon: <PenTool className="w-8 h-8 text-primary-600" />,
     skills: ['Copywriting', 'Translation', 'Content Writing', 'Proofreading'],
   },
   {
     title: 'Video & Animation',
     description: 'Sản xuất video, motion graphics, và animation',
-    icon: <Video className="w-8 h-8 text-primary" />,
+    icon: <Video className="w-8 h-8 text-primary-600" />,
     skills: ['After Effects', 'Premiere Pro', '3D Animation', 'Motion Graphics'],
   },
   {
     title: 'Kinh doanh & Tư vấn',
     description: 'Tư vấn kinh doanh, kế toán, và phân tích',
-    icon: <LineChart className="w-8 h-8 text-primary" />,
+    icon: <LineChart className="w-8 h-8 text-primary-600" />,
     skills: ['Business Plan', 'Financial Analysis', 'Consulting', 'Research'],
   },
 ];
@@ -183,17 +191,17 @@ const steps = [
   {
     title: 'Đăng việc miễn phí',
     description: 'Mô tả chi tiết công việc và yêu cầu của bạn',
-    icon: <Briefcase className="w-8 h-8 text-primary" />,
+    icon: <Briefcase className="w-8 h-8 text-primary-600" />,
   },
   {
     title: 'Nhận báo giá',
     description: 'Nhận báo giá từ các freelancer phù hợp',
-    icon: <Users className="w-8 h-8 text-primary" />,
+    icon: <Users className="w-8 h-8 text-primary-600" />,
   },
   {
     title: 'Hoàn thành dự án',
     description: 'Làm việc và thanh toán an toàn qua hệ thống',
-    icon: <CheckCircle className="w-8 h-8 text-primary" />,
+    icon: <CheckCircle className="w-8 h-8 text-primary-600" />,
   },
 ];
 
