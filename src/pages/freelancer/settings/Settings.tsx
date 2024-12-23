@@ -1,0 +1,74 @@
+import { useState } from 'react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import Profile from './Profile';
+import Experience from './Experience';
+import Education from './Education';
+import Portfolio from './Portfolio';
+import Security from './Security';
+import { User, Briefcase, GraduationCap, FolderKanban, Shield } from 'lucide-react';
+
+const Settings = () => {
+  const [activeTab, setActiveTab] = useState('profile');
+
+  return (
+    <div className="py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">Cài đặt tài khoản</h1>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-8">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span className="hidden md:inline">Hồ sơ</span>
+              </TabsTrigger>
+              <TabsTrigger value="experience" className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                <span className="hidden md:inline">Kinh nghiệm</span>
+              </TabsTrigger>
+              <TabsTrigger value="education" className="flex items-center gap-2">
+                <GraduationCap className="w-4 h-4" />
+                <span className="hidden md:inline">Học vấn</span>
+              </TabsTrigger>
+              <TabsTrigger value="portfolio" className="flex items-center gap-2">
+                <FolderKanban className="w-4 h-4" />
+                <span className="hidden md:inline">Portfolio</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                <span className="hidden md:inline">Bảo mật</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="profile">
+              <Profile />
+            </TabsContent>
+
+            <TabsContent value="experience">
+              <Experience />
+            </TabsContent>
+
+            <TabsContent value="education">
+              <Education />
+            </TabsContent>
+
+            <TabsContent value="portfolio">
+              <Portfolio />
+            </TabsContent>
+
+            <TabsContent value="security">
+              <Security />
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
