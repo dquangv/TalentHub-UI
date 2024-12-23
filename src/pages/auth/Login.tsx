@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Mail, Lock, Github, Chrome, Facebook } from 'lucide-react';
+import { Mail, Lock, Chrome, Facebook } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
