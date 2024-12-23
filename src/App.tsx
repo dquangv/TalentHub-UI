@@ -9,6 +9,10 @@ import NotFound from '@/pages/NotFound';
 import ScrollToTop from './components/layout/ScrollToTop';
 import Freelancers from './pages/Freelancers';
 
+import Jobs from '@/pages/Jobs';
+import Login from '@/pages/auth/Login';
+import Register from '@/pages/auth/Register';
+
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
@@ -17,11 +21,14 @@ function App() {
           <Navbar />
           <main>
             <Routes>
-              <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home />} />
+              <Route path="/freelancers" element={<Freelancers />} />
+              <Route path="/jobs" element={<Jobs />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/freelancers" element={<Freelancers />} />
-              <Route path="*" element={<div style={{width: '777px', margin: '0 auto'}}><NotFound /></div>} />
+              <Route path="/login" element={<Login />} /> 
+              <Route path="/register" element={<Register />} />
+              <Route path="*" element={<div style={{width: '50%', margin: '0 auto'}}><NotFound /></div>} />
             </Routes>
           </main>
           <ScrollToTop />
