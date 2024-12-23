@@ -35,7 +35,7 @@ const Navbar = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
-          <span className="text-primary-700">Hồ sơ</span>
+          <span className="text-primary-700"><Link to={`/settingsfreelancer`}>Hồ sơ</Link></span>
         </DropdownMenuItem>
         <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
           <span className="text-primary-700">Cài đặt</span>
