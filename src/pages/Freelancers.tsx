@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Star, MapPin, Search, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Freelancers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +81,7 @@ const Freelancers = () => {
                         {freelancer.hourlyRate}/giờ
                       </span>
                       <Button variant="outline" size="sm">
-                        Xem hồ sơ
+                      <Link to={`/freelancers/${freelancer.id}`}>Xem hồ sơ</Link>
                       </Button>
                     </div>
                   </div>
