@@ -5,13 +5,7 @@
             "destination": "/"
         }
     ],
-    "builds": [
-        {
-            "src": "package.json",
-            "use": "@vercel/node@18"
-        }
-    ],
-    "env": {
-        "NODE_VERSION": "18"
-    }
+    "buildCommand": "npm run build",
+    "framework": "vite",
+    "version": 2
 }
