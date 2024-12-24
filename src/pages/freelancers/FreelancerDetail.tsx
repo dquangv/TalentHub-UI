@@ -12,10 +12,8 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import {
   MapPin,
   Star,
-  Clock,
   Briefcase,
   GraduationCap,
-  Award,
   MessageCircle,
 } from 'lucide-react';
 
