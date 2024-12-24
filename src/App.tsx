@@ -8,6 +8,7 @@ import Contact from '@/pages/Contact';
 import NotFound from '@/pages/NotFound';
 import ScrollToTop from './components/layout/ScrollToTop';
 import Freelancers from './pages/Freelancers';
+import FreelancerDetail from './pages/freelancers/FreelancerDetail';
 import Jobs from './pages/Jobs';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -23,6 +24,7 @@ function App() {
             <Routes>
             <Route path="/" element={<Home />} />
               <Route path="/freelancers" element={<Freelancers />} />
+              <Route path="/freelancers/:id" element={<FreelancerDetail />} />
               <Route path="/jobs" element={<Jobs />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
