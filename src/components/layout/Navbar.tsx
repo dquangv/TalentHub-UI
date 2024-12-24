@@ -54,7 +54,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 group">
-            <BriefcaseIcon className="h-6 w-6 text-primary-600 group-hover:text-primary-700 transition-colors" />
+            <img width={40} src="/favicon.png" alt="Favicon" className="favicon" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               TalentHub
             </span>
