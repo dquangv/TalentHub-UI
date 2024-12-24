@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 const FreelancerDetail = () => {
-  const { id } = useParams();
+  // const { id } = useParams();
   // In a real app, fetch freelancer details using the id
   const freelancer = {
     name: 'Nguyễn Văn A',
