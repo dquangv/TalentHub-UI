@@ -42,7 +42,7 @@ const NotificationDropdown = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="default" size="icon" className="relative">
-          <Bell className="absolute h-[1.2rem] w-[1.2rem] scale-0 transition-all dark:rotate-0 scale-100 dark:scale-0 text-white" />
+          <Bell className="absolute h-[1.2rem] w-[1.2rem] transition-all dark:rotate-0 scale-100 dark:scale-0 text-white" />
 
           <Bell className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           {unreadCount > 0 && (
@@ -62,9 +62,8 @@ const NotificationDropdown = () => {
             {notifications.map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className={`flex flex-col items-start p-3 ${
-                  !notification.read ? 'bg-primary/5' : ''
-                }`}
+                className={`flex flex-col items-start p-3 ${!notification.read ? 'bg-primary/5' : ''
+                  }`}
               >
                 <p className="text-sm font-medium">{notification.title}</p>
                 <span className="text-xs text-muted-foreground">
