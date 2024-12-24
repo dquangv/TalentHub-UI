@@ -22,7 +22,7 @@ function App() {
           <Navbar />
           <main>
             <Routes>
-            <Route path="/" element={<Home />} />
+              <Route path="/" element={<Home />} />
               <Route path="/freelancers" element={<Freelancers />} />
               <Route path="/freelancers/:id" element={<FreelancerDetail />} />
               <Route path="/jobs" element={<Jobs />} />
@@ -32,7 +32,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/settingsfreelancer" element={<Settings />} />
 
-              <Route path="*" element={<div style={{width: '50%', margin: '0 auto'}}><NotFound /></div>} />
+              <Route path="*" element={<div style={{ width: '50%', margin: '0 auto' }}><NotFound /></div>} />
             </Routes>
           </main>
           <ScrollToTop />
