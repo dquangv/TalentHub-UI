@@ -36,19 +36,19 @@ export function LanguageToggle() {
                     onClick={() => setLanguage('ko')}
                     className={language === 'ko' ? 'bg-primary-50' : ''}
                 >
-                    Korean
+                    한국인
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => setLanguage('ja')}
                     className={language === 'ja' ? 'bg-primary-50' : ''}
                 >
-                    Japanese
+                    日本語
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={() => setLanguage('zhcn')}
                     className={language === 'zhcn' ? 'bg-primary-50' : ''}
                 >
-                    Chinese
+                    中国人
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
