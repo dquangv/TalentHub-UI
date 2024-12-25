@@ -1,4 +1,6 @@
-export const vi = {
+import { TranslationType } from './types';
+
+export const vi: TranslationType = {
   "hello": "xin chào",
   "bye": "tạm biệt",
   "freelancers": "Freelancers",
@@ -22,5 +24,20 @@ export const vi = {
   "Startlookingforafreelancertoday": "Bắt đầu tìm kiếm freelancer ngay hôm nay",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "Đăng ký miễn phí và bắt đầu kết nối với cộng đồng freelancer tài năng",
   "Registernow": "Đăng ký ngay",
-  "empty": "empty"
+  "empty1": "empty1",
+  "empty2": "empty2",
+  "empty3": "empty3",
+  "empty4": "empty4",
+  "empty5": "empty5",
+  "empty6": "empty6",
+  "empty7": "empty7",
+  "empty8": "empty8",
+  "empty9": "empty9",
+  "empty10": "empty10",
+  "empty11": "empty11",
+  "empty12": "empty12",
+  "empty13": "empty13",
+  "empty14": "empty14",
+  "empty15": "empty15",
+  "empty16": "empty16"
 };

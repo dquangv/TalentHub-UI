@@ -1,4 +1,6 @@
-export const en = {
+import { TranslationType } from './types';
+
+export const en: TranslationType = {
   "hello": "hello",
   "bye": "goodbye",
   "freelancers": "Freelancers",
@@ -11,7 +13,7 @@ export const en = {
   "logout": "Logout",
   "home": "Home",
   "connetWith": "Connect with talented Freelancers in Vietnam",
-  "platform": "The leading freelance platform connects businesses with professional freelancers",
+  "platform": "The leading freelance platform connecting businesses with professional freelancers",
   "findFreelancer": "Find Freelancers",
   "postJob": "Post jobs for free",
   "talents": "Talented freelancer",
@@ -22,5 +24,20 @@ export const en = {
   "Startlookingforafreelancertoday": "Start looking for a freelancer today",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "Sign up for free and start connecting with a talented freelancer community",
   "Registernow": "Register now",
-  "empty": "empty"
+  "empty1": "empty1",
+  "empty2": "empty2",
+  "empty3": "empty3",
+  "empty4": "empty4",
+  "empty5": "empty5",
+  "empty6": "empty6",
+  "empty7": "empty7",
+  "empty8": "empty8",
+  "empty9": "empty9",
+  "empty10": "empty10",
+  "empty11": "empty11",
+  "empty12": "empty12",
+  "empty13": "empty13",
+  "empty14": "empty14",
+  "empty15": "empty15",
+  "empty16": "empty16"
 };

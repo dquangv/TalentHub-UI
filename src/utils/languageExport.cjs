@@ -21,7 +21,6 @@ async function getAuthClient() {
     });
     return auth.getClient();
 }
-
 async function validateRow(row, rowIndex) {
     const [key, vi, en] = row;
     if (!key || !vi || !en) {
@@ -30,7 +29,6 @@ async function validateRow(row, rowIndex) {
     }
     return true;
 }
-
 async function exportLanguageFiles() {
     try {
         const authClient = await getAuthClient();
@@ -56,6 +54,12 @@ async function exportLanguageFiles() {
             zhcn: {},
         };
 
+        // Generate type interface based on keys
+        const keys = data.map(row => row[0]).filter(Boolean);
+        const typeInterface = `export interface TranslationType {
+${keys.map(key => `  "${key}": string;`).join('\n')}
+}\n\n`;
+
         // Process each row
         data.forEach((row, index) => {
             if (validateRow(row, index)) {
@@ -72,9 +76,16 @@ async function exportLanguageFiles() {
         if (!fs.existsSync(localesDir)) {
             fs.mkdirSync(localesDir, { recursive: true });
         }
+
+        // Create types.ts file
+        const typesPath = path.join(localesDir, 'types.ts');
+        fs.writeFileSync(typesPath, typeInterface);
+        console.log('✅ Translation types file created successfully!');
+
+        // Create language files
         for (const lang of Object.keys(languages)) {
-            const content = `export const ${lang} = ${JSON.stringify(languages[lang], null, 2)};`;
-            const filePath = path.join(localesDir, `${lang}.js`);
+            const content = `import { TranslationType } from './types';\n\nexport const ${lang}: TranslationType = ${JSON.stringify(languages[lang], null, 2)};\n`;
+            const filePath = path.join(localesDir, `${lang}.ts`);
             fs.writeFileSync(filePath, content);
             console.log(`✅ ${lang.toUpperCase()} language file exported successfully!`);
         }

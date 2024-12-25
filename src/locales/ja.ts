@@ -1,4 +1,6 @@
-export const ja = {
+import { TranslationType } from './types';
+
+export const ja: TranslationType = {
   "hello": "こんにちは",
   "bye": "さようなら",
   "freelancers": "フリーランサー",
@@ -11,7 +13,7 @@ export const ja = {
   "logout": "ログアウト",
   "home": "家",
   "connetWith": "ベトナムの才能あるフリーランサーとつながる",
-  "platform": "業界をリードするフリーランス プラットフォームが企業とプロのフリーランサーを結び付けます",
+  "platform": "ビジネスとプロのフリーランサーを結び付ける主要なフリーランス プラットフォーム",
   "findFreelancer": "フリーランサーを探す",
   "postJob": "無料で求人を掲載",
   "talents": "才能あるフリーランサー",
@@ -22,5 +24,20 @@ export const ja = {
   "Startlookingforafreelancertoday": "今すぐフリーランサーを探し始めましょう",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "無料でサインアップして、才能あるフリーランサーのコミュニティとつながり始めましょう",
   "Registernow": "今すぐ登録してください",
-  "empty": "空の"
+  "empty1": "空1",
+  "empty2": "空2",
+  "empty3": "空3",
+  "empty4": "空の4",
+  "empty5": "空の5",
+  "empty6": "空6",
+  "empty7": "空7",
+  "empty8": "空8",
+  "empty9": "空9",
+  "empty10": "空10",
+  "empty11": "空11",
+  "empty12": "空12",
+  "empty13": "空13",
+  "empty14": "空の14",
+  "empty15": "空15",
+  "empty16": "空16"
 };

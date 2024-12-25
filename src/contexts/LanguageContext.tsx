@@ -1,40 +1,40 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { TranslationType } from '../locales/types';
 
-type Language = 'vi' | 'en';
-
-interface LanguageContextType {
-    language: Language;
-    setLanguage: (lang: Language) => void;
-    t: (key: string) => string;
-}
-
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-// Import các file ngôn ngữ
+// Import language files
 import { vi } from '../locales/vi';
 import { en } from '../locales/en';
 import { ko } from '../locales/ko';
 import { ja } from '../locales/ja';
 import { zhcn } from '../locales/zhcn';
 
-const translations = {
-    vi: vi,
-    en: en,
-    ko: ko,
-    ja: ja,
-    zhcn: zhcn,
+type Language = 'vi' | 'en' | 'ko' | 'ja' | 'zhcn';
+
+interface LanguageContextType {
+    language: Language;
+    setLanguage: (lang: Language) => void;
+    t: (key: keyof TranslationType) => string;
+}
+
+const translations: Record<Language, TranslationType> = {
+    vi,
+    en,
+    ko,
+    ja,
+    zhcn,
 };
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
     const [language, setLanguage] = useState<Language>('vi');
 
-    const t = (key: string): string => {
+    const t = (key: keyof TranslationType): string => {
         return translations[language][key] || key;
     };
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t }
-        }>
+        <LanguageContext.Provider value={{ language, setLanguage, t }}>
             {children}
         </LanguageContext.Provider>
     );

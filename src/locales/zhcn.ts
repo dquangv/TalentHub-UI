@@ -1,4 +1,6 @@
-export const zhcn = {
+import { TranslationType } from './types';
+
+export const zhcn: TranslationType = {
   "hello": "こんにちは",
   "bye": "さようなら",
   "freelancers": "福里兰萨",
@@ -11,7 +13,7 @@ export const zhcn = {
   "logout": "罗古阿托",
   "home": "家",
   "connetWith": "ベトナムの才能あるFuriーransaとつながる",
-  "platform": "流行をuriドするfuriーransu プラttofoォームが企业とプロのfuriーransao结び付けます",
+  "platform": "ビジネsuとプロのFuriーランを结び付ける主要なfuriーransu プラttofoーmu",
   "findFreelancer": "福里兰萨を探す",
   "postJob": "无料で求人を掲载",
   "talents": "あるFuriーランサー",
@@ -22,5 +24,20 @@ export const zhcn = {
   "Startlookingforafreelancertoday": "今すぐFuriーランサーを探し始めましょう",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "无料でサイププて、制作あるFuriーransaのコミュuniティとつながり始めましょう",
   "Registernow": "今すぐ登录してください",
-  "empty": "空の"
+  "empty1": "空1",
+  "empty2": "空2",
+  "empty3": "空3",
+  "empty4": "空の4",
+  "empty5": "空の5",
+  "empty6": "空6",
+  "empty7": "空7",
+  "empty8": "空8",
+  "empty9": "空9",
+  "empty10": "空10",
+  "empty11": "空11",
+  "empty12": "空12",
+  "empty13": "空13",
+  "empty14": "空の14",
+  "empty15": "空15",
+  "empty16": "空16"
 };
