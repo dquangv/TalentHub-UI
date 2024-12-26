@@ -22,6 +22,7 @@ export interface TranslationType {
   "Startlookingforafreelancertoday": string;
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": string;
   "Registernow": string;
+  "pricing": string;
   "empty1": string;
   "empty2": string;
   "empty3": string;

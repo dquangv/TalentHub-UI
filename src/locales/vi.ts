@@ -24,6 +24,7 @@ export const vi: TranslationType = {
   "Startlookingforafreelancertoday": "Bắt đầu tìm kiếm freelancer ngay hôm nay",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "Đăng ký miễn phí và bắt đầu kết nối với cộng đồng freelancer tài năng",
   "Registernow": "Đăng ký ngay",
+  "pricing": "Bản giá",
   "empty1": "empty1",
   "empty2": "empty2",
   "empty3": "empty3",
