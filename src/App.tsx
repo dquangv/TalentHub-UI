@@ -13,6 +13,7 @@ import Jobs from './pages/Jobs';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Settings from './pages/freelancer/settings/Settings';
+import Pricing from './pages/Pricing';
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/settingsfreelancer" element={<Settings />} />
-
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="*" element={<div style={{ width: '50%', margin: '0 auto' }}><NotFound /></div>} />
             </Routes>
           </main>
