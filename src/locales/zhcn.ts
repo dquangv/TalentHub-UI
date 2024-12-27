@@ -13,7 +13,7 @@ export const zhcn: TranslationType = {
   "logout": "罗古阿托",
   "home": "家",
   "connetWith": "ベトナムの才能あるFuriーransaとつながる",
-  "platform": "ビジネsuとプロのFuriーランを结び付ける主要なfuriーransu プラttofoーmu",
+  "platform": "流行をuriドするfuriーransu プラttofoォームが企业とプロのfuriーransaoを结び付けます",
   "findFreelancer": "福里兰萨を探す",
   "postJob": "无料で求人を掲载",
   "talents": "あるFuriーランサー",
