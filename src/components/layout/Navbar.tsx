@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, BriefcaseIcon, LogOut } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import NotificationDropdown from './NotificationDropdown';
@@ -11,8 +11,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LanguageToggle } from '@/components/language-toggle';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Navbar = () => {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
@@ -36,14 +39,14 @@ const Navbar = () => {
       <DropdownMenuContent align="end" className="w-56">
         <Link to={`/settingsfreelancer`}>
           <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
-            <span className="text-primary-700">Cài đặt</span>
+            <span className="text-primary-700"> {t('settings')}</span>
           </DropdownMenuItem></Link>
         <DropdownMenuItem
           onClick={handleLogout}
           className="hover:bg-destructive-50 focus:bg-destructive-50"
         >
           <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
-          <span className="text-destructive-500">Đăng xuất</span>
+          <span className="text-destructive-500"> {t('logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -54,7 +57,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center space-x-2 group">
-            <BriefcaseIcon className="h-6 w-6 text-primary-600 group-hover:text-primary-700 transition-colors" />
+            <img width={40} src="/favicon.png" alt="Favicon" className="favicon" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               TalentHub
             </span>
@@ -63,24 +66,25 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              Trang chủ
+              {t('home')}
             </Link>
             <Link to="/freelancers" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              Freelancers
+              {t('freelancers')}
             </Link>
             <Link to="/jobs" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              Việc làm
+              {t('jobs')}
             </Link>
             <Link to="/about" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              Về chúng tôi
+              {t('about')}
             </Link>
             <Link to="/contact" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              Liên hệ
+              {t('contact')}
             </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             <ModeToggle />
+            <LanguageToggle />
             {isLoggedIn ? (
               <>
                 <NotificationDropdown />
@@ -93,13 +97,13 @@ const Navbar = () => {
                   asChild
                   className="border-primary-200 text-primary-700 hover:bg-primary-50"
                 >
-                  <Link to="/login">Đăng nhập</Link>
+                  <Link to="/login">{t('login')}</Link>
                 </Button>
                 <Button
                   asChild
                   className="bg-primary-600 hover:bg-primary-700 text-white"
                 >
-                  <Link to="/register">Đăng ký</Link>
+                  <Link to="/register">{t('register')}</Link>
                 </Button>
               </>
             )}
@@ -127,35 +131,35 @@ const Navbar = () => {
                 className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                Trang chủ
+                {t('home')}
               </Link>
               <Link
                 to="/freelancers"
                 className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                Freelancers
+                {t('freelancers')}
               </Link>
               <Link
                 to="/jobs"
                 className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                Việc làm
+                {t('jobs')}
               </Link>
               <Link
                 to="/about"
                 className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                Về chúng tôi
+                {t('about')}
               </Link>
               <Link
                 to="/contact"
                 className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
                 onClick={() => setIsOpen(false)}
               >
-                Liên hệ
+                {t('contact')}
               </Link>
               {isLoggedIn ? (
                 <div className="pt-4 space-y-2 px-4">
@@ -165,7 +169,7 @@ const Navbar = () => {
                     onClick={handleLogout}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Đăng xuất
+                    {t('logout')}
                   </Button>
                 </div>
               ) : (
@@ -176,14 +180,14 @@ const Navbar = () => {
                     asChild
                     onClick={() => setIsOpen(false)}
                   >
-                    <Link to="/login">Đăng nhập</Link>
+                    <Link to="/login">  {t('login')}</Link>
                   </Button>
                   <Button
                     className="w-full bg-primary-600 hover:bg-primary-700 text-white"
                     asChild
                     onClick={() => setIsOpen(false)}
                   >
-                    <Link to="/register">Đăng ký</Link>
+                    <Link to="/register">  {t('register')}</Link>
                   </Button>
                 </div>
               )}
