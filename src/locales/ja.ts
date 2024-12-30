@@ -13,7 +13,7 @@ export const ja: TranslationType = {
   "logout": "ログアウト",
   "home": "家",
   "connetWith": "ベトナムの才能あるフリーランサーとつながる",
-  "platform": "ビジネスとプロのフリーランサーを結び付ける主要なフリーランス プラットフォーム",
+  "platform": "業界をリードするフリーランス プラットフォームが企業とプロのフリーランサーを結び付けます",
   "findFreelancer": "フリーランサーを探す",
   "postJob": "無料で求人を掲載",
   "talents": "才能あるフリーランサー",
