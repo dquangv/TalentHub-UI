@@ -13,7 +13,7 @@ export const en: TranslationType = {
   "logout": "Logout",
   "home": "Home",
   "connetWith": "Connect with talented Freelancers in Vietnam",
-  "platform": "The leading freelance platform connecting businesses with professional freelancers",
+  "platform": "The leading freelance platform connects businesses with professional freelancers",
   "findFreelancer": "Find Freelancers",
   "postJob": "Post jobs for free",
   "talents": "Talented freelancer",

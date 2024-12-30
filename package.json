@@ -7,7 +7,7 @@
     "node": "18.x"
   },
   "scripts": {
-    "predev": "node scripts/exportLanguages.cjs",
+    "lang": "node scripts/exportLanguages.cjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
