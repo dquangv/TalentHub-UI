@@ -5,8 +5,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Contact = () => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,7 +18,6 @@ const Contact = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
     console.log(formData);
   };
 
@@ -26,12 +27,11 @@ const Contact = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <FadeInWhenVisible>
-            <h1 className="text-4xl font-bold mb-6">Liên hệ với chúng tôi</h1>
+            <h1 className="text-4xl font-bold mb-6">{t('Contactus')}</h1>
           </FadeInWhenVisible>
           <FadeInWhenVisible delay={0.2}>
             <p className="text-xl text-muted-foreground">
-              Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn. Hãy liên hệ với chúng tôi
-              nếu bạn có bất kỳ câu hỏi hoặc đề xuất nào.
+              {t('WearealwaysreadytolistenandsupportyouPleasecontactusIfyouhaveanyquestionsorsuggestions')}
             </p>
           </FadeInWhenVisible>
         </div>
@@ -40,15 +40,15 @@ const Contact = () => {
           {/* Contact Information */}
           <div className="space-y-8">
             <FadeInWhenVisible>
-              <h2 className="text-2xl font-semibold mb-6">Thông tin liên hệ</h2>
+              <h2 className="text-2xl font-semibold mb-6">{t('Contactinformation')}</h2>
             </FadeInWhenVisible>
-            
+
             <FadeInWhenVisible delay={0.1}>
               <Card className="p-6">
                 <div className="flex items-start space-x-4">
                   <Mail className="w-6 h-6 text-primary" />
                   <div>
-                    <h3 className="font-semibold mb-2">Email</h3>
+                    <h3 className="font-semibold mb-2">{t('Email')}</h3>
                     <p className="text-muted-foreground">support@talenthub.com</p>
                   </div>
                 </div>
@@ -60,7 +60,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-4">
                   <Phone className="w-6 h-6 text-primary" />
                   <div>
-                    <h3 className="font-semibold mb-2">Điện thoại</h3>
+                    <h3 className="font-semibold mb-2">{t('Phone')}</h3>
                     <p className="text-muted-foreground">1900 1234</p>
                   </div>
                 </div>
@@ -72,7 +72,7 @@ const Contact = () => {
                 <div className="flex items-start space-x-4">
                   <MapPin className="w-6 h-6 text-primary" />
                   <div>
-                    <h3 className="font-semibold mb-2">Địa chỉ</h3>
+                    <h3 className="font-semibold mb-2">{t('Address')}</h3>
                     <p className="text-muted-foreground">
                       123 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh
                     </p>
@@ -85,7 +85,7 @@ const Contact = () => {
           {/* Contact Form */}
           <FadeInWhenVisible delay={0.4}>
             <Card className="p-8">
-              <h2 className="text-2xl font-semibold mb-6">Gửi tin nhắn</h2>
+              <h2 className="text-2xl font-semibold mb-6">{t('Sendamessage')}</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <Input

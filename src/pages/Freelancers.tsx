@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Star, MapPin, Search, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Freelancers = () => {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
@@ -17,7 +19,7 @@ const Freelancers = () => {
         <div className="mb-12">
           <FadeInWhenVisible>
             <h1 className="text-3xl font-bold text-center mb-8">
-              Tìm kiếm Freelancer
+              {t('SearchFreelancer')}
             </h1>
           </FadeInWhenVisible>
           <div className="max-w-2xl mx-auto">
@@ -33,7 +35,7 @@ const Freelancers = () => {
                 </div>
                 <Button>
                   <Search className="w-4 h-4 mr-2" />
-                  Tìm kiếm
+                  {t('Search')}
                 </Button>
                 <Button variant="outline">
                   <Filter className="w-4 h-4" />
@@ -81,7 +83,7 @@ const Freelancers = () => {
                         {freelancer.hourlyRate}/giờ
                       </span>
                       <Button variant="outline" size="sm">
-                      <Link to={`/freelancers/${freelancer.id}`}>Xem hồ sơ</Link>
+                        <Link to={`/freelancers/${freelancer.id}`}>{t('Viewprofile')}</Link>
                       </Button>
                     </div>
                   </div>
@@ -94,7 +96,7 @@ const Freelancers = () => {
         {/* Load More Button */}
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
-            Xem thêm
+            {t('Seemore')}
           </Button>
         </div>
       </div>

@@ -12,10 +12,8 @@ import Portfolio from './Portfolio';
 import Security from './Security';
 import { User, Briefcase, GraduationCap, FolderKanban, Shield } from 'lucide-react';
 import SettingsTour from './SettingsTour';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const Settings = () => {
-  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('profile');
   const [openTour, setOpenTour] = useState(true);
 

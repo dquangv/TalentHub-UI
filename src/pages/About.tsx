@@ -1,20 +1,43 @@
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Card } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Users, Shield, Award, Heart } from 'lucide-react';
 
 const About = () => {
+  const { t } = useLanguage();
+  const values = [
+    {
+      title: t('Quality'),
+      description: t('Committedtoprovidingqualityserviceandensuringsatisfaction'),
+      icon: <Award className="w-6 h-6 text-primary" />,
+    },
+    {
+      title: t('Trust'),
+      description: t('Buildatrustworthyandtransparentworkingenvironment'),
+      icon: <Shield className="w-6 h-6 text-primary" />,
+    },
+    {
+      title: t('Community'),
+      description: t('Createaprofessionalanddynamicfreelancercommunity'),
+      icon: <Users className="w-6 h-6 text-primary" />,
+    },
+    {
+      title: t('Conscientious'),
+      description: t('Alwayslistenandsupportcustomerswholeheartedly'),
+      icon: <Heart className="w-6 h-6 text-primary" />,
+    },
+  ];
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <FadeInWhenVisible>
-            <h1 className="text-4xl font-bold mb-6">Về TalentHub</h1>
+            <h1 className="text-4xl font-bold mb-6">{t('AboutTalentHub')}</h1>
           </FadeInWhenVisible>
           <FadeInWhenVisible delay={0.2}>
             <p className="text-xl text-muted-foreground">
-              Chúng tôi là nền tảng kết nối freelancer và doanh nghiệp hàng đầu tại Việt Nam,
-              mang đến cơ hội việc làm và phát triển sự nghiệp cho cộng đồng freelancer.
+              {t('WearetheleadingfreelancerandbusinessconnectionplatforminVietnambringsemploymentandcareerdevelopmentopportunitiestothefreelancercommunity')}
             </p>
           </FadeInWhenVisible>
         </div>
@@ -37,14 +60,11 @@ const About = () => {
         {/* Mission Section */}
         <div className="max-w-3xl mx-auto text-center mb-16">
           <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold mb-6">Sứ mệnh của chúng tôi</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('Ourmission')}</h2>
           </FadeInWhenVisible>
           <FadeInWhenVisible delay={0.2}>
             <p className="text-lg text-muted-foreground">
-              Chúng tôi tin rằng mọi người đều có quyền làm việc một cách linh hoạt và độc lập.
-              Sứ mệnh của chúng tôi là tạo ra một môi trường làm việc công bằng và hiệu quả,
-              nơi các freelancer có thể phát triển sự nghiệp và doanh nghiệp tìm được đối tác
-              phù hợp cho các dự án của họ.
+              {t('WebelievethateveryonehastherighttoworkflexiblyandindependentlyOurmissionistocreateafairandeffectiveworkingenvironmentwherefreelancerscandeveloptheircareersandbusinessesfindpartnerssuitablefortheirprojects')}
             </p>
           </FadeInWhenVisible>
         </div>
@@ -52,7 +72,7 @@ const About = () => {
         {/* Team Section */}
         <div className="text-center mb-16">
           <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold mb-12">Đội ngũ của chúng tôi</h2>
+            <h2 className="text-3xl font-bold mb-12">{t('Ourteam')}</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {team.map((member, index) => (
@@ -76,28 +96,7 @@ const About = () => {
   );
 };
 
-const values = [
-  {
-    title: 'Chất lượng',
-    description: 'Cam kết mang đến dịch vụ chất lượng và đảm bảo sự hài lòng',
-    icon: <Award className="w-6 h-6 text-primary" />,
-  },
-  {
-    title: 'Tin cậy',
-    description: 'Xây dựng môi trường làm việc đáng tin cậy và minh bạch',
-    icon: <Shield className="w-6 h-6 text-primary" />,
-  },
-  {
-    title: 'Cộng đồng',
-    description: 'Tạo dựng cộng đồng freelancer chuyên nghiệp và năng động',
-    icon: <Users className="w-6 h-6 text-primary" />,
-  },
-  {
-    title: 'Tận tâm',
-    description: 'Luôn lắng nghe và hỗ trợ khách hàng một cách tận tâm',
-    icon: <Heart className="w-6 h-6 text-primary" />,
-  },
-];
+
 
 const team = [
   {

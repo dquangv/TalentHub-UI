@@ -1,7 +1,6 @@
 import React from 'react';
 import { Tour } from 'antd';
 import type { TourProps } from 'antd';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SettingsTourProps {
     refs: {
@@ -18,7 +17,6 @@ interface SettingsTourProps {
 }
 
 const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
-    const { t } = useLanguage();
     const getTarget = (ref: React.RefObject<HTMLElement>) => {
         return () => ref.current as HTMLElement;
     };

@@ -27,14 +27,27 @@ const translations: Record<Language, TranslationType> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-    const [language, setLanguage] = useState<Language>('vi');
+    const [language, setLanguage] = useState<Language>(() => {
+        if (typeof window !== 'undefined') {
+            const savedLanguage = localStorage.getItem('language') as Language;
+            return savedLanguage || 'vi';
+        }
+        return 'vi';
+    });
+
+    const handleSetLanguage = (newLanguage: Language) => {
+        setLanguage(newLanguage);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('language', newLanguage);
+        }
+    };
 
     const t = (key: keyof TranslationType): string => {
         return translations[language][key] || key;
     };
 
     return (
-        <LanguageContext.Provider value={{ language, setLanguage, t }}>
+        <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
             {children}
         </LanguageContext.Provider>
     );
