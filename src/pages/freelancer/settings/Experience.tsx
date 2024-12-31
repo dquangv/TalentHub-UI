@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Plus, Briefcase, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Experience = () => {
+  const { t } = useLanguage();
   const [experiences, setExperiences] = useState([
     {
       id: 1,
@@ -61,7 +63,7 @@ const Experience = () => {
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <Briefcase className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold">Kinh nghiệm làm việc</h3>
+                <h3 className="text-lg font-semibold">{t('Workexperience')}</h3>
               </div>
               <Button
                 variant="ghost"
@@ -75,7 +77,7 @@ const Experience = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Công ty</label>
+                <label className="text-sm font-medium">{t('Company')}</label>
                 <Input
                   value={experience.company}
                   onChange={(e) =>
@@ -86,7 +88,7 @@ const Experience = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Vị trí</label>
+                <label className="text-sm font-medium">{t('Position')}</label>
                 <Input
                   value={experience.position}
                   onChange={(e) =>
@@ -97,7 +99,7 @@ const Experience = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ngày bắt đầu</label>
+                <label className="text-sm font-medium">{t('Startdate')}</label>
                 <Input
                   type="month"
                   value={experience.startDate}
@@ -108,7 +110,7 @@ const Experience = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Ngày kết thúc</label>
+                <label className="text-sm font-medium">{t('Enddate')}</label>
                 <Input
                   type="month"
                   value={experience.endDate}
@@ -130,13 +132,13 @@ const Experience = () => {
                     htmlFor={`current-${experience.id}`}
                     className="text-sm text-muted-foreground"
                   >
-                    Đang làm việc tại đây
+                    {t('Workinghere')}
                   </label>
                 </div>
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Mô tả công việc</label>
+                <label className="text-sm font-medium">{t('Jobdescription')}</label>
                 <Textarea
                   value={experience.description}
                   onChange={(e) =>
@@ -158,7 +160,7 @@ const Experience = () => {
           onClick={addExperience}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Thêm kinh nghiệm làm việc
+          {t('Moreworkexperience')}
         </Button>
       </FadeInWhenVisible>
     </div>
