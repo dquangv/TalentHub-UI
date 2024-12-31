@@ -12,12 +12,15 @@ import Portfolio from './Portfolio';
 import Security from './Security';
 import { User, Briefcase, GraduationCap, FolderKanban, Shield } from 'lucide-react';
 import SettingsTour from './SettingsTour';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Settings = () => {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('profile');
   const [openTour, setOpenTour] = useState(true);
 
   const refs = {
+    tabsRef1: useRef<HTMLDivElement>(null),
     tabsRef: useRef<HTMLDivElement>(null),
     profileRef: useRef<HTMLButtonElement>(null),
     experienceRef: useRef<HTMLButtonElement>(null),
@@ -29,12 +32,11 @@ const Settings = () => {
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div ref={refs.tabsRef1} className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Cài đặt tài khoản</h1>
-
-          <div ref={refs.tabsRef}>
+          <div >
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-2 md:grid-cols-5 mb-8">
+              <TabsList ref={refs.tabsRef} className="grid grid-cols-2 md:grid-cols-5 mb-8">
                 <TabsTrigger ref={refs.profileRef} value="profile" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   <span className="hidden md:inline">Hồ sơ</span>

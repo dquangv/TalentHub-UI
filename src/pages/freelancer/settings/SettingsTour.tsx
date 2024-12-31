@@ -1,9 +1,11 @@
 import React from 'react';
 import { Tour } from 'antd';
 import type { TourProps } from 'antd';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SettingsTourProps {
     refs: {
+        tabsRef1: React.RefObject<HTMLDivElement>;
         tabsRef: React.RefObject<HTMLDivElement>;
         profileRef: React.RefObject<HTMLButtonElement>;
         experienceRef: React.RefObject<HTMLButtonElement>;
@@ -16,6 +18,7 @@ interface SettingsTourProps {
 }
 
 const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
+    const { t } = useLanguage();
     const getTarget = (ref: React.RefObject<HTMLElement>) => {
         return () => ref.current as HTMLElement;
     };
@@ -24,7 +27,7 @@ const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
         {
             title: 'Chào mừng đến với Cài đặt tài khoản',
             description: 'Hãy cùng tìm hiểu các tính năng chính của trang cài đặt.',
-            target: undefined, // Bước đầu tiên không cần target
+            target: getTarget(refs.tabsRef1),
         },
         {
             title: 'Menu điều hướng',
