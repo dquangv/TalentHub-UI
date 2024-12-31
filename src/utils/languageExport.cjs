@@ -2,6 +2,7 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
+
 async function getAuthClient() {
     const auth = new google.auth.GoogleAuth({
         credentials: {
@@ -21,19 +22,44 @@ async function getAuthClient() {
     });
     return auth.getClient();
 }
+
 async function validateRow(row, rowIndex) {
     const [key, vi, en] = row;
     if (!key || !vi || !en) {
-        console.warn(`⚠️ Warning: Incomplete row at index ${rowIndex + 1}. Skipping...`);
+        console.warn('\n🚨 CẢNH BÁO 🚨');
+        console.warn('┌─────────────────────────────────────────┐');
+        console.warn(`│ Dòng ${rowIndex + 1} thiếu dữ liệu! Bỏ qua...      │`);
+        console.warn('└─────────────────────────────────────────┘');
         return false;
     }
     return true;
 }
+
+
 async function exportLanguageFiles() {
+    // Dynamic imports for ESM modules
+    const [chalk, gradient] = await Promise.all([
+        import('chalk').then(m => m.default),
+        import('gradient-string').then(m => m.default)
+    ]);
+
     try {
+        // Tạo signature với gradient màu
+        const signature = gradient(['#FF512F', '#DD2476', '#FF512F']).multiline([
+            '  ╔═══════════════════════════════════════╗',
+            '  ║           Language Exporter           ║',
+            '  ║          © 2025 Quang Bùi             ║',
+            '  ╚═══════════════════════════════════════╝'
+        ].join('\n'));
+
+        console.log('\n' + signature + '\n');
+
+        console.log(chalk.bgCyan.white.bold(' KHỞI ĐỘNG ') + chalk.cyan(' 🚀 Bắt đầu xuất file ngôn ngữ...\n'));
+
         const authClient = await getAuthClient();
         const sheets = google.sheets({ version: 'v4', auth: authClient });
 
+        console.log(chalk.blue('📊 ') + chalk.blue.bold('Đang kết nối với Google Sheets...'));
         const spreadsheetId = '1N674_gWnhRI1qXfgDooNaO-d2omMfGP6DS8lJmRhNCc';
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -42,9 +68,10 @@ async function exportLanguageFiles() {
 
         const rows = response.data.values;
         if (!rows?.length) {
-            throw new Error('No data found in spreadsheet.');
+            throw new Error('❌ Không tìm thấy dữ liệu trong bảng tính!');
         }
 
+        console.log(chalk.magenta('📝 ') + chalk.magenta.bold('Đang xử lý dữ liệu...'));
         const data = rows.slice(1);
         const languages = {
             vi: {},
@@ -72,27 +99,42 @@ ${keys.map(key => `  "${key}": string;`).join('\n')}
             }
         });
 
+        console.log('\n' + chalk.yellow('📂 ') + chalk.yellow.bold('Đang tạo thư mục locales...'));
         const localesDir = path.resolve(process.cwd(), 'src/locales');
         if (!fs.existsSync(localesDir)) {
             fs.mkdirSync(localesDir, { recursive: true });
         }
 
-        // Create types.ts file
         const typesPath = path.join(localesDir, 'types.ts');
         fs.writeFileSync(typesPath, typeInterface);
-        console.log('✅ Translation types file created successfully!');
+        console.log('\n' + chalk.green('✨ ') + chalk.green.bold('Thành công: ') + chalk.green('Đã tạo file types.ts'));
+        console.log(chalk.green('├─ 📝 Chứa các định nghĩa kiểu dữ liệu'));
+        console.log(chalk.green('└─ 🔍 Hỗ trợ TypeScript type checking\n'));
 
-        // Create language files
+        console.log(chalk.cyan('🌍 ') + chalk.cyan.bold('Đang xuất các file ngôn ngữ:'));
         for (const lang of Object.keys(languages)) {
             const content = `import { TranslationType } from './types';\n\nexport const ${lang}: TranslationType = ${JSON.stringify(languages[lang], null, 2)};\n`;
             const filePath = path.join(localesDir, `${lang}.ts`);
             fs.writeFileSync(filePath, content);
-            console.log(`✅ ${lang.toUpperCase()} language file exported successfully!`);
+            console.log(chalk.cyan(`├─ 🎯 ${lang.toUpperCase()}: `) + chalk.greenBright.bold('Xuất thành công!'));
         }
 
-        console.log('✅ All language files exported successfully!');
+        const rainbow = gradient(['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8F00FF']);
+        console.log('\n' + rainbow('🎉 HOÀN THÀNH 🎉'));
+        console.log(chalk.greenBright('┌────────────────────────────────────────┐'));
+        console.log(chalk.greenBright('│  ✅ ') + chalk.white.bold('Đã xuất toàn bộ file ngôn ngữ  ') + chalk.greenBright('│'));
+        console.log(chalk.greenBright('│  ✅ ') + chalk.white.bold('Kiểm tra thư mục src/locales    ') + chalk.greenBright('│'));
+        console.log(chalk.greenBright('└────────────────────────────────────────┘\n'));
+
+        console.log(gradient(['#00FF00', '#00FFFF']).multiline([
+            '  =*==*==*==⭐️ Powered by Quang Bùi ⭐️==*==*==*=',
+        ].join('\n')) + '\n');
+
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('\n' + chalk.red.bold('❌ LỖI ❌'));
+        console.error(chalk.red('┌─────────────────────────────────────┐'));
+        console.error(chalk.red(`│ ${error.message.padEnd(35)} │`));
+        console.error(chalk.red('└─────────────────────────────────────┘\n'));
         throw error;
     }
 }
