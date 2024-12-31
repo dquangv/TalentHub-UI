@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Search, Filter, Clock, DollarSign, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
-
+  const { t } = useLanguage();
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -17,7 +18,7 @@ const Jobs = () => {
         <div className="mb-12">
           <FadeInWhenVisible>
             <h1 className="text-3xl font-bold text-center mb-8">
-              Tìm kiếm việc làm Freelance
+              {t('SearchforFreelancejobs')}
             </h1>
           </FadeInWhenVisible>
           <div className="max-w-2xl mx-auto">
@@ -25,7 +26,7 @@ const Jobs = () => {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder="Tìm kiếm việc làm..."
+                    placeholder={t('JobSearch...')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full"
@@ -33,7 +34,7 @@ const Jobs = () => {
                 </div>
                 <Button>
                   <Search className="w-4 h-4 mr-2" />
-                  Tìm kiếm
+                  {t('Search')}
                 </Button>
                 <Button variant="outline">
                   <Filter className="w-4 h-4" />
@@ -80,8 +81,8 @@ const Jobs = () => {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button><Link to={`/jobs/${job.id}`}>Xem hồ sơ</Link></Button>
-                    <Button variant="outline">Lưu việc làm</Button>
+                    <Button><Link to={`/jobs/${job.id}`}>{t('Apply')}</Link></Button>
+                    <Button variant="outline">{t('Savejobs')}</Button>
                   </div>
                 </div>
               </Card>
@@ -92,7 +93,7 @@ const Jobs = () => {
         {/* Load More Button */}
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
-            Xem thêm việc làm
+            {t('Seemorejobs')}
           </Button>
         </div>
       </div>

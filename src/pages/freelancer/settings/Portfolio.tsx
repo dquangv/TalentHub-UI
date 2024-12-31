@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Plus, Image as ImageIcon, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Portfolio = () => {
+  const { t } = useLanguage();
   const [projects, setProjects] = useState([
     {
       id: 1,
@@ -56,7 +58,7 @@ const Portfolio = () => {
         <FadeInWhenVisible key={project.id} delay={index * 0.1}>
           <Card className="p-6">
             <div className="flex items-start justify-between mb-6">
-              <h3 className="text-lg font-semibold">Dự án</h3>
+              <h3 className="text-lg font-semibold">{t('Projects')}</h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -69,7 +71,7 @@ const Portfolio = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Tên dự án</label>
+                <label className="text-sm font-medium">{t('Projectname')}</label>
                 <Input
                   value={project.title}
                   onChange={(e) =>
@@ -80,7 +82,7 @@ const Portfolio = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Công nghệ sử dụng</label>
+                <label className="text-sm font-medium">{t('TechnologyStacks')}</label>
                 <Input
                   value={project.technologies.join(', ')}
                   onChange={(e) =>
@@ -95,7 +97,7 @@ const Portfolio = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Hình ảnh</label>
+                <label className="text-sm font-medium">{t('Image')}</label>
                 <div className="relative">
                   <ImageIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -110,7 +112,7 @@ const Portfolio = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Link dự án</label>
+                <label className="text-sm font-medium">{t('Projectlink')}</label>
                 <div className="relative">
                   <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -125,7 +127,7 @@ const Portfolio = () => {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Mô tả dự án</label>
+                <label className="text-sm font-medium">{t('Projectdescription')}</label>
                 <Textarea
                   value={project.description}
                   onChange={(e) =>
@@ -157,7 +159,7 @@ const Portfolio = () => {
           onClick={addProject}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Thêm dự án
+          {t('Addproject')}
         </Button>
       </FadeInWhenVisible>
     </div>

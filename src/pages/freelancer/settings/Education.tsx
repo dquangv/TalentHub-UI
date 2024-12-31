@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Plus, GraduationCap, Trash2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Education = () => {
+  const { t } = useLanguage();
   const [education, setEducation] = useState([
     {
       id: 1,
@@ -58,7 +60,7 @@ const Education = () => {
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <GraduationCap className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold">Học vấn</h3>
+                <h3 className="text-lg font-semibold"> {t('Education')}</h3>
               </div>
               <Button
                 variant="ghost"
@@ -72,7 +74,7 @@ const Education = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Trường học</label>
+                <label className="text-sm font-medium">{t('School')}</label>
                 <Input
                   value={edu.school}
                   onChange={(e) =>
@@ -83,7 +85,7 @@ const Education = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Bằng cấp/Chứng chỉ</label>
+                <label className="text-sm font-medium">{t('Certificate')}</label>
                 <Input
                   value={edu.degree}
                   onChange={(e) =>
@@ -94,7 +96,7 @@ const Education = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Năm bắt đầu</label>
+                <label className="text-sm font-medium">{t('Theyearbegins')}</label>
                 <Input
                   type="number"
                   min="1900"
@@ -107,7 +109,7 @@ const Education = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Năm kết thúc</label>
+                <label className="text-sm font-medium">{t('Theyearends')}</label>
                 <Input
                   type="number"
                   min="1900"
@@ -120,7 +122,7 @@ const Education = () => {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">Mô tả</label>
+                <label className="text-sm font-medium">{t('Describe')}</label>
                 <Textarea
                   value={edu.description}
                   onChange={(e) =>
@@ -142,7 +144,7 @@ const Education = () => {
           onClick={addEducation}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Thêm học vấn
+          {t('Moreeducation')}
         </Button>
       </FadeInWhenVisible>
     </div>
