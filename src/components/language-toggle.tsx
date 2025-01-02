@@ -1,82 +1,56 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "antd";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Languages } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+type Language = 'vi' | 'en' | 'ko' | 'ja' | 'zhcn';
 
 export function LanguageToggle() {
     const { language, setLanguage } = useLanguage();
 
+    const languages = [
+        { code: 'vi', name: 'Tiếng Việt', flag: 'https://flagcdn.com/w40/vn.png' },
+        { code: 'en', name: 'English', flag: 'https://flagcdn.com/w40/us.png' },
+        { code: 'ko', name: '한국인', flag: 'https://flagcdn.com/w40/kr.png' },
+        { code: 'ja', name: '日本語', flag: 'https://flagcdn.com/w40/jp.png' },
+        { code: 'zhcn', name: '中国人', flag: 'https://flagcdn.com/w40/cn.png' }
+    ] as const;
+
+    // Get current language flag
+    const getCurrentFlag = (currentCode: Language) => {
+        return languages.find(lang => lang.code === currentCode)?.flag;
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Languages className=" w-4" />
-                    <span className="sr-only">Toggle language</span>
+                <Button >
+                    <img
+                        src={getCurrentFlag(language)}
+                        alt={`Current language flag`}
+                        className="w-full"
+                    />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                    onClick={() => setLanguage('vi')}
-                    className={language === 'vi' ? 'bg-primary-50' : ''}
-                >
-                    <img
-                        src="https://flagcdn.com/w40/vn.png"
-                        alt="Vietnam Flag"
-                        className="w-4 h-4 mr-2"
-                    />
-                    Tiếng Việt
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => setLanguage('en')}
-                    className={language === 'en' ? 'bg-primary-50' : ''}
-                >
-                    <img
-                        src="https://flagcdn.com/w40/us.png"
-                        alt="English Flag"
-                        className="w-4  mr-2"
-                    />
-                    English
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => setLanguage('ko')}
-                    className={language === 'ko' ? 'bg-primary-50' : ''}
-                >
-                    <img
-                        src="https://flagcdn.com/w40/kr.png"
-                        alt="Korean Flag"
-                        className="w-4  mr-2"
-                    />
-                    한국인
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => setLanguage('ja')}
-                    className={language === 'ja' ? 'bg-primary-50' : ''}
-                >
-                    <img
-                        src="https://flagcdn.com/w40/jp.png"
-                        alt="Japanese Flag"
-                        className="w-4  mr-2"
-                    />
-                    日本語
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                    onClick={() => setLanguage('zhcn')}
-                    className={language === 'zhcn' ? 'bg-primary-50' : ''}
-                >
-                    <img
-                        src="https://flagcdn.com/w40/cn.png"
-                        alt="Chinese Flag"
-                        className="w-4  mr-2"
-                    />
-                    中国人
-                </DropdownMenuItem>
+                {languages.map((lang) => (
+                    <DropdownMenuItem
+                        key={lang.code}
+                        onClick={() => setLanguage(lang.code)}
+                        className={language === lang.code ? 'bg-primary-50' : ''}
+                    >
+                        <img
+                            src={lang.flag}
+                            alt={`${lang.name} Flag`}
+                            className="w-4 h-4 mr-2"
+                        />
+                        {lang.name}
+                    </DropdownMenuItem>
+                ))}
             </DropdownMenuContent>
-
         </DropdownMenu>
     );
 }
