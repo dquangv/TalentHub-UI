@@ -1,7 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -10,7 +10,7 @@
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    
+
     /* Primary - Royal Blue */
     --primary: 224 76% 48%;
     --primary-foreground: 210 40% 98%;
@@ -121,11 +121,16 @@
     --muted-foreground: 215.4 16.3% 46.9%;
 
     /* Chart Colors - Vibrant & Distinct */
-    --chart-1: 224 76% 48%;  /* Royal Blue */
-    --chart-2: 172 66% 50%;  /* Teal */
-    --chart-3: 322 65% 55%;  /* Rose */
-    --chart-4: 36 100% 50%;  /* Amber Gold */
-    --chart-5: 195 85% 41%;  /* Azure */
+    --chart-1: 224 76% 48%;
+    /* Royal Blue */
+    --chart-2: 172 66% 50%;
+    /* Teal */
+    --chart-3: 322 65% 55%;
+    /* Rose */
+    --chart-4: 36 100% 50%;
+    /* Amber Gold */
+    --chart-5: 195 85% 41%;
+    /* Azure */
 
     /* Border, Input & Ring */
     --border: 214.3 31.8% 91.4%;
@@ -142,7 +147,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    
+
     /* Dark mode variants - inverted luminosity */
     --primary: 224 76% 48%;
     --primary-foreground: 210 40% 98%;
@@ -250,6 +255,7 @@
     --ring: 224 76% 48%;
   }
 }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -287,10 +293,12 @@
   background: hsl(var(--primary) / 0.2);
   color: hsl(var(--primary));
 }
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
