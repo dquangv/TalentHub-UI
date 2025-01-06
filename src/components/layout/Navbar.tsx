@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
@@ -14,10 +14,32 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LanguageToggle } from '@/components/language-toggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+const NavLink = ({ to, children, onClick }: any) => {
+  const location = useLocation();
+  const isActive = location.pathname === to;
+
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="relative group"
+    >
+      <span className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? 'text-primary-700' : ''}`}>
+        {children}
+      </span>
+      <span
+        className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full
+          ${isActive ? 'w-full' : 'w-0'}`}
+      />
+    </Link>
+  );
+};
+
 const Navbar = () => {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const location = useLocation();
 
   const handleLogout = () => {
     setIsLoggedIn(false);
@@ -39,18 +61,37 @@ const Navbar = () => {
       <DropdownMenuContent align="end" className="w-56">
         <Link to={`/settingsfreelancer`}>
           <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
-            <span className="text-primary-700"> {t('settings')}</span>
-          </DropdownMenuItem></Link>
+            <span className="text-primary-700">{t('settings')}</span>
+          </DropdownMenuItem>
+        </Link>
         <DropdownMenuItem
           onClick={handleLogout}
           className="hover:bg-destructive-50 focus:bg-destructive-50"
         >
           <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
-          <span className="text-destructive-500"> {t('logout')}</span>
+          <span className="text-destructive-500">{t('logout')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
+
+  const MobileNavLink = ({ to, children }: any) => {
+    const isActive = location.pathname === to;
+
+    return (
+      <Link
+        to={to}
+        className={`relative px-4 py-2 transition-colors duration-200
+          ${isActive
+            ? 'text-primary-700 bg-primary-100/50'
+            : 'text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50'
+          } rounded-md`}
+        onClick={() => setIsOpen(false)}
+      >
+        {children}
+      </Link>
+    );
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-primary-100/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,21 +106,11 @@ const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              {t('home')}
-            </Link>
-            <Link to="/freelancers" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              {t('freelancers')}
-            </Link>
-            <Link to="/jobs" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              {t('jobs')}
-            </Link>
-            <Link to="/about" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              {t('about')}
-            </Link>
-            <Link to="/contact" className="text-primary-600/70 hover:text-primary-700 transition-colors">
-              {t('contact')}
-            </Link>
+            <NavLink to="/">{t('home')}</NavLink>
+            <NavLink to="/freelancers">{t('freelancers')}</NavLink>
+            <NavLink to="/jobs">{t('jobs')}</NavLink>
+            <NavLink to="/about">{t('about')}</NavLink>
+            <NavLink to="/contact">{t('contact')}</NavLink>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -126,41 +157,12 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden py-4 bg-gradient-to-b from-background via-primary-50/50 to-background">
             <div className="flex flex-col space-y-4">
-              <Link
-                to="/"
-                className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
-                onClick={() => setIsOpen(false)}
-              >
-                {t('home')}
-              </Link>
-              <Link
-                to="/freelancers"
-                className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
-                onClick={() => setIsOpen(false)}
-              >
-                {t('freelancers')}
-              </Link>
-              <Link
-                to="/jobs"
-                className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
-                onClick={() => setIsOpen(false)}
-              >
-                {t('jobs')}
-              </Link>
-              <Link
-                to="/about"
-                className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
-                onClick={() => setIsOpen(false)}
-              >
-                {t('about')}
-              </Link>
-              <Link
-                to="/contact"
-                className="text-primary-600/70 hover:text-primary-700 transition-colors px-4 py-2 hover:bg-primary-100/50 rounded-md"
-                onClick={() => setIsOpen(false)}
-              >
-                {t('contact')}
-              </Link>
+              <MobileNavLink to="/">{t('home')}</MobileNavLink>
+              <MobileNavLink to="/freelancers">{t('freelancers')}</MobileNavLink>
+              <MobileNavLink to="/jobs">{t('jobs')}</MobileNavLink>
+              <MobileNavLink to="/about">{t('about')}</MobileNavLink>
+              <MobileNavLink to="/contact">{t('contact')}</MobileNavLink>
+
               {isLoggedIn ? (
                 <div className="pt-4 space-y-2 px-4">
                   <Button
@@ -180,14 +182,14 @@ const Navbar = () => {
                     asChild
                     onClick={() => setIsOpen(false)}
                   >
-                    <Link to="/login">  {t('login')}</Link>
+                    <Link to="/login">{t('login')}</Link>
                   </Button>
                   <Button
                     className="w-full bg-primary-600 hover:bg-primary-700 text-white"
                     asChild
                     onClick={() => setIsOpen(false)}
                   >
-                    <Link to="/register">  {t('register')}</Link>
+                    <Link to="/register">{t('register')}</Link>
                   </Button>
                 </div>
               )}
