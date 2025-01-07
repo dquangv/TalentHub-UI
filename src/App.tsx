@@ -1,49 +1,28 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import Home from '@/pages/Home';
-import About from '@/pages/About';
-import Contact from '@/pages/Contact';
-import NotFound from '@/pages/NotFound';
-import ScrollToTop from './components/layout/ScrollToTop';
-import Freelancers from './pages/Freelancers';
-import FreelancerDetail from './pages/freelancers/FreelancerDetail';
-import Jobs from './pages/Jobs';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Settings from './pages/freelancer/settings/Settings';
-import Pricing from './pages/Pricing';
-import { AntdConfig } from './lib/antd';
+import MainLayout from '@/components/layout/MainLayout';
+import AdminDashboard from '@/pages/admin/AdminDashboard';
+import { mainRoutes } from '@/routes';
 
-function App() {
+function App(): JSX.Element {
   return (
-    <AntdConfig>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <Router>
-          <div className="min-h-screen bg-background">
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/freelancers" element={<Freelancers />} />
-                <Route path="/freelancers/:id" element={<FreelancerDetail />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/settingsfreelancer" element={<Settings />} />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route path="*" element={<div style={{ width: '50%', margin: '0 auto' }}><NotFound /></div>} />
-              </Routes>
-            </main>
-            <ScrollToTop />
-            <Footer />
-          </div>
-        </Router>
-      </ThemeProvider>
-    </AntdConfig>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <Router>
+        <Routes>
+          {/* Admin routes */}
+          <Route path="/admin/*" element={<AdminDashboard />} />
+
+          {/* Main routes with MainLayout */}
+          {mainRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<MainLayout>{route.element}</MainLayout>}
+            />
+          ))}
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 
