@@ -67,7 +67,7 @@ export const employerColumns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: () => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -106,7 +106,7 @@ export const postColumns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: () => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
