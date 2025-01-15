@@ -6,7 +6,7 @@ import { adminRoutes, mainRoutes } from '@/routes';
 import AdminLayout from './components/layout/AdminLayout';
 
 function App(): JSX.Element {
-  const adminRole = true
+  const adminRole = localStorage.getItem('adminRole');
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
