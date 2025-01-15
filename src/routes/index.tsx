@@ -10,7 +10,10 @@ import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
 import Settings from '@/pages/freelancer/settings/Settings';
 import Pricing from '@/pages/Pricing';
-
+import DashboardPage from '@/pages/admin/dashboard';
+import FreelancersPage from '@/pages/admin/freelancers';
+import EmployersPage from '@/pages/admin/employers';
+import PostsPage from '@/pages/admin/posts';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -55,5 +58,26 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '*',
         element: <NotFound />
+    }
+];
+
+
+
+export const adminRoutes: RouteObject[] = [
+    {
+        path: '/',
+        element: <DashboardPage />
+    },
+    {
+        path: '/freelancers',
+        element: <FreelancersPage />
+    },
+    {
+        path: '/employers',
+        element: <EmployersPage />
+    },
+    {
+        path: '/posts',
+        element: <PostsPage />
     }
 ];
