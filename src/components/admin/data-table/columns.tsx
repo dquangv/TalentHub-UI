@@ -28,7 +28,7 @@ export const freelancerColumns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: () => {
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
