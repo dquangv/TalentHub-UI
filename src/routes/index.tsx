@@ -57,7 +57,7 @@ export const mainRoutes: RouteObject[] = [
     },
     {
         path: '*',
-        element: <NotFound />
+        element: <div className='w-1/2 mx-auto'><NotFound /></div>
     }
 ];
 
@@ -79,5 +79,9 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/posts',
         element: <PostsPage />
+    },
+    {
+        path: '*',
+        element: <div className='w-1/2 mx-auto'><NotFound /></div>
     }
 ];
