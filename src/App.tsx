@@ -7,6 +7,7 @@ import AdminLayout from './components/layout/AdminLayout';
 
 function App(): JSX.Element {
   const adminRole = JSON.parse(localStorage.getItem('adminRole') || "false");
+  localStorage.setItem('adminRole', adminRole)
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <Router>
