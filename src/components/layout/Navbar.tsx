@@ -111,6 +111,7 @@ const Navbar = () => {
             <NavLink to="/jobs">{t('jobs')}</NavLink>
             <NavLink to="/about">{t('about')}</NavLink>
             <NavLink to="/contact">{t('contact')}</NavLink>
+            <NavLink to="/pricing">{t('pricing')}</NavLink>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
