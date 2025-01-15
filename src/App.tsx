@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import MainLayout from '@/components/layout/MainLayout';
-import AdminDashboard from '@/pages/admin/AdminDashboard';
+// import AdminDashboard from '@/pages/admin/AdminDashboard';
 import { adminRoutes, mainRoutes } from '@/routes';
 import AdminLayout from './components/layout/AdminLayout';
 
