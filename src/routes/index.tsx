@@ -14,6 +14,7 @@ import DashboardPage from '@/pages/admin/dashboard';
 import FreelancersPage from '@/pages/admin/freelancers';
 import EmployersPage from '@/pages/admin/employers';
 import PostsPage from '@/pages/admin/posts';
+import PostJob from '@/pages/client/PostJob';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -54,6 +55,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/pricing',
         element: <Pricing />
+    },
+    {
+        path: '/client/post-job',
+        element: <PostJob />
     },
     {
         path: '*',
