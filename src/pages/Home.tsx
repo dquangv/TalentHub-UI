@@ -5,6 +5,7 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
+import CustomDialogflowMessenger from '@/components/CustomDialogflowMessenger';
 
 const Home = () => {
   const { t } = useLanguage();
@@ -146,6 +147,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <CustomDialogflowMessenger />
     </div>
   );
 };
