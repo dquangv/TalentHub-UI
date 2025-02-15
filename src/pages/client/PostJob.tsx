@@ -17,8 +17,7 @@ import { Clock, DollarSign } from 'lucide-react';
 // Enums cho các lựa chọn
 enum TypePayment {
     HOURLY = 'HOURLY',
-    FIXED = 'FIXED',
-    MILESTONE = 'MILESTONE'
+    FIXED = 'FIXED'
 }
 
 enum StatusJob {
@@ -163,7 +162,6 @@ const PostJob = () => {
                                         <SelectContent>
                                             <SelectItem value={TypePayment.FIXED}>Trọn gói</SelectItem>
                                             <SelectItem value={TypePayment.HOURLY}>Theo giờ</SelectItem>
-                                            <SelectItem value={TypePayment.MILESTONE}>Theo giai đoạn</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
