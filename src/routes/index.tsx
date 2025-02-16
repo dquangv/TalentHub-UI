@@ -14,6 +14,10 @@ import DashboardPage from '@/pages/admin/dashboard';
 import FreelancersPage from '@/pages/admin/freelancers';
 import EmployersPage from '@/pages/admin/employers';
 import PostsPage from '@/pages/admin/posts';
+import PostJob from '@/pages/client/PostJob';
+import JobDetail from '@/pages/jobs/JobDetail';
+import AppliedJobs from '@/pages/freelancer/AppliedJobs';
+import Applicants from '@/pages/Applicants';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -30,6 +34,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/jobs',
         element: <Jobs />
+    },
+    {
+        path: '/jobs/:id',
+        element: <JobDetail />
     },
     {
         path: '/about',
@@ -54,6 +62,22 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/pricing',
         element: <Pricing />
+    },
+    {
+        path: '/client/post-job',
+        element: <PostJob />
+    },
+    {
+        path: '/client/jobs/:id',
+        element: <JobDetail />
+    },
+    {
+        path: '/client/applied-jobs',
+        element: <AppliedJobs />
+    },
+    {
+        path: '/client/applicants',
+        element: <Applicants />
     },
     {
         path: '*',

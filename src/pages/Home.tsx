@@ -5,13 +5,51 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
-
+import CustomDialogflowMessenger from '@/components/CustomDialogflowMessenger';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 const Home = () => {
   const { t } = useLanguage();
   return (
     <div>
       {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
       <section className="relative py-20 bg-gradient-to-b from-primary-100 via-background to-background">
+        <div className="absolute inset-x-0 bottom-0 w-full h-96">
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            spaceBetween={20}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 4000, disableOnInteraction: false}}
+            className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
+          >
+            <SwiperSlide>
+              <img
+                src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+          </Swiper>
+        </div>
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
@@ -146,6 +184,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <CustomDialogflowMessenger />
     </div>
   );
 };
