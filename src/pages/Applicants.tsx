@@ -249,6 +249,17 @@ const applicants = [
     status: 'rejected',
     rating: 3.5,
   },
+  {
+    id: 5,
+    name: 'Phạm Thị Phan',
+    email: 'phamthid@example.com',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    position: 'Product Manager',
+    department: 'Product',
+    appliedDate: '12/03/2024',
+    status: 'success',
+    rating: 3.5,
+  },
 ];
 
 const getStatusText = (status: string) => {
