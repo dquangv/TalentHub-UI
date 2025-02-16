@@ -6,13 +6,50 @@ import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, V
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import CustomDialogflowMessenger from '@/components/CustomDialogflowMessenger';
-
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 const Home = () => {
   const { t } = useLanguage();
   return (
     <div>
       {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
       <section className="relative py-20 bg-gradient-to-b from-primary-100 via-background to-background">
+        <div className="absolute inset-x-0 bottom-0 w-full h-96">
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            spaceBetween={20}
+            slidesPerView={1}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
+          >
+            <SwiperSlide>
+              <img
+                src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="https://media.istockphoto.com/id/1481370371/vi/anh/ch%C3%A2n-dung-c%E1%BB%A7a-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-tr%E1%BA%BB-g%E1%BB%91c-t%C3%A2y-ban-nha-nhi%E1%BB%87t-t%C3%ACnh-l%C3%A0m-vi%E1%BB%87c-tr%C3%AAn-m%C3%A1y-t%C3%ADnh-trong-m%E1%BB%99t-v%C4%83n.jpg?s=1024x1024&w=is&k=20&c=GuiSAUVYlSrg9sD0jhpX2kbESY3hgc8FlgIZ_prYYP0="
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+            <SwiperSlide>
+              <img
+                src="https://media.istockphoto.com/id/1443876461/vi/anh/nh%C3%A0-thi%E1%BA%BFt-k%E1%BA%BF-ph%E1%BA%A7n-m%E1%BB%81m-n%C3%B3i-chuy%E1%BB%87n-v%E1%BB%9Bi-kh%C3%A1ch-h%C3%A0ng-c%E1%BB%A7a-m%C3%ACnh-qua-%C4%91i%E1%BB%87n-tho%E1%BA%A1i-trong-v%C4%83n-ph%C3%B2ng.jpg?s=1024x1024&w=is&k=20&c=BDTv6dt1VkqfFpsqdw1eGB2bd80VI7By-X8Ut2w-fnM="
+                alt="Laptop"
+                className="w-full h-full object-cover"
+              />
+            </SwiperSlide>
+          </Swiper>
+        </div>
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
