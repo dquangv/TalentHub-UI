@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 const JobDetail = () => {
-  const { id } = useParams();
+  // const { id } = useParams();
   // In a real app, fetch job details using the id
   const job = {
     title: 'Senior Full Stack Developer',
