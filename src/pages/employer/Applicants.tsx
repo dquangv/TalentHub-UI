@@ -19,7 +19,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Filter, Star, Download, Mail, Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Filter, Star, Download, Mail, Calendar, CheckCircle, XCircle, Clock, Users } from 'lucide-react';
 
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState('');
