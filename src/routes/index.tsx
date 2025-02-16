@@ -36,6 +36,10 @@ export const mainRoutes: RouteObject[] = [
         element: <Jobs />
     },
     {
+        path: '/jobs/:id',
+        element: <JobDetail />
+    },
+    {
         path: '/about',
         element: <About />
     },
