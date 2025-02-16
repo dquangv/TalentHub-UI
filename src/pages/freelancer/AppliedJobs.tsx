@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Search, Filter, Clock, DollarSign, Briefcase, MapPin, Calendar, Send } from 'lucide-react';
+import { Filter, Clock, DollarSign, Briefcase, MapPin, Calendar, Send, Users, CheckCircle } from 'lucide-react';
 
 const AppliedJobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
