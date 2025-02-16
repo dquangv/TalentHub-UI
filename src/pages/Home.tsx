@@ -24,7 +24,7 @@ const Home = () => {
             slidesPerView={1}
             navigation
             pagination={{ clickable: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            autoplay={{ delay: 4000, disableOnInteraction: false}}
             className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
           >
             <SwiperSlide>
@@ -36,14 +36,14 @@ const Home = () => {
             </SwiperSlide>
             <SwiperSlide>
               <img
-                src="https://media.istockphoto.com/id/1481370371/vi/anh/ch%C3%A2n-dung-c%E1%BB%A7a-ng%C6%B0%E1%BB%9Di-ph%E1%BB%A5-n%E1%BB%AF-tr%E1%BA%BB-g%E1%BB%91c-t%C3%A2y-ban-nha-nhi%E1%BB%87t-t%C3%ACnh-l%C3%A0m-vi%E1%BB%87c-tr%C3%AAn-m%C3%A1y-t%C3%ADnh-trong-m%E1%BB%99t-v%C4%83n.jpg?s=1024x1024&w=is&k=20&c=GuiSAUVYlSrg9sD0jhpX2kbESY3hgc8FlgIZ_prYYP0="
+                src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
                 alt="Laptop"
                 className="w-full h-full object-cover"
               />
             </SwiperSlide>
             <SwiperSlide>
               <img
-                src="https://media.istockphoto.com/id/1443876461/vi/anh/nh%C3%A0-thi%E1%BA%BFt-k%E1%BA%BF-ph%E1%BA%A7n-m%E1%BB%81m-n%C3%B3i-chuy%E1%BB%87n-v%E1%BB%9Bi-kh%C3%A1ch-h%C3%A0ng-c%E1%BB%A7a-m%C3%ACnh-qua-%C4%91i%E1%BB%87n-tho%E1%BA%A1i-trong-v%C4%83n-ph%C3%B2ng.jpg?s=1024x1024&w=is&k=20&c=BDTv6dt1VkqfFpsqdw1eGB2bd80VI7By-X8Ut2w-fnM="
+                src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
                 alt="Laptop"
                 className="w-full h-full object-cover"
               />
