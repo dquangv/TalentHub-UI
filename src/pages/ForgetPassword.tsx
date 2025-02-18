@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { notification } from 'antd'
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Mail, ArrowLeft, Lock, KeyRound } from 'lucide-react';
 
@@ -26,8 +27,8 @@ const ForgotPassword = () => {
     setTimeout(() => {
       setIsLoading(false);
       setCurrentStep('code');
-      toast({
-        title: 'Mã xác thực đã được gửi',
+      notification.info({
+        message: 'Mã xác thực đã được gửi',
         description: 'Vui lòng kiểm tra email của bạn',
       });
     }, 1500);
@@ -42,10 +43,9 @@ const ForgotPassword = () => {
       if (code === '1234') {
         setCurrentStep('password');
       } else {
-        toast({
-          title: 'Mã không hợp lệ',
+        notification.warning({
+          message: 'Mã không hợp lệ',
           description: 'Vui lòng kiểm tra lại mã xác thực',
-          variant: 'destructive',
         });
       }
     }, 1000);
@@ -54,10 +54,9 @@ const ForgotPassword = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({
-        title: 'Mật khẩu không khớp',
-        description: 'Vui lòng kiểm tra lại mật khẩu xác nhận',
-        variant: 'destructive',
+      notification.warning({
+        message: 'Mật khẩu không khớp',
+        description: 'Vui lòng kiểm tra lại mật khẩu xác nhận'
       });
       return;
     }
@@ -66,8 +65,8 @@ const ForgotPassword = () => {
 
     setTimeout(() => {
       setIsLoading(false);
-      toast({
-        title: 'Đặt lại mật khẩu thành công',
+      notification.info({
+        message: 'Đặt lại mật khẩu thành công',
         description: 'Vui lòng đăng nhập với mật khẩu mới',
       });
       navigate('/login');
