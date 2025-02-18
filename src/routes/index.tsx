@@ -19,6 +19,8 @@ import JobDetail from '@/pages/jobs/JobDetail';
 import AppliedJobs from '@/pages/freelancer/AppliedJobs';
 import Applicants from '@/pages/Applicants';
 import PricingManagement from '@/pages/admin/PricingManagement';
+import SavedJobs from '@/pages/freelancer/SavedJobs';
+import ForgotPassword from '@/pages/ForgetPassword';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -83,7 +85,15 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '*',
         element: <div className='w-1/2 mx-auto'><NotFound /></div>
-    }
+    },
+    {
+        path: '/saved-jobs',
+        element: <SavedJobs />
+    },
+    {
+        path: '/forget-password',
+        element: <ForgotPassword />
+    },
 ];
 
 
