@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { notification } from 'antd'
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Mail, ArrowLeft, Lock, KeyRound } from 'lucide-react';
@@ -12,7 +11,6 @@ type Step = 'email' | 'code' | 'password';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
