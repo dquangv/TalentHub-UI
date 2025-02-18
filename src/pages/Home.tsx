@@ -24,7 +24,7 @@ const Home = () => {
             slidesPerView={1}
             navigation
             pagination={{ clickable: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false}}
+            autoplay={{ delay: 4000, disableOnInteraction: false }}
             className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
           >
             <SwiperSlide>
