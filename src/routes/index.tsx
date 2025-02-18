@@ -18,6 +18,7 @@ import PostJob from '@/pages/client/PostJob';
 import JobDetail from '@/pages/jobs/JobDetail';
 import AppliedJobs from '@/pages/freelancer/AppliedJobs';
 import Applicants from '@/pages/Applicants';
+import PricingManagement from '@/pages/admin/PricingManagement';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -103,6 +104,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/posts',
         element: <PostsPage />
+    },
+    {
+        path: "/pricing",
+        element: <PricingManagement />
     },
     {
         path: '*',

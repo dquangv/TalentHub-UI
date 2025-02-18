@@ -5,6 +5,7 @@ import {
   Briefcase,
   FileText,
   LayoutDashboard,
+  CreditCard,
 } from "lucide-react";
 
 const menuItems = [
@@ -28,6 +29,11 @@ const menuItems = [
     icon: FileText,
     href: "/posts",
   },
+  {
+    title: "Quản lý Gói dịch vụ",
+    icon: CreditCard,
+    href: "/pricing",
+  }
 ];
 
 export function Sidebar() {
