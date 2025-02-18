@@ -19,6 +19,7 @@ import JobDetail from '@/pages/jobs/JobDetail';
 import AppliedJobs from '@/pages/freelancer/AppliedJobs';
 import Applicants from '@/pages/Applicants';
 import PricingManagement from '@/pages/admin/PricingManagement';
+import ClientProfile from '@/pages/client/ClientProfile';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -67,6 +68,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/client/post-job',
         element: <PostJob />
+    },
+    {
+        path: '/client/profile',
+        element: <ClientProfile />
     },
     {
         path: '/client/jobs/:id',
