@@ -18,6 +18,10 @@ import PostJob from '@/pages/client/PostJob';
 import JobDetail from '@/pages/jobs/JobDetail';
 import AppliedJobs from '@/pages/freelancer/AppliedJobs';
 import Applicants from '@/pages/Applicants';
+import PricingManagement from '@/pages/admin/PricingManagement';
+import SavedJobs from '@/pages/freelancer/SavedJobs';
+import ForgotPassword from '@/pages/ForgetPassword';
+import ClientProfile from '@/pages/client/ClientProfile';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -68,6 +72,10 @@ export const mainRoutes: RouteObject[] = [
         element: <PostJob />
     },
     {
+        path: '/client/profile',
+        element: <ClientProfile />
+    },
+    {
         path: '/client/jobs/:id',
         element: <JobDetail />
     },
@@ -82,7 +90,15 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '*',
         element: <div className='w-1/2 mx-auto'><NotFound /></div>
-    }
+    },
+    {
+        path: '/saved-jobs',
+        element: <SavedJobs />
+    },
+    {
+        path: '/forget-password',
+        element: <ForgotPassword />
+    },
 ];
 
 
@@ -103,6 +119,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/posts',
         element: <PostsPage />
+    },
+    {
+        path: "/pricing",
+        element: <PricingManagement />
     },
     {
         path: '*',
