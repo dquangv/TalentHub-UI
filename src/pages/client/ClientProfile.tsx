@@ -39,7 +39,7 @@ const ClientProfile = () => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <Card className="p-6">
+            <Card className="p-6" style={{ margin: '0 150px' }}>
                 <FadeInWhenVisible>
                     <div className="flex items-center gap-6 mb-8">
                         <div className="relative">
