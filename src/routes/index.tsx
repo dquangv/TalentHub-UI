@@ -21,6 +21,7 @@ import Applicants from '@/pages/Applicants';
 import PricingManagement from '@/pages/admin/PricingManagement';
 import SavedJobs from '@/pages/freelancer/SavedJobs';
 import ForgotPassword from '@/pages/ForgetPassword';
+import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
 export const mainRoutes: RouteObject[] = [
     {
@@ -98,6 +99,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/forget-password',
         element: <ForgotPassword />
+    },
+    {
+        path: '/appointment',
+        element: <Appointment />
     },
 ];
 
