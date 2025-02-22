@@ -27,6 +27,7 @@ type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 const Appointment = () => {
   const [appointmentType, setAppointmentType] = useState<'online' | 'offline'>('online');
+  const [calendar, setCalendar] = useState<Value>(new Date());
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,6 +40,7 @@ const Appointment = () => {
     location: '',
     meetingLink: '',
   });
+  console.log('calendar ', calendar)
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     notification.info({
