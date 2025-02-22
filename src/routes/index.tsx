@@ -22,6 +22,7 @@ import PricingManagement from '@/pages/admin/PricingManagement';
 import SavedJobs from '@/pages/freelancer/SavedJobs';
 import ForgotPassword from '@/pages/ForgetPassword';
 import Appointment from '@/pages/Appointment';
+import ClientProfile from '@/pages/client/ClientProfile';
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -70,6 +71,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/client/post-job',
         element: <PostJob />
+    },
+    {
+        path: '/client/profile',
+        element: <ClientProfile />
     },
     {
         path: '/client/jobs/:id',
