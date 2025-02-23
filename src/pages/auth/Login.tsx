@@ -1,21 +1,44 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Mail, Lock, Chrome, Facebook } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { Mail, Lock, Chrome, Facebook } from "lucide-react";
+import axiosInstance from "@/utils/axiosConfig";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axiosInstance.post("/auth/login", formData);
+
+      console.log("Login successful:", response.data);
+
+      localStorage.setItem("authToken", response.data.token);
+
+      navigate("/");
+    } catch (err: any) {
+      console.error("Error during login:", err);
+      setError("Đăng nhập không thành công, vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,6 +54,7 @@ const Login = () => {
                 </p>
               </div>
 
+              {/* Login Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <div className="relative">
@@ -71,11 +95,18 @@ const Login = () => {
                   </Link>
                 </div>
 
-                <Button type="submit" className="w-full">
-                  Đăng nhập
+                {/* Submit Button */}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                 </Button>
               </form>
 
+              {/* Error Message */}
+              {error && (
+                <div className="text-red-500 text-center mt-4">{error}</div>
+              )}
+
+              {/* Social Media Login */}
               <div className="relative my-6">
                 <Separator />
                 <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-muted-foreground text-sm">
@@ -95,7 +126,7 @@ const Login = () => {
               </div>
 
               <p className="text-center mt-6 text-sm text-muted-foreground">
-                Chưa có tài khoản?{' '}
+                Chưa có tài khoản?{" "}
                 <Link to="/register" className="text-primary hover:underline">
                   Đăng ký ngay
                 </Link>
