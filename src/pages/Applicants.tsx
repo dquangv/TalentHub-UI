@@ -98,7 +98,7 @@ const Applicants = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
-                  <TableHead>Vị trí ứng tuyển</TableHead>
+                  <TableHead>Chuyên môn</TableHead>
                   <TableHead>Ngày ứng tuyển</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Đánh giá</TableHead>

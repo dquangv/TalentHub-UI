@@ -22,7 +22,6 @@ const Home = () => {
             modules={[Navigation, Pagination, Autoplay]}
             spaceBetween={20}
             slidesPerView={1}
-            navigation
             pagination={{ clickable: true }}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
@@ -111,10 +110,10 @@ const Home = () => {
           <FadeInWhenVisible>
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Featuredareas')}</h2>
           </FadeInWhenVisible>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 h-100">
             {categories.map((category, index) => (
               <FadeInWhenVisible key={category.title} delay={index * 0.1}>
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background">
+                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background h-100" style={{height: '100%'}}>
                   <div className="flex items-start gap-4">
                     {category.icon}
                     <div>

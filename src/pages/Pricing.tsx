@@ -19,10 +19,10 @@ const Pricing = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto" >
           {/* Trial Plan */}
           <FadeInWhenVisible delay={0.2}>
-            <Card className="p-8 hover:shadow-lg transition-shadow">
+            <Card className="p-8 hover:shadow-lg transition-shadow" style={{height: '100%'}}>
               <div className="text-center mb-6">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="w-6 h-6 text-primary" />
@@ -43,14 +43,14 @@ const Pricing = () => {
                 ))}
               </div>
               <Button className="w-full" variant="outline">
-                Dùng thử ngay
+               Đăng ký ngay
               </Button>
             </Card>
           </FadeInWhenVisible>
 
           {/* Monthly Plan */}
           <FadeInWhenVisible delay={0.3}>
-            <Card className="p-8 border-primary shadow-lg relative">
+            <Card className="p-8 border-primary shadow-lg relative" style={{height: '100%'}}>
               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                 Phổ biến nhất
               </Badge>

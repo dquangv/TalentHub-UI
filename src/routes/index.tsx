@@ -97,7 +97,7 @@ export const mainRoutes: RouteObject[] = [
         element: <SavedJobs />
     },
     {
-        path: '/forget-password',
+        path: '/forgot-password',
         element: <ForgotPassword />
     },
     {
