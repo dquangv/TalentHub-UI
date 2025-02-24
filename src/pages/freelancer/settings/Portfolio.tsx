@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Plus, Image as ImageIcon, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { Plus, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Portfolio = () => {
@@ -14,7 +14,6 @@ const Portfolio = () => {
       id: 1,
       title: 'E-commerce Platform',
       description: 'Xây dựng nền tảng thương mại điện tử với React và Node.js',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
       link: 'https://example.com/project1',
       technologies: ['React', 'Node.js', 'MongoDB'],
     },
@@ -22,7 +21,6 @@ const Portfolio = () => {
       id: 2,
       title: 'Task Management App',
       description: 'Ứng dụng quản lý công việc với React Native',
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
       link: 'https://example.com/project2',
       technologies: ['React Native', 'Firebase'],
     },
@@ -33,7 +31,6 @@ const Portfolio = () => {
       id: Date.now(),
       title: '',
       description: '',
-      image: '',
       link: '',
       technologies: [],
     };
@@ -96,22 +93,7 @@ const Portfolio = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t('Image')}</label>
-                <div className="relative">
-                  <ImageIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    className="pl-10"
-                    value={project.image}
-                    onChange={(e) =>
-                      updateProject(project.id, 'image', e.target.value)
-                    }
-                    placeholder="URL hình ảnh"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">{t('Projectlink')}</label>
                 <div className="relative">
                   <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -137,16 +119,6 @@ const Portfolio = () => {
                   rows={4}
                 />
               </div>
-
-              {project.image && (
-                <div className="md:col-span-2">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                </div>
-              )}
             </div>
           </Card>
         </FadeInWhenVisible>
