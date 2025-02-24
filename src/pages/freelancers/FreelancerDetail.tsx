@@ -121,7 +121,6 @@ const FreelancerDetail = () => {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Liên hệ
                       </Button>
-                      <Button variant="outline">Lưu hồ sơ</Button>
                     </div>
                   </div>
                 </div>
