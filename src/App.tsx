@@ -4,12 +4,14 @@ import MainLayout from '@/components/layout/MainLayout';
 // import AdminDashboard from '@/pages/admin/AdminDashboard';
 import { adminRoutes, mainRoutes } from '@/routes';
 import AdminLayout from './components/layout/AdminLayout';
+import { AuthProvider } from './contexts/AuthContext';
 
 function App(): JSX.Element {
   const adminRole = JSON.parse(localStorage.getItem('adminRole') || "false");
   localStorage.setItem('adminRole', adminRole)
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <AuthProvider>
       <Router>
         <Routes>
           {/* Admin routes */}
@@ -30,6 +32,7 @@ function App(): JSX.Element {
           {/* Main routes with MainLayout */}
         </Routes>
       </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
