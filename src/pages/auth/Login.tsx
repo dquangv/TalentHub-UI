@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Mail, Lock, Chrome, Facebook } from "lucide-react";
 import axiosInstance from "@/utils/axiosConfig";
+import { useAuth } from "@/contexts/AuthContext"; 
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,9 +30,15 @@ const Login = () => {
     try {
       const response = await axiosInstance.post("/auth/login", formData);
 
-      console.log("Login successful:", response.data);
-
-      localStorage.setItem("authToken", response.data.token);
+      console.log("Login successful:", response);
+      const data = response.data.data;
+      login({
+        accessToken: data.accessToken,
+        userId: data.userId,
+        role: data.role,
+        freelancerId: data.freelancerId,
+        clientId: data.clientId,
+      });
 
       navigate("/");
     } catch (err: any) {
