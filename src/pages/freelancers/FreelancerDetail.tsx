@@ -29,7 +29,6 @@ const FreelancerDetail = () => {
     rating: 4.9,
     completedProjects: 45,
     hourlyRate: '350.000đ',
-    availability: 'Có thể nhận việc',
     overview:
       'Full Stack Developer với hơn 7 năm kinh nghiệm phát triển ứng dụng web. Chuyên sâu về React, Node.js và các công nghệ hiện đại...',
     skills: [
@@ -75,7 +74,7 @@ const FreelancerDetail = () => {
         description: 'Ứng dụng quản lý công việc với React Native',
         image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
       },
-      
+
     ],
   };
 
@@ -115,16 +114,13 @@ const FreelancerDetail = () => {
                           {freelancer.completedProjects} dự án hoàn thành
                         </div>
                       </div>
-                      <Badge variant="outline" className="mb-4">
-                        {freelancer.availability}
-                      </Badge>
+
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button>
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Liên hệ
                       </Button>
-                      <Button variant="outline">Lưu hồ sơ</Button>
                     </div>
                   </div>
                 </div>

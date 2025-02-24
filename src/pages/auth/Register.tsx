@@ -11,18 +11,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { User, Mail, Lock, BriefcaseIcon } from 'lucide-react';
+import { Mail, Lock, BriefcaseIcon } from 'lucide-react';
 import axiosInstance from '@/utils/axiosConfig';
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
     password: '',
     confirmPassword: '',
     role: '',
   });
-  const navigate= useNavigate()
+  const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,20 +64,6 @@ const Register = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Tên đăng nhập"
-                      className="pl-10"
-                      value={formData.username}
-                      onChange={(e) =>
-                        setFormData({ ...formData, username: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
