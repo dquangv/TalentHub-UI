@@ -1,4 +1,5 @@
-// import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,41 +13,49 @@ import {
   Users,
   CheckCircle,
 } from 'lucide-react';
+import axiosInstance from '@/utils/axiosConfig';
+
+interface JobDetailResponse {
+  title: string;
+  companyName: string;
+  location?: string;
+  type: string;
+  fromPrice: number;
+  toPrice: number;
+  hourWork: number;
+  description: string;
+  skillNames: string[];
+  experience?: string;
+  deadline?: string;
+}
 
 const JobDetail = () => {
-  // const { id } = useParams();
-  // In a real app, fetch job details using the id
-  const job = {
-    title: 'Senior Full Stack Developer',
-    company: 'Tech Solutions Inc.',
-    location: 'TP. Hồ Chí Minh',
-    type: 'Dự án',
-    duration: '6 tháng',
-    budget: '80-100 triệu',
-    experience: '5 năm',
-    level: 'Senior',
-    deadline: '30/04/2024',
-    description:
-      'Chúng tôi đang tìm kiếm một Full Stack Developer senior có kinh nghiệm để tham gia vào dự án phát triển nền tảng thương mại điện tử quy mô lớn...',
-    requirements: [
-      'Tối thiểu 5 năm kinh nghiệm phát triển web',
-      'Thành thạo React, Node.js, và TypeScript',
-      'Kinh nghiệm với microservices và container',
-      'Kỹ năng tối ưu hiệu suất và bảo mật',
-    ],
-    benefits: [
-      'Mức lương cạnh tranh',
-      'Lịch làm việc linh hoạt',
-      'Cơ hội học hỏi và phát triển',
-      'Môi trường làm việc chuyên nghiệp',
-    ],
-    skills: ['React', 'Node.js', 'TypeScript', 'Docker', 'AWS', 'MongoDB'],
-  };
+  const { id } = useParams<{ id: string }>();
+  const [job, setJob] = useState<JobDetailResponse | null>(null);
+
+  useEffect(() => {
+    const fetchJobDetail = async () => {
+      try {
+        const response = await axiosInstance.get(`/jobs/detail-job/${id}`);
+        if (response.status === 200) {
+          setJob(response.data?.data); 
+        }
+      } catch (error) {
+        console.error("Error fetching job details:", error);
+      }
+    };
+
+    fetchJobDetail();
+  }, [id]);
+
+  if (!job) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Header Section */}
           <FadeInWhenVisible>
             <Card className="p-8 mb-8">
@@ -56,16 +65,15 @@ const JobDetail = () => {
                   <div className="flex flex-wrap gap-4 text-muted-foreground mb-4">
                     <div className="flex items-center">
                       <Briefcase className="w-4 h-4 mr-2" />
-                      {job.company}
+                      {job.companyName}
                     </div>
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2" />
-                      {job.location}
+                      {job.location ?? "Unknown Location"}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{job.type}</Badge>
-                    <Badge variant="outline">{job.level}</Badge>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -84,7 +92,7 @@ const JobDetail = () => {
                   <DollarSign className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
-                    <p className="font-semibold">{job.budget}</p>
+                    <p className="font-semibold">{job.fromPrice} - {job.toPrice} VND</p>
                   </div>
                 </div>
               </Card>
@@ -95,8 +103,8 @@ const JobDetail = () => {
                 <div className="flex items-center gap-4">
                   <Clock className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Thời gian</p>
-                    <p className="font-semibold">{job.duration}</p>
+                    <p className="text-sm text-muted-foreground">Số giờ làm việc</p>
+                    <p className="font-semibold">{job.hourWork} giờ/tuần</p>
                   </div>
                 </div>
               </Card>
@@ -105,10 +113,10 @@ const JobDetail = () => {
             <FadeInWhenVisible delay={0.3}>
               <Card className="p-6">
                 <div className="flex items-center gap-4">
-                  <Users className="w-8 h-8 text-primary" />
+                  <Calendar className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
-                    <p className="font-semibold">{job.experience}</p>
+                    <p className="font-semibold">{!job.experience ? "Không yêu cầu" : job.experience}</p>
                   </div>
                 </div>
               </Card>
@@ -117,10 +125,10 @@ const JobDetail = () => {
             <FadeInWhenVisible delay={0.4}>
               <Card className="p-6">
                 <div className="flex items-center gap-4">
-                  <Calendar className="w-8 h-8 text-primary" />
+                  <Users className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Hạn nộp</p>
-                    <p className="font-semibold">{job.deadline}</p>
+                    <p className="text-sm text-muted-foreground">Số lượng ứng viên</p>
+                    <p className="font-semibold">{job?.totalApplicant || 0}</p>
                   </div>
                 </div>
               </Card>
@@ -135,15 +143,15 @@ const JobDetail = () => {
 
               <h3 className="font-semibold mb-3">Yêu cầu:</h3>
               <ul className="space-y-2 mb-6">
-                {job.requirements.map((req, index) => (
+                {job?.skillNames?.map((skill, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
-                    <span className="text-muted-foreground">{req}</span>
+                    <span className="text-muted-foreground">{skill}</span>
                   </li>
                 ))}
               </ul>
 
-              <h3 className="font-semibold mb-3">Quyền lợi:</h3>
+              {/* <h3 className="font-semibold mb-3">Quyền lợi:</h3>
               <ul className="space-y-2 mb-6">
                 {job.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start gap-2">
@@ -151,27 +159,26 @@ const JobDetail = () => {
                     <span className="text-muted-foreground">{benefit}</span>
                   </li>
                 ))}
-              </ul>
+              </ul> */}
 
               <h3 className="font-semibold mb-3">Kỹ năng yêu cầu:</h3>
               <div className="flex flex-wrap gap-2">
-                {job.skills.map((skill) => (
+                {job?.skillNames?.map((skill) => (
                   <Badge key={skill} variant="secondary">
                     {skill}
                   </Badge>
                 ))}
               </div>
-            </Card>
-          </FadeInWhenVisible>
-
-          {/* Apply Button */}
-          <FadeInWhenVisible delay={0.6}>
-            <div className="text-center">
-              <Button size="lg" className="px-8">
+              <div className="text-center">
+              <Button size="lg" className="px-8 mt-8 w-full">
                 Ứng tuyển ngay
               </Button>
             </div>
+            </Card>
+          
           </FadeInWhenVisible>
+
+
         </div>
       </div>
     </div>

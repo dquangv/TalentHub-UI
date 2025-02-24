@@ -1,52 +1,52 @@
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Search, Filter, Clock, DollarSign, Briefcase } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useLanguage } from '@/contexts/LanguageContext';
-import axiosInstance from '@/utils/axiosConfig';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { Search, Filter, Clock, DollarSign, Briefcase } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
+import axiosInstance from "@/utils/axiosConfig";
 
 const Jobs = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [jobs, setJobs] = useState([]);
   const { t } = useLanguage();
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axiosInstance.get('/jobs');
+        const response = await axiosInstance.get("/jobs");
         if (response.data.status === 200) {
           setJobs(response.data.data);
         } else {
-          console.error('Failed to fetch jobs:', response.data.message);
+          console.error("Failed to fetch jobs:", response.data.message);
         }
       } catch (error) {
-        console.error('Error fetching jobs:', error);
+        console.error("Error fetching jobs:", error);
       }
     };
 
     fetchJobs();
   }, []);
 
-  const handleApply = () => {}
+  const handleApply = () => {};
   const handleSaveJob = async (jobId) => {
     try {
-      const freelancerId = 1; 
-      
-      const response = await axiosInstance.post('/jobs/apply', {
+      const freelancerId = 1;
+
+      const response = await axiosInstance.post("/jobs/apply", {
         jobId,
-        freelancerId
+        freelancerId,
       });
 
       if (response.data.status === 200) {
-        alert('Successfully applied for job:'+ jobId);
+        alert("Successfully applied for job:" + jobId);
       } else {
       }
     } catch (error) {
-      alert('Error applying for job:'+ error);
+      alert("Error applying for job:" + error);
     }
   };
 
@@ -57,7 +57,7 @@ const Jobs = () => {
         <div className="mb-12">
           <FadeInWhenVisible>
             <h1 className="text-3xl font-bold text-center mb-8">
-              {t('SearchforFreelancejobs')}
+              {t("SearchforFreelancejobs")}
             </h1>
           </FadeInWhenVisible>
           <div className="max-w-2xl mx-auto">
@@ -65,7 +65,7 @@ const Jobs = () => {
               <div className="flex gap-4">
                 <div className="flex-1">
                   <Input
-                    placeholder={t('JobSearch...')}
+                    placeholder={t("JobSearch...")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full"
@@ -73,7 +73,7 @@ const Jobs = () => {
                 </div>
                 <Button>
                   <Search className="w-4 h-4 mr-2" />
-                  {t('Search')}
+                  {t("Search")}
                 </Button>
                 <Button variant="outline">
                   <Filter className="w-4 h-4" />
@@ -91,9 +91,11 @@ const Jobs = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold">{job.title}</h3>
+                      <h3 className="text-2xl font-semibold">{job.title}</h3>
                     </div>
-                    <p className="text-muted-foreground mb-4">{job.description}</p>
+                    <p className="text-muted-foreground mb-4">
+                      {job.description}
+                    </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {job.skillName.map((skill) => (
                         <Badge key={skill} variant="outline">
@@ -117,8 +119,11 @@ const Jobs = () => {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button onClick={() => handleApply(job.id)}>{t('Apply')}</Button>
-                    <Button onClick={() => handleSaveJob(job.id)} variant="outline">{t('Savejobs')}</Button>
+                    <Button>
+                      <Link to={`/jobs/${job.id}`}>  {t("Apply")}</Link>
+                    </Button>
+                  
+                    <div className="flex justify-center">Đã xem</div>
                   </div>
                 </div>
               </Card>
@@ -129,7 +134,7 @@ const Jobs = () => {
         {/* Load More Button */}
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
-            {t('Seemorejobs')}
+            {t("Seemorejobs")}
           </Button>
         </div>
       </div>
