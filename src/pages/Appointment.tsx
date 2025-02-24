@@ -39,7 +39,6 @@ const Appointment = () => {
     location: '',
     meetingLink: '',
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     notification.info({

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -7,10 +7,49 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Search, Filter, Clock, DollarSign, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import axiosInstance from '@/utils/axiosConfig';
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [jobs, setJobs] = useState([]);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await axiosInstance.get('/jobs');
+        if (response.data.status === 200) {
+          setJobs(response.data.data);
+        } else {
+          console.error('Failed to fetch jobs:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  const handleApply = () => {}
+  const handleSaveJob = async (jobId) => {
+    try {
+      const freelancerId = 1; 
+      
+      const response = await axiosInstance.post('/jobs/apply', {
+        jobId,
+        freelancerId
+      });
+
+      if (response.data.status === 200) {
+        alert('Successfully applied for job:'+ jobId);
+      } else {
+      }
+    } catch (error) {
+      alert('Error applying for job:'+ error);
+    }
+  };
+
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -53,13 +92,10 @@ const Jobs = () => {
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-xl font-semibold">{job.title}</h3>
-                      <Badge variant={job.type === 'Toàn thời gian' ? 'default' : 'secondary'}>
-                        {job.type}
-                      </Badge>
                     </div>
                     <p className="text-muted-foreground mb-4">{job.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {job.skills.map((skill) => (
+                      {job.skillName.map((skill) => (
                         <Badge key={skill} variant="outline">
                           {skill}
                         </Badge>
@@ -68,21 +104,21 @@ const Jobs = () => {
                     <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                       <div className="flex items-center">
                         <Briefcase className="w-4 h-4 mr-2" />
-                        {job.company}
+                        {job.companyName}
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
-                        {job.duration}
+                        {job.hourWork} hours/week
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-2" />
-                        {job.budget}
+                        {job.fromPrice} - {job.toPrice} VND
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Button><Link to={`/jobs/${job.id}`}>{t('Apply')}</Link></Button>
-                    <Button variant="outline">{t('Savejobs')}</Button>
+                    <Button onClick={() => handleApply(job.id)}>{t('Apply')}</Button>
+                    <Button onClick={() => handleSaveJob(job.id)} variant="outline">{t('Savejobs')}</Button>
                   </div>
                 </div>
               </Card>
@@ -100,58 +136,5 @@ const Jobs = () => {
     </div>
   );
 };
-
-const jobs = [
-  {
-    id: 1,
-    title: 'Phát triển website thương mại điện tử',
-    company: 'Tech Solutions Inc.',
-    type: 'Dự án',
-    duration: '3 tháng',
-    budget: '50-70 triệu',
-    description: 'Cần freelancer có kinh nghiệm phát triển website thương mại điện tử sử dụng React và Node.js...',
-    skills: ['React', 'Node.js', 'MongoDB', 'Redux'],
-  },
-  {
-    id: 2,
-    title: 'Thiết kế UI/UX cho ứng dụng di động',
-    company: 'Creative Studio',
-    type: 'Bán thời gian',
-    duration: '2 tháng',
-    budget: '30-40 triệu',
-    description: 'Tìm kiếm designer có kinh nghiệm thiết kế UI/UX cho ứng dụng di động trong lĩnh vực giáo dục...',
-    skills: ['Figma', 'UI Design', 'Mobile Design', 'Prototyping'],
-  },
-  {
-    id: 3,
-    title: 'Chiến dịch Digital Marketing',
-    company: 'Growth Marketing',
-    type: 'Toàn thời gian',
-    duration: '6 tháng',
-    budget: '80-100 triệu',
-    description: 'Cần chuyên gia Digital Marketing có kinh nghiệm lên kế hoạch và thực hiện chiến dịch marketing...',
-    skills: ['Facebook Ads', 'Google Ads', 'SEO', 'Content Marketing'],
-  },
-  {
-    id: 4,
-    title: 'Phát triển ứng dụng di động React Native',
-    company: 'Mobile App Inc.',
-    type: 'Dự án',
-    duration: '4 tháng',
-    budget: '60-80 triệu',
-    description: 'Tìm kiếm developer có kinh nghiệm phát triển ứng dụng di động đa nền tảng bằng React Native...',
-    skills: ['React Native', 'TypeScript', 'Firebase', 'Redux'],
-  },
-  {
-    id: 5,
-    title: 'Sản xuất video quảng cáo',
-    company: 'Media Production',
-    type: 'Dự án',
-    duration: '1 tháng',
-    budget: '20-30 triệu',
-    description: 'Cần freelancer có kinh nghiệm sản xuất video quảng cáo cho thương hiệu thời trang...',
-    skills: ['After Effects', 'Premiere Pro', 'Motion Graphics', '3D Animation'],
-  },
-];
 
 export default Jobs;

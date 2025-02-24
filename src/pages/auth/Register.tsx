@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { User, Mail, Lock, BriefcaseIcon } from 'lucide-react';
+import axiosInstance from '@/utils/axiosConfig';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -21,10 +22,33 @@ const Register = () => {
     confirmPassword: '',
     role: '',
   });
+  const navigate= useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Mật khẩu không khớp');
+      return;
+    }
+
+    setError('');
+    setLoading(true);
+
+    try {
+      formData.status = true;
+      const response = await axiosInstance.post('account/register', formData);
+      console.log(response.data);
+      navigate("/login")
+    } catch (err: any) {
+      console.error('Error during registration:', err.response.data.message);
+      setError('Đã xảy ra lỗi, vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -113,18 +137,25 @@ const Register = () => {
                         <SelectValue placeholder="Chọn vai trò" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="freelancer">Freelancer</SelectItem>
-                        <SelectItem value="employer">Nhà tuyển dụng</SelectItem>
+                        <SelectItem value="FREELANCER">Freelancer</SelectItem>
+                        <SelectItem value="CLIENT">Nhà tuyển dụng</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full">
-                  Đăng ký
+                {/* Error message */}
+                {error && (
+                  <div className="text-red-500 text-center">{error}</div>
+                )}
+
+                {/* Submit Button */}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'Đang đăng ký...' : 'Đăng ký'}
                 </Button>
               </form>
 
+              {/* Login Link */}
               <p className="text-center mt-6 text-sm text-muted-foreground">
                 Đã có tài khoản?{' '}
                 <Link to="/login" className="text-primary hover:underline">
