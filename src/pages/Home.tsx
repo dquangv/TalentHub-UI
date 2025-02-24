@@ -16,7 +16,7 @@ const Home = () => {
   return (
     <div>
       {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
-      <section className="relative py-20 bg-gradient-to-b from-primary-100 via-background to-background">
+      <section className="relative py-[70px] bg-gradient-to-b from-primary-100 via-background to-background">
         <div className="absolute inset-x-0 bottom-0 w-full h-96">
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
@@ -24,7 +24,7 @@ const Home = () => {
             slidesPerView={1}
             pagination={{ clickable: true }}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="w-full h-full rounded-2xl shadow-lg overflow-hidden container"
+            className="w-full h-full shadow-lg overflow-hidden"
           >
             <SwiperSlide>
               <img
