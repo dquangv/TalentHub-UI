@@ -19,13 +19,15 @@ const JobDetail = () => {
   const job = {
     title: 'Senior Full Stack Developer',
     company: 'Tech Solutions Inc.',
+    client_name: 'Nguyen Van A',
     location: 'TP. Hồ Chí Minh',
     type: 'Dự án',
     duration: '6 tháng',
     budget: '80-100 triệu',
-    experience: '5 năm',
+    // experience: '5 năm',
     level: 'Senior',
     deadline: '30/04/2024',
+    totalApplicant: 100,
     description:
       'Chúng tôi đang tìm kiếm một Full Stack Developer senior có kinh nghiệm để tham gia vào dự án phát triển nền tảng thương mại điện tử quy mô lớn...',
     requirements: [
@@ -46,7 +48,7 @@ const JobDetail = () => {
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           {/* Header Section */}
           <FadeInWhenVisible>
             <Card className="p-8 mb-8">
@@ -56,17 +58,14 @@ const JobDetail = () => {
                   <div className="flex flex-wrap gap-4 text-muted-foreground mb-4">
                     <div className="flex items-center">
                       <Briefcase className="w-4 h-4 mr-2" />
-                      {job.company}
+                      {job.client_name}
                     </div>
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2" />
                       {job.location}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="secondary">{job.type}</Badge>
-                    <Badge variant="outline">{job.level}</Badge>
-                  </div>
+
                 </div>
                 <div className="flex flex-col gap-2">
                   <Button size="lg">Ứng tuyển ngay</Button>
@@ -105,10 +104,10 @@ const JobDetail = () => {
             <FadeInWhenVisible delay={0.3}>
               <Card className="p-6">
                 <div className="flex items-center gap-4">
-                  <Users className="w-8 h-8 text-primary" />
+                  <Calendar className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
-                    <p className="font-semibold">{job.experience}</p>
+                    <p className="font-semibold">{!job.experience ? "Không yêu cầu" : job.experience}</p>
                   </div>
                 </div>
               </Card>
@@ -117,10 +116,10 @@ const JobDetail = () => {
             <FadeInWhenVisible delay={0.4}>
               <Card className="p-6">
                 <div className="flex items-center gap-4">
-                  <Calendar className="w-8 h-8 text-primary" />
+                  <Users className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Hạn nộp</p>
-                    <p className="font-semibold">{job.deadline}</p>
+                    <p className="text-sm text-muted-foreground">Số lượng ứng viên</p>
+                    <p className="font-semibold">{job.totalApplicant}</p>
                   </div>
                 </div>
               </Card>
@@ -143,7 +142,7 @@ const JobDetail = () => {
                 ))}
               </ul>
 
-              <h3 className="font-semibold mb-3">Quyền lợi:</h3>
+              {/* <h3 className="font-semibold mb-3">Quyền lợi:</h3>
               <ul className="space-y-2 mb-6">
                 {job.benefits.map((benefit, index) => (
                   <li key={index} className="flex items-start gap-2">
@@ -151,7 +150,7 @@ const JobDetail = () => {
                     <span className="text-muted-foreground">{benefit}</span>
                   </li>
                 ))}
-              </ul>
+              </ul> */}
 
               <h3 className="font-semibold mb-3">Kỹ năng yêu cầu:</h3>
               <div className="flex flex-wrap gap-2">
@@ -161,17 +160,16 @@ const JobDetail = () => {
                   </Badge>
                 ))}
               </div>
-            </Card>
-          </FadeInWhenVisible>
-
-          {/* Apply Button */}
-          <FadeInWhenVisible delay={0.6}>
-            <div className="text-center">
-              <Button size="lg" className="px-8">
+              <div className="text-center">
+              <Button size="lg" className="px-8 mt-8 w-full">
                 Ứng tuyển ngay
               </Button>
             </div>
+            </Card>
+          
           </FadeInWhenVisible>
+
+
         </div>
       </div>
     </div>

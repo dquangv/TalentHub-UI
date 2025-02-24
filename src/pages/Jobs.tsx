@@ -91,7 +91,8 @@ const Jobs = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-semibold">{job.title}</h3>
+                      <h3 className="text-2xl font-semibold">{job.title}</h3>
+
                     </div>
                     <p className="text-muted-foreground mb-4">{job.description}</p>
                     <div className="flex flex-wrap gap-2 mb-4">
@@ -114,11 +115,14 @@ const Jobs = () => {
                         <DollarSign className="w-4 h-4 mr-2" />
                         {job.fromPrice} - {job.toPrice} VND
                       </div>
+                    
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <Button onClick={() => handleApply(job.id)}>{t('Apply')}</Button>
-                    <Button onClick={() => handleSaveJob(job.id)} variant="outline">{t('Savejobs')}</Button>
+                    <div className='flex justify-center'>
+                      Đã xem
+                      </div>
                   </div>
                 </div>
               </Card>
