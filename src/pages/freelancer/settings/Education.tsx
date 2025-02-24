@@ -14,6 +14,7 @@ const Education = () => {
       id: 1,
       school: 'Đại học Bách Khoa Hà Nội',
       degree: 'Kỹ sư Công nghệ Thông tin',
+      specialization: 'Kỹ thuật phần mềm',
       startYear: '2016',
       endYear: '2020',
       description: 'Chuyên ngành Kỹ thuật phần mềm...',
@@ -22,6 +23,7 @@ const Education = () => {
       id: 2,
       school: 'FPT Software Academy',
       degree: 'Chứng chỉ Full Stack Developer',
+      specialization: 'Phát triển Web',
       startYear: '2020',
       endYear: '2021',
       description: 'Khóa học chuyên sâu về phát triển web...',
@@ -33,6 +35,7 @@ const Education = () => {
       id: Date.now(),
       school: '',
       degree: '',
+      specialization: '',
       startYear: '',
       endYear: '',
       description: '',
@@ -92,6 +95,18 @@ const Education = () => {
                     updateEducation(edu.id, 'degree', e.target.value)
                   }
                   placeholder="Tên bằng cấp hoặc chứng chỉ"
+                />
+              </div>
+
+              <div className="space-y-2">
+                {/* <label className="text-sm font-medium">{t('Specialization')}</label> */}
+                <label className="text-sm font-medium">Chuyên ngành</label> 
+                <Input
+                  value={edu.specialization}
+                  onChange={(e) =>
+                    updateEducation(edu.id, 'specialization', e.target.value)
+                  }
+                  placeholder="Chuyên ngành"
                 />
               </div>
 
