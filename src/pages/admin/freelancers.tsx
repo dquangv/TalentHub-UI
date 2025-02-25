@@ -9,8 +9,8 @@ export default function FreelancersPage() {
   useEffect(() => {
     async function fetchFreelancers() {
       const response = await api.get("/freelancers/info");
-      if (response.data.status === 200) {
-        setFreelancers(response.data.data);
+      if (response.status === 200) {
+        setFreelancers(response.data);
 
       }
       

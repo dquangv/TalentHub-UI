@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8000/api/v1',
+        API_URL: 'http://localhost:8080/api/v1',
         TIMEOUT: 30000,
     },
     production: {
@@ -13,7 +13,7 @@ const ENV = {
 };
 
 // config môi trường
-const config = ENV[process.env.NODE_ENV as keyof typeof ENV];
+const config = ENV[process.env.NODE_ENV || 'development'];
 
 // instance axios
 const axiosInstance = axios.create({
@@ -125,5 +125,6 @@ const api = {
 //       console.log(error);
 //     }
 //   };
+
 
 export default api;
