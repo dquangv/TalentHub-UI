@@ -319,3 +319,14 @@ df-messenger {
   --df-messenger-send-icon: hsl(var(--primary));
   --df-messenger-user-message: hsl(var(--primary));
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
