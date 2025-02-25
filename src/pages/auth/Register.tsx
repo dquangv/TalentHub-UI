@@ -40,10 +40,8 @@ const Register = () => {
     try {
       formData.status = true;
       const response = await api.post('account/register', formData);
-      console.log(response.data);
       navigate("/login")
     } catch (err: any) {
-      console.error('Error during registration:', err.response.data.message);
       setError('Đã xảy ra lỗi, vui lòng thử lại sau.');
     } finally {
       setLoading(false);
