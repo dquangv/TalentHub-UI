@@ -32,13 +32,12 @@ const Login = () => {
 
       console.log("Login successful:", response);
       const data = response.data;
-      console.log("data ", data)
       login({
-        accessToken: data?.data?.accessToken,
-        userId: data?.data?.userId,
-        role: data?.data?.role,
-        freelancerId: data?.data?.freelancerId,
-        clientId: data?.data?.clientId,
+        accessToken: data?.accessToken,
+        userId: data?.userId,
+        role: data?.role,
+        freelancerId: data?.freelancerId,
+        clientId: data?.clientId,
       });
 
       navigate("/");

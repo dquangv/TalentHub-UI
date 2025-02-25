@@ -46,12 +46,12 @@ const JobDetail = () => {
   const [jobFreelancerInfo, setJobFreelancerInfo] =
     useState<JobFreelancerInfo | null>(null);
   const navigate = useNavigate();
-  console.log("data ", job)
+  console.log("data ", job);
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
         const response = await api.get(`/jobs/detail-job/${id}`);
-        setJob(response.data.data);
+        setJob(response.data);
       } catch (error) {
         console.error("Error fetching job details:", error);
       }
@@ -75,7 +75,7 @@ const JobDetail = () => {
       if (response.status !== 200) {
         setError("Có lỗi xảy ra");
       }
-      setJobFreelancerInfo(response?.data?.data || null);
+      setJobFreelancerInfo(response?.data || null);
     };
 
     handleViewJob();
@@ -109,7 +109,7 @@ const JobDetail = () => {
     if (response.status !== 200) {
       notification.error({
         message: "Lỗi dữ liệu",
-        description: response.data.message || "Dữ liệu không hợp lệ",
+        description: response.message || "Dữ liệu không hợp lệ",
       });
 
       setError("Có lỗi xảy ra");
@@ -118,7 +118,7 @@ const JobDetail = () => {
       message: "Thông báo",
       description: "Lưu việc thành công",
     });
-    setJobFreelancerInfo(response?.data?.data || null);
+    setJobFreelancerInfo(response?.data || null);
   };
 
   const handleUnSaveJob = async () => {
@@ -135,7 +135,7 @@ const JobDetail = () => {
       message: "Thông báo",
       description: "Hủy lưu việc thành công",
     });
-    setJobFreelancerInfo(response?.data?.data || null);
+    setJobFreelancerInfo(response?.data || null);
   };
 
   if (!job) {
@@ -267,17 +267,16 @@ const JobDetail = () => {
                 ))}
               </div>
               <div className="text-center">
-              <Button
-                    size="lg"
-                    className="px-8 mt-8 w-full"
-                    onClick={handleApplyJob}
-                    disabled={jobFreelancerInfo?.status != null}
-                  >
-                    {!jobFreelancerInfo?.status
-                      ? "Ứng tuyển ngay"
-                      : jobFreelancerInfo?.status}
-                  </Button>
-          
+                <Button
+                  size="lg"
+                  className="px-8 mt-8 w-full"
+                  onClick={handleApplyJob}
+                  disabled={jobFreelancerInfo?.status != null}
+                >
+                  {!jobFreelancerInfo?.status
+                    ? "Ứng tuyển ngay"
+                    : jobFreelancerInfo?.status}
+                </Button>
               </div>
             </Card>
           </FadeInWhenVisible>

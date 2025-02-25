@@ -18,10 +18,10 @@ const Jobs = () => {
     const fetchJobs = async () => {
       try {
         const response = await api.get("/jobs");
-        if (response.data.status === 200) {
-          setJobs(response.data.data);
+        if (response.status === 200) {
+          setJobs(response.data);
         } else {
-          console.error("Failed to fetch jobs:", response.data.message);
+          console.error("Failed to fetch jobs:", response.message);
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
