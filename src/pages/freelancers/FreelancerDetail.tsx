@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,111 +16,94 @@ import {
   Briefcase,
   GraduationCap,
   MessageCircle,
-} from 'lucide-react';
+  Calendar,
+  } from 'lucide-react';
+import api from '@/api/axiosConfig';
 
 const FreelancerDetail = () => {
   const { id } = useParams();
-  console.log('id ', id)
-  // In a real app, fetch freelancer details using the id
-  const freelancer = {
-    name: 'Nguyễn Văn A',
-    title: 'Senior Full Stack Developer',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    location: 'TP. Hồ Chí Minh',
-    rating: 4.9,
-    completedProjects: 45,
-    hourlyRate: '350.000đ',
-    overview:
-      'Full Stack Developer với hơn 7 năm kinh nghiệm phát triển ứng dụng web. Chuyên sâu về React, Node.js và các công nghệ hiện đại...',
-    skills: [
-      'React',
-      'Node.js',
-      'TypeScript',
-      'MongoDB',
-      'AWS',
-      'Docker',
-      'Next.js',
-    ],
-    education: [
-      {
-        school: 'Đại học Bách Khoa Hà Nội',
-        degree: 'Kỹ sư Công nghệ Thông tin',
-        year: '2015-2019',
-      },
-    ],
-    experience: [
-      {
-        company: 'Tech Solutions Inc.',
-        position: 'Senior Developer',
-        period: '2019-2023',
-        description:
-          'Phát triển và duy trì các ứng dụng web quy mô lớn sử dụng React và Node.js...',
-      },
-      {
-        company: 'Digital Innovation Co.',
-        position: 'Full Stack Developer',
-        period: '2017-2019',
-        description:
-          'Xây dựng các giải pháp web cho khách hàng doanh nghiệp...',
-      },
-    ],
-    portfolio: [
-      {
-        title: 'E-commerce Platform',
-        description: 'Nền tảng thương mại điện tử với React và Node.js',
-        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-      },
-      {
-        title: 'Task Management App',
-        description: 'Ứng dụng quản lý công việc với React Native',
-        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
-      },
+  const [freelancer, setFreelancer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    ],
+  useEffect(() => {
+    const fetchFreelancerDetail = async () => {
+      try {
+        const response = await api.get(`/freelancers/detail?id=${id}`);
+        setFreelancer(response.data); 
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching freelancer detail: ", error);
+        setLoading(false);
+      }
+    };
+
+    fetchFreelancerDetail();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long'
+    });
   };
 
   return (
-    <div className="py-12">
+    <div className="py-12 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Profile Header */}
           <FadeInWhenVisible>
-            <Card className="p-8 mb-8">
+            <Card className="p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-shrink-0">
-                  <img
-                    src={freelancer.avatar}
-                    alt={freelancer.name}
-                    className="w-32 h-32 rounded-full object-cover"
-                  />
+                  <div className="relative">
+                    <img
+                      src={freelancer?.avatar || "/placeholder-avatar.png"}
+                      alt={freelancer?.name}
+                      className="w-32 h-32 rounded-full object-cover ring-4 ring-primary/10"
+                    />
+                    <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-white"></div>
+                  </div>
                 </div>
                 <div className="flex-grow">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2">{freelancer.name}</h1>
-                      <p className="text-xl text-muted-foreground mb-4">
-                        {freelancer.title}
+                      <h1 className="text-3xl font-bold mb-2 text-gray-900">{freelancer?.name}</h1>
+                      <p className="text-xl text-primary mb-4">
+                        {freelancer?.title}
                       </p>
-                      <div className="flex flex-wrap gap-4 text-muted-foreground mb-4">
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {freelancer.location}
+                      <div className="flex flex-wrap gap-6 text-gray-600 mb-4">
+                        <div className="flex items-center group">
+                          <MapPin className="w-5 h-5 mr-2 text-primary" />
+                          <span className="group-hover:text-primary transition-colors">
+                            {freelancer?.location}
+                          </span>
                         </div>
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 mr-2 text-yellow-400 fill-current" />
-                          {freelancer.rating} (45 đánh giá)
+                        <div className="flex items-center group">
+                          <Star className="w-5 h-5 mr-2 text-yellow-400 fill-current" />
+                          <span className="group-hover:text-primary transition-colors">
+                            {freelancer?.rating.toFixed(1)} ({freelancer?.completeProject} dự án)
+                          </span>
                         </div>
-                        <div className="flex items-center">
-                          <Briefcase className="w-4 h-4 mr-2" />
-                          {freelancer.completedProjects} dự án hoàn thành
+                        <div className="flex items-center group">
+                          <Briefcase className="w-5 h-5 mr-2 text-primary" />
+                          <span className="group-hover:text-primary transition-colors">
+                            ${freelancer?.hourlyRate}/giờ
+                          </span>
                         </div>
                       </div>
-
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button>
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Liên hệ
+                      <Button size="lg" className="shadow-md hover:shadow-lg transition-shadow">
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        Liên hệ ngay
                       </Button>
                     </div>
                   </div>
@@ -128,25 +112,27 @@ const FreelancerDetail = () => {
             </Card>
           </FadeInWhenVisible>
 
-          {/* Main Content */}
           <FadeInWhenVisible delay={0.2}>
             <Tabs defaultValue="overview" className="space-y-4">
-              <TabsList>
+              <TabsList className="bg-white shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
-                <Card className="p-8">
-                  <h2 className="text-xl font-semibold mb-4">Giới thiệu</h2>
-                  <p className="text-muted-foreground mb-6">{freelancer.overview}</p>
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Giới thiệu</h2>
+                  <p className="text-gray-600 mb-8 leading-relaxed">{freelancer?.overview}</p>
 
-                  <h3 className="font-semibold mb-3">Kỹ năng:</h3>
+                  <h3 className="text-xl font-semibold mb-4 text-gray-900">Kỹ năng chuyên môn</h3>
                   <div className="flex flex-wrap gap-2">
-                    {freelancer.skills.map((skill) => (
-                      <Badge key={skill} variant="secondary">
+                    {freelancer?.skills.map((skill) => (
+                      <Badge 
+                        key={skill} 
+                        variant="secondary"
+                        className="px-4 py-2 text-sm hover:bg-primary hover:text-white transition-colors cursor-default"
+                      >
                         {skill}
                       </Badge>
                     ))}
@@ -154,62 +140,63 @@ const FreelancerDetail = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="portfolio">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {freelancer.portfolio.map((project, index) => (
-                    <Card key={index} className="overflow-hidden">
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="p-6">
-                        <h3 className="font-semibold mb-2">{project.title}</h3>
-                        <p className="text-muted-foreground">
-                          {project.description}
-                        </p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
               <TabsContent value="experience">
-                <Card className="p-8">
-                  <div className="space-y-8">
-                    {freelancer.experience.map((exp, index) => (
-                      <div key={index} className="flex gap-4">
-                        <div className="flex-shrink-0">
-                          <Briefcase className="w-8 h-8 text-primary" />
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  {freelancer?.experiences?.length > 0 ? (
+                    <div className="space-y-8">
+                      {freelancer.experiences.map((exp, index) => (
+                        <div key={index} className="flex gap-6 group">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                              <Briefcase className="w-6 h-6 text-primary" />
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-900">{exp.position}</h3>
+                            <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
+                              <span className="font-medium">{exp.company}</span>
+                              <span>•</span>
+                              <div className="flex items-center">
+                                <Calendar className="w-4 h-4 mr-1" />
+                                {exp.period}
+                              </div>
+                            </div>
+                            <p className="text-gray-600 leading-relaxed">{exp.description}</p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold">{exp.position}</h3>
-                          <p className="text-muted-foreground mb-2">
-                            {exp.company} • {exp.period}
-                          </p>
-                          <p className="text-muted-foreground">
-                            {exp.description}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Chưa có kinh nghiệm làm việc
+                    </div>
+                  )}
                 </Card>
               </TabsContent>
 
               <TabsContent value="education">
-                <Card className="p-8">
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
                   <div className="space-y-8">
-                    {freelancer.education.map((edu, index) => (
-                      <div key={index} className="flex gap-4">
+                    {freelancer?.educations.map((edu, index) => (
+                      <div key={index} className="flex gap-6 group">
                         <div className="flex-shrink-0">
-                          <GraduationCap className="w-8 h-8 text-primary" />
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <GraduationCap className="w-6 h-6 text-primary" />
+                          </div>
                         </div>
                         <div>
-                          <h3 className="font-semibold">{edu.school}</h3>
-                          <p className="text-muted-foreground mb-2">
-                            {edu.degree} • {edu.year}
-                          </p>
+                          <h3 className="text-xl font-semibold text-gray-900">{edu.school.schoolName}</h3>
+                          <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
+                            <span className="font-medium">{edu.degree.degreeTitle}</span>
+                            <span>•</span>
+                            <span className="font-medium text-primary">{edu.major.majorName}</span>
+                            <span>•</span>
+                            <div className="flex items-center">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {formatDate(edu.startDate)} - {formatDate(edu.endDate)}
+                            </div>
+                          </div>
+                          <p className="text-gray-600 leading-relaxed">{edu.description}</p>
                         </div>
                       </div>
                     ))}
