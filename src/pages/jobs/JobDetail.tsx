@@ -1,9 +1,9 @@
-import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
   Clock,
   DollarSign,
@@ -12,8 +12,11 @@ import {
   Calendar,
   Users,
   CheckCircle,
-} from 'lucide-react';
-import axiosInstance from '@/utils/axiosConfig';
+} from "lucide-react";
+import axiosInstance from "@/utils/axiosConfig";
+import { useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
+import { notification } from "antd";
 
 interface JobDetailResponse {
   title: string;
@@ -29,16 +32,28 @@ interface JobDetailResponse {
   deadline?: string;
 }
 
+interface JobFreelancerInfo {
+  id: number;
+  status: string;
+  jobId: number;
+  freelancerId: number;
+  saved: boolean;
+}
+
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [job, setJob] = useState<JobDetailResponse | null>(null);
+  const [error, setError] = useState("");
+  const [jobFreelancerInfo, setJobFreelancerInfo] =
+    useState<JobFreelancerInfo | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
         const response = await axiosInstance.get(`/jobs/detail-job/${id}`);
         if (response.status === 200) {
-          setJob(response.data?.data); 
+          setJob(response.data?.data);
         }
       } catch (error) {
         console.error("Error fetching job details:", error);
@@ -47,6 +62,90 @@ const JobDetail = () => {
 
     fetchJobDetail();
   }, [id]);
+
+  useEffect(() => {
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.freelancerId) {
+      navigate("/login");
+    }
+
+    const handleViewJob = async () => {
+      const response = await axiosInstance.post("/jobs/save", {
+        freelancerId: data?.freelancerId,
+        jobId: id,
+      });
+      if (response.status !== 200) {
+        notification.error({
+          message: "Lỗi dữ liệu",
+          description: response.data.message || "Dữ liệu không hợp lệ",
+        });
+
+        setError("Có lỗi xảy ra");
+      }
+      setJobFreelancerInfo(response?.data?.data || null);
+    };
+
+    handleViewJob();
+  }, []);
+
+  const handleApplyJob = async () => {
+    const response = await axiosInstance.post("/jobs/apply", {
+      freelancerId: jobFreelancerInfo?.freelancerId,
+      jobId: id,
+    });
+    if (response.status !== 200) {
+      notification.error({
+        message: "Lỗi dữ liệu",
+        description: response.data.message || "Dữ liệu không hợp lệ",
+      });
+
+      setError("Có lỗi xảy ra");
+    }
+    notification.info({
+      message: 'Thông báo',
+      description: 'Ứng tuyển thành công. Vui lòng chờ để được chấp nhận',
+    });
+    setJobFreelancerInfo(response?.data?.data || null);
+  };
+
+  const handleSaveJob = async () => {
+    const response = await axiosInstance.post("/jobs/save", {
+      freelancerId: jobFreelancerInfo?.freelancerId,
+      jobId: id,
+    });
+    if (response.status !== 200) {
+      notification.error({
+        message: "Lỗi dữ liệu",
+        description: response.data.message || "Dữ liệu không hợp lệ",
+      });
+
+      setError("Có lỗi xảy ra");
+    }
+    notification.info({
+      message: 'Thông báo',
+      description: 'Lưu việc thành công',
+    });
+    console.log("response ", response?.data?.data);
+    setJobFreelancerInfo(response?.data?.data || null);
+  };
+
+  const handleUnSaveJob = async () => {
+    const response = await axiosInstance.post("/jobs/unsave", {
+      freelancerId: jobFreelancerInfo?.freelancerId,
+      jobId: id,
+    });
+    if (response.status !== 200) {
+      alert("có lỗi");
+
+      setError("Có lỗi xảy ra");
+    }
+    notification.info({
+      message: 'Thông báo',
+      description: 'Hủy lưu việc thành công',
+    });
+    setJobFreelancerInfo(response?.data?.data || null);
+  };
 
   if (!job) {
     return <div>Loading...</div>;
@@ -77,8 +176,25 @@ const JobDetail = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button size="lg">Ứng tuyển ngay</Button>
-                  <Button variant="outline">Lưu việc làm</Button>
+                  {/* Apply button */}
+                  <Button
+                    size="lg"
+                    onClick={handleApplyJob}
+                    disabled={jobFreelancerInfo?.status != null}
+                  >
+                    {!jobFreelancerInfo?.status
+                      ? "Ứng tuyển ngay"
+                      : jobFreelancerInfo?.status}
+                  </Button>
+                  {/* Save/Unsave job button */}
+                  <Button
+                    variant="outline"
+                    onClick={
+                      jobFreelancerInfo?.saved ? handleUnSaveJob : handleSaveJob
+                    }
+                  >
+                    {jobFreelancerInfo?.saved ? "Hủy lưu" : "Lưu việc làm"}
+                  </Button>
                 </div>
               </div>
             </Card>
@@ -92,7 +208,9 @@ const JobDetail = () => {
                   <DollarSign className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
-                    <p className="font-semibold">{job.fromPrice} - {job.toPrice} VND</p>
+                    <p className="font-semibold">
+                      {job.fromPrice} - {job.toPrice} VND
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -103,7 +221,9 @@ const JobDetail = () => {
                 <div className="flex items-center gap-4">
                   <Clock className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Số giờ làm việc</p>
+                    <p className="text-sm text-muted-foreground">
+                      Số giờ làm việc
+                    </p>
                     <p className="font-semibold">{job.hourWork} giờ/tuần</p>
                   </div>
                 </div>
@@ -116,7 +236,9 @@ const JobDetail = () => {
                   <Calendar className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
-                    <p className="font-semibold">{!job.experience ? "Không yêu cầu" : job.experience}</p>
+                    <p className="font-semibold">
+                      {!job.experience ? "Không yêu cầu" : job.experience}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -127,7 +249,9 @@ const JobDetail = () => {
                 <div className="flex items-center gap-4">
                   <Users className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Số lượng ứng viên</p>
+                    <p className="text-sm text-muted-foreground">
+                      Số lượng ứng viên
+                    </p>
                     <p className="font-semibold">{job?.totalApplicant || 0}</p>
                   </div>
                 </div>
@@ -151,16 +275,6 @@ const JobDetail = () => {
                 ))}
               </ul>
 
-              {/* <h3 className="font-semibold mb-3">Quyền lợi:</h3>
-              <ul className="space-y-2 mb-6">
-                {job.benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
-                    <span className="text-muted-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul> */}
-
               <h3 className="font-semibold mb-3">Kỹ năng yêu cầu:</h3>
               <div className="flex flex-wrap gap-2">
                 {job?.skillNames?.map((skill) => (
@@ -170,15 +284,12 @@ const JobDetail = () => {
                 ))}
               </div>
               <div className="text-center">
-              <Button size="lg" className="px-8 mt-8 w-full">
-                Ứng tuyển ngay
-              </Button>
-            </div>
+                <Button size="lg" className="px-8 mt-8 w-full">
+                  Ứng tuyển ngay
+                </Button>
+              </div>
             </Card>
-          
           </FadeInWhenVisible>
-
-
         </div>
       </div>
     </div>
