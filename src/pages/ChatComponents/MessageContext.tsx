@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import websocketService from './websocketService';
+import chatApiService from './chatApiService';
 
 export interface Message {
     id: string;
@@ -28,382 +30,319 @@ interface MessageContextType {
     conversations: Conversation[];
     activeConversationId: string;
     messages: Message[];
+    isConnected: boolean;
+    reconnecting: boolean;
     setActiveConversationId: (id: string) => void;
     sendMessage: (content: string) => void;
     createNewConversation: (name: string) => string;
     markAsRead: (conversationId: string) => void;
 }
 
-// Sample data
-const sampleConversations: Conversation[] = [
-    {
-        id: '1',
-        name: 'Nguyễn Văn A',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-        lastMessage: 'Hey, how are you doing?',
-        timestamp: new Date(Date.now() - 15 * 60000), // 15 minutes ago
-        unread: 2,
-        isOnline: true,
-    },
-    {
-        id: '2',
-        name: 'Trần Thị B',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        lastMessage: 'Can we meet tomorrow?',
-        timestamp: new Date(Date.now() - 2 * 60 * 60000), // 2 hours ago
-        unread: 0,
-        isOnline: false,
-        lastSeen: '2 hours ago',
-    },
-    {
-        id: '3',
-        name: 'Lê Văn C',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        lastMessage: 'Thanks for your help!',
-        timestamp: new Date(Date.now() - 1 * 24 * 60 * 60000), // 1 day ago
-        unread: 0,
-        isOnline: true,
-    },
-    {
-        id: '4',
-        name: 'Phạm Thị D',
-        avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-        lastMessage: 'The project looks great!',
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60000), // 2 days ago
-        unread: 1,
-        isOnline: false,
-        lastSeen: '5 hours ago',
-    },
-    {
-        id: '5',
-        name: 'Hoàng Văn E',
-        avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79',
-        lastMessage: 'Let me check and get back to you',
-        timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000), // 3 days ago
-        unread: 0,
-        isOnline: false,
-        lastSeen: '1 day ago',
-    },
-    {
-        id: '6',
-        name: 'Vũ Thị F',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
-        lastMessage: 'I need your feedback on the design',
-        timestamp: new Date(Date.now() - 4 * 24 * 60 * 60000), // 4 days ago
-        unread: 0,
-        isOnline: true,
-    },
-];
-
-const sampleMessages: Record<string, Message[]> = {
-    '1': [
-        {
-            id: '101',
-            conversationId: '1',
-            content: 'Hey, how are you?',
-            timestamp: new Date(Date.now() - 30 * 60000), // 30 minutes ago
-            isMe: false,
-            isRead: true,
-            senderId: '1',
-            senderName: 'Nguyễn Văn A',
-            senderAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-        },
-        {
-            id: '102',
-            conversationId: '1',
-            content: "I'm good, thanks! How about you?",
-            timestamp: new Date(Date.now() - 25 * 60000), // 25 minutes ago
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '103',
-            conversationId: '1',
-            content: "I'm doing well. Just wanted to check in on the project progress.",
-            timestamp: new Date(Date.now() - 20 * 60000), // 20 minutes ago
-            isMe: false,
-            isRead: true,
-            senderId: '1',
-            senderName: 'Nguyễn Văn A',
-            senderAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-        },
-        {
-            id: '104',
-            conversationId: '1',
-            content: "We're on track. I'll send you the latest update this afternoon.",
-            timestamp: new Date(Date.now() - 18 * 60000), // 18 minutes ago
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '105',
-            conversationId: '1',
-            content: 'Great! Looking forward to it.',
-            timestamp: new Date(Date.now() - 15 * 60000), // 15 minutes ago
-            isMe: false,
-            isRead: true,
-            senderId: '1',
-            senderName: 'Nguyễn Văn A',
-            senderAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-        },
-    ],
-    '2': [
-        {
-            id: '201',
-            conversationId: '2',
-            content: 'Hi there!',
-            timestamp: new Date(Date.now() - 4 * 60 * 60000), // 4 hours ago
-            isMe: false,
-            isRead: true,
-            senderId: '2',
-            senderName: 'Trần Thị B',
-            senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        },
-        {
-            id: '202',
-            conversationId: '2',
-            content: 'Hello! How can I help you?',
-            timestamp: new Date(Date.now() - 3.5 * 60 * 60000), // 3.5 hours ago
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '203',
-            conversationId: '2',
-            content: 'I wanted to discuss the meeting we have scheduled for next week.',
-            timestamp: new Date(Date.now() - 3 * 60 * 60000), // 3 hours ago
-            isMe: false,
-            isRead: true,
-            senderId: '2',
-            senderName: 'Trần Thị B',
-            senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        },
-        {
-            id: '204',
-            conversationId: '2',
-            content: 'Can we meet tomorrow to prepare?',
-            timestamp: new Date(Date.now() - 2 * 60 * 60000), // 2 hours ago
-            isMe: false,
-            isRead: true,
-            senderId: '2',
-            senderName: 'Trần Thị B',
-            senderAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        },
-    ],
-    '3': [
-        {
-            id: '301',
-            conversationId: '3',
-            content: 'Hey, I need your help with something.',
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60000), // 2 days ago
-            isMe: false,
-            isRead: true,
-            senderId: '3',
-            senderName: 'Lê Văn C',
-            senderAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        },
-        {
-            id: '302',
-            conversationId: '3',
-            content: 'Sure, what do you need?',
-            timestamp: new Date(Date.now() - 1.9 * 24 * 60 * 60000),
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '303',
-            conversationId: '3',
-            content: 'I was wondering if you could review this document for me.',
-            timestamp: new Date(Date.now() - 1.8 * 24 * 60 * 60000),
-            isMe: false,
-            isRead: true,
-            senderId: '3',
-            senderName: 'Lê Văn C',
-            senderAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        },
-        {
-            id: '304',
-            conversationId: '3',
-            content: 'Just sent it to you. Let me know what you think.',
-            timestamp: new Date(Date.now() - 1.7 * 24 * 60 * 60000),
-            isMe: false,
-            isRead: true,
-            senderId: '3',
-            senderName: 'Lê Văn C',
-            senderAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        },
-        {
-            id: '305',
-            conversationId: '3',
-            content: "I've reviewed it and sent you my feedback.",
-            timestamp: new Date(Date.now() - 1.1 * 24 * 60 * 60000),
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '306',
-            conversationId: '3',
-            content: 'Thanks for your help!',
-            timestamp: new Date(Date.now() - 1 * 24 * 60 * 60000), // 1 day ago
-            isMe: false,
-            isRead: true,
-            senderId: '3',
-            senderName: 'Lê Văn C',
-            senderAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        },
-    ],
-    '4': [
-        {
-            id: '401',
-            conversationId: '4',
-            content: 'Hi, I wanted to get your thoughts on the new project.',
-            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000), // 3 days ago
-            isMe: false,
-            isRead: true,
-            senderId: '4',
-            senderName: 'Phạm Thị D',
-            senderAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-        },
-        {
-            id: '402',
-            conversationId: '4',
-            content: "It's an interesting concept. When do we start?",
-            timestamp: new Date(Date.now() - 2.5 * 24 * 60 * 60000),
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '403',
-            conversationId: '4',
-            content: "Next week. I think you'll really enjoy working on this one.",
-            timestamp: new Date(Date.now() - 2.2 * 24 * 60 * 60000),
-            isMe: false,
-            isRead: true,
-            senderId: '4',
-            senderName: 'Phạm Thị D',
-            senderAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-        },
-        {
-            id: '404',
-            conversationId: '4',
-            content: 'The project looks great!',
-            timestamp: new Date(Date.now() - 2 * 24 * 60 * 60000), // 2 days ago
-            isMe: false,
-            isRead: false,
-            senderId: '4',
-            senderName: 'Phạm Thị D',
-            senderAvatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-        },
-    ],
-    '5': [
-        {
-            id: '501',
-            conversationId: '5',
-            content: 'Do you have the report ready?',
-            timestamp: new Date(Date.now() - 5 * 24 * 60 * 60000), // 5 days ago
-            isMe: false,
-            isRead: true,
-            senderId: '5',
-            senderName: 'Hoàng Văn E',
-            senderAvatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79',
-        },
-        {
-            id: '502',
-            conversationId: '5',
-            content: "I'm still working on it. Should be done by tomorrow.",
-            timestamp: new Date(Date.now() - 4.5 * 24 * 60 * 60000),
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '503',
-            conversationId: '5',
-            content: "OK. Let me know when it's ready.",
-            timestamp: new Date(Date.now() - 4 * 24 * 60 * 60000),
-            isMe: false,
-            isRead: true,
-            senderId: '5',
-            senderName: 'Hoàng Văn E',
-            senderAvatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79',
-        },
-        {
-            id: '504',
-            conversationId: '5',
-            content: "I've finished the report. Just sent it to you.",
-            timestamp: new Date(Date.now() - 3.5 * 24 * 60 * 60000),
-            isMe: true,
-            isRead: true,
-            senderId: 'me',
-        },
-        {
-            id: '505',
-            conversationId: '5',
-            content: 'Let me check and get back to you',
-            timestamp: new Date(Date.now() - 3 * 24 * 60 * 60000), // 3 days ago
-            isMe: false,
-            isRead: true,
-            senderId: '5',
-            senderName: 'Hoàng Văn E',
-            senderAvatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79',
-        },
-    ],
-    '6': []
-};
-
-// Create the context with a default undefined value
 const MessageContext = createContext<MessageContextType>({} as MessageContextType);
 
-// Provider component
 interface MessageProviderProps {
     children: ReactNode;
 }
 
 export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) => {
-    const [conversations, setConversations] = useState<Conversation[]>(sampleConversations);
+    const [conversations, setConversations] = useState<Conversation[]>([]);
     const [activeConversationId, setActiveConversationId] = useState<string>('');
-    const [allMessages, setAllMessages] = useState<Record<string, Message[]>>(sampleMessages);
+    const [allMessages, setAllMessages] = useState<Record<string, Message[]>>({});
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [reconnecting, setReconnecting] = useState<boolean>(false);
+    const [userId, setUserId] = useState<string>('');
 
     const messages = activeConversationId ? allMessages[activeConversationId] || [] : [];
 
-    const sendMessage = (content: string) => {
-        if (!activeConversationId || !content.trim()) return;
+    // Initialize userId from localStorage
+    useEffect(() => {
+        const storedUserId = JSON.parse(localStorage.getItem('userInfo') || '').userId;
+        if (storedUserId) {
+            setUserId(storedUserId);
+        }
+    }, []);
 
+    // Load conversation list from API
+    const loadConversations = useCallback(async () => {
+        if (!userId) return;
+
+        try {
+            const conversationsData = await chatApiService.getConversations(userId);
+
+            // Map API data to our Conversation interface
+            const mappedConversations: Conversation[] = conversationsData.map(conv => ({
+                id: conv.userId,
+                name: conv.name,
+                avatar: conv.avatar,
+                lastMessage: conv.lastMessage,
+                timestamp: conv.timestamp,
+                unread: conv.unreadCount,
+                isOnline: conv.isOnline,
+                lastSeen: conv.lastSeen || undefined
+            }));
+
+            setConversations(mappedConversations);
+        } catch (error) {
+            console.error('Failed to load conversations:', error);
+        }
+    }, [userId]);
+
+    // Handle incoming messages from WebSocket
+    const handleIncomingMessage = useCallback((message: any) => {
+        const isActiveConversation = activeConversationId === message.senderId;
+
+        // Create our message format
         const newMessage: Message = {
-            id: uuidv4(),
+            id: message.id || uuidv4(),
+            conversationId: message.senderId,
+            content: message.content,
+            timestamp: new Date(message.timestamp || new Date()),
+            isMe: false,
+            isRead: isActiveConversation, // If active conversation, mark as read immediately
+            senderId: message.senderId,
+            senderName: message.senderName,
+            senderAvatar: message.senderAvatar
+        };
+
+        // Add to messages for that conversation
+        setAllMessages(prev => {
+            const conversationMessages = prev[message.senderId] || [];
+            return {
+                ...prev,
+                [message.senderId]: [...conversationMessages, newMessage]
+            };
+        });
+
+        // Update conversation list
+        setConversations(prev => {
+            const existingConvIndex = prev.findIndex(c => c.id === message.senderId);
+
+            if (existingConvIndex >= 0) {
+                const updatedConversations = [...prev];
+                updatedConversations[existingConvIndex] = {
+                    ...updatedConversations[existingConvIndex],
+                    lastMessage: message.content,
+                    timestamp: new Date(),
+                    unread: isActiveConversation
+                        ? updatedConversations[existingConvIndex].unread
+                        : updatedConversations[existingConvIndex].unread + 1
+                };
+
+                // Move this conversation to the top
+                const [updatedConv] = updatedConversations.splice(existingConvIndex, 1);
+                return [updatedConv, ...updatedConversations];
+            }
+
+            // New conversation (shouldn't normally happen without API update)
+            return prev;
+        });
+
+        // If this is the active conversation, mark as read automatically
+        if (isActiveConversation) {
+            markAsRead(message.senderId);
+        }
+    }, [activeConversationId]);
+
+    // Handle read receipts from WebSocket
+    const handleReadReceipt = useCallback((receipt: any) => {
+        // Update messages that were sent by the current user to the sender who read them
+        setAllMessages(prev => {
+            const conversationId = receipt.senderId; // The other user who sent the receipt
+            const conversationMessages = prev[conversationId];
+
+            if (!conversationMessages) return prev;
+
+            const updatedMessages = conversationMessages.map(msg => {
+                if (msg.isMe && !msg.isRead) {
+                    return { ...msg, isRead: true };
+                }
+                return msg;
+            });
+
+            return {
+                ...prev,
+                [conversationId]: updatedMessages
+            };
+        });
+    }, []);
+
+    // Handle user status updates from WebSocket
+    const handleStatusUpdate = useCallback((status: any) => {
+        setConversations(prev =>
+            prev.map(conv => {
+                if (conv.id === status.userId) {
+                    return {
+                        ...conv,
+                        isOnline: status.isOnline,
+                        lastSeen: status.isOnline ? undefined : 'Just now'
+                    };
+                }
+                return conv;
+            })
+        );
+    }, []);
+
+    // Setup WebSocket connection when userId is available
+    useEffect(() => {
+        if (!userId) return;
+
+        const callbacks = {
+            onMessageReceived: (message: any) => {
+                handleIncomingMessage(message);
+            },
+            onReadReceiptReceived: (receipt: any) => {
+                handleReadReceipt(receipt);
+            },
+            onStatusReceived: (status: any) => {
+                handleStatusUpdate(status);
+            },
+            onConnectionEstablished: () => {
+                setIsConnected(true);
+                setReconnecting(false);
+                // Reload conversation list when reconnected
+                loadConversations();
+            },
+            onConnectionLost: () => {
+                setIsConnected(false);
+                setReconnecting(true);
+            }
+        };
+
+        websocketService.connect(userId, callbacks);
+
+        // Load initial conversation list
+        loadConversations();
+
+        return () => {
+            websocketService.disconnect();
+        };
+    }, [userId, handleIncomingMessage, handleReadReceipt, handleStatusUpdate, loadConversations]);
+
+    // Load message history when active conversation changes
+    useEffect(() => {
+        if (!userId || !activeConversationId) return;
+
+        const loadMessages = async () => {
+            try {
+                const messagesData = await chatApiService.getMessages(userId, activeConversationId);
+
+                // Map API data to our Message interface
+                const mappedMessages: Message[] = messagesData.map(msg => ({
+                    id: msg.id,
+                    conversationId: activeConversationId,
+                    content: msg.content,
+                    timestamp: new Date(msg.timestamp),
+                    isMe: msg.senderId === userId,
+                    isRead: msg.isRead,
+                    senderId: msg.senderId,
+                    senderName: msg.senderName,
+                    senderAvatar: msg.senderAvatar
+                }));
+
+                setAllMessages(prev => ({
+                    ...prev,
+                    [activeConversationId]: mappedMessages,
+                }));
+
+                // Mark messages as read automatically
+                if (mappedMessages.some(msg => !msg.isRead && !msg.isMe)) {
+                    markAsRead(activeConversationId);
+                }
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        };
+
+        loadMessages();
+    }, [userId, activeConversationId]);
+
+    // Mark messages as read
+    const markAsRead = useCallback((conversationId: string) => {
+        if (!userId || !conversationId) return;
+
+        // Mark messages as read locally
+        setAllMessages(prev => {
+            if (!prev[conversationId]) return prev;
+
+            return {
+                ...prev,
+                [conversationId]: prev[conversationId].map(msg => ({
+                    ...msg,
+                    isRead: true,
+                })),
+            };
+        });
+
+        // Update conversation unread count
+        setConversations(prev =>
+            prev.map(conv =>
+                conv.id === conversationId
+                    ? {
+                        ...conv,
+                        unread: 0,
+                    }
+                    : conv
+            )
+        );
+
+        // Send read receipt via WebSocket
+        websocketService.markAsRead(conversationId);
+
+        // Also send via API to ensure persistence
+        chatApiService.markMessagesAsRead({
+            receiverId: userId,
+            senderId: conversationId
+        });
+    }, [userId]);
+
+    // Send a message via WebSocket
+    const sendMessage = useCallback((content: string) => {
+        if (!activeConversationId || !content.trim() || !isConnected || !userId) return;
+
+        // Create a temporary message (will be replaced by server response in real implementation)
+        const tempId = uuidv4();
+        const newMessage: Message = {
+            id: tempId,
             conversationId: activeConversationId,
             content,
             timestamp: new Date(),
             isMe: true,
             isRead: false,
-            senderId: 'me',
+            senderId: userId,
         };
 
+        // Add to UI immediately for responsiveness
         setAllMessages(prev => ({
             ...prev,
             [activeConversationId]: [...(prev[activeConversationId] || []), newMessage],
         }));
 
-        setConversations(prev =>
-            prev.map(conv =>
-                conv.id === activeConversationId
-                    ? {
-                        ...conv,
-                        lastMessage: content,
-                        timestamp: new Date(),
-                    }
-                    : conv
-            )
-        );
-    };
+        // Update conversation list
+        setConversations(prev => {
+            const existingConvIndex = prev.findIndex(c => c.id === activeConversationId);
 
-    const createNewConversation = (name: string): string => {
+            if (existingConvIndex >= 0) {
+                const updatedConversations = [...prev];
+                updatedConversations[existingConvIndex] = {
+                    ...updatedConversations[existingConvIndex],
+                    lastMessage: content,
+                    timestamp: new Date(),
+                };
+
+                // Move this conversation to the top
+                const [updatedConv] = updatedConversations.splice(existingConvIndex, 1);
+                return [updatedConv, ...updatedConversations];
+            }
+
+            return prev;
+        });
+
+        // Send via WebSocket
+        websocketService.sendMessage(activeConversationId, content);
+    }, [activeConversationId, isConnected, userId]);
+
+    // Create a new conversation
+    const createNewConversation = useCallback((name: string): string => {
         const newId = uuidv4();
         const newConversation: Conversation = {
             id: newId,
@@ -422,33 +361,9 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         }));
 
         return newId;
-    };
+    }, []);
 
-    const markAsRead = (conversationId: string) => {
-        setAllMessages(prev => {
-            if (!prev[conversationId]) return prev;
-
-            return {
-                ...prev,
-                [conversationId]: prev[conversationId].map(msg => ({
-                    ...msg,
-                    isRead: true,
-                })),
-            };
-        });
-
-        setConversations(prev =>
-            prev.map(conv =>
-                conv.id === conversationId
-                    ? {
-                        ...conv,
-                        unread: 0,
-                    }
-                    : conv
-            )
-        );
-    };
-
+    // Mark messages as read when active conversation changes
     useEffect(() => {
         if (activeConversationId) {
             markAsRead(activeConversationId);
@@ -459,11 +374,14 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         conversations,
         activeConversationId,
         messages,
+        isConnected,
+        reconnecting,
         setActiveConversationId,
         sendMessage,
         createNewConversation,
         markAsRead,
     };
+
     return <MessageContext.Provider value={value}> {children} </MessageContext.Provider>;
 };
 

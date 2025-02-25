@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8080/api/v1',
+        API_URL: 'http://localhost:8080/api',
         TIMEOUT: 30000,
     },
     production: {
@@ -26,18 +26,18 @@ const axiosInstance = axios.create({
 });
 
 // interceptor request
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+// axiosInstance.interceptors.request.use(
+//     (config) => {
+//         const token = localStorage.getItem('token');
+//         if (token) {
+//             config.headers.Authorization = `Bearer ${token}`;
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     }
+// );
 
 // interceptor response
 axiosInstance.interceptors.response.use(
