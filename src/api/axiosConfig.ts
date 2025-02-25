@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8000/',
+        API_URL: 'http://localhost:8000/api/v1',
         TIMEOUT: 30000,
     },
     production: {
@@ -16,7 +16,7 @@ const ENV = {
 const config = ENV[process.env.NODE_ENV || 'development'];
 
 // instance axios
-const axiosInstance = axios.create({
+const api = axios.create({
     baseURL: config.API_URL,
     timeout: config.TIMEOUT,
     headers: {
@@ -26,7 +26,7 @@ const axiosInstance = axios.create({
 });
 
 // interceptor request
-axiosInstance.interceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -40,7 +40,7 @@ axiosInstance.interceptors.request.use(
 );
 
 // interceptor response
-axiosInstance.interceptors.response.use(
+api.interceptors.response.use(
     (response) => {
         return response.data;
     },
@@ -106,11 +106,11 @@ axiosInstance.interceptors.response.use(
 );
 
 const api = {
-    get: (url, config = {}) => axiosInstance.get(url, config),
-    post: (url, data, config = {}) => axiosInstance.post(url, data, config),
-    put: (url, data, config = {}) => axiosInstance.put(url, data, config),
-    delete: (url, config = {}) => axiosInstance.delete(url, config),
-    patch: (url, data, config = {}) => axiosInstance.patch(url, data, config)
+    get: (url, config = {}) => api.get(url, config),
+    post: (url, data, config = {}) => api.post(url, data, config),
+    put: (url, data, config = {}) => api.put(url, data, config),
+    delete: (url, config = {}) => api.delete(url, config),
+    patch: (url, data, config = {}) => api.patch(url, data, config)
 };
 
 // cách sử dụng
