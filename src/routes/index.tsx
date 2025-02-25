@@ -26,6 +26,7 @@ import ClientProfile from '@/pages/client/ClientProfile';
 import { BannersPage } from '@/pages/banners';
 import MessagingPage from '@/pages/MessagingPage';
 import PostedJobs from '@/pages/PostedJobs';
+import ClientDetail from '@/pages/client/ClientDetail';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -83,6 +84,10 @@ export const mainRoutes: RouteObject[] = [
         element: <ClientProfile />
     },
     {
+        path: '/clients/:id',
+        element: <ClientDetail />
+    },
+    {
         path: '/client/jobs/:id',
         element: <JobDetail />
     },
@@ -113,6 +118,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/messaging',
         element: <MessagingPage />
+    },
+    {
+        path: '/freelancer/applied-jobs',
+        element: <AppliedJobs />
     },
     {
         path: '*',
