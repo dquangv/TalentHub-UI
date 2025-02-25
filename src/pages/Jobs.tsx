@@ -7,7 +7,7 @@ import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Search, Filter, Clock, DollarSign, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import axiosInstance from "@/utils/axiosConfig";
+import api from "@/api/axiosConfig";
 
 const Jobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,7 +17,7 @@ const Jobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await axiosInstance.get("/jobs");
+        const response = await api.get("/jobs");
         if (response.data.status === 200) {
           setJobs(response.data.data);
         } else {
@@ -36,7 +36,7 @@ const Jobs = () => {
     try {
       const freelancerId = 1;
 
-      const response = await axiosInstance.post("/jobs/apply", {
+      const response = await api.post("/jobs/apply", {
         jobId,
         freelancerId,
       });
