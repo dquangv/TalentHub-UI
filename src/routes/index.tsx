@@ -25,6 +25,7 @@ import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
 import { BannersPage } from '@/pages/banners';
 import MessagingPage from '@/pages/MessagingPage';
+import PostedJobs from '@/pages/PostedJobs';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -84,6 +85,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/client/jobs/:id',
         element: <JobDetail />
+    },
+    {
+        path: '/client/posted-jobs',
+        element: <PostedJobs />
     },
     {
         path: '/client/applied-jobs',
