@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Mail, Lock, BriefcaseIcon } from 'lucide-react';
-import axiosInstance from '@/utils/axiosConfig';
+import api from '@/api/axiosConfig';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -39,7 +39,7 @@ const Register = () => {
 
     try {
       formData.status = true;
-      const response = await axiosInstance.post('account/register', formData);
+      const response = await api.post('account/register', formData);
       console.log(response.data);
       navigate("/login")
     } catch (err: any) {

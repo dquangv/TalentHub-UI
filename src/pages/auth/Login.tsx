@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Mail, Lock, Chrome, Facebook } from "lucide-react";
-import axiosInstance from "@/utils/axiosConfig";
+import api from "@/api/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext"; 
 
 const Login = () => {
@@ -28,7 +28,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axiosInstance.post("/auth/login", formData);
+      const response = await api.post("/auth/login", formData);
 
       console.log("Login successful:", response);
       const data = response.data.data;

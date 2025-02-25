@@ -33,6 +33,11 @@ const menuItems = [
     title: "Quản lý Gói dịch vụ",
     icon: CreditCard,
     href: "/pricing",
+  },
+  {
+    title: "Quản lý Banners",
+    icon: CreditCard,
+    href: "/banners",
   }
 ];
 

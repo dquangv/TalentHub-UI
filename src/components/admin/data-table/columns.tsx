@@ -15,8 +15,8 @@ export const freelancerColumns: ColumnDef<any>[] = [
     header: "Họ và tên",
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "title",
+    header: "Title",
   },
   {
     accessorKey: "skills",
@@ -27,6 +27,7 @@ export const freelancerColumns: ColumnDef<any>[] = [
     header: "Trạng thái",
   },
   {
+    header:"Hành động",
     id: "actions",
     cell: () => {
       return (
