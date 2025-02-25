@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8000/api/v1',
+        API_URL: 'http://localhost:8080/api',
         TIMEOUT: 30000,
     },
     production: {
