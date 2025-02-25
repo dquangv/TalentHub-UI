@@ -24,7 +24,7 @@ import ForgotPassword from '@/pages/ForgetPassword';
 import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
 import { BannersPage } from '@/pages/banners';
-import MessagingPage from '@/pages/MessaginPage';
+import MessagingPage from '@/pages/MessagingPage';
 
 export const chatLayoutPaths = ['/messaging'];
 
