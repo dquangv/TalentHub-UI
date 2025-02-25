@@ -1,14 +1,14 @@
 import { DataTable } from "@/components/admin/data-table/data-table";
 import { freelancerColumns } from "@/components/admin/data-table/columns";
 import { useEffect, useState } from "react";
-import axiosInstance from "@/utils/axiosConfig";
+import api from "@/api/axiosConfig";
 
 export default function FreelancersPage() {
   const [freelancers, setFreelancers] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchFreelancers() {
-      const response = await axiosInstance.get("/freelancers/info");
+      const response = await api.get("/freelancers/info");
       if (response.data.status === 200) {
         setFreelancers(response.data.data);
 
