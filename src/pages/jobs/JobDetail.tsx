@@ -14,7 +14,7 @@ import {
   CheckCircle,
   User,
 } from "lucide-react";
-import axiosInstance from "@/utils/axiosConfig";
+import api from "@/api/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import { notification } from "antd";
@@ -52,7 +52,7 @@ const JobDetail = () => {
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
-        const response = await axiosInstance.get(`/jobs/detail-job/${id}`);
+        const response = await api.get(`/jobs/detail-job/${id}`);
         if (response.status === 200) {
           setJob(response.data?.data);
         }
@@ -72,7 +72,7 @@ const JobDetail = () => {
     }
 
     const handleViewJob = async () => {
-      const response = await axiosInstance.post("/jobs/save", {
+      const response = await api.post("/jobs/save", {
         freelancerId: data?.freelancerId,
         jobId: id,
       });
@@ -91,7 +91,7 @@ const JobDetail = () => {
   }, []);
 
   const handleApplyJob = async () => {
-    const response = await axiosInstance.post("/jobs/apply", {
+    const response = await api.post("/jobs/apply", {
       freelancerId: jobFreelancerInfo?.freelancerId,
       jobId: id,
     });
@@ -111,7 +111,7 @@ const JobDetail = () => {
   };
 
   const handleSaveJob = async () => {
-    const response = await axiosInstance.post("/jobs/save", {
+    const response = await api.post("/jobs/save", {
       freelancerId: jobFreelancerInfo?.freelancerId,
       jobId: id,
     });
@@ -132,7 +132,7 @@ const JobDetail = () => {
   };
 
   const handleUnSaveJob = async () => {
-    const response = await axiosInstance.post("/jobs/unsave", {
+    const response = await api.post("/jobs/unsave", {
       freelancerId: jobFreelancerInfo?.freelancerId,
       jobId: id,
     });
