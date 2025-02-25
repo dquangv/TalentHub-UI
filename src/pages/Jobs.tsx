@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Search, Filter, Clock, DollarSign, Briefcase } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import axiosInstance from '@/utils/axiosConfig';
 
@@ -31,22 +30,22 @@ const Jobs = () => {
     fetchJobs();
   }, []);
 
-  const handleApply = () => {}
+  const handleApply = () => { }
   const handleSaveJob = async (jobId) => {
     try {
-      const freelancerId = 1; 
-      
+      const freelancerId = 1;
+
       const response = await axiosInstance.post('/jobs/apply', {
         jobId,
         freelancerId
       });
 
       if (response.data.status === 200) {
-        alert('Successfully applied for job:'+ jobId);
+        alert('Successfully applied for job:' + jobId);
       } else {
       }
     } catch (error) {
-      alert('Error applying for job:'+ error);
+      alert('Error applying for job:' + error);
     }
   };
 
@@ -115,14 +114,14 @@ const Jobs = () => {
                         <DollarSign className="w-4 h-4 mr-2" />
                         {job.fromPrice} - {job.toPrice} VND
                       </div>
-                    
+
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <Button onClick={() => handleApply(job.id)}>{t('Apply')}</Button>
                     <div className='flex justify-center'>
                       Đã xem
-                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
