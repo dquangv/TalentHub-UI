@@ -23,10 +23,6 @@ import SavedJobs from '@/pages/freelancer/SavedJobs';
 import ForgotPassword from '@/pages/ForgetPassword';
 import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
-import MessagingPage from '@/pages/MessagingPage';
-
-export const chatLayoutPaths = ['/messaging'];
-
 export const mainRoutes: RouteObject[] = [
     {
         path: '/',
@@ -108,11 +104,9 @@ export const mainRoutes: RouteObject[] = [
         path: '/appointment',
         element: <Appointment />
     },
-    {
-        path: '/messaging',
-        element: <MessagingPage />
-    },
 ];
+
+
 
 export const adminRoutes: RouteObject[] = [
     {
