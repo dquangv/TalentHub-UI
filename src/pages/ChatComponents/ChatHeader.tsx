@@ -1,7 +1,7 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Phone, Video, Info } from 'lucide-react';
+import { Phone, Video, Info, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatHeaderProps {
@@ -10,6 +10,7 @@ interface ChatHeaderProps {
     isOnline: boolean;
     lastSeen?: string;
     onInfoClick?: () => void;
+    onBackClick?: () => void; // New prop for mobile navigation
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -17,24 +18,35 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     avatar,
     isOnline,
     lastSeen,
-    onInfoClick
+    onInfoClick,
+    onBackClick
 }) => {
     return (
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-3 md:p-4 border-b">
             <div className="flex items-center">
-                <div className="relative mr-3">
-                    <Avatar className="h-10 w-10">
+                {onBackClick && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="mr-1 md:hidden"
+                        onClick={onBackClick}
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                )}
+                <div className="relative mr-2 md:mr-3">
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10">
                         <AvatarImage src={avatar} />
                         <AvatarFallback className="bg-primary/10 text-primary">
                             {name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
                     {isOnline && (
-                        <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-background"></span>
+                        <span className="absolute bottom-0 right-0 h-2 w-2 md:h-3 md:w-3 rounded-full bg-green-500 border-2 border-background"></span>
                     )}
                 </div>
                 <div>
-                    <h2 className="font-semibold">{name}</h2>
+                    <h2 className="font-semibold text-sm md:text-base">{name}</h2>
                     <p className="text-xs text-muted-foreground">
                         {isOnline ? 'Online' : lastSeen ? `Last seen ${lastSeen}` : 'Offline'}
                     </p>
@@ -42,24 +54,24 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             </div>
 
             <div className="flex items-center space-x-1">
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                        <Phone className="h-5 w-5 text-primary" />
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="hidden sm:block">
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
+                        <Phone className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </Button>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                        <Video className="h-5 w-5 text-primary" />
+                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="hidden sm:block">
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
+                        <Video className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="rounded-full"
+                        className="rounded-full h-8 w-8 md:h-10 md:w-10"
                         onClick={onInfoClick}
                     >
-                        <Info className="h-5 w-5 text-primary" />
+                        <Info className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </Button>
                 </motion.div>
             </div>

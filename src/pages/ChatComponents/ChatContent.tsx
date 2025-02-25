@@ -1,3 +1,4 @@
+// ChatContent.tsx - Fixed scrolling issue
 import React, { useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
@@ -24,13 +25,13 @@ const ChatContent: React.FC<ChatContentProps> = ({
         }
     }, [messages]);
 
-    // Xử lý trường hợp không có tin nhắn
+    // Handle case with no messages
     if (messages.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center p-4">
+            <div className="flex-1 flex flex-col items-center justify-center p-3 md:p-4">
                 <div className="text-center text-muted-foreground">
-                    <p>Chưa có tin nhắn nào.</p>
-                    <p>Hãy bắt đầu cuộc trò chuyện!</p>
+                    <p className="text-sm md:text-base">Chưa có tin nhắn nào.</p>
+                    <p className="text-sm md:text-base">Hãy bắt đầu cuộc trò chuyện!</p>
                 </div>
             </div>
         );
@@ -67,32 +68,34 @@ const ChatContent: React.FC<ChatContentProps> = ({
     };
 
     return (
-        <div className="flex-1 flex flex-col" ref={scrollAreaRef}>
-            <ScrollArea className="flex-1 p-4">
-                {Object.keys(groupedMessages).map((date, index) => (
-                    <div key={date}>
-                        <div className="flex justify-center my-4">
-                            <FadeInWhenVisible delay={index * 0.1}>
-                                <div className="px-3 py-1 text-xs rounded-full bg-muted text-muted-foreground">
-                                    {formatDateHeader(date)}
-                                </div>
-                            </FadeInWhenVisible>
-                        </div>
+        <div className="h-full w-full" ref={scrollAreaRef}>
+            <ScrollArea className="h-full w-full p-2 md:p-4">
+                <div className="pb-1">
+                    {Object.keys(groupedMessages).map((date, index) => (
+                        <div key={date}>
+                            <div className="flex justify-center my-2 md:my-4">
+                                <FadeInWhenVisible delay={index * 0.1}>
+                                    <div className="px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs rounded-full bg-muted text-muted-foreground">
+                                        {formatDateHeader(date)}
+                                    </div>
+                                </FadeInWhenVisible>
+                            </div>
 
-                        {groupedMessages[date].map((message) => (
-                            <FadeInWhenVisible key={message.id} delay={0.05}>
-                                <ChatMessage
-                                    content={message.content}
-                                    timestamp={message.timestamp}
-                                    isMe={message.isMe}
-                                    isRead={message.isRead}
-                                    senderName={message.senderName}
-                                    senderAvatar={message.senderAvatar}
-                                />
-                            </FadeInWhenVisible>
-                        ))}
-                    </div>
-                ))}
+                            {groupedMessages[date].map((message) => (
+                                <FadeInWhenVisible key={message.id} delay={0.05}>
+                                    <ChatMessage
+                                        content={message.content}
+                                        timestamp={message.timestamp}
+                                        isMe={message.isMe}
+                                        isRead={message.isRead}
+                                        senderName={message.senderName}
+                                        senderAvatar={message.senderAvatar}
+                                    />
+                                </FadeInWhenVisible>
+                            ))}
+                        </div>
+                    ))}
+                </div>
             </ScrollArea>
         </div>
     );
