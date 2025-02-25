@@ -1,16 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MessageSquare, Info, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
+
+
+// Import chat components
 import { MessageProvider, useMessages } from './ChatComponents/MessageContext';
 import ConversationList from './ChatComponents/ConversationList';
 import ChatHeader from './ChatComponents/ChatHeader';
 import ChatContent from './ChatComponents/ChatContent';
 import ChatInput from './ChatComponents/ChatInput';
 import EmptyState from './ChatComponents/EmptyState';
+import MessageInfoPanel from './ChatComponents/MessageInfoPanel';
+import websocketService from './ChatComponents/websocketService';
+import chatApiService from './ChatComponents/chatApiService';
+
+// Component to show connection status
+const ConnectionStatus: React.FC = () => {
+    const { isConnected, reconnecting } = useMessages();
+
+    if (isConnected) {
+        return null; // Don't show anything when connected
+    }
+
+    return (
+        <Alert variant="destructive" className="fixed bottom-4 right-4 max-w-md z-50 flex items-center">
+            {reconnecting ? (
+                <>
+                    <AlertCircle className="h-4 w-4 mr-2 animate-pulse" />
+                    <AlertDescription>
+                        Đang kết nối lại với máy chủ...
+                    </AlertDescription>
+                </>
+            ) : (
+                <>
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    <AlertDescription>
+                        Mất kết nối. Vui lòng kiểm tra kết nối mạng của bạn.
+                    </AlertDescription>
+                </>
+            )}
+        </Alert>
+    );
+};
 
 // Dialog component for creating a new conversation
 const NewConversationDialog: React.FC<{
@@ -64,12 +100,16 @@ const MessagingContent: React.FC = () => {
         conversations,
         activeConversationId,
         messages,
+        isConnected,
+        reconnecting,
         setActiveConversationId,
         sendMessage,
-        createNewConversation
+        createNewConversation,
+        markAsRead
     } = useMessages();
 
     const [isNewConversationDialogOpen, setIsNewConversationDialogOpen] = useState(false);
+    const [showInfoPanel, setShowInfoPanel] = useState(false);
 
     // Find the active conversation
     const activeConversation = conversations.find(conv => conv.id === activeConversationId);
@@ -80,6 +120,27 @@ const MessagingContent: React.FC = () => {
         setActiveConversationId(newId);
     };
 
+    // Handle sending messages, with connection check
+    const handleSendMessage = (content: string) => {
+        if (!isConnected) {
+            alert('Không thể gửi tin nhắn. Vui lòng kiểm tra kết nối mạng của bạn.');
+            return;
+        }
+        sendMessage(content);
+    };
+
+    // Mark messages as read when active conversation changes
+    useEffect(() => {
+        if (activeConversationId) {
+            markAsRead(activeConversationId);
+        }
+    }, [activeConversationId, markAsRead]);
+
+    // Toggle info panel
+    const toggleInfoPanel = () => {
+        setShowInfoPanel(prevState => !prevState);
+    };
+
     return (
         <div className="py-6">
             <div className="container mx-auto px-4">
@@ -88,9 +149,9 @@ const MessagingContent: React.FC = () => {
                 </FadeInWhenVisible>
 
                 <FadeInWhenVisible delay={0.1}>
-                    <Card className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 min-h-[calc(100vh-200px)]">
+                    <Card className="flex flex-col md:flex-row min-h-[calc(100vh-200px)]">
                         {/* Conversation list (left sidebar) */}
-                        <div className="md:col-span-1 border-r">
+                        <div className="w-full md:w-80 flex-shrink-0 border-r">
                             <ConversationList
                                 conversations={conversations}
                                 activeConversationId={activeConversationId}
@@ -100,7 +161,7 @@ const MessagingContent: React.FC = () => {
                         </div>
 
                         {/* Chat area (main content) */}
-                        <div className="md:col-span-2 lg:col-span-3 flex flex-col h-[calc(100vh-200px)]">
+                        <div className="flex-1 flex flex-col h-[calc(100vh-200px)]">
                             {activeConversation ? (
                                 <>
                                     <ChatHeader
@@ -108,27 +169,48 @@ const MessagingContent: React.FC = () => {
                                         avatar={activeConversation.avatar}
                                         isOnline={activeConversation.isOnline}
                                         lastSeen={activeConversation.lastSeen}
+                                        onInfoClick={toggleInfoPanel}
                                     />
                                     <ChatContent
                                         messages={messages}
+                                        currentUserId={localStorage.getItem('userId') || ''}
                                     />
                                     <ChatInput
-                                        onSendMessage={sendMessage}
+                                        onSendMessage={handleSendMessage}
                                     />
                                 </>
                             ) : (
                                 <EmptyState
                                     title="Chọn cuộc trò chuyện"
                                     description="Chọn một cuộc trò chuyện từ danh sách bên trái hoặc tạo cuộc trò chuyện mới."
-                                    icon={<MessageSquare className="h-8 w-8 text-primary" />}
+                                    icon={<MessageSquare className="h-12 w-12 text-primary" />}
                                     actionLabel="Tạo cuộc trò chuyện mới"
                                     onAction={() => setIsNewConversationDialogOpen(true)}
                                 />
                             )}
                         </div>
+
+                        {/* Info panel (right sidebar) - conditionally rendered */}
+                        {showInfoPanel && activeConversation && (
+                            <div className="hidden md:block w-80 flex-shrink-0">
+                                <MessageInfoPanel
+                                    contact={{
+                                        id: activeConversation.id,
+                                        name: activeConversation.name,
+                                        avatar: activeConversation.avatar,
+                                        isOnline: activeConversation.isOnline,
+                                        description: "TalentHub User"
+                                    }}
+                                    onClose={toggleInfoPanel}
+                                />
+                            </div>
+                        )}
                     </Card>
                 </FadeInWhenVisible>
             </div>
+
+            {/* Show connection status alerts */}
+            <ConnectionStatus />
 
             {/* Dialog to create new conversation */}
             <NewConversationDialog
@@ -142,6 +224,14 @@ const MessagingContent: React.FC = () => {
 
 // Wrapper component that provides MessageContext
 const MessagingPage: React.FC = () => {
+    // Check if user ID exists in localStorage and log services initialization
+    useEffect(() => {
+        let userId = JSON.parse(localStorage.getItem('userInfo') || '').userId;
+        console.log('User ID:', userId);
+        console.log('WebSocket Service initialized:', websocketService);
+        console.log('Chat API Service initialized:', chatApiService);
+    }, []);
+
     return (
         <MessageProvider>
             <MessagingContent />

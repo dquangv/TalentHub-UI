@@ -9,13 +9,15 @@ interface ChatHeaderProps {
     avatar?: string;
     isOnline: boolean;
     lastSeen?: string;
+    onInfoClick?: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
     name,
     avatar,
     isOnline,
-    lastSeen
+    lastSeen,
+    onInfoClick
 }) => {
     return (
         <div className="flex items-center justify-between p-4 border-b">
@@ -51,7 +53,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                     </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                    <Button variant="ghost" size="icon" className="rounded-full">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full"
+                        onClick={onInfoClick}
+                    >
                         <Info className="h-5 w-5 text-primary" />
                     </Button>
                 </motion.div>

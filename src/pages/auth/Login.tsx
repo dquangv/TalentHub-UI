@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, } from "lucide-react";
+import { Mail, Lock, Chrome, Facebook, } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext";
 
