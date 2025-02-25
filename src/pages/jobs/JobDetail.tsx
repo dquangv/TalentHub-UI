@@ -68,7 +68,7 @@ const JobDetail = () => {
     }
 
     const handleViewJob = async () => {
-      const response = await api.post("/jobs/save", {
+      const response = await api.post("/jobs/view", {
         freelancerId: data?.freelancerId,
         jobId: id,
       });
