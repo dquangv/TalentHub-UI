@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,56 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Filter, Star, Download, Calendar, CheckCircle, XCircle,Users, Clock, BookUser, FileUser } from 'lucide-react';
-
+import { Filter, Star, Download, Calendar, CheckCircle, XCircle, Users, Clock, BookUser, FileUser } from 'lucide-react';
+import api from '@/api/axiosConfig';
+import { useParams } from 'react-router-dom';
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [applicants, setApplicants] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const {id} = useParams()
+
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      setLoading(true);
+      try {
+        const response = await api.get(`/jobs/applicants/${id}`); 
+        setApplicants(response.data);
+        setError(null);
+      } catch (err) {
+        setError('Error fetching applicants');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplicants();
+  }, []);
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Đang chờ';
+      case 'interviewing':
+        return 'Phỏng vấn';
+      case 'accepted':
+        return 'Đã chấp nhận';
+      case 'rejected':
+        return 'Từ chối';
+      default:
+        return status;
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="py-12">
@@ -124,10 +169,7 @@ const Applicants = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="font-medium">{applicant.position}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {applicant.department}
-                      </p>
+                      <p className="font-medium">{applicant?.position || "Không có chuyên môn"}</p>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
@@ -156,7 +198,7 @@ const Applicants = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="outline">
@@ -203,78 +245,5 @@ const stats = [
     icon: <XCircle className="w-8 h-8 text-red-500" />,
   },
 ];
-
-const applicants = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn A',
-    email: 'nguyenvana@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    position: 'Senior Frontend Developer',
-    department: 'Engineering',
-    appliedDate: '15/03/2024',
-    status: 'pending',
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    name: 'Trần Thị B',
-    email: 'tranthib@example.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    position: 'UI/UX Designer',
-    department: 'Design',
-    appliedDate: '14/03/2024',
-    status: 'interviewing',
-    rating: 4.5,
-  },
-  {
-    id: 3,
-    name: 'Lê Văn C',
-    email: 'levanc@example.com',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    position: 'Backend Developer',
-    department: 'Engineering',
-    appliedDate: '13/03/2024',
-    status: 'accepted',
-    rating: 4.9,
-  },
-  {
-    id: 4,
-    name: 'Phạm Thị D',
-    email: 'phamthid@example.com',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    position: 'Product Manager',
-    department: 'Product',
-    appliedDate: '12/03/2024',
-    status: 'rejected',
-    rating: 3.5,
-  },
-  {
-    id: 5,
-    name: 'Phạm Thị Phan',
-    email: 'phamthid@example.com',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    position: 'Product Manager',
-    department: 'Product',
-    appliedDate: '12/03/2024',
-    status: 'success',
-    rating: 3.5,
-  },
-];
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'pending':
-      return 'Đang chờ';
-    case 'interviewing':
-      return 'Phỏng vấn';
-    case 'accepted':
-      return 'Đã chấp nhận';
-    case 'rejected':
-      return 'Từ chối';
-    default:
-      return status;
-  }
-};
 
 export default Applicants;

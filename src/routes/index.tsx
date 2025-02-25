@@ -100,7 +100,7 @@ export const mainRoutes: RouteObject[] = [
         element: <AppliedJobs />
     },
     {
-        path: '/client/applicants',
+        path: '/client/applicants/:id',
         element: <Applicants />
     },
     {
