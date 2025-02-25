@@ -31,13 +31,14 @@ const Login = () => {
       const response = await api.post("/auth/login", formData);
 
       console.log("Login successful:", response);
-      const data = response.data.data;
+      const data = response.data;
+      console.log("data ", data)
       login({
-        accessToken: data.accessToken,
-        userId: data.userId,
-        role: data.role,
-        freelancerId: data.freelancerId,
-        clientId: data.clientId,
+        accessToken: data?.data?.accessToken,
+        userId: data?.data?.userId,
+        role: data?.data?.role,
+        freelancerId: data?.data?.freelancerId,
+        clientId: data?.data?.clientId,
       });
 
       navigate("/");

@@ -15,8 +15,6 @@ import {
   User,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
-import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
 import { notification } from "antd";
 
 interface JobDetailResponse {
@@ -48,14 +46,12 @@ const JobDetail = () => {
   const [jobFreelancerInfo, setJobFreelancerInfo] =
     useState<JobFreelancerInfo | null>(null);
   const navigate = useNavigate();
-
+  console.log("data ", job)
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
         const response = await api.get(`/jobs/detail-job/${id}`);
-        if (response.status === 200) {
-          setJob(response.data?.data);
-        }
+        setJob(response.data.data);
       } catch (error) {
         console.error("Error fetching job details:", error);
       }
@@ -77,11 +73,6 @@ const JobDetail = () => {
         jobId: id,
       });
       if (response.status !== 200) {
-        notification.error({
-          message: "Lỗi dữ liệu",
-          description: response.data.message || "Dữ liệu không hợp lệ",
-        });
-
         setError("Có lỗi xảy ra");
       }
       setJobFreelancerInfo(response?.data?.data || null);
@@ -104,10 +95,10 @@ const JobDetail = () => {
       setError("Có lỗi xảy ra");
     }
     notification.info({
-      message: 'Thông báo',
-      description: 'Ứng tuyển thành công. Vui lòng chờ để được chấp nhận',
+      message: "Thông báo",
+      description: "Ứng tuyển thành công. Vui lòng chờ để được chấp nhận",
     });
-    setJobFreelancerInfo(response?.data?.data || null);
+    setJobFreelancerInfo(response?.data || null);
   };
 
   const handleSaveJob = async () => {
@@ -124,10 +115,9 @@ const JobDetail = () => {
       setError("Có lỗi xảy ra");
     }
     notification.info({
-      message: 'Thông báo',
-      description: 'Lưu việc thành công',
+      message: "Thông báo",
+      description: "Lưu việc thành công",
     });
-    console.log("response ", response?.data?.data);
     setJobFreelancerInfo(response?.data?.data || null);
   };
 
@@ -142,8 +132,8 @@ const JobDetail = () => {
       setError("Có lỗi xảy ra");
     }
     notification.info({
-      message: 'Thông báo',
-      description: 'Hủy lưu việc thành công',
+      message: "Thông báo",
+      description: "Hủy lưu việc thành công",
     });
     setJobFreelancerInfo(response?.data?.data || null);
   };
@@ -167,12 +157,12 @@ const JobDetail = () => {
                       <Briefcase className="w-4 h-4 mr-2" />
                       {job.companyName}
                     </div>
-                   <Link to={`/client/${job.clientId}`}>
-                   <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
-                      {job.firstName + " " + job.lastName}
-
-                    </div></Link>
+                    <Link to={`/client/${job.clientId}`}>
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-2" />
+                        {job.firstName + " " + job.lastName}
+                      </div>
+                    </Link>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{job.type}</Badge>
@@ -268,8 +258,6 @@ const JobDetail = () => {
               <h2 className="text-xl font-semibold mb-4">Mô tả công việc</h2>
               <p className="text-muted-foreground mb-6">{job.description}</p>
 
-             
-
               <h3 className="font-semibold mb-3">Kỹ năng yêu cầu:</h3>
               <div className="flex flex-wrap gap-2">
                 {job?.skillNames?.map((skill) => (
@@ -279,9 +267,17 @@ const JobDetail = () => {
                 ))}
               </div>
               <div className="text-center">
-                <Button size="lg" className="px-8 mt-8 w-full">
-                  Ứng tuyển ngay
-                </Button>
+              <Button
+                    size="lg"
+                    className="px-8 mt-8 w-full"
+                    onClick={handleApplyJob}
+                    disabled={jobFreelancerInfo?.status != null}
+                  >
+                    {!jobFreelancerInfo?.status
+                      ? "Ứng tuyển ngay"
+                      : jobFreelancerInfo?.status}
+                  </Button>
+          
               </div>
             </Card>
           </FadeInWhenVisible>

@@ -31,25 +31,6 @@ const Jobs = () => {
     fetchJobs();
   }, []);
 
-  const handleApply = () => {};
-  const handleSaveJob = async (jobId) => {
-    try {
-      const freelancerId = 1;
-
-      const response = await api.post("/jobs/apply", {
-        jobId,
-        freelancerId,
-      });
-
-      if (response.data.status === 200) {
-        alert("Successfully applied for job:" + jobId);
-      } else {
-      }
-    } catch (error) {
-      alert("Error applying for job:" + error);
-    }
-  };
-
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -85,7 +66,7 @@ const Jobs = () => {
 
         {/* Jobs List */}
         <div className="space-y-6">
-          {jobs.map((job, index) => (
+          {jobs?.map((job, index) => (
             <FadeInWhenVisible key={job.id} delay={index * 0.1}>
               <Card className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-6">

@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8000/api/v1',
+        API_URL: 'http://localhost:8080/api/v1',
         TIMEOUT: 30000,
     },
     production: {
@@ -42,7 +42,7 @@ axiosInstance.interceptors.request.use(
 // interceptor response
 axiosInstance.interceptors.response.use(
     (response) => {
-        return response.data;
+        return response;
     },
     (error) => {
         const { response } = error;
@@ -52,7 +52,7 @@ axiosInstance.interceptors.response.use(
                 case 400:
                     notification.error({
                         message: 'Lỗi dữ liệu',
-                        description: response.data.message || 'Dữ liệu không hợp lệ'
+                        description: response.message || 'Dữ liệu không hợp lệ'
                     });
                     break;
 
@@ -90,7 +90,7 @@ axiosInstance.interceptors.response.use(
                 default:
                     notification.error({
                         message: 'Có lỗi xảy ra',
-                        description: response.data.message || 'Vui lòng thử lại'
+                        description: response.message || 'Vui lòng thử lại'
                     });
             }
         } else {
@@ -107,7 +107,7 @@ axiosInstance.interceptors.response.use(
 
 const api = {
     get: (url, config = {}) => axiosInstance.get(url, config),
-    post: (url, data, config = {}) => aaxiosInstancepi.post(url, data, config),
+    post: (url, data, config = {}) => axiosInstance.post(url, data, config),
     put: (url, data, config = {}) => axiosInstance.put(url, data, config),
     delete: (url, config = {}) => axiosInstance.delete(url, config),
     patch: (url, data, config = {}) => axiosInstance.patch(url, data, config)
