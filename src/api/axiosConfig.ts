@@ -42,7 +42,7 @@ axiosInstance.interceptors.request.use(
 // interceptor response
 axiosInstance.interceptors.response.use(
     (response) => {
-        return response;
+        return response.data;
     },
     (error) => {
         const { response } = error;
@@ -52,7 +52,7 @@ axiosInstance.interceptors.response.use(
                 case 400:
                     notification.error({
                         message: 'Lỗi dữ liệu',
-                        description: response.message || 'Dữ liệu không hợp lệ'
+                        description: response.data.message || 'Dữ liệu không hợp lệ'
                     });
                     break;
 
@@ -90,7 +90,7 @@ axiosInstance.interceptors.response.use(
                 default:
                     notification.error({
                         message: 'Có lỗi xảy ra',
-                        description: response.message || 'Vui lòng thử lại'
+                        description: response.data.message || 'Vui lòng thử lại'
                     });
             }
         } else {
@@ -105,12 +105,13 @@ axiosInstance.interceptors.response.use(
     }
 );
 
+// API methods
 const api = {
-    get: (url, config = {}) => axiosInstance.get(url, config),
-    post: (url, data, config = {}) => axiosInstance.post(url, data, config),
-    put: (url, data, config = {}) => axiosInstance.put(url, data, config),
-    delete: (url, config = {}) => axiosInstance.delete(url, config),
-    patch: (url, data, config = {}) => axiosInstance.patch(url, data, config)
+    get: (url: string, config = {}) => axiosInstance.get(url, config),
+    post: (url: string, data?: any, config = {}) => axiosInstance.post(url, data, config),
+    put: (url: string, data?: any, config = {}) => axiosInstance.put(url, data, config),
+    delete: (url: string, config = {}) => axiosInstance.delete(url, config),
+    patch: (url: string, data?: any, config = {}) => axiosInstance.patch(url, data, config)
 };
 
 // cách sử dụng

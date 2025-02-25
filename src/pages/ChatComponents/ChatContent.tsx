@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import ChatMessage from './ChatMessage';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Message } from './MessageContext';
+import ChatMessage from './ChatMessage';
 
 interface ChatContentProps {
     messages: Message[];

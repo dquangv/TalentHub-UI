@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
-// Define types for our messages and conversations
 export interface Message {
     id: string;
     conversationId: string;
@@ -31,7 +30,7 @@ interface MessageContextType {
     messages: Message[];
     setActiveConversationId: (id: string) => void;
     sendMessage: (content: string) => void;
-    createNewConversation: (name: string) => string; // Returns the new conversation ID
+    createNewConversation: (name: string) => string;
     markAsRead: (conversationId: string) => void;
 }
 
@@ -371,10 +370,8 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
     const [activeConversationId, setActiveConversationId] = useState<string>('');
     const [allMessages, setAllMessages] = useState<Record<string, Message[]>>(sampleMessages);
 
-    // Get messages for the active conversation
     const messages = activeConversationId ? allMessages[activeConversationId] || [] : [];
 
-    // Send a message to the active conversation
     const sendMessage = (content: string) => {
         if (!activeConversationId || !content.trim()) return;
 
@@ -388,13 +385,11 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
             senderId: 'me',
         };
 
-        // Update messages for the active conversation
         setAllMessages(prev => ({
             ...prev,
             [activeConversationId]: [...(prev[activeConversationId] || []), newMessage],
         }));
 
-        // Update the conversation's last message
         setConversations(prev =>
             prev.map(conv =>
                 conv.id === activeConversationId
@@ -408,7 +403,6 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         );
     };
 
-    // Create a new conversation
     const createNewConversation = (name: string): string => {
         const newId = uuidv4();
         const newConversation: Conversation = {
@@ -417,8 +411,8 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
             lastMessage: 'Chưa có tin nhắn nào',
             timestamp: new Date(),
             unread: 0,
-            isOnline: Math.random() > 0.5, // Randomly set online status
-            avatar: `https://i.pravatar.cc/150?u=${newId}`, // Generate a random avatar
+            isOnline: Math.random() > 0.5,
+            avatar: `https://i.pravatar.cc/150?u=${newId}`,
         };
 
         setConversations(prev => [newConversation, ...prev]);
@@ -430,9 +424,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         return newId;
     };
 
-    // Mark messages in a conversation as read
     const markAsRead = (conversationId: string) => {
-        // Mark all messages as read
         setAllMessages(prev => {
             if (!prev[conversationId]) return prev;
 
@@ -445,7 +437,6 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
             };
         });
 
-        // Update unread count in the conversation
         setConversations(prev =>
             prev.map(conv =>
                 conv.id === conversationId
