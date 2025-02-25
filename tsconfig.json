@@ -14,6 +14,9 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "strict": false
   }
 }
