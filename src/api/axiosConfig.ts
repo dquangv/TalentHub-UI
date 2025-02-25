@@ -16,7 +16,7 @@ const ENV = {
 const config = ENV[process.env.NODE_ENV || 'development'];
 
 // instance axios
-const api = axios.create({
+const axiosInstance = axios.create({
     baseURL: config.API_URL,
     timeout: config.TIMEOUT,
     headers: {
@@ -26,7 +26,7 @@ const api = axios.create({
 });
 
 // interceptor request
-api.interceptors.request.use(
+axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -40,7 +40,7 @@ api.interceptors.request.use(
 );
 
 // interceptor response
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
     (response) => {
         return response.data;
     },
@@ -106,11 +106,11 @@ api.interceptors.response.use(
 );
 
 const api = {
-    get: (url, config = {}) => api.get(url, config),
-    post: (url, data, config = {}) => api.post(url, data, config),
-    put: (url, data, config = {}) => api.put(url, data, config),
-    delete: (url, config = {}) => api.delete(url, config),
-    patch: (url, data, config = {}) => api.patch(url, data, config)
+    get: (url, config = {}) => axiosInstance.get(url, config),
+    post: (url, data, config = {}) => aaxiosInstancepi.post(url, data, config),
+    put: (url, data, config = {}) => axiosInstance.put(url, data, config),
+    delete: (url, config = {}) => axiosInstance.delete(url, config),
+    patch: (url, data, config = {}) => axiosInstance.patch(url, data, config)
 };
 
 // cách sử dụng
