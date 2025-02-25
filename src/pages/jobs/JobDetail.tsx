@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
   Calendar,
   Users,
   CheckCircle,
+  User,
 } from "lucide-react";
 import axiosInstance from "@/utils/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext";
@@ -166,10 +167,12 @@ const JobDetail = () => {
                       <Briefcase className="w-4 h-4 mr-2" />
                       {job.companyName}
                     </div>
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      {job.location ?? "Unknown Location"}
-                    </div>
+                   <Link to={`/client/${job.clientId}`}>
+                   <div className="flex items-center">
+                      <User className="w-4 h-4 mr-2" />
+                      {job.firstName + " " + job.lastName}
+
+                    </div></Link>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{job.type}</Badge>
@@ -265,15 +268,7 @@ const JobDetail = () => {
               <h2 className="text-xl font-semibold mb-4">Mô tả công việc</h2>
               <p className="text-muted-foreground mb-6">{job.description}</p>
 
-              <h3 className="font-semibold mb-3">Yêu cầu:</h3>
-              <ul className="space-y-2 mb-6">
-                {job?.skillNames?.map((skill, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
-                    <span className="text-muted-foreground">{skill}</span>
-                  </li>
-                ))}
-              </ul>
+             
 
               <h3 className="font-semibold mb-3">Kỹ năng yêu cầu:</h3>
               <div className="flex flex-wrap gap-2">
