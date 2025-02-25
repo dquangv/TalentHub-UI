@@ -12,7 +12,7 @@ import Settings from '@/pages/freelancer/settings/Settings';
 import Pricing from '@/pages/Pricing';
 import DashboardPage from '@/pages/admin/dashboard';
 import FreelancersPage from '@/pages/admin/freelancers';
-import EmployersPage from '@/pages/admin/employers';    
+import EmployersPage from '@/pages/admin/employers';
 import PostsPage from '@/pages/admin/posts';
 import PostJob from '@/pages/client/PostJob';
 import JobDetail from '@/pages/jobs/JobDetail';
@@ -24,7 +24,7 @@ import ForgotPassword from '@/pages/ForgetPassword';
 import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
 import { BannersPage } from '@/pages/banners';
-import MessagingPage from '@/pages/MessagingPage';
+import MessagingPage from '@/pages/MessaginPage';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -94,10 +94,6 @@ export const mainRoutes: RouteObject[] = [
         element: <Applicants />
     },
     {
-        path: '*',
-        element: <div className='w-1/2 mx-auto'><NotFound /></div>
-    },
-    {
         path: '/saved-jobs',
         element: <SavedJobs />
     },
@@ -113,6 +109,10 @@ export const mainRoutes: RouteObject[] = [
         path: '/messaging',
         element: <MessagingPage />
     },
+    {
+        path: '*',
+        element: <div className='w-1/2 mx-auto'><NotFound /></div>
+    }
 ];
 
 export const adminRoutes: RouteObject[] = [

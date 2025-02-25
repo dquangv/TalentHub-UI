@@ -13,7 +13,7 @@ const ENV = {
 };
 
 // config môi trường
-const config = ENV[process.env.NODE_ENV || 'development'];
+const config = ENV[process.env.NODE_ENV as keyof typeof ENV];
 
 // instance axios
 const axiosInstance = axios.create({
@@ -105,12 +105,13 @@ axiosInstance.interceptors.response.use(
     }
 );
 
+// API methods
 const api = {
-    get: (url, config = {}) => axiosInstance.get(url, config),
-    post: (url, data, config = {}) => aaxiosInstancepi.post(url, data, config),
-    put: (url, data, config = {}) => axiosInstance.put(url, data, config),
-    delete: (url, config = {}) => axiosInstance.delete(url, config),
-    patch: (url, data, config = {}) => axiosInstance.patch(url, data, config)
+    get: (url: string, config = {}) => axiosInstance.get(url, config),
+    post: (url: string, data?: any, config = {}) => axiosInstance.post(url, data, config),
+    put: (url: string, data?: any, config = {}) => axiosInstance.put(url, data, config),
+    delete: (url: string, config = {}) => axiosInstance.delete(url, config),
+    patch: (url: string, data?: any, config = {}) => axiosInstance.patch(url, data, config)
 };
 
 // cách sử dụng
@@ -124,6 +125,5 @@ const api = {
 //       console.log(error);
 //     }
 //   };
-
 
 export default api;
