@@ -120,7 +120,8 @@ const Pricing = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <FadeInWhenVisible key={index} delay={0.2 + index * 0.1}>
-              <Card className="p-8 hover:shadow-lg transition-shadow" style={{ height: '100%' }}>
+              <Card className="p-8 hover:shadow-lg transition-shadow flex flex-col justify-between h-full" >
+                <div>
                 {plan.badge && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">
                     {plan.badge}
@@ -146,6 +147,7 @@ const Pricing = () => {
                       <span>{feature}</span>
                     </div>
                   ))}
+                </div>
                 </div>
                 <Button className="w-full" variant={plan.variant}>
                   {plan.buttonText}
