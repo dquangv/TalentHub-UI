@@ -1,7 +1,7 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Phone, Video, Info, ChevronLeft } from 'lucide-react';
+import { Phone, Video, Info, ChevronLeft, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ChatHeaderProps {
@@ -10,7 +10,8 @@ interface ChatHeaderProps {
     isOnline: boolean;
     lastSeen?: string;
     onInfoClick?: () => void;
-    onBackClick?: () => void; // New prop for mobile navigation
+    onBackClick?: () => void; // For mobile navigation back to conversation list
+    onMenuClick?: () => void; // For mobile menu toggle
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
@@ -19,11 +20,13 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     isOnline,
     lastSeen,
     onInfoClick,
-    onBackClick
+    onBackClick,
+    onMenuClick
 }) => {
     return (
         <div className="flex items-center justify-between p-3 md:p-4 border-b">
             <div className="flex items-center">
+                {/* Mobile navigation back button */}
                 {onBackClick && (
                     <Button
                         variant="ghost"
@@ -34,6 +37,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
                 )}
+
                 <div className="relative mr-2 md:mr-3">
                     <Avatar className="h-8 w-8 md:h-10 md:w-10">
                         <AvatarImage src={avatar} />
@@ -54,16 +58,21 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             </div>
 
             <div className="flex items-center space-x-1">
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="hidden sm:block">
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
-                        <Phone className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                    </Button>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="hidden sm:block">
-                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
-                        <Video className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                    </Button>
-                </motion.div>
+                {/* Desktop action buttons */}
+                <div className="hidden sm:flex items-center space-x-1">
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
+                            <Phone className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                        </Button>
+                    </motion.div>
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
+                            <Video className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                        </Button>
+                    </motion.div>
+                </div>
+
+                {/* Info button - always visible */}
                 <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                     <Button
                         variant="ghost"
@@ -74,6 +83,20 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                         <Info className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </Button>
                 </motion.div>
+
+                {/* Mobile menu button */}
+                {onMenuClick && (
+                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="sm:hidden">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full h-8 w-8"
+                            onClick={onMenuClick}
+                        >
+                            <Menu className="h-4 w-4 text-primary" />
+                        </Button>
+                    </motion.div>
+                )}
             </div>
         </div>
     );

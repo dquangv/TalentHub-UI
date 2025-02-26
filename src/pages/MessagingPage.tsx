@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Menu, X } from 'lucide-react';
+import { MessageSquare, Menu, X, Info } from 'lucide-react';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 
 // Import existing components
@@ -15,6 +15,7 @@ import ChatInput from './ChatComponents/ChatInput';
 import EmptyState from './ChatComponents/EmptyState';
 import MessageInfoPanel from './ChatComponents/MessageInfoPanel';
 import ConnectionStatus from './ChatComponents/ConnectionStatus';
+import MobileDrawer from './ChatComponents/MobileDrawer';
 
 // Dialog component for creating a new conversation
 const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
@@ -79,18 +80,25 @@ const MessagingContent = () => {
 
     const [isNewConversationDialogOpen, setIsNewConversationDialogOpen] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
-    const [showConversationList, setShowConversationList] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
 
+    // State for mobile drawers
+    const [showConversationDrawer, setShowConversationDrawer] = useState(false);
+    const [showInfoDrawer, setShowInfoDrawer] = useState(false);
+
     // Check viewport dimensions on initial load and resize
     const checkViewportSize = useCallback(() => {
-        setIsMobile(window.innerWidth < 768);
-        setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+        const mobile = window.innerWidth < 768;
+        const tablet = window.innerWidth >= 768 && window.innerWidth < 1024;
 
-        // Ensure conversation list is visible on larger screens
-        if (window.innerWidth >= 768) {
-            setShowConversationList(true);
+        setIsMobile(mobile);
+        setIsTablet(tablet);
+
+        // On desktop, we always show the conversation list in the layout
+        // (not as a drawer)
+        if (!mobile) {
+            setShowConversationDrawer(false);
         }
     }, []);
 
@@ -108,12 +116,25 @@ const MessagingContent = () => {
         };
     }, [checkViewportSize]);
 
-    // Toggle sidebar on mobile/tablet
-    const toggleConversationList = () => {
-        setShowConversationList(prev => !prev);
-        // Close info panel if opening conversation list on mobile
-        if (!showConversationList && isMobile && showInfoPanel) {
-            setShowInfoPanel(false);
+    // Toggle conversation drawer on mobile
+    const toggleConversationDrawer = () => {
+        setShowConversationDrawer(prev => !prev);
+        // Close info drawer if opening conversation drawer
+        if (!showConversationDrawer && showInfoDrawer) {
+            setShowInfoDrawer(false);
+        }
+    };
+
+    // Toggle info drawer/panel
+    const toggleInfoPanel = () => {
+        if (isMobile || isTablet) {
+            setShowInfoDrawer(prev => !prev);
+            // Close conversation drawer if opening info drawer
+            if (!showInfoDrawer && showConversationDrawer) {
+                setShowConversationDrawer(false);
+            }
+        } else {
+            setShowInfoPanel(prev => !prev);
         }
     };
 
@@ -124,21 +145,21 @@ const MessagingContent = () => {
     const handleCreateNewConversation = (name) => {
         const newId = createNewConversation(name);
         setActiveConversationId(newId);
-        // Close mobile conversation list when selecting a new one
+        // Close mobile conversation drawer when creating a new one
         if (isMobile) {
-            setShowConversationList(false);
+            setShowConversationDrawer(false);
         }
     };
 
-    // Handle selecting conversation on mobile/tablet
+    // Handle selecting conversation
     const handleSelectConversation = (id) => {
         setActiveConversationId(id);
-        // Close mobile conversation list when selecting one
+        // Close mobile drawer when selecting one
         if (isMobile) {
-            setShowConversationList(false);
+            setShowConversationDrawer(false);
         }
-        // Close info panel if it was open
-        if (showInfoPanel && (isMobile || isTablet)) {
+        // Close info panel if it was open on tablet
+        if (showInfoPanel && isTablet) {
             setShowInfoPanel(false);
         }
     };
@@ -159,15 +180,6 @@ const MessagingContent = () => {
         }
     }, [activeConversationId, markAsRead]);
 
-    // Toggle info panel
-    const toggleInfoPanel = () => {
-        setShowInfoPanel(prevState => !prevState);
-        // On mobile/tablet, close the conversation list if info panel is shown
-        if ((isMobile || isTablet) && !showInfoPanel) {
-            setShowConversationList(false);
-        }
-    };
-
     return (
         <div className="h-[calc(100vh-4rem)] py-2 sm:py-4 md:py-6">
             <div className="container h-full px-2 mx-auto md:px-4">
@@ -176,53 +188,49 @@ const MessagingContent = () => {
                         <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">Tin nhắn</h1>
                     </FadeInWhenVisible>
 
-                    {/* Mobile menu toggle */}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="md:hidden"
-                        onClick={toggleConversationList}
-                    >
-                        {showConversationList ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                    </Button>
+                    {/* Mobile buttons */}
+                    <div className="flex md:hidden space-x-2">
+                        {/* Info button - only show when a conversation is active */}
+                        {activeConversationId && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={toggleInfoPanel}
+                            >
+                                <Info className="w-5 h-5" />
+                            </Button>
+                        )}
+
+                        {/* Conversation list button */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleConversationDrawer}
+                        >
+                            <Menu className="w-5 h-5" />
+                        </Button>
+                    </div>
                 </div>
 
                 <FadeInWhenVisible delay={0.1}>
                     <Card className="flex flex-col h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-hidden lg:flex-row">
-                        {/* Conversation list (left sidebar) - toggleable on mobile/tablet */}
-                        <div
-                            className={`
-                                ${showConversationList ? 'block' : 'hidden'} 
-                                md:block w-full md:w-80 lg:w-72 xl:w-80 md:flex-shrink-0 md:border-r
-                                ${isMobile ? 'fixed inset-0 z-50 pt-16 bg-background' : 'relative z-10'}
-                                h-[calc(100vh-8rem)] md:h-auto
-                            `}
-                        >
-                            {isMobile && showConversationList && (
-                                <div className="absolute top-2 right-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={toggleConversationList}
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </Button>
-                                </div>
-                            )}
-                            <ConversationList
-                                conversations={conversations}
-                                activeConversationId={activeConversationId}
-                                onSelectConversation={handleSelectConversation}
-                                onNewConversation={() => setIsNewConversationDialogOpen(true)}
-                            />
-                        </div>
+                        {/* Conversation list - Show in layout on tablet/desktop */}
+                        {!isMobile && (
+                            <div className="w-full md:w-80 lg:w-72 xl:w-80 md:flex-shrink-0 md:border-r h-auto">
+                                <ConversationList
+                                    conversations={conversations}
+                                    activeConversationId={activeConversationId}
+                                    onSelectConversation={handleSelectConversation}
+                                    onNewConversation={() => setIsNewConversationDialogOpen(true)}
+                                />
+                            </div>
+                        )}
 
                         {/* Chat area (main content) */}
                         <div
                             className={`
                                 flex-1 flex flex-col h-full overflow-hidden
-                                ${(isMobile && showConversationList) ? 'hidden' : 'flex'}
-                                ${(showInfoPanel && (isMobile || isTablet)) ? 'hidden' : 'flex'}
+                                ${(showInfoPanel && !isMobile && !isTablet) ? 'lg:pr-80' : ''}
                             `}
                         >
                             {activeConversation ? (
@@ -233,7 +241,7 @@ const MessagingContent = () => {
                                         isOnline={activeConversation.isOnline}
                                         lastSeen={activeConversation.lastSeen}
                                         onInfoClick={toggleInfoPanel}
-                                        onBackClick={isMobile ? toggleConversationList : undefined}
+                                        onBackClick={isMobile ? toggleConversationDrawer : undefined}
                                     />
                                     <div className="flex-1 overflow-hidden">
                                         <ChatContent
@@ -256,14 +264,9 @@ const MessagingContent = () => {
                             )}
                         </div>
 
-                        {/* Info panel (right sidebar) - conditionally rendered */}
-                        {showInfoPanel && activeConversation && (
-                            <div
-                                className={`
-                                    ${(isMobile || isTablet) ? 'fixed inset-0 z-50 bg-background' : 'hidden lg:block'}
-                                    lg:w-72 xl:w-80 lg:flex-shrink-0
-                                `}
-                            >
+                        {/* Info panel - Show in layout on desktop */}
+                        {showInfoPanel && !isMobile && !isTablet && activeConversation && (
+                            <div className="hidden lg:block lg:w-72 xl:w-80 lg:flex-shrink-0 lg:border-l">
                                 <MessageInfoPanel
                                     contact={{
                                         id: activeConversation.id,
@@ -273,13 +276,66 @@ const MessagingContent = () => {
                                         description: "TalentHub User"
                                     }}
                                     onClose={toggleInfoPanel}
-                                    isMobile={isMobile || isTablet}
                                 />
                             </div>
                         )}
                     </Card>
                 </FadeInWhenVisible>
             </div>
+
+            {/* Mobile Drawers */}
+            {/* Conversation List Drawer */}
+            {isMobile && (
+                <MobileDrawer
+                    isOpen={showConversationDrawer}
+                    onClose={() => setShowConversationDrawer(false)}
+                    position="left"
+                    title="Danh sách tin nhắn"
+                >
+                    <ConversationList
+                        conversations={conversations}
+                        activeConversationId={activeConversationId}
+                        onSelectConversation={handleSelectConversation}
+                        onNewConversation={() => {
+                            setIsNewConversationDialogOpen(true);
+                            setShowConversationDrawer(false);
+                        }}
+                    />
+                </MobileDrawer>
+            )}
+
+            {/* Info Panel Drawer */}
+            {(isMobile || isTablet) && activeConversation && (
+                <MobileDrawer
+                    isOpen={showInfoDrawer}
+                    onClose={() => setShowInfoDrawer(false)}
+                    position="right"
+                    title={activeConversation.name}
+                >
+                    <MessageInfoPanel
+                        contact={{
+                            id: activeConversation.id,
+                            name: activeConversation.name,
+                            avatar: activeConversation.avatar,
+                            isOnline: activeConversation.isOnline,
+                            description: "TalentHub User"
+                        }}
+                        onClose={() => setShowInfoDrawer(false)}
+                    />
+                </MobileDrawer>
+            )}
+
+            {/* Fixed Action Buttons for Mobile */}
+            {isMobile && !showConversationDrawer && !showInfoDrawer && (
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg md:hidden z-30 bg-primary text-primary-foreground"
+                    onClick={() => setIsNewConversationDialogOpen(true)}
+                >
+                    <MessageSquare className="h-5 w-5" />
+                </Button>
+            )}
 
             {/* Show connection status alerts */}
             <ConnectionStatus />
