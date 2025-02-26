@@ -103,37 +103,6 @@ const MessengerSidebar: React.FC<MessengerSidebarProps> = ({
                 </div>
             </div>
 
-            {/* Recent Contacts (only when expanded) */}
-            {expanded && (
-                <div className="p-4 border-t">
-                    <h3 className="text-xs uppercase text-muted-foreground font-semibold mb-3">
-                        Gần đây
-                    </h3>
-                    <ScrollArea className="h-48">
-                        {recentContacts.map((contact) => (
-                            <div
-                                key={contact.id}
-                                className="flex items-center py-2 px-1 hover:bg-muted rounded-md cursor-pointer"
-                            >
-                                <div className="relative">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={contact.avatar} />
-                                        <AvatarFallback>
-                                            {contact.name.slice(0, 2).toUpperCase()}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    {contact.online && (
-                                        <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-green-500 border-2 border-background"></span>
-                                    )}
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm font-medium">{contact.name}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </ScrollArea>
-                </div>
-            )}
 
             {/* Bottom Section */}
             <div className="p-4 border-t">
@@ -149,38 +118,6 @@ const MessengerSidebar: React.FC<MessengerSidebarProps> = ({
     );
 };
 
-// Sample data for recent contacts
-const recentContacts = [
-    {
-        id: '1',
-        name: 'Nguyễn Văn A',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-        online: true,
-    },
-    {
-        id: '2',
-        name: 'Trần Thị B',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-        online: false,
-    },
-    {
-        id: '3',
-        name: 'Lê Văn C',
-        avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e',
-        online: true,
-    },
-    {
-        id: '4',
-        name: 'Phạm Thị D',
-        avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-        online: false,
-    },
-    {
-        id: '5',
-        name: 'Hoàng Văn E',
-        avatar: 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79',
-        online: true,
-    },
-];
+
 
 export default MessengerSidebar;

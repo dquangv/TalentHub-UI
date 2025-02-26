@@ -3,11 +3,12 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Menu, X, Info } from 'lucide-react';
+import { MessageSquare, Menu, X, Info, Video } from 'lucide-react';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 
 // Import existing components
 import { MessageProvider, useMessages } from './ChatComponents/MessageContext';
+import { CallProvider, useCall } from './ChatComponents/CallContext';
 import ConversationList from './ChatComponents/ConversationList';
 import ChatHeader from './ChatComponents/ChatHeader';
 import ChatContent from './ChatComponents/ChatContent';
@@ -16,6 +17,7 @@ import EmptyState from './ChatComponents/EmptyState';
 import MessageInfoPanel from './ChatComponents/MessageInfoPanel';
 import ConnectionStatus from './ChatComponents/ConnectionStatus';
 import MobileDrawer from './ChatComponents/MobileDrawer';
+import VideoCallDialog from './ChatComponents/VideoCallDialog';
 
 // Dialog component for creating a new conversation
 const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
@@ -65,7 +67,7 @@ const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
     );
 };
 
-// Main component that uses MessageContext
+// Main component that uses MessageContext and CallContext
 const MessagingContent = () => {
     const {
         conversations,
@@ -77,6 +79,23 @@ const MessagingContent = () => {
         createNewConversation,
         markAsRead
     } = useMessages();
+
+    const {
+        isInCall,
+        isCallActive,
+        isOutgoingCall,
+        callStatus,
+        callerInfo,
+        localStream,
+        remoteStream,
+        isMuted,
+        isVideoOff,
+        acceptCall,
+        rejectCall,
+        endCall,
+        toggleMute,
+        toggleVideo
+    } = useCall();
 
     const [isNewConversationDialogOpen, setIsNewConversationDialogOpen] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
@@ -173,6 +192,11 @@ const MessagingContent = () => {
         sendMessage(content);
     };
 
+    // Handle ending a call
+    const handleEndCall = () => {
+        endCall();
+    };
+
     // Mark messages as read when active conversation changes
     useEffect(() => {
         if (activeConversationId) {
@@ -240,6 +264,7 @@ const MessagingContent = () => {
                                         avatar={activeConversation.avatar}
                                         isOnline={activeConversation.isOnline}
                                         lastSeen={activeConversation.lastSeen}
+                                        contactId={activeConversation.id}
                                         onInfoClick={toggleInfoPanel}
                                         onBackClick={isMobile ? toggleConversationDrawer : undefined}
                                     />
@@ -325,6 +350,26 @@ const MessagingContent = () => {
                 </MobileDrawer>
             )}
 
+            {/* Video Call Dialog */}
+            {isInCall && callerInfo && (
+                <VideoCallDialog
+                    open={isInCall}
+                    isOutgoing={isOutgoingCall}
+                    contactName={callerInfo.name}
+                    contactAvatar={callerInfo.avatar}
+                    localStream={localStream}
+                    remoteStream={remoteStream}
+                    callStatus={callStatus}
+                    onClose={handleEndCall}
+                    onAccept={acceptCall}
+                    onReject={rejectCall}
+                    onToggleMute={toggleMute}
+                    onToggleVideo={toggleVideo}
+                    isMuted={isMuted}
+                    isVideoOff={isVideoOff}
+                />
+            )}
+
             {/* Fixed Action Buttons for Mobile */}
             {isMobile && !showConversationDrawer && !showInfoDrawer && (
                 <Button
@@ -350,11 +395,16 @@ const MessagingContent = () => {
     );
 };
 
-// Wrapper component that provides MessageContext
+// Wrapper component that provides MessageContext and CallContext
 const MessagingPage = () => {
+    // Get the user ID from local storage or context
+    const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId || '';
+
     return (
         <MessageProvider>
-            <MessagingContent />
+            <CallProvider userId={userId}>
+                <MessagingContent />
+            </CallProvider>
         </MessageProvider>
     );
 };

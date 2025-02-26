@@ -1,14 +1,17 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Phone, Video, Info, ChevronLeft, Menu } from 'lucide-react';
+import { Info, ChevronLeft, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
+import CallButton from './CallButton';
+import MobileCallMenu from './MobileCallMenu';
 
 interface ChatHeaderProps {
     name: string;
     avatar?: string;
     isOnline: boolean;
     lastSeen?: string;
+    contactId: string; // Add contactId for call functionality
     onInfoClick?: () => void;
     onBackClick?: () => void; // For mobile navigation back to conversation list
     onMenuClick?: () => void; // For mobile menu toggle
@@ -19,6 +22,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     avatar,
     isOnline,
     lastSeen,
+    contactId,
     onInfoClick,
     onBackClick,
     onMenuClick
@@ -60,16 +64,21 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
             <div className="flex items-center space-x-1">
                 {/* Desktop action buttons */}
                 <div className="hidden sm:flex items-center space-x-1">
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
-                            <Phone className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                        </Button>
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 md:h-10 md:w-10">
-                            <Video className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-                        </Button>
-                    </motion.div>
+                    {/* Audio Call Button */}
+                    <CallButton
+                        contactId={contactId}
+                        contactName={name}
+                        contactAvatar={avatar}
+                        type="audio"
+                    />
+
+                    {/* Video Call Button */}
+                    <CallButton
+                        contactId={contactId}
+                        contactName={name}
+                        contactAvatar={avatar}
+                        type="video"
+                    />
                 </div>
 
                 {/* Info button - always visible */}
@@ -83,6 +92,15 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
                         <Info className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </Button>
                 </motion.div>
+
+                {/* Mobile call menu */}
+                <div className="sm:hidden">
+                    <MobileCallMenu
+                        contactId={contactId}
+                        contactName={name}
+                        contactAvatar={avatar}
+                    />
+                </div>
 
                 {/* Mobile menu button */}
                 {onMenuClick && (
