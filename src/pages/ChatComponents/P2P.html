@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P @Quang Bui</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Thêm thư viện nén LZ-String -->
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
+    <style>
+        .role-specific {
+            display: none;
+        }
+
+        .role-instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .debug-info {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        #debugSection {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+
+        #debugInfo {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body class="container py-4">
+    <h2 class="text-center mb-4">P2P @Quang Bui</h2>
+
+    <!-- Chọn vai trò -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Chọn vai trò của bạn</h5>
+        </div>
+        <div class="card-body">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="role" id="roleCaller" value="caller" checked
+                    onchange="updateRoleUI()">
+                <label class="form-check-label" for="roleCaller">Người gọi (bắt đầu cuộc gọi)</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="role" id="roleReceiver" value="receiver"
+                    onchange="updateRoleUI()">
+                <label class="form-check-label" for="roleReceiver">Người nhận (nhận cuộc gọi)</label>
+            </div>
+
+            <!-- Nút hiển thị debug -->
+            <div class="float-end">
+                <button class="btn btn-sm btn-outline-secondary" onclick="toggleDebug()">⚙️ Debug</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="status" class="alert alert-info text-center">Bước 1: Bật Camera</div>
+
+    <!-- Hướng dẫn theo vai trò -->
+    <div id="callerInstructions" class="role-instructions">
+        <h5>Hướng dẫn cho Người gọi:</h5>
+        <ol>
+            <li>Bật camera</li>
+            <li>Tạo lời mời</li>
+            <li>Sao chép lời mời và gửi cho đối tác</li>
+            <li>Đợi nhận phản hồi từ đối tác</li>
+            <li>Dán phản hồi vào ô "Phản Hồi"</li>
+            <li>Nhấn "Đặt Phản Hồi" để kết nối</li>
+        </ol>
+    </div>
+
+    <div id="receiverInstructions" class="role-instructions" style="display: none;">
+        <h5>Hướng dẫn cho Người nhận:</h5>
+        <ol>
+            <li>Bật camera</li>
+            <li>Dán lời mời nhận được vào ô "Lời Mời"</li>
+            <li>Nhấn "Tạo Phản Hồi"</li>
+            <li>Sao chép phản hồi và gửi lại cho người gọi</li>
+            <li>Đợi kết nối được thiết lập</li>
+        </ol>
+    </div>
+
+    <div class="row text-center">
+        <div class="col-md-6">
+            <h5>Video Của Bạn</h5>
+            <video id="localVideo" class="border w-100" autoplay playsinline muted></video>
+        </div>
+        <div class="col-md-6">
+            <h5>Video Đối Tác</h5>
+            <video id="remoteVideo" class="border w-100" autoplay playsinline></video>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <button id="startBtn" class="btn btn-primary m-2" onclick="start()">1. Bật Camera</button>
+        <button id="offerBtn" class="btn btn-success m-2 role-specific caller-btn" onclick="createOffer()" disabled>2.
+            Tạo Lời Mời</button>
+        <button id="answerBtn" class="btn btn-warning m-2 role-specific receiver-btn" onclick="createAnswer()" disabled
+            style="display: none;">2. Tạo Phản Hồi</button>
+        <button id="endCallBtn" class="btn btn-danger m-2" onclick="endCall()" disabled>🔴 Kết Thúc Cuộc Gọi</button>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Lời Mời: <span class="text-muted">(Sao chép và gửi cho đối tác)</span></label>
+        <textarea id="offer" class="form-control" rows="3" placeholder="Dán lời mời vào đây"
+            oninput="validateContent()"></textarea>
+        <div class="mt-2 d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-secondary" onclick="showDebugInfo('offer')">Kiểm tra định
+                dạng</button>
+            <button id="copyOfferBtn" class="btn btn-info role-specific caller-btn" onclick="copyToClipboard('offer')"
+                disabled>📋 Sao chép Lời Mời</button>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Phản Hồi: <span class="text-muted">(Sao chép và gửi cho người gọi)</span></label>
+        <textarea id="answer" class="form-control" rows="3" placeholder="Dán phản hồi vào đây"
+            oninput="validateContent()"></textarea>
+        <div class="mt-2 d-flex justify-content-between">
+            <button class="btn btn-sm btn-outline-secondary" onclick="showDebugInfo('answer')">Kiểm tra định
+                dạng</button>
+            <div>
+                <button id="copyAnswerBtn" class="btn btn-info role-specific receiver-btn"
+                    onclick="copyToClipboard('answer')" disabled style="display: none;">📋 Sao chép Phản Hồi</button>
+                <button id="setAnswerBtn" class="btn btn-secondary role-specific caller-btn" onclick="setAnswer()"
+                    disabled>3. Đặt Phản Hồi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khu vực debug -->
+    <div id="debugSection">
+        <h5>Thông tin Debug</h5>
+        <div class="mb-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="forceJSON()">Chuyển đổi sang JSON thuần túy</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="forceBase64()">Chuyển đổi sang Base64</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="forceCompression()">Bật/Tắt Nén</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearDebugLog()">Xóa log</button>
+        </div>
+        <div class="alert alert-secondary">
+            <div id="debugInfo" class="small">Chưa có thông tin debug</div>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Trạng thái kết nối:</label>
+            <div id="connectionState" class="alert alert-light">Chưa có kết nối</div>
+        </div>
+    </div>
+
+    <footer class="text-center mt-4">Sản phẩm bởi Quang Bui</footer>
+
+    <script>
+        let localStream;
+        let peerConnection;
+        let localICECandidates = [];
+        let role = "caller"; // Mặc định là người gọi
+        let lastOfferData = null;
+        let lastAnswerData = null;
+        let useBase64 = true; // Mặc định sử dụng Base64
+        let useCompression = true; // Mặc định sử dụng nén
+        let maxCandidates = 3; // Số lượng ICE candidates tối đa
+        let collectCandidatesTime = 1000; // Thời gian thu thập ICE candidates (ms)
+        const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+        // Hiển thị/ẩn khu vực debug
+        function toggleDebug() {
+            const debugSection = document.getElementById('debugSection');
+            if (debugSection.style.display === 'none' || !debugSection.style.display) {
+                debugSection.style.display = 'block';
+            } else {
+                debugSection.style.display = 'none';
+            }
+        }
+
+        // Xóa log debug
+        function clearDebugLog() {
+            document.getElementById('debugInfo').innerHTML = 'Log đã được xóa';
+        }
+
+        // Cập nhật thông tin debug
+        function updateDebugInfo(message) {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `[${timestamp}] ${message}<br>` + debugInfo.innerHTML;
+        }
+
+        // Cập nhật trạng thái kết nối
+        function updateConnectionState(state) {
+            const connectionState = document.getElementById('connectionState');
+            connectionState.textContent = state;
+
+            // Đổi màu theo trạng thái
+            connectionState.className = 'alert';
+            switch (state) {
+                case 'connected':
+                case 'completed':
+                    connectionState.classList.add('alert-success');
+                    break;
+                case 'connecting':
+                case 'checking':
+                    connectionState.classList.add('alert-info');
+                    break;
+                case 'disconnected':
+                case 'failed':
+                    connectionState.classList.add('alert-danger');
+                    break;
+                default:
+                    connectionState.classList.add('alert-light');
+            }
+        }
+
+        // Chuyển đổi sang định dạng JSON thuần túy
+        function forceJSON() {
+            useBase64 = false;
+            updateDebugInfo("Đã chuyển sang định dạng JSON thuần túy");
+        }
+
+        // Chuyển đổi sang định dạng Base64
+        function forceBase64() {
+            useBase64 = true;
+            updateDebugInfo("Đã chuyển sang định dạng Base64");
+        }
+
+        // Bật/tắt nén
+        function forceCompression() {
+            useCompression = !useCompression;
+            updateDebugInfo(`Đã ${useCompression ? 'bật' : 'tắt'} tính năng nén dữ liệu`);
+        }
+
+        // Lọc ICE candidates
+        function filterICECandidates(candidates) {
+            if (!candidates || candidates.length === 0) return [];
+
+            // Ưu tiên candidate loại host và srflx (STUN)
+            return candidates.filter(candidate => {
+                if (!candidate || !candidate.candidate) return false;
+                return candidate.candidate.includes('typ host') ||
+                    candidate.candidate.includes('typ srflx');
+            }).slice(0, maxCandidates); // Giới hạn số lượng
+        }
+
+        // Mã hóa dữ liệu với định dạng tối ưu
+        function encodeData(data) {
+            // Tối ưu hóa dữ liệu
+            const optimizedData = {
+                s: data.sdp, // SDP
+                i: filterICECandidates(data.iceCandidates), // ICE candidates đã lọc
+                t: Date.now() // Timestamp ngắn gọn
+            };
+
+            // Chuyển thành chuỗi JSON
+            const jsonString = JSON.stringify(optimizedData);
+
+            // Nén dữ liệu nếu được bật
+            if (useCompression) {
+                return LZString.compressToBase64(jsonString);
+            }
+
+            // Mã hóa dựa vào cài đặt
+            if (useBase64) {
+                return btoa(jsonString);
+            } else {
+                return jsonString;
+            }
+        }
+
+        // Giải mã dữ liệu với xử lý nhiều định dạng
+        async function decodeData(input) {
+            try {
+                input = input.trim();
+                let jsonString = '';
+
+                // Thử giải mã với LZ-String trước
+                try {
+                    jsonString = LZString.decompressFromBase64(input);
+                    // Nếu giải nén thành công và là chuỗi hợp lệ
+                    if (jsonString && typeof jsonString === 'string' && jsonString.length > 0) {
+                        const data = JSON.parse(jsonString);
+                        // Nếu có định dạng tối ưu
+                        if (data.s && (data.i || data.i === [])) {
+                            return {
+                                sdp: data.s,
+                                iceCandidates: data.i,
+                                timestamp: data.t ? new Date(data.t).toISOString() : new Date().toISOString()
+                            };
+                        }
+                    }
+                } catch (e) {
+                    // Không phải LZ-String, thử các phương pháp khác
+                }
+
+                // Thử phân tích như JSON thuần túy
+                try {
+                    const data = JSON.parse(input);
+                    if (data.s || data.sdp) {
+                        return {
+                            sdp: data.s || data.sdp,
+                            iceCandidates: data.i || data.iceCandidates || [],
+                            timestamp: data.t ? new Date(data.t).toISOString() :
+                                (data.timestamp || new Date().toISOString())
+                        };
+                    }
+                    return data;
+                } catch (e) {
+                    // Không phải JSON, thử giải mã Base64
+                    try {
+                        const decoded = atob(input);
+                        const data = JSON.parse(decoded);
+                        if (data.s || data.sdp) {
+                            return {
+                                sdp: data.s || data.sdp,
+                                iceCandidates: data.i || data.iceCandidates || [],
+                                timestamp: data.t ? new Date(data.t).toISOString() :
+                                    (data.timestamp || new Date().toISOString())
+                            };
+                        }
+                        return data;
+                    } catch (e2) {
+                        throw new Error("Định dạng không hợp lệ. Không phải JSON, Base64 hoặc LZString.");
+                    }
+                }
+            } catch (err) {
+                updateDebugInfo("Lỗi giải mã: " + err.message);
+                throw err;
+            }
+        }
+
+        // Cập nhật giao diện theo vai trò
+        function updateRoleUI() {
+            role = document.querySelector('input[name="role"]:checked').value;
+
+            // Hiển thị/ẩn hướng dẫn
+            document.getElementById('callerInstructions').style.display = role === "caller" ? "block" : "none";
+            document.getElementById('receiverInstructions').style.display = role === "receiver" ? "block" : "none";
+
+            // Hiển thị/ẩn các nút cho người gọi
+            document.querySelectorAll('.caller-btn').forEach(btn => {
+                btn.style.display = role === "caller" ? "inline-block" : "none";
+            });
+
+            // Hiển thị/ẩn các nút cho người nhận
+            document.querySelectorAll('.receiver-btn').forEach(btn => {
+                btn.style.display = role === "receiver" ? "inline-block" : "none";
+            });
+
+            // Reset trạng thái các nút
+            validateContent();
+
+            // Cập nhật hướng dẫn dựa trên vai trò
+            if (role === "caller") {
+                updateStatus("Bước 1: Bật Camera (Người gọi)");
+            } else {
+                updateStatus("Bước 1: Bật Camera (Người nhận)");
+            }
+        }
+
+        // Cập nhật trạng thái
+        function updateStatus(message) {
+            document.getElementById('status').innerText = message;
+        }
+
+        // Khởi động camera
+        async function start() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                document.getElementById('localVideo').srcObject = localStream;
+
+                if (role === "caller") {
+                    document.getElementById('offerBtn').disabled = false;
+                    updateStatus("Bước 2: Tạo Lời Mời (Người gọi)");
+                } else {
+                    updateStatus("Bước 2: Dán Lời Mời và Tạo Phản Hồi (Người nhận)");
+                }
+
+                // Kích hoạt nút tạo phản hồi nếu có lời mời và là người nhận
+                validateContent();
+
+                updateDebugInfo("Đã bật camera thành công");
+            } catch (err) {
+                console.error("Không thể truy cập thiết bị:", err);
+                updateStatus("Lỗi: Không thể truy cập camera hoặc microphone");
+                document.getElementById('status').classList.replace("alert-info", "alert-danger");
+                updateDebugInfo("Lỗi truy cập camera: " + err.message);
+            }
+        }
+
+        // Tạo kết nối ngang hàng
+        function createPeerConnection() {
+            if (peerConnection) {
+                console.log("Kết nối đã tồn tại.");
+                return;
+            }
+
+            peerConnection = new RTCPeerConnection(config);
+            updateDebugInfo("Đã tạo RTCPeerConnection mới");
+
+            // Thêm track vào peer connection
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            // Xử lý track nhận được
+            peerConnection.ontrack = event => {
+                document.getElementById('remoteVideo').srcObject = event.streams[0];
+                document.getElementById('endCallBtn').disabled = false;
+                updateStatus("Kết Nối Thành Công!");
+                updateDebugInfo("Đã nhận được media tracks từ đối tác");
+            };
+
+            // Thu thập ICE candidates
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    localICECandidates.push(event.candidate);
+                    updateDebugInfo("Đã thu thập được ICE candidate mới");
+                }
+            };
+
+            // Xử lý trạng thái kết nối
+            peerConnection.oniceconnectionstatechange = () => {
+                const state = peerConnection.iceConnectionState;
+                console.log("ICE connection state:", state);
+                updateConnectionState(state);
+
+                if (state === "connected" || state === "completed") {
+                    updateStatus("Kết Nối Thành Công!");
+                } else if (state === "failed" || state === "disconnected") {
+                    updateStatus("Kết Nối Thất Bại. Thử lại.");
+                    document.getElementById('status').classList.replace("alert-info", "alert-warning");
+                }
+
+                updateDebugInfo("Trạng thái ICE thay đổi: " + state);
+            };
+        }
+
+        // Tạo lời mời (người gọi)
+        async function createOffer() {
+            createPeerConnection();
+
+            try {
+                const offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: true,
+                    offerToReceiveVideo: true
+                });
+                await peerConnection.setLocalDescription(offer);
+                updateDebugInfo("Đã tạo và đặt local description");
+
+                // Chờ để thu thập ICE candidates (thời gian ngắn hơn)
+                updateStatus("Đang thu thập ICE candidates...");
+                await new Promise(resolve => setTimeout(resolve, collectCandidatesTime));
+
+                // Đóng gói offer và ICE candidates
+                const fullOffer = {
+                    sdp: offer,
+                    iceCandidates: localICECandidates,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Lưu lại để debug
+                lastOfferData = fullOffer;
+
+                // Mã hóa dựa trên cài đặt
+                const encodedOffer = encodeData(fullOffer);
+
+                document.getElementById('offer').value = encodedOffer;
+                document.getElementById('copyOfferBtn').disabled = false;
+
+                // Hiển thị thông tin kích thước
+                const sizeBefore = JSON.stringify(fullOffer).length;
+                const sizeAfter = encodedOffer.length;
+                const reduction = ((1 - sizeAfter / sizeBefore) * 100).toFixed(1);
+
+                updateStatus("Bước 3: Sao chép Lời Mời và gửi cho đối tác (Người gọi)");
+                updateDebugInfo(`Đã tạo lời mời (giảm ${reduction}% kích thước), thu thập được ${localICECandidates.length} ICE candidates, sử dụng ${filterICECandidates(localICECandidates).length}`);
+            } catch (err) {
+                console.error("Lỗi khi tạo lời mời:", err);
+                alert("Lỗi: " + err.message);
+                updateDebugInfo("Lỗi tạo lời mời: " + err.message);
+            }
+        }
+
+        // Tạo phản hồi (người nhận)
+        async function createAnswer() {
+            try {
+                const offerText = document.getElementById('offer').value.trim();
+                if (!offerText) {
+                    alert("Vui lòng dán lời mời trước khi tạo phản hồi!");
+                    return;
+                }
+
+                // Giải mã offer
+                const offerData = await decodeData(offerText);
+                updateDebugInfo("Đã giải mã lời mời thành công");
+
+                if (!offerData || !offerData.sdp) {
+                    throw new Error("Lời mời không chứa thông tin SDP cần thiết");
+                }
+
+                createPeerConnection();
+
+                // Đặt remote description
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData.sdp));
+                updateDebugInfo("Đã đặt remote description từ lời mời");
+
+                // Thêm ICE candidates từ người gọi
+                if (offerData.iceCandidates && offerData.iceCandidates.length > 0) {
+                    let addedCount = 0;
+                    for (const candidate of offerData.iceCandidates) {
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                            addedCount++;
+                        } catch (e) {
+                            console.warn("Không thể thêm ICE candidate:", e);
+                        }
+                    }
+                    updateDebugInfo(`Đã thêm ${addedCount}/${offerData.iceCandidates.length} ICE candidates từ người gọi`);
+                } else {
+                    updateDebugInfo("Không có ICE candidates trong lời mời");
+                }
+
+                // Tạo answer
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                updateDebugInfo("Đã tạo và đặt local description cho answer");
+
+                // Chờ để thu thập ICE candidates (thời gian ngắn hơn)
+                updateStatus("Đang thu thập ICE candidates...");
+                await new Promise(resolve => setTimeout(resolve, collectCandidatesTime));
+
+                // Đóng gói answer và ICE candidates
+                const fullAnswer = {
+                    sdp: answer,
+                    iceCandidates: localICECandidates,
+                    timestamp: new Date().toISOString()
+                };
+
+                // Lưu lại để debug
+                lastAnswerData = fullAnswer;
+
+                // Mã hóa dựa trên cài đặt
+                const encodedAnswer = encodeData(fullAnswer);
+
+                document.getElementById('answer').value = encodedAnswer;
+                document.getElementById('copyAnswerBtn').disabled = false;
+
+                // Hiển thị thông tin kích thước
+                const sizeBefore = JSON.stringify(fullAnswer).length;
+                const sizeAfter = encodedAnswer.length;
+                const reduction = ((1 - sizeAfter / sizeBefore) * 100).toFixed(1);
+
+                updateStatus("Bước 3: Sao chép Phản Hồi và gửi cho người gọi (Người nhận)");
+                updateDebugInfo(`Đã tạo phản hồi (giảm ${reduction}% kích thước), thu thập được ${localICECandidates.length} ICE candidates, sử dụng ${filterICECandidates(localICECandidates).length}`);
+            } catch (err) {
+                console.error("Lỗi khi tạo phản hồi:", err);
+                alert("Lỗi: " + err.message);
+                updateDebugInfo("Lỗi tạo phản hồi: " + err.message);
+            }
+        }
+
+        // Đặt phản hồi (người gọi)
+        async function setAnswer() {
+            try {
+                const answerText = document.getElementById('answer').value.trim();
+                if (!answerText) {
+                    alert("Vui lòng dán phản hồi trước!");
+                    return;
+                }
+
+                // Giải mã answer
+                const answerData = await decodeData(answerText);
+                updateDebugInfo("Đã giải mã phản hồi thành công");
+
+                if (!answerData || !answerData.sdp) {
+                    throw new Error("Phản hồi không chứa thông tin SDP cần thiết");
+                }
+
+                // Đặt remote description từ answer
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(answerData.sdp));
+                updateDebugInfo("Đã đặt remote description từ phản hồi");
+
+                // Thêm ICE candidates từ người nhận
+                if (answerData.iceCandidates && answerData.iceCandidates.length > 0) {
+                    let addedCount = 0;
+                    for (const candidate of answerData.iceCandidates) {
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                            addedCount++;
+                        } catch (e) {
+                            console.warn("Không thể thêm ICE candidate:", e);
+                        }
+                    }
+                    updateDebugInfo(`Đã thêm ${addedCount}/${answerData.iceCandidates.length} ICE candidates từ người nhận`);
+                } else {
+                    updateDebugInfo("Không có ICE candidates trong phản hồi");
+                }
+
+                updateStatus("Đang Kết Nối...");
+            } catch (err) {
+                console.error("Lỗi khi đặt phản hồi:", err);
+                alert("Lỗi: " + err.message + "\n\nPhản hồi không hợp lệ hoặc không hoàn chỉnh. Hãy đảm bảo bạn đã sao chép toàn bộ phản hồi từ đối tác.");
+                updateDebugInfo("Lỗi đặt phản hồi: " + err.message);
+            }
+        }
+
+        // Kết thúc cuộc gọi
+        function endCall() {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                document.getElementById('localVideo').srcObject = null;
+                document.getElementById('remoteVideo').srcObject = null;
+            }
+
+            // Reset các trạng thái
+            localICECandidates = [];
+            document.getElementById('offer').value = '';
+            document.getElementById('answer').value = '';
+            document.getElementById('copyOfferBtn').disabled = true;
+            document.getElementById('copyAnswerBtn').disabled = true;
+            document.getElementById('setAnswerBtn').disabled = true;
+            document.getElementById('offerBtn').disabled = true;
+            document.getElementById('answerBtn').disabled = true;
+            document.getElementById('endCallBtn').disabled = true;
+
+            document.getElementById('status').classList.replace("alert-info", "alert-danger");
+            updateStatus("Cuộc Gọi Đã Kết Thúc");
+            updateConnectionState("disconnected");
+            updateDebugInfo("Đã kết thúc cuộc gọi và giải phóng tài nguyên");
+
+            // Nút bắt đầu lại
+            document.getElementById('startBtn').disabled = false;
+        }
+
+        // Kiểm tra và kích hoạt các nút dựa trên nội dung
+        function validateContent() {
+            const offerValue = document.getElementById('offer').value.trim();
+            const answerValue = document.getElementById('answer').value.trim();
+            const hasLocalStream = !!localStream;
+
+            if (role === "caller") {
+                // Người gọi
+                document.getElementById('setAnswerBtn').disabled = !(answerValue && peerConnection);
+            } else {
+                // Người nhận
+                document.getElementById('answerBtn').disabled = !(offerValue && hasLocalStream);
+            }
+        }
+
+        // Sao chép vào clipboard
+        function copyToClipboard(elementId) {
+            const textToCopy = document.getElementById(elementId);
+            textToCopy.select();
+            document.execCommand('copy');
+
+            // Hiển thị thông báo đã sao chép
+            const buttonId = elementId === 'offer' ? 'copyOfferBtn' : 'copyAnswerBtn';
+            const originalText = document.getElementById(buttonId).innerText;
+            document.getElementById(buttonId).innerText = '✓ Đã sao chép!';
+
+            setTimeout(() => {
+                document.getElementById(buttonId).innerText = originalText;
+            }, 2000);
+
+            updateDebugInfo(`Đã sao chép ${elementId === 'offer' ? 'lời mời' : 'phản hồi'} vào clipboard`);
+        }
+
+        // Hiển thị thông tin debug
+        function showDebugInfo(type) {
+            try {
+                const content = document.getElementById(type).value.trim();
+                if (!content) {
+                    alert(`Chưa có ${type === 'offer' ? 'lời mời' : 'phản hồi'} để hiển thị!`);
+                    return;
+                }
+
+                // Thử giải mã và hiển thị thông tin
+                try {
+                    const data = decodeData(content);
+
+                    // Hiển thị thông tin trong debug log
+                    if (data.sdp) {
+                        updateDebugInfo(`${type === 'offer' ? 'Lời mời' : 'Phản hồi'} hợp lệ, có ${data.iceCandidates ? data.iceCandidates.length : 0} ICE candidates`);
+                    }
+
+                    const prettifiedJSON = JSON.stringify(data, null, 2);
+                    const previewLength = 300; // Số ký tự để hiển thị trong alert
+
+                    alert(`${type === 'offer' ? 'Lời mời' : 'Phản hồi'} hợp lệ:\n\n${prettifiedJSON.length > previewLength ? prettifiedJSON.substring(0, previewLength) + "..." : prettifiedJSON}`);
+                } catch (err) {
+                    alert(`Lỗi khi phân tích ${type === 'offer' ? 'lời mời' : 'phản hồi'}: ${err.message}`);
+                }
+            } catch (err) {
+                alert("Lỗi khi hiển thị thông tin debug: " + err.message);
+            }
+        }
+
+        // Khởi tạo UI theo vai trò khi trang tải
+        updateRoleUI();
+    </script>
+</body>
+
+</html>

@@ -1,6 +1,6 @@
-
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as Stomp from '@stomp/stompjs';
+import { SignalRequest, SignalResponse } from './webRTCService';
 
 // Existing interfaces remain the same
 export interface MessageRequest {
@@ -45,6 +45,7 @@ class WebSocketService {
     private connected: boolean = false;
     private reconnectAttempts: number = 0;
     private readonly MAX_RECONNECT_ATTEMPTS: number = 5;
+    private callSubscriptions: Map<string, (response: SignalResponse) => void> = new Map();
 
     // Connect WebSocket
     connect(userId: string, callbacks: WebSocketCallbacks): void {
@@ -137,6 +138,11 @@ class WebSocketService {
             }
         });
 
+        // Subscribe to WebRTC call signals if any were registered before connection
+        this.callSubscriptions.forEach((callback, userId) => {
+            this.subscribeToCallInternal(userId, callback);
+        });
+
         // Call connection established callback
         this.callbacks.onConnectionEstablished();
     }
@@ -166,6 +172,44 @@ class WebSocketService {
                 }
             }, 5000 * this.reconnectAttempts);
         }
+    }
+
+    // Subscribe to WebRTC call signals
+    subscribeToCall(userId: string, callback: (response: SignalResponse) => void): void {
+        // Store callback for reconnections
+        this.callSubscriptions.set(userId, callback);
+
+        // If connected, subscribe immediately
+        if (this.connected && this.stompClient) {
+            this.subscribeToCallInternal(userId, callback);
+        }
+    }
+
+    // Internal method to subscribe to call signals
+    private subscribeToCallInternal(userId: string, callback: (response: SignalResponse) => void): void {
+        if (!this.stompClient) return;
+
+        this.stompClient.subscribe(`/queue/call/${userId}`, (message) => {
+            try {
+                const signalResponse = JSON.parse(message.body);
+                callback(signalResponse);
+            } catch (error) {
+                console.error('Error processing call signal:', error);
+            }
+        });
+    }
+
+    // Send WebRTC signal
+    sendSignal(request: SignalRequest): void {
+        if (!this.stompClient || !this.connected) {
+            console.error('Cannot send signal: WebSocket not connected');
+            return;
+        }
+
+        this.stompClient.publish({
+            destination: "/app/chat.signal",
+            body: JSON.stringify(request)
+        });
     }
 
     // Send message
