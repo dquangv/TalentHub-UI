@@ -132,7 +132,11 @@ const Navbar = () => {
             {role == "CLIENT" ? (
               <NavLink to="/freelancers">{t("freelancers")}</NavLink>
             ) : role == "FREELANCER" ? (
-              <NavLink to="/jobs">{t("jobs")}</NavLink>
+              <>
+                <NavLink to="/jobs">{t("jobs")}</NavLink>
+                <NavLink to="/saved-jobs">Công việc đã lưu</NavLink>
+              </>
+            
             ) : (
               ""
             )}

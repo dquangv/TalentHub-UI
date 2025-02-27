@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,11 +11,17 @@ import api from '@/api/axiosConfig';
 const SavedJobs = () => {
   const [savedJobs, setSavedJobs] = useState<any[]>([]); 
   const [searchTerm, setSearchTerm] = useState('');
-
+  const navigate = useNavigate()
   useEffect(() => {
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.freelancerId) {
+      navigate("/login");
+    }
+
     const fetchSavedJobs = async () => {
       try {
-        const response = await api.get('/jobs/SavedJobs/1');
+        const response = await api.get(`/v1/jobs/SavedJobs/${data.freelancerId}`);
         setSavedJobs(response.data); 
       } catch (error) {
         console.error(error);
@@ -64,7 +70,7 @@ const SavedJobs = () => {
             savedJobs.filter((job) => 
               job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
               job.company.toLowerCase().includes(searchTerm.toLowerCase())
-            ).map((job, index) => (
+            )?.map((job, index) => (
               <FadeInWhenVisible key={job.id} delay={index * 0.1}>
                 <Card className="p-6">
                   <div className="flex flex-col md:flex-row gap-6">
@@ -109,7 +115,7 @@ const SavedJobs = () => {
                       <p className="text-muted-foreground mb-4">{job.description}</p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {job.skills.map((skill: any) => (
+                        {job.skills?.map((skill: any) => (
                           <Badge key={skill} variant="outline">
                             {skill}
                           </Badge>

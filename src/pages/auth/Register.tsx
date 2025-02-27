@@ -39,7 +39,7 @@ const Register = () => {
 
     try {
       formData.status = true;
-      const response = await api.post('account/register', formData);
+      const response = await api.post('/v1/account/register', formData);
       navigate("/login")
     } catch (err: any) {
       setError('Đã xảy ra lỗi, vui lòng thử lại sau.');

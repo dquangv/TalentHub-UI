@@ -50,7 +50,7 @@ const JobDetail = () => {
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
-        const response = await api.get(`/jobs/detail-job/${id}`);
+        const response = await api.get(`/v1/jobs/detail-job/${id}`);
         setJob(response.data);
       } catch (error) {
         console.error("Error fetching job details:", error);
@@ -68,9 +68,9 @@ const JobDetail = () => {
     }
 
     const handleViewJob = async () => {
-      const response = await api.post("/jobs/view", {
+      const response = await api.post("/v1/jobs/view", {
         freelancerId: data?.freelancerId,
-        jobId: id,
+        jobId: Number(id),
       });
       if (response.status !== 200) {
         setError("Có lỗi xảy ra");
@@ -82,9 +82,14 @@ const JobDetail = () => {
   }, []);
 
   const handleApplyJob = async () => {
-    const response = await api.post("/jobs/apply", {
-      freelancerId: jobFreelancerInfo?.freelancerId,
-      jobId: id,
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.freelancerId) {
+      navigate("/login");
+    }
+    const response = await api.post("/v1/jobs/apply", {
+      freelancerId: data?.freelancerId,
+      jobId: Number(id),
     });
     if (response.status !== 200) {
       notification.error({
@@ -102,9 +107,14 @@ const JobDetail = () => {
   };
 
   const handleSaveJob = async () => {
-    const response = await api.post("/jobs/save", {
-      freelancerId: jobFreelancerInfo?.freelancerId,
-      jobId: id,
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.freelancerId) {
+      navigate("/login");
+    }
+    const response = await api.post("/v1/jobs/save", {
+      freelancerId: data?.freelancerId,
+      jobId: Number(id),
     });
     if (response.status !== 200) {
       notification.error({
@@ -122,9 +132,9 @@ const JobDetail = () => {
   };
 
   const handleUnSaveJob = async () => {
-    const response = await api.post("/jobs/unsave", {
+    const response = await api.post("/v1/jobs/unsave", {
       freelancerId: jobFreelancerInfo?.freelancerId,
-      jobId: id,
+      jobId: Number(id),
     });
     if (response.status !== 200) {
       alert("có lỗi");
