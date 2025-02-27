@@ -71,31 +71,34 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
             console.log('Setting local video source');
 
             // Đảm bảo local video đã sẵn sàng
-            if (localVideoRef.current.srcObject !== localStream) {
-                localVideoRef.current.srcObject = localStream;
+            localVideoRef.current.srcObject = localStream;
 
-                // Force video element để cập nhật
-                localVideoRef.current.load();
-            }
+            // Safari đòi hỏi bạn chủ động gọi load() trước play()
+            localVideoRef.current.load();
 
-            // Đảm bảo video tự động play và xử lý lỗi nếu có
-            const playPromise = localVideoRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => {
-                    console.warn('Could not play local video automatically:', err);
-                    // Thử lại sau một khoảng thời gian ngắn
-                    setTimeout(() => {
-                        if (localVideoRef.current) {
-                            localVideoRef.current.play().catch(e =>
-                                console.warn('Second attempt to play local video failed:', e)
-                            );
-                        }
-                    }, 300);
-                });
-            }
+            // Thêm delay ngắn trước khi gọi play() để Safari có thời gian xử lý
+            setTimeout(() => {
+                if (localVideoRef.current) {
+                    const playPromise = localVideoRef.current.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(err => {
+                            console.warn('Could not play local video automatically:', err);
+                            // Có thể đây là Safari yêu cầu tương tác người dùng, hiển thị thông báo
+                            console.log('Trying to play local video again after error');
+                            setTimeout(() => {
+                                if (localVideoRef.current) {
+                                    localVideoRef.current.play().catch(e =>
+                                        console.warn('Second attempt to play local video failed:', e)
+                                    );
+                                }
+                            }, 500);
+                        });
+                    }
+                }
+            }, 100);
         }
 
-        // Xử lý remote stream
+        // Xử lý remote stream - Safari cần xử lý đặc biệt
         if (remoteVideoRef.current && remoteStream) {
             console.log('Setting remote video source, tracks:', remoteStream.getTracks().length);
 
@@ -103,64 +106,57 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
             const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
             console.log('Remote stream has video tracks:', hasVideoTracks);
 
-            // Đảm bảo remote video đã sẵn sàng
-            if (remoteVideoRef.current.srcObject !== remoteStream) {
-                remoteVideoRef.current.srcObject = remoteStream;
+            // Đặt srcObject kể cả khi chưa có tracks - Safari sẽ cập nhật khi tracks được thêm vào
+            remoteVideoRef.current.srcObject = remoteStream;
 
-                // Force video element để cập nhật
-                remoteVideoRef.current.load();
-            }
+            // Safari đòi hỏi bạn chủ động gọi load() trước play()
+            remoteVideoRef.current.load();
 
-            // Đảm bảo video tự động play và xử lý lỗi nếu có
-            const playPromise = remoteVideoRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(err => {
-                    console.warn('Could not play remote video automatically:', err);
-                    // Thử lại sau một khoảng thời gian ngắn
-                    setTimeout(() => {
-                        if (remoteVideoRef.current) {
-                            remoteVideoRef.current.play().catch(e =>
-                                console.warn('Second attempt to play remote video failed:', e)
-                            );
-                        }
-                    }, 300);
-                });
-            }
+            // Thêm delay ngắn trước khi gọi play() để Safari có thời gian xử lý
+            setTimeout(() => {
+                if (remoteVideoRef.current) {
+                    const playPromise = remoteVideoRef.current.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(err => {
+                            console.warn('Could not play remote video automatically:', err);
+                            // Thông báo cho người dùng nếu cần thiết
+                            console.log('Trying to play remote video again after error');
+                            setTimeout(() => {
+                                if (remoteVideoRef.current) {
+                                    remoteVideoRef.current.play().catch(e =>
+                                        console.warn('Second attempt to play remote video failed:', e)
+                                    );
+                                }
+                            }, 500);
+                        });
+                    }
+                }
+            }, 100);
         }
     }, [localStream, remoteStream]);
 
     // Thêm useEffect để kiểm tra định kỳ nếu tracks đã được thêm nhưng video không hiển thị
     useEffect(() => {
-        if (callStatus !== 'connected' || !remoteStream || !remoteVideoRef.current) return;
+        // Phát hiện Safari
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
 
-        const checkInterval = setInterval(() => {
-            const videoTracks = remoteStream.getVideoTracks();
-            if (videoTracks.length > 0) {
-                const track = videoTracks[0];
-                console.log('Video track status:', track.id, track.enabled, track.readyState);
+        if ((isSafari || isIOS) && callStatus === 'connected') {
+            console.log('Safari/iOS detected, applying special handling');
 
-                // Nếu track "live" nhưng video không hiển thị, thử cập nhật lại
-                if (track.readyState === 'live' && track.enabled) {
-                    // Kiểm tra xem video có kích thước hiển thị hay không
-                    const videoElement = remoteVideoRef.current;
-                    if (videoElement && (videoElement.videoWidth === 0 || videoElement.videoHeight === 0)) {
-                        console.log('Video dimensions are zero, trying to refresh');
-
-                        // Tạm thời gỡ bỏ và gắn lại stream
-                        const tempStream = videoElement.srcObject;
-                        videoElement.srcObject = null;
-                        setTimeout(() => {
-                            if (videoElement) {
-                                videoElement.srcObject = tempStream;
-                                videoElement.play().catch(e => console.warn('Error playing video:', e));
-                            }
-                        }, 100);
+            // Thêm xử lý đặc biệt cho Safari nếu cần
+            const checkVideoInterval = setInterval(() => {
+                if (remoteVideoRef.current && remoteStream) {
+                    const videoTracks = remoteStream.getVideoTracks();
+                    if (videoTracks.length > 0 && videoTracks[0].enabled) {
+                        console.log('Video track is enabled in Safari, ensuring playback');
+                        remoteVideoRef.current.play().catch(e => console.log('Safari play error:', e));
                     }
                 }
-            }
-        }, 2000);
+            }, 1000);
 
-        return () => clearInterval(checkInterval);
+            return () => clearInterval(checkVideoInterval);
+        }
     }, [callStatus, remoteStream]);
 
     // Format call time as mm:ss
