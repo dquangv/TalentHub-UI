@@ -131,7 +131,7 @@ const AppliedJobs = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <Link to={`/jobs/${job.id}`} className="hover:underline">
-                          <h3 className="text-xl font-semibold">{job.title}</h3>
+                          <h3 className="text-xl font-semibold">{job.jobTitle}</h3>
                         </Link>
                         <Badge className={getStatusColor(job.status)}>
                           {getStatusText(job.status)}
@@ -141,19 +141,15 @@ const AppliedJobs = () => {
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
                         <div className="flex items-center">
                           <Briefcase className="w-4 h-4 mr-2" />
-                          {job.company}
-                        </div>
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {job.location}
+                          {job.companyName}
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
-                          {job.duration}
+                          {job.hourWork}
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 mr-2" />
-                          {job.budget}
+                          {job.fromPrice} - {job.toPrice}
                         </div>
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
@@ -164,7 +160,7 @@ const AppliedJobs = () => {
                       <p className="text-muted-foreground mb-4">{job.description}</p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {job.skills.map((skill) => (
+                        {job.skillNames?.map((skill) => (
                           <Badge key={skill} variant="outline">
                             {skill}
                           </Badge>
