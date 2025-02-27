@@ -71,7 +71,7 @@ class WebSocketService {
         this.callbacks = callbacks;
 
         // Create SockJS connection with additional configuration
-        const socket = new SockJS('https://nevertheless-initial-js-occupations.trycloudflare.com/ws');
+        const socket = new SockJS('https://horizontal-these-tmp-favorites.trycloudflare.com/ws');
 
         socket.onopen = () => {
             console.log("✅ SockJS connection opened");
