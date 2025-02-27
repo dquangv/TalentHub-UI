@@ -34,7 +34,7 @@ const Applicants = () => {
     const fetchApplicants = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`/jobs/applicants/${id}`); 
+        const response = await api.get(`/v1/jobs/applicants/${id}`); 
         setApplicants(response.data);
         setError(null);
       } catch (err) {
