@@ -1,3 +1,4 @@
+// websocketService.ts (Đã sửa)
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as Stomp from '@stomp/stompjs';
 import { SignalRequest, SignalResponse } from './webRTCService';
@@ -44,26 +45,41 @@ class WebSocketService {
     private callbacks: WebSocketCallbacks | null = null;
     private connected: boolean = false;
     private reconnectAttempts: number = 0;
+    private reconnectTimer: NodeJS.Timeout | null = null;
     private readonly MAX_RECONNECT_ATTEMPTS: number = 5;
     private callSubscriptions: Map<string, (response: SignalResponse) => void> = new Map();
 
     // Connect WebSocket
     connect(userId: string, callbacks: WebSocketCallbacks): void {
+        // Nếu đã có kết nối với cùng userId, chỉ cập nhật callbacks
+        if (this.connected && this.stompClient && this.userId === userId) {
+            console.log('WebSocket already connected with same userId, updating callbacks');
+            this.callbacks = callbacks;
+            // Gọi callback onConnectionEstablished để thông báo kết nối đã sẵn sàng
+            callbacks.onConnectionEstablished();
+            return;
+        }
+
+        // Nếu đang có kết nối với userId khác, đóng kết nối cũ trước khi tạo mới
+        if (this.stompClient) {
+            this.disconnect();
+        }
+
         // Reset reconnection attempts
         this.reconnectAttempts = 0;
         this.userId = userId;
         this.callbacks = callbacks;
 
         // Create SockJS connection with additional configuration
-        const socket = new SockJS('http://localhost:8080/ws');
+        const socket = new SockJS('https://nevertheless-initial-js-occupations.trycloudflare.com/ws');
 
-        socket.onopen = function () {
+        socket.onopen = () => {
             console.log("✅ SockJS connection opened");
         };
-        socket.onerror = function (error) {
+        socket.onerror = (error) => {
             console.error("❌ SockJS error:", error);
         };
-        socket.onclose = function () {
+        socket.onclose = () => {
             console.warn("⚠ SockJS connection closed");
         };
 
@@ -72,7 +88,8 @@ class WebSocketService {
             webSocketFactory: () => socket,
             connectHeaders: {},
             debug: (str) => {
-                console.log('[WebSocket Debug]:', str);
+                // Comment này để giảm debug logs
+                // console.log('[WebSocket Debug]:', str);
             },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
@@ -95,6 +112,12 @@ class WebSocketService {
         console.log('Connected to WebSocket');
         this.connected = true;
         this.reconnectAttempts = 0;
+
+        // Xóa bỏ timer reconnect nếu có
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+            this.reconnectTimer = null;
+        }
 
         // Notify server of connection
         this.stompClient.publish({
@@ -166,7 +189,7 @@ class WebSocketService {
             console.log(`Attempting to reconnect (Attempt ${this.reconnectAttempts})`);
 
             // Wait before trying again
-            setTimeout(() => {
+            this.reconnectTimer = setTimeout(() => {
                 if (this.userId && this.callbacks) {
                     this.connect(this.userId, this.callbacks);
                 }
@@ -189,6 +212,7 @@ class WebSocketService {
     private subscribeToCallInternal(userId: string, callback: (response: SignalResponse) => void): void {
         if (!this.stompClient) return;
 
+        // Kiểm tra nếu đã đăng ký subscription cho userId này rồi thì không đăng ký lại
         this.stompClient.subscribe(`/queue/call/${userId}`, (message) => {
             try {
                 const signalResponse = JSON.parse(message.body);
@@ -261,6 +285,13 @@ class WebSocketService {
             // Deactivate connection
             this.stompClient.deactivate();
             this.connected = false;
+
+            // Xóa timer reconnect nếu tồn tại
+            if (this.reconnectTimer) {
+                clearTimeout(this.reconnectTimer);
+                this.reconnectTimer = null;
+            }
+
             console.log("WebSocket disconnected");
         }
     }

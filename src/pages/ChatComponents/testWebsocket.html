@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <label>User ID: <input type="text" id="userId" value="1"></label>
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+    </div>
+    <div>
+        <label>Receiver ID: <input type="text" id="receiverId" value="2"></label>
+        <label>Message: <input type="text" id="message"></label>
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div>
+        <h3>Messages:</h3>
+        <ul id="messagesList"></ul>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let userId = null;
+
+        function connect() {
+            userId = document.getElementById('userId').value;
+            const socket = new SockJS('http://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+
+            stompClient.connect({}, function () {
+                // Đăng ký nhận messages cho user này
+                stompClient.subscribe('/queue/messages/' + userId, onMessageReceived);
+
+                // Đăng ký nhận status updates
+                stompClient.subscribe('/topic/status', onStatusUpdate);
+
+                // Thông báo server rằng user đã kết nối
+                stompClient.send("/app/chat.connect", {}, userId);
+
+                addMessage("Connected as user " + userId);
+            }, onError);
+        }
+
+        function disconnect() {
+            if (stompClient) {
+                // Thông báo server rằng user đang ngắt kết nối
+                stompClient.send("/app/chat.disconnect", {}, userId);
+                stompClient.disconnect();
+                addMessage("Disconnected");
+            }
+            stompClient = null;
+        }
+
+        function sendMessage() {
+            if (stompClient) {
+                const receiverId = document.getElementById('receiverId').value;
+                const content = document.getElementById('message').value;
+
+                const chatMessage = {
+                    senderId: userId,
+                    receiverId: receiverId,
+                    content: content
+                };
+
+                stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
+                addMessage("Sent to " + receiverId + ": " + content);
+                document.getElementById('message').value = '';
+            } else {
+                alert("Please connect first");
+            }
+        }
+
+        function onMessageReceived(payload) {
+            const message = JSON.parse(payload.body);
+            addMessage("Received from " + message.senderId + ": " + message.content);
+
+            // Thông báo đã đọc tin nhắn
+            stompClient.send("/app/chat.read", {}, JSON.stringify({
+                receiverId: userId,
+                senderId: message.senderId
+            }));
+        }
+
+        function onStatusUpdate(payload) {
+            const statusUserId = parseInt(payload.body);
+            if (statusUserId > 0) {
+                addMessage("User " + statusUserId + " is online");
+            } else {
+                addMessage("User " + (-statusUserId) + " is offline");
+            }
+        }
+
+        function onError(error) {
+            addMessage("Error: " + error);
+        }
+
+        function addMessage(message) {
+            const li = document.createElement('li');
+            li.textContent = message;
+            document.getElementById('messagesList').appendChild(li);
+        }
+    </script>
+</body>
+
+</html>

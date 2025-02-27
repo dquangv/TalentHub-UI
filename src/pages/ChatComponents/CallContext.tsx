@@ -19,12 +19,15 @@ interface CallContextType {
     remoteStream: MediaStream | null;
     isMuted: boolean;
     isVideoOff: boolean;
+    isScreenSharing: boolean;
+    callQuality: any;
     startCall: (userId: string, name: string, avatar?: string, options?: CallOptions) => void;
     acceptCall: () => void;
     rejectCall: () => void;
     endCall: () => void;
     toggleMute: () => void;
     toggleVideo: () => void;
+    toggleScreenShare: () => Promise<boolean>;
 }
 
 const CallContext = createContext<CallContextType>({} as CallContextType);
@@ -48,14 +51,22 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
     const [isMuted, setIsMuted] = useState<boolean>(false);
     const [isVideoOff, setIsVideoOff] = useState<boolean>(false);
+    const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false);
+    const [callQuality, setCallQuality] = useState<any>(null);
+
+    // Stats polling interval
+    const [statsInterval, setStatsInterval] = useState<NodeJS.Timeout | null>(null);
 
     // Initialize WebRTC service
     useEffect(() => {
         if (!userId) return;
 
+        console.log('Initializing WebRTC service for user', userId);
+
         // Define callbacks for WebRTC service
         const callbacks: WebRTCCallbacks = {
             onCallReceived: (response: SignalResponse) => {
+                console.log('Call received from', response.senderId);
                 setCallerInfo({
                     id: response.senderId,
                     name: response.senderName,
@@ -68,22 +79,35 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
                 playRingtone();
             },
             onCallAccepted: (response: SignalResponse) => {
+                console.log('Call accepted by', response.senderId);
                 setCallStatus('connected');
                 // Stop ringtone
                 stopRingtone();
             },
             onCallEnded: (response: SignalResponse) => {
+                console.log('Call ended by', response?.senderId || 'system');
                 handleCallEnded();
             },
             onLocalStreamReady: (stream: MediaStream) => {
-                setLocalStream(stream);
+                console.log('Local stream ready with tracks:',
+                    stream.getTracks().map(t => `${t.kind}:${t.enabled}`).join(', '));
+                // Đảm bảo setLocalStream gọi với stream mới, để useEffect trong VideoCallDialog được kích hoạt
+                setLocalStream(null);
+                setTimeout(() => setLocalStream(stream), 0);
             },
             onRemoteStreamReady: (stream: MediaStream) => {
-                setRemoteStream(stream);
-                setIsCallActive(true);
+                console.log('Remote stream ready with tracks:',
+                    stream.getTracks().map(t => `${t.kind}:${t.enabled}`).join(', '));
+                // Đảm bảo setRemoteStream gọi với stream mới, để useEffect trong VideoCallDialog được kích hoạt
+                setRemoteStream(null);
+                setTimeout(() => {
+                    setRemoteStream(stream);
+                    setIsCallActive(true);
+                }, 0);
             },
             onIceCandidate: (candidate: RTCIceCandidate) => {
                 // This is handled internally by the WebRTC service
+                console.log('ICE candidate received');
             },
             onError: (error: Error) => {
                 console.error('WebRTC error:', error);
@@ -92,11 +116,21 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
                 }
             },
             onConnectionStateChange: (state: RTCPeerConnectionState) => {
+                console.log('Connection state changed to', state);
                 if (state === 'connected') {
                     setCallStatus('connected');
+                    // Bắt đầu thu thập thông tin chất lượng cuộc gọi
+                    startStatsPolling();
                 } else if (state === 'disconnected' || state === 'failed' || state === 'closed') {
                     handleCallEnded();
                 }
+            },
+            onScreenShareEnded: () => {
+                // Cập nhật trạng thái khi người dùng dừng chia sẻ màn hình
+                console.log('Screen share ended');
+                setIsScreenSharing(false);
+                // Hiển thị thông báo nếu cần
+                // toast.info('Chia sẻ màn hình đã kết thúc');
             }
         };
 
@@ -108,8 +142,36 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
                 webRTCService.endCall();
                 handleCallEnded();
             }
+
+            // Xóa interval nếu có
+            if (statsInterval) {
+                clearInterval(statsInterval);
+            }
         };
-    }, [userId, isInCall]);
+    }, [userId]);
+
+    // Thu thập định kỳ thông tin về chất lượng cuộc gọi
+    const startStatsPolling = () => {
+        // Xóa interval cũ nếu có
+        if (statsInterval) {
+            clearInterval(statsInterval);
+        }
+
+        // Đặt interval mới (mỗi 2 giây)
+        const interval = setInterval(async () => {
+            if (!isInCall || callStatus !== 'connected') {
+                clearInterval(interval);
+                return;
+            }
+
+            const stats = await webRTCService.getConnectionStats();
+            if (stats) {
+                setCallQuality(stats);
+            }
+        }, 2000);
+
+        setStatsInterval(interval);
+    };
 
     // Play ringtone sound
     const playRingtone = () => {
@@ -128,24 +190,35 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
 
     // Handle call ending
     const handleCallEnded = () => {
+        console.log('Handling call end');
         setIsCallActive(false);
         setCallStatus('ended');
         stopRingtone();
 
+        // Dừng thu thập thống kê
+        if (statsInterval) {
+            clearInterval(statsInterval);
+            setStatsInterval(null);
+        }
+
         // Reset state after a brief delay to show the ended state
         setTimeout(() => {
+            console.log('Resetting call UI state');
             setIsInCall(false);
             setCallerInfo(null);
             setLocalStream(null);
             setRemoteStream(null);
             setIsMuted(false);
             setIsVideoOff(false);
+            setIsScreenSharing(false);
+            setCallQuality(null);
             setCallStatus('idle');
         }, 1500);
     };
 
     // Start a call
     const startCall = (receiverId: string, name: string, avatar?: string, options?: CallOptions) => {
+        console.log('Starting call to', receiverId);
         setCallerInfo({
             id: receiverId,
             name,
@@ -161,6 +234,7 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
         // Update status after a brief timeout to simulate ringing
         setTimeout(() => {
             if (callStatus === 'connecting') {
+                console.log('Call is now ringing');
                 setCallStatus('ringing');
             }
         }, 1000);
@@ -168,23 +242,32 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
 
     // Accept an incoming call
     const acceptCall = () => {
-        if (!callerInfo) return;
+        if (!callerInfo) {
+            console.error('Cannot accept call: No caller info');
+            return;
+        }
 
+        console.log('Accepting call from', callerInfo.id);
         setCallStatus('connecting');
         stopRingtone();
 
         // Accept call with WebRTC service
+        // Không cần truyền SDP offer bởi vì nó đã được lưu trong pendingOffer
         webRTCService.acceptCall(
             callerInfo.id,
-            { type: 'offer', sdp: '' }, // This should come from the actual offer
+            { type: 'offer', sdp: '' }, // Giá trị này sẽ bị bỏ qua, pendingOffer sẽ được sử dụng thay thế
             { enableVideo: true, enableAudio: true }
         );
     };
 
     // Reject an incoming call
     const rejectCall = () => {
-        if (!callerInfo) return;
+        if (!callerInfo) {
+            console.error('Cannot reject call: No caller info');
+            return;
+        }
 
+        console.log('Rejecting call from', callerInfo.id);
         stopRingtone();
         webRTCService.rejectCall(callerInfo.id);
         handleCallEnded();
@@ -192,20 +275,36 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
 
     // End an active call
     const endCall = () => {
+        console.log('Ending call');
         webRTCService.endCall();
         handleCallEnded();
     };
 
     // Toggle mute state
     const toggleMute = () => {
+        console.log('Toggling mute:', !isMuted);
         setIsMuted(prev => !prev);
         webRTCService.toggleAudio(!isMuted);
     };
 
     // Toggle video state
     const toggleVideo = () => {
+        console.log('Toggling video:', !isVideoOff);
         setIsVideoOff(prev => !prev);
         webRTCService.toggleVideo(!isVideoOff);
+    };
+
+    // Toggle screen sharing
+    const toggleScreenShare = async (): Promise<boolean> => {
+        try {
+            console.log('Toggling screen share');
+            const result = await webRTCService.toggleScreenSharing();
+            setIsScreenSharing(result);
+            return result;
+        } catch (error) {
+            console.error('Error toggling screen share:', error);
+            return false;
+        }
     };
 
     // Context value
@@ -219,12 +318,15 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children, userId }) 
         remoteStream,
         isMuted,
         isVideoOff,
+        isScreenSharing,
+        callQuality,
         startCall,
         acceptCall,
         rejectCall,
         endCall,
         toggleMute,
-        toggleVideo
+        toggleVideo,
+        toggleScreenShare
     };
 
     return <CallContext.Provider value={value}>{children}</CallContext.Provider>;

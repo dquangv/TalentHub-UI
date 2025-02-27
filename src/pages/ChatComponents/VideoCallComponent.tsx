@@ -12,11 +12,14 @@ const VideoCallComponent: React.FC = () => {
         remoteStream,
         isMuted,
         isVideoOff,
+        isScreenSharing,
+        callQuality,
         acceptCall,
         rejectCall,
         endCall,
         toggleMute,
-        toggleVideo
+        toggleVideo,
+        toggleScreenShare
     } = useCall();
 
     // Prevent scrolling on body when call is active
@@ -31,9 +34,34 @@ const VideoCallComponent: React.FC = () => {
         };
     }, [isInCall]);
 
+    // Thêm log để debug
+    useEffect(() => {
+        console.log('Call status changed:', {
+            isInCall,
+            callStatus,
+            callerInfo: callerInfo ? `${callerInfo.id}:${callerInfo.name}` : 'none'
+        });
+    }, [isInCall, callStatus, callerInfo]);
+
     if (!isInCall || !callerInfo) {
+        console.log('No active call to display');
         return null;
     }
+
+    const handleAcceptCall = () => {
+        console.log('Call accepted in VideoCallComponent');
+        acceptCall();
+    };
+
+    const handleRejectCall = () => {
+        console.log('Call rejected in VideoCallComponent');
+        rejectCall();
+    };
+
+    const handleEndCall = () => {
+        console.log('Call ended in VideoCallComponent');
+        endCall();
+    };
 
     return (
         <VideoCallDialog
@@ -44,13 +72,16 @@ const VideoCallComponent: React.FC = () => {
             localStream={localStream}
             remoteStream={remoteStream}
             callStatus={callStatus as 'connecting' | 'ringing' | 'connected' | 'ended'}
-            onClose={endCall}
-            onAccept={acceptCall}
-            onReject={rejectCall}
+            onClose={handleEndCall}
+            onAccept={handleAcceptCall}
+            onReject={handleRejectCall}
             onToggleMute={toggleMute}
             onToggleVideo={toggleVideo}
+            onToggleScreenShare={toggleScreenShare}
             isMuted={isMuted}
             isVideoOff={isVideoOff}
+            isScreenSharing={isScreenSharing}
+            callQuality={callQuality}
         />
     );
 };

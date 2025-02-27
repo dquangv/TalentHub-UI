@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import {
     Mic, MicOff, Camera, CameraOff, PhoneOff,
     Monitor, Maximize2, Minimize2, MoreVertical,
-    Volume2, VolumeX
+    Volume2, VolumeX, Share2, Wifi, WifiOff
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export interface VideoCallDialogProps {
     open: boolean;
@@ -22,8 +23,11 @@ export interface VideoCallDialogProps {
     onReject?: () => void;
     onToggleMute: () => void;
     onToggleVideo: () => void;
+    onToggleScreenShare?: () => Promise<boolean>; // Thêm chức năng chia sẻ màn hình
     isMuted: boolean;
     isVideoOff: boolean;
+    isScreenSharing?: boolean; // Thêm trạng thái chia sẻ màn hình
+    callQuality?: any; // Thêm thông tin về chất lượng cuộc gọi
 }
 
 const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
@@ -39,8 +43,11 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
     onReject,
     onToggleMute,
     onToggleVideo,
+    onToggleScreenShare,
     isMuted,
-    isVideoOff
+    isVideoOff,
+    isScreenSharing = false,
+    callQuality
 }) => {
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
@@ -48,49 +55,113 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
     const [callTime, setCallTime] = useState<number>(0);
     const [showControls, setShowControls] = useState<boolean>(true);
+    const [showStats, setShowStats] = useState<boolean>(false);
     const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Set local and remote streams to video elements
+    // Cập nhật xử lý video streams trong VideoCallDialog.tsx
+
     useEffect(() => {
+        console.log('Stream refs updated:',
+            'localStream:', localStream?.getTracks().map(t => `${t.kind}:${t.enabled}`).join(','),
+            'remoteStream:', remoteStream?.getTracks().map(t => `${t.kind}:${t.enabled}`).join(',')
+        );
+
+        // Xử lý local stream
         if (localVideoRef.current && localStream) {
-            localVideoRef.current.srcObject = localStream;
+            console.log('Setting local video source');
+
+            // Đảm bảo local video đã sẵn sàng
+            if (localVideoRef.current.srcObject !== localStream) {
+                localVideoRef.current.srcObject = localStream;
+
+                // Force video element để cập nhật
+                localVideoRef.current.load();
+            }
+
+            // Đảm bảo video tự động play và xử lý lỗi nếu có
+            const playPromise = localVideoRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.warn('Could not play local video automatically:', err);
+                    // Thử lại sau một khoảng thời gian ngắn
+                    setTimeout(() => {
+                        if (localVideoRef.current) {
+                            localVideoRef.current.play().catch(e =>
+                                console.warn('Second attempt to play local video failed:', e)
+                            );
+                        }
+                    }, 300);
+                });
+            }
         }
+
+        // Xử lý remote stream
         if (remoteVideoRef.current && remoteStream) {
-            remoteVideoRef.current.srcObject = remoteStream;
+            console.log('Setting remote video source, tracks:', remoteStream.getTracks().length);
+
+            // Kiểm tra xem có video track hay không
+            const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+            console.log('Remote stream has video tracks:', hasVideoTracks);
+
+            // Đảm bảo remote video đã sẵn sàng
+            if (remoteVideoRef.current.srcObject !== remoteStream) {
+                remoteVideoRef.current.srcObject = remoteStream;
+
+                // Force video element để cập nhật
+                remoteVideoRef.current.load();
+            }
+
+            // Đảm bảo video tự động play và xử lý lỗi nếu có
+            const playPromise = remoteVideoRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.warn('Could not play remote video automatically:', err);
+                    // Thử lại sau một khoảng thời gian ngắn
+                    setTimeout(() => {
+                        if (remoteVideoRef.current) {
+                            remoteVideoRef.current.play().catch(e =>
+                                console.warn('Second attempt to play remote video failed:', e)
+                            );
+                        }
+                    }, 300);
+                });
+            }
         }
     }, [localStream, remoteStream]);
 
-    // Handle auto-hide controls
+    // Thêm useEffect để kiểm tra định kỳ nếu tracks đã được thêm nhưng video không hiển thị
     useEffect(() => {
-        if (callStatus === 'connected') {
-            startControlsTimer();
-        }
+        if (callStatus !== 'connected' || !remoteStream || !remoteVideoRef.current) return;
 
-        return () => {
-            if (controlsTimeoutRef.current) {
-                clearTimeout(controlsTimeoutRef.current);
+        const checkInterval = setInterval(() => {
+            const videoTracks = remoteStream.getVideoTracks();
+            if (videoTracks.length > 0) {
+                const track = videoTracks[0];
+                console.log('Video track status:', track.id, track.enabled, track.readyState);
+
+                // Nếu track "live" nhưng video không hiển thị, thử cập nhật lại
+                if (track.readyState === 'live' && track.enabled) {
+                    // Kiểm tra xem video có kích thước hiển thị hay không
+                    const videoElement = remoteVideoRef.current;
+                    if (videoElement && (videoElement.videoWidth === 0 || videoElement.videoHeight === 0)) {
+                        console.log('Video dimensions are zero, trying to refresh');
+
+                        // Tạm thời gỡ bỏ và gắn lại stream
+                        const tempStream = videoElement.srcObject;
+                        videoElement.srcObject = null;
+                        setTimeout(() => {
+                            if (videoElement) {
+                                videoElement.srcObject = tempStream;
+                                videoElement.play().catch(e => console.warn('Error playing video:', e));
+                            }
+                        }, 100);
+                    }
+                }
             }
-        };
-    }, [callStatus]);
+        }, 2000);
 
-    // Start timer for connected call
-    useEffect(() => {
-        let interval: NodeJS.Timeout | null = null;
-
-        if (callStatus === 'connected') {
-            interval = setInterval(() => {
-                setCallTime(prev => prev + 1);
-            }, 1000);
-        } else {
-            setCallTime(0);
-        }
-
-        return () => {
-            if (interval) {
-                clearInterval(interval);
-            }
-        };
-    }, [callStatus]);
+        return () => clearInterval(checkInterval);
+    }, [callStatus, remoteStream]);
 
     // Format call time as mm:ss
     const formatCallTime = (seconds: number): string => {
@@ -137,6 +208,11 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
         }
     };
 
+    // Toggle call stats
+    const toggleStats = (): void => {
+        setShowStats(prev => !prev);
+    };
+
     // Start timer to auto-hide controls
     const startControlsTimer = (): void => {
         if (controlsTimeoutRef.current) {
@@ -155,6 +231,31 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
             startControlsTimer();
         }
     };
+
+    // Đánh giá chất lượng cuộc gọi
+    const getCallQualityStatus = (): { status: 'good' | 'medium' | 'poor', text: string } => {
+        if (!callQuality) return { status: 'medium', text: 'Chất lượng không xác định' };
+
+        // Lấy thông tin từ callQuality để đánh giá
+        const connection = callQuality.connection;
+
+        if (!connection || !connection.currentRoundTripTime) {
+            return { status: 'medium', text: 'Đang đánh giá...' };
+        }
+
+        // Thời gian round trip (ms)
+        const rtt = connection.currentRoundTripTime * 1000;
+
+        if (rtt < 150) {
+            return { status: 'good', text: 'Chất lượng tốt' };
+        } else if (rtt < 300) {
+            return { status: 'medium', text: 'Chất lượng trung bình' };
+        } else {
+            return { status: 'poor', text: 'Chất lượng kém' };
+        }
+    };
+
+    const qualityInfo = getCallQualityStatus();
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -215,18 +316,35 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
 
                     {/* Remote video (main) */}
                     {callStatus === 'connected' && (
-                        <video
-                            ref={remoteVideoRef}
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            playsInline
-                        />
+                        <div className="w-full h-full">
+                            <video
+                                ref={remoteVideoRef}
+                                className="w-full h-full object-cover"
+                                autoPlay
+                                playsInline
+                                muted={false}
+                                style={{ backgroundColor: '#000' }}
+                            />
+
+                            {remoteStream && remoteStream.getVideoTracks().length > 0 && remoteVideoRef.current && remoteVideoRef.current.videoWidth === 0 && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                                    <p className="text-white text-lg">Đang chờ video...</p>
+                                </div>
+                            )}
+                        </div>
                     )}
 
-                    {/* Call duration display */}
+                    {/* Call duration and quality display */}
                     {callStatus === 'connected' && (
-                        <div className={`absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className={`absolute top-4 left-1/2 -translate-x-1/2 bg-black/50 px-3 py-1 rounded-full transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'} flex items-center gap-2`}>
                             <span className="text-white text-sm">{formatCallTime(callTime)}</span>
+
+                            {/* Hiển thị chất lượng cuộc gọi */}
+                            <span className="ml-2 flex items-center">
+                                {qualityInfo.status === 'good' && <Wifi className="h-4 w-4 text-green-400" />}
+                                {qualityInfo.status === 'medium' && <Wifi className="h-4 w-4 text-yellow-400" />}
+                                {qualityInfo.status === 'poor' && <WifiOff className="h-4 w-4 text-red-400" />}
+                            </span>
                         </div>
                     )}
 
@@ -237,7 +355,8 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                             className="w-full h-full object-cover"
                             autoPlay
                             playsInline
-                            muted
+                            muted={true} // Local video phải được muted để tránh echo
+                            style={{ backgroundColor: '#111' }}
                         />
                         {isVideoOff && (
                             <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
@@ -249,54 +368,144 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                     </div>
                 </div>
 
+                {/* Screen sharing indicator */}
+                {isScreenSharing && (
+                    <div className="absolute bottom-4 right-4 bg-primary/80 text-primary-foreground px-3 py-1 rounded-full text-xs flex items-center">
+                        <Monitor className="h-3 w-3 mr-1" />
+                        Đang chia sẻ màn hình
+                    </div>
+                )}
+
+                {/* Call stats panel */}
+                {showStats && callQuality && (
+                    <div className="absolute bottom-20 right-4 bg-background/90 p-3 rounded-lg shadow-lg text-xs max-w-xs">
+                        <h4 className="font-semibold mb-2">Thông tin cuộc gọi</h4>
+                        <div className="space-y-1">
+                            {callQuality.connection && (
+                                <>
+                                    <p>RTT: {callQuality.connection.currentRoundTripTime ? (callQuality.connection.currentRoundTripTime * 1000).toFixed(0) + 'ms' : 'N/A'}</p>
+                                    <p>Bitrate: {callQuality.connection.availableOutgoingBitrate ? Math.round(callQuality.connection.availableOutgoingBitrate / 1000) + 'kbps' : 'N/A'}</p>
+                                </>
+                            )}
+                            {callQuality.video && callQuality.video.inbound && (
+                                <>
+                                    <p>Độ phân giải: {callQuality.video.inbound.frameWidth || '?'} x {callQuality.video.inbound.frameHeight || '?'}</p>
+                                    <p>Gói nhận: {callQuality.video.inbound.packetsReceived || 0}, Mất: {callQuality.video.inbound.packetsLost || 0}</p>
+                                </>
+                            )}
+                        </div>
+                        <button onClick={toggleStats} className="text-xs text-primary mt-2">Đóng</button>
+                    </div>
+                )}
+
                 {/* Call controls footer */}
                 <div className={`bg-gray-900 p-3 sm:p-5 transition-opacity duration-300 ${callStatus === 'connected' && !showControls ? 'opacity-0' : 'opacity-100'}`}>
                     <div className="flex justify-between items-center">
                         <div className="flex space-x-1 sm:space-x-3">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
-                                onClick={onToggleMute}
-                            >
-                                {isMuted ? (
-                                    <MicOff className="h-5 w-5 sm:h-6 sm:w-6" />
-                                ) : (
-                                    <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
-                                )}
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
-                                onClick={onToggleVideo}
-                            >
-                                {isVideoOff ? (
-                                    <CameraOff className="h-5 w-5 sm:h-6 sm:w-6" />
-                                ) : (
-                                    <Camera className="h-5 w-5 sm:h-6 sm:w-6" />
-                                )}
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white hidden sm:flex"
-                                onClick={togglePiP}
-                            >
-                                <Monitor className="h-5 w-5 sm:h-6 sm:w-6" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white hidden sm:flex"
-                                onClick={toggleFullscreen}
-                            >
-                                {isFullscreen ? (
-                                    <Minimize2 className="h-5 w-5 sm:h-6 sm:w-6" />
-                                ) : (
-                                    <Maximize2 className="h-5 w-5 sm:h-6 sm:w-6" />
-                                )}
-                            </Button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
+                                            onClick={onToggleMute}
+                                        >
+                                            {isMuted ? (
+                                                <MicOff className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            ) : (
+                                                <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            )}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {isMuted ? 'Bật microphone' : 'Tắt microphone'}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
+                                            onClick={onToggleVideo}
+                                        >
+                                            {isVideoOff ? (
+                                                <CameraOff className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            ) : (
+                                                <Camera className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            )}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {isVideoOff ? 'Bật camera' : 'Tắt camera'}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            {/* Screen sharing button */}
+                            {onToggleScreenShare && (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className={`rounded-full h-10 w-10 sm:h-12 sm:w-12 ${isScreenSharing ? 'bg-primary text-primary-foreground' : 'bg-gray-800 hover:bg-gray-700 text-white'}`}
+                                                onClick={onToggleScreenShare}
+                                            >
+                                                <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            {isScreenSharing ? 'Dừng chia sẻ màn hình' : 'Chia sẻ màn hình'}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white hidden sm:flex"
+                                            onClick={togglePiP}
+                                        >
+                                            <Monitor className="h-5 w-5 sm:h-6 sm:w-6" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {isPiP ? 'Thoát chế độ PiP' : 'Chế độ hình trong hình'}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white hidden sm:flex"
+                                            onClick={toggleFullscreen}
+                                        >
+                                            {isFullscreen ? (
+                                                <Minimize2 className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            ) : (
+                                                <Maximize2 className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            )}
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        {isFullscreen ? 'Thoát toàn màn hình' : 'Toàn màn hình'}
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
 
                         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -312,25 +521,45 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                         </motion.div>
 
                         <div className="flex space-x-1 sm:space-x-3">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
-                            >
-                                <Volume2 className="h-5 w-5 sm:h-6 sm:w-6" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
-                            >
-                                <MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
-                            </Button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
+                                            onClick={toggleStats}
+                                        >
+                                            <Wifi className="h-5 w-5 sm:h-6 sm:w-6" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Thông tin kết nối
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
+                                        >
+                                            <MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Thêm tùy chọn
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                     </div>
                 </div>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 };
 
