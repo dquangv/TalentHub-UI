@@ -186,35 +186,43 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
     useEffect(() => {
         if (!userId) return;
 
-        const callbacks = {
-            onMessageReceived: (message: any) => {
-                handleIncomingMessage(message);
-            },
-            onReadReceiptReceived: (receipt: any) => {
-                handleReadReceipt(receipt);
-            },
-            onStatusReceived: (status: any) => {
-                handleStatusUpdate(status);
-            },
-            onConnectionEstablished: () => {
-                setIsConnected(true);
-                setReconnecting(false);
-                // Reload conversation list when reconnected
-                loadConversations();
-            },
-            onConnectionLost: () => {
-                setIsConnected(false);
-                setReconnecting(true);
-            }
-        };
+        // Kiểm tra xem websocket đã kết nối chưa trước khi khởi tạo lại
+        if (!websocketService.isConnected()) {
+            console.log('Initializing WebSocket connection for user', userId);
+            const callbacks: WebSocketCallbacks = {
+                onMessageReceived: (message: any) => {
+                    handleIncomingMessage(message);
+                },
+                onReadReceiptReceived: (receipt: any) => {
+                    handleReadReceipt(receipt);
+                },
+                onStatusReceived: (status: any) => {
+                    handleStatusUpdate(status);
+                },
+                onConnectionEstablished: () => {
+                    setIsConnected(true);
+                    setReconnecting(false);
+                    // Reload conversation list when reconnected
+                    loadConversations();
+                },
+                onConnectionLost: () => {
+                    setIsConnected(false);
+                    setReconnecting(true);
+                }
+            };
 
-        websocketService.connect(userId, callbacks);
+            websocketService.connect(userId, callbacks);
+        } else {
+            console.log('WebSocket already connected, skipping initialization');
+            setIsConnected(true);
+            setReconnecting(false);
+        }
 
         // Load initial conversation list
         loadConversations();
 
         return () => {
-            websocketService.disconnect();
+            // websocketService.disconnect();
         };
     }, [userId, handleIncomingMessage, handleReadReceipt, handleStatusUpdate, loadConversations]);
 
