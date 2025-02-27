@@ -130,7 +130,11 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/">{t("home")}</NavLink>
             {role == "CLIENT" ? (
-              <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+              <>
+                        <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+                        <NavLink to="/client/posted-jobs">Đã đăng</NavLink>
+              </>
+    
             ) : role == "FREELANCER" ? (
               <>
                 <NavLink to="/jobs">{t("jobs")}</NavLink>
