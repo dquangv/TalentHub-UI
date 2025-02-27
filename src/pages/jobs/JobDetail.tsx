@@ -43,6 +43,7 @@ const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [job, setJob] = useState<JobDetailResponse | null>(null);
   const [error, setError] = useState("");
+  const [isClient, setClient] = useState(null);
   const [jobFreelancerInfo, setJobFreelancerInfo] =
     useState<JobFreelancerInfo | null>(null);
   const navigate = useNavigate();
@@ -62,23 +63,26 @@ const JobDetail = () => {
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-
-    if (!data?.freelancerId) {
-      navigate("/login");
-    }
-
-    const handleViewJob = async () => {
-      const response = await api.post("/v1/jobs/view", {
-        freelancerId: data?.freelancerId,
-        jobId: Number(id),
-      });
-      if (response.status !== 200) {
-        setError("Có lỗi xảy ra");
+    if (data.clientId) {
+      setClient(data.clientId);
+    } else {
+      if (!data?.freelancerId) {
+        navigate("/login");
       }
-      setJobFreelancerInfo(response?.data || null);
-    };
 
-    handleViewJob();
+      const handleViewJob = async () => {
+        const response = await api.post("/v1/jobs/view", {
+          freelancerId: data?.freelancerId,
+          jobId: Number(id),
+        });
+        if (response.status !== 200) {
+          setError("Có lỗi xảy ra");
+        }
+        setJobFreelancerInfo(response?.data || null);
+      };
+
+      handleViewJob();
+    }
   }, []);
 
   const handleApplyJob = async () => {
@@ -178,27 +182,31 @@ const JobDetail = () => {
                     <Badge variant="secondary">{job.type}</Badge>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  {/* Apply button */}
-                  <Button
-                    size="lg"
-                    onClick={handleApplyJob}
-                    disabled={jobFreelancerInfo?.status != null}
-                  >
-                    {!jobFreelancerInfo?.status
-                      ? "Ứng tuyển ngay"
-                      : jobFreelancerInfo?.status}
-                  </Button>
-                  {/* Save/Unsave job button */}
-                  <Button
-                    variant="outline"
-                    onClick={
-                      jobFreelancerInfo?.saved ? handleUnSaveJob : handleSaveJob
-                    }
-                  >
-                    {jobFreelancerInfo?.saved ? "Hủy lưu" : "Lưu việc làm"}
-                  </Button>
-                </div>
+                {isClient == null && (
+                  <div className="flex flex-col gap-2">
+                    {/* Apply button */}
+                    <Button
+                      size="lg"
+                      onClick={handleApplyJob}
+                      disabled={jobFreelancerInfo?.status != null}
+                    >
+                      {!jobFreelancerInfo?.status
+                        ? "Ứng tuyển ngay"
+                        : jobFreelancerInfo?.status}
+                    </Button>
+                    {/* Save/Unsave job button */}
+                    <Button
+                      variant="outline"
+                      onClick={
+                        jobFreelancerInfo?.saved
+                          ? handleUnSaveJob
+                          : handleSaveJob
+                      }
+                    >
+                      {jobFreelancerInfo?.saved ? "Hủy lưu" : "Lưu việc làm"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           </FadeInWhenVisible>
@@ -276,18 +284,20 @@ const JobDetail = () => {
                   </Badge>
                 ))}
               </div>
-              <div className="text-center">
-                <Button
-                  size="lg"
-                  className="px-8 mt-8 w-full"
-                  onClick={handleApplyJob}
-                  disabled={jobFreelancerInfo?.status != null}
-                >
-                  {!jobFreelancerInfo?.status
-                    ? "Ứng tuyển ngay"
-                    : jobFreelancerInfo?.status}
-                </Button>
-              </div>
+              {isClient == null && (
+                <div className="text-center">
+                  <Button
+                    size="lg"
+                    className="px-8 mt-8 w-full"
+                    onClick={handleApplyJob}
+                    disabled={jobFreelancerInfo?.status != null}
+                  >
+                    {!jobFreelancerInfo?.status
+                      ? "Ứng tuyển ngay"
+                      : jobFreelancerInfo?.status}
+                  </Button>
+                </div>
+              )}
             </Card>
           </FadeInWhenVisible>
         </div>
