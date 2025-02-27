@@ -28,7 +28,7 @@ const FreelancerDetail = () => {
   useEffect(() => {
     const fetchFreelancerDetail = async () => {
       try {
-        const response = await api.get(`/freelancers/detail?id=${id}`);
+        const response = await api.get(`/v1/freelancers/detail?id=${id}`);
         setFreelancer(response.data); 
         setLoading(false);
       } catch (error) {
