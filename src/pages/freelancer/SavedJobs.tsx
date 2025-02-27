@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Search, Briefcase, Clock, DollarSign, MapPin, Bookmark, Calendar } from 'lucide-react';
 import api from '@/api/axiosConfig'; 
+import { notification } from 'antd';
 
 const SavedJobs = () => {
   const [savedJobs, setSavedJobs] = useState<any[]>([]); 
@@ -30,6 +31,58 @@ const SavedJobs = () => {
 
     fetchSavedJobs();
   }, []);
+
+  
+  // const handleApplyJob = async (jobId: any) => {
+  //   const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+  //   if (!data?.freelancerId) {
+  //     navigate("/login");
+  //   }
+  //   const response = await api.post("/v1/jobs/apply", {
+  //     freelancerId: data?.freelancerId,
+  //     jobId: Number(jobId),
+  //   });
+  //   if (response.status !== 200) {
+  //     notification.error({
+  //       message: "Lỗi dữ liệu",
+  //       description: response.data.message || "Dữ liệu không hợp lệ",
+  //     });
+
+  //   }else {
+  //     setSavedJobs(pre => pre.map(item => item?.jobId == jobId ? item.applied = true : item.applied = false))
+  //     notification.info({
+  //       message: "Thông báo",
+  //       description: "Ứng tuyển thành công. Vui lòng chờ để được chấp nhận",
+  //     });
+  //   }
+  
+  // };
+
+  const handleUnSaveJob = async (jobId: any) => {
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.freelancerId) {
+      navigate("/login");
+    }
+
+    const response = await api.post("/v1/jobs/unsave", {
+      freelancerId: data?.freelancerId,
+      jobId: Number(jobId),
+    });
+    if (response.status !== 200) {
+      alert("có lỗi");
+
+    }else {
+      setSavedJobs(pre => pre.filter(item => item?.jobId != jobId))
+      notification.info({
+        message: "Thông báo",
+        description: "Hủy lưu việc thành công",
+      });
+    }
+
+  
+  };
 
   return (
     <div className="py-12">
@@ -69,22 +122,22 @@ const SavedJobs = () => {
           {savedJobs.length > 0 ? (
             savedJobs.filter((job) => 
               job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              job.company.toLowerCase().includes(searchTerm.toLowerCase())
+              job.companyName.toLowerCase().includes(searchTerm.toLowerCase())
             )?.map((job, index) => (
-              <FadeInWhenVisible key={job.id} delay={index * 0.1}>
+              <FadeInWhenVisible key={job.jobId} delay={index * 0.1}>
                 <Card className="p-6">
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
+                        <Link to={`/jobs/${job.jobId}`} className="hover:underline">
                           <h3 className="text-xl font-semibold">{job.title}</h3>
                         </Link>
                         <div className="flex items-center gap-2">
-                          <Badge variant={job.type === 'Toàn thời gian' ? 'default' : 'secondary'}>
-                            {job.type}
+                          <Badge variant={job.jobType === 'Toàn thời gian' ? 'default' : 'secondary'}>
+                            {job.jobType}
                           </Badge>
                           <Button variant="ghost" size="icon" className="text-primary">
-                            <Bookmark className="w-5 h-5 fill-current" />
+                            <Bookmark className="w-5 h-5 fill-current" onClick={() => handleUnSaveJob(job.jobId)}/>
                           </Button>
                         </div>
                       </div>
@@ -92,19 +145,16 @@ const SavedJobs = () => {
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
                         <div className="flex items-center">
                           <Briefcase className="w-4 h-4 mr-2" />
-                          {job.company}
+                          {job.companyName}
                         </div>
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {job.location}
-                        </div>
+                     
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
-                          {job.duration}
+                          {job.hourWork}
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 mr-2" />
-                          {job.budget}
+                          {job.fromPrice} - {job.toPrice}
                         </div>
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
@@ -115,7 +165,7 @@ const SavedJobs = () => {
                       <p className="text-muted-foreground mb-4">{job.description}</p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {job.skills?.map((skill: any) => (
+                        {job?.skillNames?.map((skill: any) => (
                           <Badge key={skill} variant="outline">
                             {skill}
                           </Badge>
@@ -124,9 +174,9 @@ const SavedJobs = () => {
 
                       <div className="flex flex-wrap gap-4">
                         <Button asChild>
-                          <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
+                          <Link to={`/jobs/${job.jobId}`}>Xem chi tiết</Link>
                         </Button>
-                        <Button variant="outline">Ứng tuyển ngay</Button>
+                        {/* <Button onClick={() => handleApplyJob(job.jobId)} variant="outline"> {job.applied ? "Đã ứng tuyển": "Ứng tuyển ngay"}</Button> */}
                       </div>
                     </div>
                   </div>
