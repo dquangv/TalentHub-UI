@@ -31,12 +31,10 @@ const Appointment = () => {
     name: '',
     email: '',
     phone: '',
-    participants: '1',
     time: '',
     duration: '30',
     topic: '',
     description: '',
-    location: '',
     meetingLink: '',
   });
   const handleSubmit = (e: React.FormEvent) => {
