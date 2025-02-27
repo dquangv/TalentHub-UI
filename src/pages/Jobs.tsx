@@ -17,7 +17,7 @@ const Jobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get("/jobs");
+        const response = await api.get("/v1/jobs");
         if (response.status === 200) {
           setJobs(response.data);
         } else {
