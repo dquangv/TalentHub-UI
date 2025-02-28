@@ -192,7 +192,7 @@ const JobDetail = () => {
                     >
                       {!jobFreelancerInfo?.status
                         ? "Ứng tuyển ngay"
-                        : jobFreelancerInfo?.status}
+                        : "Đã ứng tuyển"}
                     </Button>
                     {/* Save/Unsave job button */}
                     <Button
