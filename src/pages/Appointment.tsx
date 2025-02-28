@@ -190,28 +190,7 @@ const Appointment = () => {
                 
                     
                    
-                    <div className="space-y-2">
-                      {/* <label className="text-sm font-medium">
-                        Số người tham gia
-                      </label> */}
-                      {/* <Select
-                        value={formData.participants}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, participants: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn số người" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                            <SelectItem key={num} value={num.toString()}>
-                              {num} người
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select> */}
-                    </div>
+                  
                   </div>
                 </div>
 
