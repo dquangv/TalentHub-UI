@@ -35,7 +35,6 @@ const Appointment = () => {
     name: "asd",
     email: "asd@gmail.com",
     phone: "asd",
-    participants: "1",
     time: "",
     duration: "30",
     topic: "asd",
@@ -242,7 +241,7 @@ const Appointment = () => {
                       <label className="text-sm font-medium">
                         Số người tham gia
                       </label>
-                      <Select
+                      {/* <Select
                         value={formData.participants}
                         onValueChange={(value) =>
                           setFormData({ ...formData, participants: value })
@@ -258,7 +257,7 @@ const Appointment = () => {
                             </SelectItem>
                           ))}
                         </SelectContent>
-                      </Select>
+                      </Select> */}
                     </div>
                   </div>
                 </div>
