@@ -224,23 +224,11 @@ const Appointment = () => {
                         required
                       />
                     </div>
+                 
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        Link họp
-                      </label>
-                      <Input
-                        type="tel"
-                        value={formData.meetingLink}
-                        onChange={(e) =>
-                          setFormData({ ...formData, meetingLink: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">
+                      {/* <label className="text-sm font-medium">
                         Số người tham gia
-                      </label>
+                      </label> */}
                       {/* <Select
                         value={formData.participants}
                         onValueChange={(value) =>
@@ -266,6 +254,7 @@ const Appointment = () => {
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Chi tiết cuộc họp</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ngày họp</label>
                       <Calendar
@@ -317,6 +306,19 @@ const Appointment = () => {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Link họp
+                      </label>
+                      <Input
+                        type="tel"
+                        value={formData.meetingLink}
+                        onChange={(e) =>
+                          setFormData({ ...formData, meetingLink: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
                     </div>
                   </div>
                 </div>
