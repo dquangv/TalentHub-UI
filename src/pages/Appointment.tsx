@@ -187,16 +187,7 @@ const Appointment = () => {
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Họ và tên</label>
-                      <Input
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Email</label>
                       <Input
