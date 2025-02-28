@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Calendar } from 'antd';
-import { notification } from 'antd'
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
+} from "@/components/ui/select";
+import { Calendar } from "antd";
+import { notification } from "antd";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
   Video,
   MapPin,
@@ -21,37 +21,104 @@ import {
   Link,
   Building2,
   CheckCircle,
-} from 'lucide-react';
+} from "lucide-react";
+import api from "@/api/axiosConfig";
+import { useNavigate, useParams } from "react-router-dom";
 type ValuePiece = Date | null;
 
 type Value = ValuePiece | [ValuePiece, ValuePiece];
 const Appointment = () => {
-  const [appointmentType, setAppointmentType] = useState<'online' | 'offline'>('online');
+  const [appointmentType, setAppointmentType] = useState<"online" | "offline">(
+    "online"
+  );
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    participants: '1',
-    time: '',
-    duration: '30',
-    topic: '',
-    description: '',
-    location: '',
-    meetingLink: '',
+    name: "asd",
+    email: "asd@gmail.com",
+    phone: "asd",
+    participants: "1",
+    time: "",
+    duration: "30",
+    topic: "asd",
+    description: "asd",
+    location: "asd",
+    meetingLink: "asd",
+    selectedDate: new Date(),
   });
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    notification.info({
-      message: 'Đặt lịch thành công',
-      description: 'Chúng tôi sẽ gửi email xác nhận cho bạn',
-    });
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+
+    if (!data?.clientId) {
+      navigate("/login");
+    }
+    console.log("formData ", formData);
+    const appointmentData = {
+      startTime: formData.selectedDate
+        ? formData.selectedDate.toISOString()
+        : "", 
+      duration: parseInt(formData.duration),
+      topic: formData.topic,
+      description: formData.description,
+      link: appointmentType === "online" ? formData.meetingLink : "",
+      clientId: data?.clientId,
+      freelancerJobId: id,
+    };
+
+    try {
+      const response = await api.post(
+        "/v1/appointments/client",
+        JSON.stringify(appointmentData)
+      );
+
+      if (response?.data) {
+        notification.info({
+          message: "Đặt lịch thành công",
+          description: "Chúng tôi sẽ gửi email xác nhận cho bạn",
+        });
+      } else {
+        notification.error({
+          message: "Đặt lịch thất bại",
+          description: "Có lỗi xảy ra, vui lòng thử lại.",
+        });
+      }
+    } catch (error) {
+      console.error("Error submitting appointment:", error);
+      notification.error({
+        message: "Đặt lịch thất bại",
+        description: "Có lỗi xảy ra, vui lòng thử lại.",
+      });
+    }
   };
 
   const timeSlots = [
-    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-    '13:30', '14:00', '14:30', '15:00', '15:30', '16:00',
-    '16:30', '17:00', '17:30'
+    "09:00",
+    "09:30",
+    "10:00",
+    "10:30",
+    "11:00",
+    "11:30",
+    "13:30",
+    "14:00",
+    "14:30",
+    "15:00",
+    "15:30",
+    "16:00",
+    "16:30",
+    "17:00",
+    "17:30",
   ];
+  const handleDateChange = (date: any) => {
+    if (date) {
+      const jsDate = date.toDate();
+      setFormData((prevData) => ({
+        ...prevData,
+        selectedDate: jsDate,
+      }));
+    }
+  };
 
   return (
     <div className="py-12">
@@ -71,9 +138,10 @@ const Appointment = () => {
           <FadeInWhenVisible delay={0.1}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               <Card
-                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${appointmentType === 'online' ? 'ring-2 ring-primary' : ''
-                  }`}
-                onClick={() => setAppointmentType('online')}
+                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
+                  appointmentType === "online" ? "ring-2 ring-primary" : ""
+                }`}
+                onClick={() => setAppointmentType("online")}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -85,16 +153,17 @@ const Appointment = () => {
                       Qua Google Meet hoặc Zoom
                     </p>
                   </div>
-                  {appointmentType === 'online' && (
+                  {appointmentType === "online" && (
                     <CheckCircle className="w-5 h-5 text-primary ml-auto" />
                   )}
                 </div>
               </Card>
 
               <Card
-                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${appointmentType === 'offline' ? 'ring-2 ring-primary' : ''
-                  }`}
-                onClick={() => setAppointmentType('offline')}
+                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
+                  appointmentType === "offline" ? "ring-2 ring-primary" : ""
+                }`}
+                onClick={() => setAppointmentType("offline")}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -106,7 +175,7 @@ const Appointment = () => {
                       Tại văn phòng của chúng tôi
                     </p>
                   </div>
-                  {appointmentType === 'offline' && (
+                  {appointmentType === "offline" && (
                     <CheckCircle className="w-5 h-5 text-primary ml-auto" />
                   )}
                 </div>
@@ -117,7 +186,7 @@ const Appointment = () => {
           {/* Main Form */}
           <FadeInWhenVisible delay={0.2}>
             <Card className="p-8">
-              <form onSubmit={handleSubmit} className="space-y-8">
+              <form className="space-y-8">
                 {/* Personal Information */}
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Thông tin cá nhân</h3>
@@ -144,7 +213,9 @@ const Appointment = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Số điện thoại</label>
+                      <label className="text-sm font-medium">
+                        Số điện thoại
+                      </label>
                       <Input
                         type="tel"
                         value={formData.phone}
@@ -155,7 +226,9 @@ const Appointment = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Số người tham gia</label>
+                      <label className="text-sm font-medium">
+                        Số người tham gia
+                      </label>
                       <Select
                         value={formData.participants}
                         onValueChange={(value) =>
@@ -183,12 +256,16 @@ const Appointment = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ngày họp</label>
-                      <Calendar fullscreen={false}
+                      <Calendar
+                        fullscreen={false}
+                        onChange={handleDateChange}
                       />
                     </div>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Thời gian bắt đầu</label>
+                        <label className="text-sm font-medium">
+                          Thời gian bắt đầu
+                        </label>
                         <Select
                           value={formData.time}
                           onValueChange={(value) =>
@@ -208,7 +285,9 @@ const Appointment = () => {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Thời lượng</label>
+                        <label className="text-sm font-medium">
+                          Thời lượng
+                        </label>
                         <Select
                           value={formData.duration}
                           onValueChange={(value) =>
@@ -245,11 +324,16 @@ const Appointment = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Mô tả chi tiết</label>
+                      <label className="text-sm font-medium">
+                        Mô tả chi tiết
+                      </label>
                       <Textarea
                         value={formData.description}
                         onChange={(e) =>
-                          setFormData({ ...formData, description: e.target.value })
+                          setFormData({
+                            ...formData,
+                            description: e.target.value,
+                          })
                         }
                         rows={4}
                       />
@@ -258,11 +342,13 @@ const Appointment = () => {
                 </div>
 
                 {/* Location/Link */}
-                {appointmentType === 'offline' ? (
+                {appointmentType === "offline" ? (
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold">Địa điểm</h3>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Địa chỉ văn phòng</label>
+                      <label className="text-sm font-medium">
+                        Địa chỉ văn phòng
+                      </label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -276,10 +362,12 @@ const Appointment = () => {
                       </p>
                     </div>
                   </div>
-                ) : ""}
+                ) : (
+                  ""
+                )}
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full">
+                <Button onClick={handleSubmit} type="submit" className="w-full">
                   Xác nhận đặt lịch
                 </Button>
               </form>
