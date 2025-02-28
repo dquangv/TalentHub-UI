@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -17,28 +17,39 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Filter, Star, Download, Calendar, CheckCircle, XCircle, Users, Clock, BookUser, FileUser } from 'lucide-react';
-import api from '@/api/axiosConfig';
-import { useParams } from 'react-router-dom';
+} from "@/components/ui/table";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import {
+  Filter,
+  Star,
+  Download,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Users,
+  Clock,
+  BookUser,
+  FileUser,
+} from "lucide-react";
+import api from "@/api/axiosConfig";
+import { Link, useParams } from "react-router-dom";
 const Applicants = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {id} = useParams()
+  const { id } = useParams();
 
   useEffect(() => {
     const fetchApplicants = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`/v1/jobs/applicants/${id}`); 
+        const response = await api.get(`/v1/jobs/applicants/${id}`);
         setApplicants(response.data);
         setError(null);
       } catch (err) {
-        setError('Error fetching applicants');
+        setError("Error fetching applicants");
       } finally {
         setLoading(false);
       }
@@ -49,14 +60,14 @@ const Applicants = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Đang chờ';
-      case 'interviewing':
-        return 'Phỏng vấn';
-      case 'accepted':
-        return 'Đã chấp nhận';
-      case 'rejected':
-        return 'Từ chối';
+      case "pending":
+        return "Đang chờ";
+      case "interviewing":
+        return "Phỏng vấn";
+      case "accepted":
+        return "Đã chấp nhận";
+      case "rejected":
+        return "Từ chối";
       default:
         return status;
     }
@@ -78,7 +89,8 @@ const Applicants = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Danh sách ứng viên</h1>
             <p className="text-muted-foreground">
-              Quản lý và đánh giá các ứng viên đã ứng tuyển vào công việc của bạn
+              Quản lý và đánh giá các ứng viên đã ứng tuyển vào công việc của
+              bạn
             </p>
           </div>
         </FadeInWhenVisible>
@@ -92,7 +104,9 @@ const Applicants = () => {
                   {stat.icon}
                   <div>
                     <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -169,7 +183,9 @@ const Applicants = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="font-medium">{applicant?.position || "Không có chuyên môn"}</p>
+                      <p className="font-medium">
+                        {applicant?.position || "Không có chuyên môn"}
+                      </p>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
@@ -180,11 +196,11 @@ const Applicants = () => {
                     <TableCell>
                       <Badge
                         variant={
-                          applicant.status === 'accepted'
-                            ? 'success'
-                            : applicant.status === 'rejected'
-                            ? 'destructive'
-                            : 'secondary'
+                          applicant.status === "accepted"
+                            ? "success"
+                            : applicant.status === "rejected"
+                            ? "destructive"
+                            : "secondary"
                         }
                       >
                         {getStatusText(applicant.status)}
@@ -198,16 +214,33 @@ const Applicants = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600"
+                        >
+                          <Link to={`/appointment/${applicant.id}`}>
+                            <Clock className="w-4 h-4" />
+                          </Link>
+                        </Button>
                         <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="outline">
                           <FileUser className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-green-600">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600"
+                        >
                           <CheckCircle className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600"
+                        >
                           <XCircle className="w-4 h-4" />
                         </Button>
                       </div>
@@ -225,23 +258,23 @@ const Applicants = () => {
 
 const stats = [
   {
-    label: 'Tổng ứng viên',
-    value: '245',
+    label: "Tổng ứng viên",
+    value: "245",
     icon: <Users className="w-8 h-8 text-primary" />,
   },
   {
-    label: 'Chờ duyệt',
-    value: '45',
+    label: "Chờ duyệt",
+    value: "45",
     icon: <Clock className="w-8 h-8 text-yellow-500" />,
   },
   {
-    label: 'Đã chấp nhận',
-    value: '82',
+    label: "Đã chấp nhận",
+    value: "82",
     icon: <CheckCircle className="w-8 h-8 text-green-500" />,
   },
   {
-    label: 'Từ chối',
-    value: '18',
+    label: "Từ chối",
+    value: "18",
     icon: <XCircle className="w-8 h-8 text-red-500" />,
   },
 ];
