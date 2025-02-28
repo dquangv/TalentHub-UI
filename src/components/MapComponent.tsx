@@ -36,6 +36,7 @@ const GoogleMapComponent = ({ otherLocation }: any) => {
     setSelectedPoint(point);
   };
   console.log("userLocation ", userLocation)
+  console.log("otherLocation ", otherLocation)
   return (
     <LoadScript googleMapsApiKey="AIzaSyAR6uR3hZso8GoKWHfWTVlJRwda_4BO-oU">
       <GoogleMap
