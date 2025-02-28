@@ -223,8 +223,6 @@ const Applicants = () => {
                             <Clock className="w-4 h-4" />
                           </Link>
                         </Button>
-                       
-                     
                         <Button
                           size="sm"
                           variant="outline"
