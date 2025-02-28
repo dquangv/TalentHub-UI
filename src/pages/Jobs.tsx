@@ -101,7 +101,7 @@ const Jobs = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     <Button>
-                      <Link to={`/jobs/${job.id}`}>  {t("Apply")}</Link>
+                      <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
                     </Button>
                   
                     <div className="flex justify-center">Đã xem</div>

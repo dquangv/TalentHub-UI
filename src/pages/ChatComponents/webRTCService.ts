@@ -55,13 +55,16 @@ class WebRTCService {
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
-        // Thêm TURN servers nếu có thể để tăng khả năng kết nối trong môi trường NAT phức tạp
-        // { 
-        //   urls: 'turn:turn.example.com:3478',
-        //   username: 'username',
-        //   credential: 'password'
-        // }
+        // Thêm TURN servers để tăng khả năng kết nối trong môi trường NAT phức tạp
+        {
+            urls: 'turn:numb.viagenie.ca',
+            username: 'webrtc@live.com',
+            credential: 'muazkh'
+        }
     ];
+
+    // Flag để theo dõi đã gửi thông báo cuộc gọi được kết nối hay chưa
+    private hasNotifiedConnected: boolean = false;
 
     // Initialize WebRTC with user ID and callbacks
     initialize(userId: string, callbacks: WebRTCCallbacks): void {
@@ -111,6 +114,9 @@ class WebRTCService {
                             // Xử lý các ICE candidates đã lưu
                             this.processPendingIceCandidates();
                             this.callbacks?.onCallAccepted(response);
+
+                            // Đặt timeout để kiểm tra kết nối
+                            setTimeout(() => this.checkMediaConnectionState(), 2000);
                         })
                         .catch(error => {
                             console.error('Error setting remote description:', error);
@@ -147,6 +153,56 @@ class WebRTCService {
         }
     }
 
+    // Kiểm tra tình trạng kết nối media và thông báo nếu cần
+    private checkMediaConnectionState(): void {
+        if (!this.peerConnection || !this.callbacks || this.hasNotifiedConnected) return;
+
+        // Kiểm tra nếu có remote stream với video tracks
+        if (this.remoteStream && this.remoteStream.getVideoTracks().length > 0) {
+            const activeTracks = this.remoteStream.getVideoTracks().filter(track => track.enabled);
+            console.log(`Checking media connection: ${activeTracks.length} active video tracks`);
+
+            if (activeTracks.length > 0) {
+                this.hasNotifiedConnected = true;
+
+                // Đảm bảo UI được cập nhật
+                if (this.callbacks.onConnectionStateChange) {
+                    console.log('Triggering connected state from video track check');
+                    this.callbacks.onConnectionStateChange('connected');
+
+                    // Cập nhật lại remote stream để UI refresh
+                    if (this.callbacks.onRemoteStreamReady && this.remoteStream) {
+                        this.callbacks.onRemoteStreamReady(this.remoteStream);
+                    }
+                }
+            } else {
+                // Nếu chưa có active tracks, thử lại sau 2 giây
+                setTimeout(() => this.checkMediaConnectionState(), 2000);
+            }
+        } else if (this.peerConnection.connectionState === 'connected') {
+            // Nếu kết nối đã thành công nhưng chưa có video, vẫn thông báo connected
+            // để người dùng biết cuộc gọi đã được thiết lập
+            this.hasNotifiedConnected = true;
+            console.log('Connection established but no video tracks yet');
+
+            if (this.callbacks.onConnectionStateChange) {
+                this.callbacks.onConnectionStateChange('connected');
+            }
+
+            // Tiếp tục kiểm tra media
+            setTimeout(() => {
+                // Thử refreshing remote stream
+                if (this.remoteStream && this.callbacks.onRemoteStreamReady) {
+                    console.log('Refreshing remote stream after connection');
+                    this.callbacks.onRemoteStreamReady(this.remoteStream);
+                }
+            }, 2000);
+        } else {
+            // Thử lại sau nếu chưa kết nối
+            setTimeout(() => this.checkMediaConnectionState(), 2000);
+        }
+    }
+
     // Xử lý các pending ice candidates
     private processPendingIceCandidates(): void {
         if (!this.peerConnection || !this.pendingIceCandidates.length) return;
@@ -175,12 +231,19 @@ class WebRTCService {
             this.peerConnection.close();
         }
 
+        // Reset flag thông báo kết nối
+        this.hasNotifiedConnected = false;
+
         // Khởi tạo ICE candidates
         this.iceCandidates = [];
 
         const pc = new RTCPeerConnection({
             iceServers: this.iceServers,
             iceCandidatePoolSize: 10,
+            // Thêm cấu hình RTCConfiguration để tối ưu hoá kết nối
+            iceTransportPolicy: 'all',
+            rtcpMuxPolicy: 'require',
+            bundlePolicy: 'max-bundle'
         });
 
         // Add local stream tracks to the connection
@@ -230,20 +293,23 @@ class WebRTCService {
                 this.remoteStream = new MediaStream();
             }
 
-            // Safari xử lý streams khác biệt, nên hãy thêm track vào stream ngay lập tức
+            // Thêm track vào stream ngay lập tức
             if (!this.remoteStream.getTracks().some(t => t.id === event.track.id)) {
                 console.log('Adding track to remote stream immediately', event.track.kind);
                 this.remoteStream.addTrack(event.track);
+            }
 
-                // Cập nhật UI với stream mới
-                if (this.callbacks) {
-                    // Đợi một tick để đảm bảo xử lý bất đồng bộ hoàn tất
-                    setTimeout(() => {
-                        if (this.callbacks && this.remoteStream) {
-                            this.callbacks.onRemoteStreamReady(this.remoteStream);
-                        }
-                    }, 0);
-                }
+            // Ngay sau khi nhận được track, cập nhật UI
+            if (this.callbacks) {
+                setTimeout(() => {
+                    if (this.callbacks && this.remoteStream) {
+                        console.log('Notifying about remote stream update after track received');
+                        this.callbacks.onRemoteStreamReady(this.remoteStream);
+
+                        // Kiểm tra lại kết nối
+                        this.checkMediaConnectionState();
+                    }
+                }, 200);
             }
 
             // Xử lý sự kiện unmute cho Safari
@@ -251,6 +317,7 @@ class WebRTCService {
                 console.log('Track unmuted:', event.track.kind);
                 if (this.callbacks && this.remoteStream) {
                     this.callbacks.onRemoteStreamReady(this.remoteStream);
+                    this.checkMediaConnectionState();
                 }
             };
 
@@ -313,6 +380,9 @@ class WebRTCService {
             if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
                 console.log('Connection failed or closed, resetting call state');
                 this.resetCallState(false);
+            } else if (pc.connectionState === 'connected') {
+                // Khi trạng thái chuyển thành connected, kiểm tra media
+                this.checkMediaConnectionState();
             }
         };
 
@@ -324,6 +394,9 @@ class WebRTCService {
                 console.log('ICE connection failed, attempting restart');
                 // Thử kết nối lại nếu bị failed
                 this.restartIce();
+            } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+                // Thêm kiểm tra khi ice state chuyển sang connected
+                setTimeout(() => this.checkMediaConnectionState(), 1000);
             }
         };
 
@@ -385,10 +458,28 @@ class WebRTCService {
 
             // Get local media stream
             console.log('Requesting media with video:', options.enableVideo, 'audio:', options.enableAudio);
-            this.localStream = await navigator.mediaDevices.getUserMedia({
-                video: options.enableVideo,
-                audio: options.enableAudio
-            });
+
+            try {
+                this.localStream = await navigator.mediaDevices.getUserMedia({
+                    video: options.enableVideo ? {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    } : false,
+                    audio: options.enableAudio ? {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } : false
+                });
+            } catch (err) {
+                console.error('Error getting media with advanced constraints, trying simpler ones:', err);
+                // Fallback với cấu hình đơn giản hơn
+                this.localStream = await navigator.mediaDevices.getUserMedia({
+                    video: options.enableVideo,
+                    audio: options.enableAudio
+                });
+            }
 
             console.log('Local stream obtained with tracks:',
                 this.localStream.getTracks().map(t => `${t.kind}:${t.enabled}`).join(', '));
@@ -475,10 +566,28 @@ class WebRTCService {
             while (attempts < maxAttempts) {
                 try {
                     console.log(`Requesting media for accepting call (attempt ${attempts + 1}/${maxAttempts})`);
-                    this.localStream = await navigator.mediaDevices.getUserMedia({
-                        video: options.enableVideo,
-                        audio: options.enableAudio
-                    });
+
+                    try {
+                        this.localStream = await navigator.mediaDevices.getUserMedia({
+                            video: options.enableVideo ? {
+                                width: { ideal: 1280 },
+                                height: { ideal: 720 },
+                                facingMode: 'user'
+                            } : false,
+                            audio: options.enableAudio ? {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                                autoGainControl: true
+                            } : false
+                        });
+                    } catch (err) {
+                        console.error('Error getting media with advanced constraints, trying simpler ones:', err);
+                        // Fallback với cấu hình đơn giản hơn
+                        this.localStream = await navigator.mediaDevices.getUserMedia({
+                            video: options.enableVideo,
+                            audio: options.enableAudio
+                        });
+                    }
 
                     console.log('Local stream obtained for accepting call with tracks:',
                         this.localStream.getTracks().map(t => `${t.kind}:${t.enabled}`).join(', '));
@@ -584,6 +693,9 @@ class WebRTCService {
     // Reset call state
     private resetCallState(keepPendingOffer: boolean = false): void {
         console.log('Resetting call state' + (keepPendingOffer ? ' (keeping pending offer)' : ''));
+
+        // Reset flag thông báo kết nối
+        this.hasNotifiedConnected = false;
 
         // Xóa timeout nếu có
         if (this.iceGatheringTimeout) {
@@ -908,6 +1020,5 @@ class WebRTCService {
         }
     }
 }
-
-const webRTCService = new WebRTCService();
-export default webRTCService
+const webrtcService = new WebRTCService();
+export default webrtcService;

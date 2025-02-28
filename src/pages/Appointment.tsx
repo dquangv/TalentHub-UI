@@ -39,6 +39,7 @@ const Appointment = () => {
     location: "",
     meetingLink: "",
     selectedDate: new Date(),
+
   });
 
   const { id } = useParams();

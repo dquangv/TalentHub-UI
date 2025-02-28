@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import {
     Mic, MicOff, Camera, CameraOff, PhoneOff,
     Monitor, Maximize2, Minimize2, MoreVertical,
-    Volume2, VolumeX, Share2, Wifi, WifiOff
+    Volume2, VolumeX, Share2, Wifi, WifiOff,
+    RefreshCw, Settings
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
@@ -56,108 +57,189 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
     const [callTime, setCallTime] = useState<number>(0);
     const [showControls, setShowControls] = useState<boolean>(true);
     const [showStats, setShowStats] = useState<boolean>(false);
+    const [remoteVideoLoaded, setRemoteVideoLoaded] = useState<boolean>(false);
+    const [retryCount, setRetryCount] = useState<number>(0);
     const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const callTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const videoRefreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Cập nhật xử lý video streams trong VideoCallDialog.tsx
+    // Start call timer when connected
+    useEffect(() => {
+        if (callStatus === 'connected') {
+            // Clear any existing timer
+            if (callTimerRef.current) {
+                clearInterval(callTimerRef.current);
+            }
+
+            // Start a new timer to update call duration
+            callTimerRef.current = setInterval(() => {
+                setCallTime(prev => prev + 1);
+            }, 1000);
+        }
+
+        return () => {
+            if (callTimerRef.current) {
+                clearInterval(callTimerRef.current);
+                callTimerRef.current = null;
+            }
+        };
+
+    }, [callStatus]);
 
     useEffect(() => {
-        console.log('Stream refs updated:',
-            'localStream:', localStream?.getTracks().map(t => `${t.kind}:${t.enabled}`).join(','),
-            'remoteStream:', remoteStream?.getTracks().map(t => `${t.kind}:${t.enabled}`).join(',')
+        console.log('VideoCallDialog: Stream refs updated',
+            'localStream:', localStream?.getTracks().length,
+            'remoteStream:', remoteStream?.getTracks().length
         );
 
-        // Xử lý local stream
-        if (localVideoRef.current && localStream) {
-            console.log('Setting local video source');
+        // Reset remote video loaded state when stream changes
+        setRemoteVideoLoaded(false);
 
-            // Đảm bảo local video đã sẵn sàng
+        // Process local stream
+        if (localVideoRef.current && localStream) {
             localVideoRef.current.srcObject = localStream;
 
-            // Safari đòi hỏi bạn chủ động gọi load() trước play()
-            localVideoRef.current.load();
-
-            // Thêm delay ngắn trước khi gọi play() để Safari có thời gian xử lý
-            setTimeout(() => {
+            const playLocalVideo = () => {
                 if (localVideoRef.current) {
-                    const playPromise = localVideoRef.current.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(err => {
+                    localVideoRef.current.play()
+                        .catch(err => {
                             console.warn('Could not play local video automatically:', err);
-                            // Có thể đây là Safari yêu cầu tương tác người dùng, hiển thị thông báo
-                            console.log('Trying to play local video again after error');
-                            setTimeout(() => {
-                                if (localVideoRef.current) {
-                                    localVideoRef.current.play().catch(e =>
-                                        console.warn('Second attempt to play local video failed:', e)
-                                    );
-                                }
-                            }, 500);
+                            // Could be user interaction required in some browsers
                         });
-                    }
                 }
-            }, 100);
+            };
+
+            playLocalVideo();
         }
 
-        // Xử lý remote stream - Safari cần xử lý đặc biệt
+        // Process remote stream
         if (remoteVideoRef.current && remoteStream) {
-            console.log('Setting remote video source, tracks:', remoteStream.getTracks().length);
-
-            // Kiểm tra xem có video track hay không
-            const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
-            console.log('Remote stream has video tracks:', hasVideoTracks);
-
-            // Đặt srcObject kể cả khi chưa có tracks - Safari sẽ cập nhật khi tracks được thêm vào
             remoteVideoRef.current.srcObject = remoteStream;
+            setRetryCount(0); // Reset retry count
 
-            // Safari đòi hỏi bạn chủ động gọi load() trước play()
-            remoteVideoRef.current.load();
-
-            // Thêm delay ngắn trước khi gọi play() để Safari có thời gian xử lý
-            setTimeout(() => {
+            const playRemoteVideo = () => {
                 if (remoteVideoRef.current) {
-                    const playPromise = remoteVideoRef.current.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch(err => {
+                    remoteVideoRef.current.play()
+                        .then(() => {
+                            console.log('Remote video started playing');
+                        })
+                        .catch(err => {
                             console.warn('Could not play remote video automatically:', err);
-                            // Thông báo cho người dùng nếu cần thiết
-                            console.log('Trying to play remote video again after error');
+                            // Retry playing after a short delay
+                            setTimeout(playRemoteVideo, 1000);
+                        });
+                }
+            };
+
+            playRemoteVideo();
+
+            // Set up periodic check for remote video
+            if (videoRefreshTimerRef.current) {
+                clearInterval(videoRefreshTimerRef.current);
+            }
+
+            videoRefreshTimerRef.current = setInterval(() => {
+                const hasVideoTracks = remoteStream.getVideoTracks().length > 0;
+                const isVideoEnabled = hasVideoTracks && remoteStream.getVideoTracks()[0].enabled;
+                const hasVideoData = remoteVideoRef.current && remoteVideoRef.current.videoWidth > 0;
+
+                console.log('Video check:', {
+                    hasVideoTracks,
+                    isVideoEnabled,
+                    hasVideoData,
+                    retryCount
+                });
+
+                if (!hasVideoData && hasVideoTracks && isVideoEnabled) {
+                    // Video track exists but not showing - try to refresh
+                    if (retryCount < 5) { // Limit retries
+                        console.log(`Attempting to refresh remote video (attempt ${retryCount + 1})`);
+                        setRetryCount(prev => prev + 1);
+
+                        // Force refresh by briefly removing and re-applying srcObject
+                        if (remoteVideoRef.current) {
+                            const currentStream = remoteVideoRef.current.srcObject;
+                            remoteVideoRef.current.srcObject = null;
                             setTimeout(() => {
                                 if (remoteVideoRef.current) {
-                                    remoteVideoRef.current.play().catch(e =>
-                                        console.warn('Second attempt to play remote video failed:', e)
-                                    );
+                                    remoteVideoRef.current.srcObject = currentStream;
+                                    remoteVideoRef.current.play().catch(e => console.warn('Play error after refresh:', e));
                                 }
-                            }, 500);
-                        });
+                            }, 100);
+                        }
                     }
+                } else if (hasVideoData) {
+                    // Video is working properly
+                    setRemoteVideoLoaded(true);
+                    clearInterval(videoRefreshTimerRef.current!);
+                    videoRefreshTimerRef.current = null;
                 }
-            }, 100);
+            }, 2000);
         }
+
+        return () => {
+            // Clean up video refresh timer
+            if (videoRefreshTimerRef.current) {
+                clearInterval(videoRefreshTimerRef.current);
+                videoRefreshTimerRef.current = null;
+            }
+        };
     }, [localStream, remoteStream]);
 
-    // Thêm useEffect để kiểm tra định kỳ nếu tracks đã được thêm nhưng video không hiển thị
+    // Add extra handlers for video events
     useEffect(() => {
-        // Phát hiện Safari
-        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+        const remoteVideo = remoteVideoRef.current;
+        if (!remoteVideo) return;
 
-        if ((isSafari || isIOS) && callStatus === 'connected') {
-            console.log('Safari/iOS detected, applying special handling');
+        const handleLoadedMetadata = () => {
+            console.log('Remote video metadata loaded');
+            // Sometimes play() needs to be called again after metadata loads
+            remoteVideo.play().catch(err => console.warn('Could not play after metadata loaded:', err));
+        };
 
-            // Thêm xử lý đặc biệt cho Safari nếu cần
-            const checkVideoInterval = setInterval(() => {
-                if (remoteVideoRef.current && remoteStream) {
-                    const videoTracks = remoteStream.getVideoTracks();
-                    if (videoTracks.length > 0 && videoTracks[0].enabled) {
-                        console.log('Video track is enabled in Safari, ensuring playback');
-                        remoteVideoRef.current.play().catch(e => console.log('Safari play error:', e));
-                    }
-                }
-            }, 1000);
+        const handleLoadedData = () => {
+            console.log('Remote video data loaded');
+            setRemoteVideoLoaded(true);
+        };
 
-            return () => clearInterval(checkVideoInterval);
-        }
-    }, [callStatus, remoteStream]);
+        const handleCanPlay = () => {
+            console.log('Remote video can play');
+            // Additional play() attempt for some browsers
+            remoteVideo.play().catch(err => console.warn('Could not play on canplay event:', err));
+        };
+
+        const handleVideoPlaying = () => {
+            console.log('Remote video playing');
+            setRemoteVideoLoaded(true);
+        };
+
+        remoteVideo.addEventListener('loadedmetadata', handleLoadedMetadata);
+        remoteVideo.addEventListener('loadeddata', handleLoadedData);
+        remoteVideo.addEventListener('canplay', handleCanPlay);
+        remoteVideo.addEventListener('playing', handleVideoPlaying);
+
+        return () => {
+            remoteVideo.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            remoteVideo.removeEventListener('loadeddata', handleLoadedData);
+            remoteVideo.removeEventListener('canplay', handleCanPlay);
+            remoteVideo.removeEventListener('playing', handleVideoPlaying);
+        };
+    }, [remoteVideoRef.current]);
+
+    // Clean up resources when dialog closes
+    useEffect(() => {
+        return () => {
+            if (callTimerRef.current) {
+                clearInterval(callTimerRef.current);
+            }
+            if (controlsTimeoutRef.current) {
+                clearTimeout(controlsTimeoutRef.current);
+            }
+            if (videoRefreshTimerRef.current) {
+                clearInterval(videoRefreshTimerRef.current);
+            }
+        };
+    }, []);
 
     // Format call time as mm:ss
     const formatCallTime = (seconds: number): string => {
@@ -207,6 +289,25 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
     // Toggle call stats
     const toggleStats = (): void => {
         setShowStats(prev => !prev);
+    };
+
+    // Try to force refresh remote video
+    const forceRefreshVideo = (): void => {
+        if (!remoteVideoRef.current || !remoteStream) return;
+
+        console.log('Manually refreshing video stream');
+        const currentStream = remoteVideoRef.current.srcObject;
+
+        // Briefly remove and reattach the stream
+        remoteVideoRef.current.srcObject = null;
+        setTimeout(() => {
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = currentStream;
+                remoteVideoRef.current.play()
+                    .then(() => console.log('Video refreshed and playing'))
+                    .catch(err => console.warn('Could not play video after refresh:', err));
+            }
+        }, 200);
     };
 
     // Start timer to auto-hide controls
@@ -322,9 +423,19 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                                 style={{ backgroundColor: '#000' }}
                             />
 
-                            {remoteStream && remoteStream.getVideoTracks().length > 0 && remoteVideoRef.current && remoteVideoRef.current.videoWidth === 0 && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-                                    <p className="text-white text-lg">Đang chờ video...</p>
+                            {/* Waiting for video overlay */}
+                            {!remoteVideoLoaded && remoteStream && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70">
+                                    <p className="text-white text-lg mb-4">Đang chờ video...</p>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-white border-white hover:bg-white/20"
+                                        onClick={forceRefreshVideo}
+                                    >
+                                        <RefreshCw className="h-4 w-4 mr-2" />
+                                        Làm mới video
+                                    </Button>
                                 </div>
                             )}
                         </div>
@@ -535,6 +646,25 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                                 </Tooltip>
                             </TooltipProvider>
 
+                            {/* Refresh video button */}
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
+                                            onClick={forceRefreshVideo}
+                                        >
+                                            <RefreshCw className="h-5 w-5 sm:h-6 sm:w-6" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        Làm mới video
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -543,11 +673,11 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                                             size="icon"
                                             className="rounded-full h-10 w-10 sm:h-12 sm:w-12 bg-gray-800 hover:bg-gray-700 text-white"
                                         >
-                                            <MoreVertical className="h-5 w-5 sm:h-6 sm:w-6" />
+                                            <Settings className="h-5 w-5 sm:h-6 sm:w-6" />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        Thêm tùy chọn
+                                        Cài đặt
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
@@ -558,5 +688,4 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
         </Dialog >
     );
 };
-
 export default VideoCallDialog;

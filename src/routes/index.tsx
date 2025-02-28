@@ -27,6 +27,8 @@ import { BannersPage } from '@/pages/banners';
 import MessagingPage from '@/pages/MessagingPage';
 import PostedJobs from '@/pages/PostedJobs';
 import ClientDetail from '@/pages/client/ClientDetail';
+import AppointmentClientList from '@/pages/employer/AppointmentList';
+import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -114,6 +116,14 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/appointment/:id',
         element: <Appointment />
+    },
+    {
+        path: 'freelancer/appointment',
+        element: <AppointmentFreelancerList />
+    },
+    {
+        path: 'client/appointment',
+        element: <AppointmentClientList />
     },
     {
         path: '/messaging',

@@ -3,11 +3,11 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'http://localhost:8080/api',
+        API_URL: 'https://grows-occur-picture-therefore.trycloudflare.com/api',
         TIMEOUT: 30000,
     },
     production: {
-        API_URL: 'https://api.talenthub.io.vn/api',
+        API_URL: 'https://grows-occur-picture-therefore.trycloudflare.com/api',
         TIMEOUT: 30000,
     }
 };
