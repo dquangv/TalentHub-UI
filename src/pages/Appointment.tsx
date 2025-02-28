@@ -189,20 +189,7 @@ const Appointment = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                     
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        Số điện thoại
-                      </label>
-                      <Input
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-                 
+                   
                     <div className="space-y-2">
                       {/* <label className="text-sm font-medium">
                         Số người tham gia
