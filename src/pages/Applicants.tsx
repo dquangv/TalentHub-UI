@@ -224,9 +224,7 @@ const Applicants = () => {
                           </Link>
                         </Button>
                        
-                        <Button size="sm" variant="outline">
-                          <FileUser className="w-4 h-4" />
-                        </Button>
+                     
                         <Button
                           size="sm"
                           variant="outline"
