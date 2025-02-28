@@ -183,7 +183,6 @@ const Appointment = () => {
           <FadeInWhenVisible delay={0.2}>
             <Card className="p-8">
               <form className="space-y-8">
-               
 
                 {/* Meeting Details */}
                 <div className="space-y-6">
