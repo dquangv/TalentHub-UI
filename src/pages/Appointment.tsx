@@ -32,7 +32,6 @@ const Appointment = () => {
     "online"
   );
   const [formData, setFormData] = useState({
-    phone: "asd",
     time: "",
     duration: "30",
     topic: "asd",
