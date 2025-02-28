@@ -19,6 +19,7 @@ import {
   Calendar,
   } from 'lucide-react';
 import api from '@/api/axiosConfig';
+import GoogleMapComponent from '@/components/MapComponent';
 
 const FreelancerDetail = () => {
   const { id } = useParams();
@@ -207,6 +208,7 @@ const FreelancerDetail = () => {
           </FadeInWhenVisible>
         </div>
       </div>
+      <GoogleMapComponent otherLocation = {{lat: freelancer?.lat, lng: freelancer?.lng, label: freelancer?.name}}/>
     </div>
   );
 };

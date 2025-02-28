@@ -3,7 +3,7 @@ import { notification } from 'antd';
 
 const ENV = {
     development: {
-        API_URL: 'https://grows-occur-picture-therefore.trycloudflare.com/api',
+        API_URL: 'http://localhost:8080/api',
         TIMEOUT: 30000,
     },
     production: {

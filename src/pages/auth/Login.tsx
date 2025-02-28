@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, Chrome, Facebook, } from "lucide-react";
+import { Mail, Lock, Chrome, Facebook } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext";
+import { notification } from "antd";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -17,18 +18,47 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userLocation, setUserLocation] = useState({ lat: null, lng: null });
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
 
+
+  useEffect(() => {
+    // Get user location when component mounts
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (err) => {
+        console.error("Error getting location: ", err);
+        notification.error({
+          message: "Location Access Denied",
+          description: "Please allow location access to proceed with registration.",
+        });
+      }
+    );
+  }, []);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setLoading(true);
     setError("");
 
+    let lat = null;
+    let lng = null;
+
+
     try {
-      const response = await api.post("/v1/auth/login", formData);
+      const response = await api.post("/v1/auth/login", {
+        ...formData,
+        lat: location.lat,
+        lng: location.lng,
+      });
 
       console.log("Login successful:", response);
       const data = response.data;
@@ -38,6 +68,9 @@ const Login = () => {
         role: data?.role,
         freelancerId: data?.freelancerId,
         clientId: data?.clientId,
+        lat: data?.lat,
+        lng: data?.lng
+
       });
 
       navigate("/");

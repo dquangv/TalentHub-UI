@@ -85,7 +85,7 @@ const PostedJobs = () => {
               </p>
             </div>
             <Button asChild>
-              <Link to="/employer/post-job">
+              <Link to="/client/post-job">
                 <Plus className="w-4 h-4 mr-2" />
                 Đăng tin mới
               </Link>
@@ -240,7 +240,7 @@ const PostedJobs = () => {
                 kiếm ứng viên phù hợp.
               </p>
               <Button asChild>
-                <Link to="/employer/post-job">
+                <Link to="/client/post-job">
                   <Plus className="w-4 h-4 mr-2" />
                   Đăng tin mới
                 </Link>

@@ -1,48 +1,82 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Mail, Lock, BriefcaseIcon } from 'lucide-react';
-import api from '@/api/axiosConfig';
+} from "@/components/ui/select";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { Mail, Lock, BriefcaseIcon } from "lucide-react";
+import api from "@/api/axiosConfig";
+import { notification } from "antd";
 
 const Register = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "",
   });
-  const navigate = useNavigate()
-
+  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get user location when component mounts
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (err) => {
+        console.error("Error getting location: ", err);
+        notification.error({
+          message: "Location Access Denied",
+          description: "Please allow location access to proceed with registration.",
+        });
+      }
+    );
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu không khớp');
+      setError("Mật khẩu không khớp");
       return;
     }
 
-    setError('');
+    if (!formData.email || !formData.password || !formData.role) {
+      setError("Vui lòng điền tất cả thông tin");
+      return;
+    }
+
+    if (!location.lat || !location.lng) {
+      setError("Vui lòng cho phép địa chỉ của bạn");
+      return;
+    }
+
+    setError("");
     setLoading(true);
 
     try {
-      formData.status = true;
-      const response = await api.post('/v1/account/register', formData);
-      navigate("/login")
+      const response = await api.post("/v1/account/register", {
+        ...formData,
+        lat: location.lat,
+        lng: location.lng,
+        status: true,
+      });
+      navigate("/login");
     } catch (err: any) {
-      setError('Đã xảy ra lỗi, vui lòng thử lại sau.');
+      setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
@@ -56,9 +90,7 @@ const Register = () => {
             <Card className="p-8">
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-bold mb-2">Đăng ký tài khoản</h1>
-                <p className="text-muted-foreground">
-                  Tạo tài khoản để bắt đầu sự nghiệp freelance
-                </p>
+                <p className="text-muted-foreground">Tạo tài khoản để bắt đầu sự nghiệp freelance</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -70,9 +102,7 @@ const Register = () => {
                       placeholder="Email"
                       className="pl-10"
                       value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </div>
                 </div>
@@ -85,9 +115,7 @@ const Register = () => {
                       placeholder="Mật khẩu"
                       className="pl-10"
                       value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
                   </div>
                 </div>
@@ -100,9 +128,7 @@ const Register = () => {
                       placeholder="Xác nhận mật khẩu"
                       className="pl-10"
                       value={formData.confirmPassword}
-                      onChange={(e) =>
-                        setFormData({ ...formData, confirmPassword: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                     />
                   </div>
                 </div>
@@ -112,9 +138,7 @@ const Register = () => {
                     <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Select
                       value={formData.role}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, role: value })
-                      }
+                      onValueChange={(value) => setFormData({ ...formData, role: value })}
                     >
                       <SelectTrigger className="pl-10">
                         <SelectValue placeholder="Chọn vai trò" />
@@ -128,19 +152,17 @@ const Register = () => {
                 </div>
 
                 {/* Error message */}
-                {error && (
-                  <div className="text-red-500 text-center">{error}</div>
-                )}
+                {error && <div className="text-red-500 text-center">{error}</div>}
 
                 {/* Submit Button */}
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                  {loading ? "Đang đăng ký..." : "Đăng ký"}
                 </Button>
               </form>
 
               {/* Login Link */}
               <p className="text-center mt-6 text-sm text-muted-foreground">
-                Đã có tài khoản?{' '}
+                Đã có tài khoản?{" "}
                 <Link to="/login" className="text-primary hover:underline">
                   Đăng nhập
                 </Link>
