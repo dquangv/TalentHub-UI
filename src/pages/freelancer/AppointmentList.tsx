@@ -37,7 +37,7 @@ import {
 
 const AppointmentList = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('al');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   return (
     <div className="py-12">
