@@ -195,11 +195,11 @@ const PostedJobs = () => {
                         <Button
                             size="sm"
                             variant="outline"
-                            className="text-red-600"
+                            className="text-green-600"
                           >
                             <Link to={`/appointment/${job.id}`}>
                             
-                            <Trash2 className="w-4 h-4" />
+                            <Clock className="w-4 h-4" />
                             </Link>
                           </Button>
                           <Button size="sm" variant="outline">
