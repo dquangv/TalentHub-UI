@@ -192,6 +192,16 @@ const PostedJobs = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600"
+                          >
+                            <Link to={`/appointment/${job.id}`}>
+                            
+                            <Trash2 className="w-4 h-4" />
+                            </Link>
+                          </Button>
                           <Button size="sm" variant="outline">
                             <Link to={`/jobs/${job.id}`}>
                               <Eye className="w-4 h-4" />
