@@ -43,18 +43,31 @@ const Appointment = () => {
 
   const { id } = useParams();
   const navigate = useNavigate();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-
+  
     if (!data?.clientId) {
       navigate("/login");
+      return;
     }
-    console.log("formData ", formData);
+  
+  
+    const timeParts = formData.time.split(":");
+    const hour = parseInt(timeParts[0]);
+    const minute = timeParts[1] ? parseInt(timeParts[1]) : 0;
+  
+    const selectedDate = new Date(formData.selectedDate); 
+    
+    selectedDate.setHours(hour);
+    selectedDate.setMinutes(minute);
+    selectedDate.setSeconds(0);
+    selectedDate.setMilliseconds(0); 
+  
     const appointmentData = {
-      startTime: formData.selectedDate
-        ? formData.selectedDate.toISOString()
-        : "", 
+      startTime: selectedDate.toISOString(),  
       duration: parseInt(formData.duration),
       topic: formData.topic,
       description: formData.description,
@@ -62,13 +75,15 @@ const Appointment = () => {
       clientId: data?.clientId,
       freelancerJobId: id,
     };
-
+  
+    console.log("Appointment Data:", appointmentData);
+  
     try {
       const response = await api.post(
         "/v1/appointments/client",
         JSON.stringify(appointmentData)
       );
-
+  
       if (response?.data) {
         notification.info({
           message: "Đặt lịch thành công",
@@ -88,6 +103,9 @@ const Appointment = () => {
       });
     }
   };
+  
+  
+  
 
   const timeSlots = [
     "09:00",
@@ -183,12 +201,10 @@ const Appointment = () => {
           <FadeInWhenVisible delay={0.2}>
             <Card className="p-8">
               <form className="space-y-8">
-
                 {/* Meeting Details */}
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Chi tiết cuộc họp</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Ngày họp</label>
                       <Calendar
@@ -241,18 +257,19 @@ const Appointment = () => {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                      <label className="text-sm font-medium">
-                        Link họp
-                      </label>
-                      <Input
-                        type="tel"
-                        value={formData.meetingLink}
-                        onChange={(e) =>
-                          setFormData({ ...formData, meetingLink: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                        <label className="text-sm font-medium">Link họp</label>
+                        <Input
+                          type="tel"
+                          value={formData.meetingLink}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              meetingLink: e.target.value,
+                            })
+                          }
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
