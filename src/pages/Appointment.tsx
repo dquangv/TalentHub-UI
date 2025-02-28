@@ -32,12 +32,12 @@ const Appointment = () => {
     "online"
   );
   const [formData, setFormData] = useState({
-    time: "",
+    time: "09:00",
     duration: "30",
-    topic: "asd",
-    description: "asd",
-    location: "asd",
-    meetingLink: "asd",
+    topic: "",
+    description: "",
+    location: "",
+    meetingLink: "",
     selectedDate: new Date(),
   });
 
