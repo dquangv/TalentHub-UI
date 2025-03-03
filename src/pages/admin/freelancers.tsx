@@ -8,26 +8,16 @@ export default function FreelancersPage() {
 
   useEffect(() => {
     async function fetchFreelancers() {
-      const response = await api.get("/freelancers/info");
+      const response = await api.get("/v1/freelancers");
+      console.log("response ", response.data)
       if (response.status === 200) {
+        
         setFreelancers(response.data);
-
       }
-      
-      const mappedData = data.data.map((freelancer: any) => ({
-        name: freelancer.name,
-        title:  freelancer.title,
-        skills: freelancer.skills.join(", "),
-        rating: freelancer.rating,
-        location: freelancer.location,
-      }));
-      
-      setFreelancers(mappedData);
     }
 
     fetchFreelancers();
   }, []);
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
