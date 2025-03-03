@@ -29,6 +29,7 @@ import PostedJobs from '@/pages/PostedJobs';
 import ClientDetail from '@/pages/client/ClientDetail';
 import AppointmentClientList from '@/pages/employer/AppointmentList';
 import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
+import Wallet from '@/pages/Wallet';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -132,6 +133,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/freelancer/applied-jobs',
         element: <AppliedJobs />
+    },
+    {
+        path: '/wallet',
+        element: <Wallet />
     },
     {
         path: '*',

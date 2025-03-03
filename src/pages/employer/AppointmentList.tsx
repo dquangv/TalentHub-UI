@@ -35,6 +35,7 @@ import {
   CheckCircle,
   XCircle,
   Eye,
+  BookUser,
 } from 'lucide-react';
 
 const AppointmentList = () => {
@@ -182,9 +183,9 @@ const AppointmentList = () => {
                     <TableCell>
                       <div className="flex justify-end gap-2">
                         <Button size="sm" variant="outline">
-                          <Eye className="w-4 h-4" />
+                          <BookUser className="w-4 h-4" />
                         </Button>
-                        {/* {appointment.status === 'upcoming' && (
+                        {appointment.status === 'upcoming' && (
                           <>
                             <Button size="sm" variant="outline" className="text-green-600">
                               <CheckCircle className="w-4 h-4" />
@@ -193,7 +194,7 @@ const AppointmentList = () => {
                               <XCircle className="w-4 h-4" />
                             </Button>
                           </>
-                        )} */}
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

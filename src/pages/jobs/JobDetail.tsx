@@ -13,9 +13,11 @@ import {
   Users,
   CheckCircle,
   User,
+  Flag,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
+import ReportDialog from "@/components/report/ReportDialog";
 
 interface JobDetailResponse {
   title: string;
@@ -194,6 +196,7 @@ const JobDetail = () => {
                         ? "Ứng tuyển ngay"
                         : "Đã ứng tuyển"}
                     </Button>
+                   
                     {/* Save/Unsave job button */}
                     <Button
                       variant="outline"
@@ -205,6 +208,16 @@ const JobDetail = () => {
                     >
                       {jobFreelancerInfo?.saved ? "Hủy lưu" : "Lưu việc làm"}
                     </Button>
+                    <ReportDialog 
+                      itemId={String(id)} 
+                      itemType="job" 
+                      itemTitle={job.title}
+                    >
+                      <Button variant="outline" size="icon" className="text-muted-foreground w-full d-flex gap-2">
+                        <Flag className="w-4 h-4" />
+                       <div> Báo cáo</div>
+                      </Button>
+                    </ReportDialog>
                   </div>
                 )}
               </div>
