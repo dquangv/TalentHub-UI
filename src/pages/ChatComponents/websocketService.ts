@@ -1,9 +1,7 @@
-// websocketService.ts (Đã sửa)
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as Stomp from '@stomp/stompjs';
 import { SignalRequest, SignalResponse } from './webRTCService';
-
-// Existing interfaces remain the same
+export const serverURL = 'https://grants-atmospheric-pennsylvania-entire.trycloudflare.com';
 export interface MessageRequest {
     senderId: string;
     receiverId: string;
@@ -49,29 +47,22 @@ class WebSocketService {
     private readonly MAX_RECONNECT_ATTEMPTS: number = 5;
     private callSubscriptions: Map<string, (response: SignalResponse) => void> = new Map();
 
-    // Connect WebSocket
     connect(userId: string, callbacks: WebSocketCallbacks): void {
-        // Nếu đã có kết nối với cùng userId, chỉ cập nhật callbacks
         if (this.connected && this.stompClient && this.userId === userId) {
-            console.log('WebSocket already connected with same userId, updating callbacks');
             this.callbacks = callbacks;
-            // Gọi callback onConnectionEstablished để thông báo kết nối đã sẵn sàng
             callbacks.onConnectionEstablished();
             return;
         }
 
-        // Nếu đang có kết nối với userId khác, đóng kết nối cũ trước khi tạo mới
         if (this.stompClient) {
             this.disconnect();
         }
 
-        // Reset reconnection attempts
         this.reconnectAttempts = 0;
         this.userId = userId;
         this.callbacks = callbacks;
 
-        // Create SockJS connection with additional configuration
-        const socket = new SockJS('https://grows-occur-picture-therefore.trycloudflare.com/ws');
+        const socket = new SockJS(`${serverURL}/ws`);
 
         socket.onopen = () => {
             console.log("✅ SockJS connection opened");
@@ -83,29 +74,21 @@ class WebSocketService {
             console.warn("⚠ SockJS connection closed");
         };
 
-        // Create STOMP client
         this.stompClient = new Stomp.Client({
             webSocketFactory: () => socket,
             connectHeaders: {},
-            debug: (str) => {
-                // Comment này để giảm debug logs
-                // console.log('[WebSocket Debug]:', str);
-            },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
         });
 
-        // Configure connection events
         this.stompClient.onConnect = this.handleConnect;
         this.stompClient.onStompError = this.handleStompError;
         this.stompClient.onDisconnect = this.handleDisconnect;
 
-        // Activate connection
         this.stompClient.activate();
     }
 
-    // Handle successful connection
     private handleConnect = (frame: any): void => {
         if (!this.stompClient || !this.userId || !this.callbacks) return;
 
@@ -113,19 +96,16 @@ class WebSocketService {
         this.connected = true;
         this.reconnectAttempts = 0;
 
-        // Xóa bỏ timer reconnect nếu có
         if (this.reconnectTimer) {
             clearTimeout(this.reconnectTimer);
             this.reconnectTimer = null;
         }
 
-        // Notify server of connection
         this.stompClient.publish({
             destination: "/app/chat.connect",
             body: JSON.stringify(this.userId)
         });
 
-        // Subscribe to personal messages
         this.stompClient.subscribe(`/queue/messages/${this.userId}`, (message) => {
             try {
                 const receivedMessage = JSON.parse(message.body);
@@ -135,7 +115,6 @@ class WebSocketService {
             }
         });
 
-        // Subscribe to read receipts
         this.stompClient.subscribe(`/queue/read-receipts/${this.userId}`, (receipt) => {
             try {
                 const readReceipt = JSON.parse(receipt.body);
@@ -145,7 +124,6 @@ class WebSocketService {
             }
         });
 
-        // Subscribe to user status
         this.stompClient.subscribe('/topic/status', (status) => {
             try {
                 const statusData = JSON.parse(status.body);
@@ -161,34 +139,27 @@ class WebSocketService {
             }
         });
 
-        // Subscribe to WebRTC call signals if any were registered before connection
         this.callSubscriptions.forEach((callback, userId) => {
             this.subscribeToCallInternal(userId, callback);
         });
 
-        // Call connection established callback
         this.callbacks.onConnectionEstablished();
     }
 
-    // Handle STOMP error
     private handleStompError = (frame: any): void => {
         console.error('STOMP Error:', frame);
         this.handleDisconnect();
     }
 
-    // Handle disconnection
     private handleDisconnect = (): void => {
         this.connected = false;
 
-        // Notify about connection loss
         this.callbacks?.onConnectionLost();
 
-        // Try to reconnect if not exceeded max attempts
         if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
             this.reconnectAttempts++;
             console.log(`Attempting to reconnect (Attempt ${this.reconnectAttempts})`);
 
-            // Wait before trying again
             this.reconnectTimer = setTimeout(() => {
                 if (this.userId && this.callbacks) {
                     this.connect(this.userId, this.callbacks);
@@ -197,22 +168,17 @@ class WebSocketService {
         }
     }
 
-    // Subscribe to WebRTC call signals
     subscribeToCall(userId: string, callback: (response: SignalResponse) => void): void {
-        // Store callback for reconnections
         this.callSubscriptions.set(userId, callback);
 
-        // If connected, subscribe immediately
         if (this.connected && this.stompClient) {
             this.subscribeToCallInternal(userId, callback);
         }
     }
 
-    // Internal method to subscribe to call signals
     private subscribeToCallInternal(userId: string, callback: (response: SignalResponse) => void): void {
         if (!this.stompClient) return;
 
-        // Kiểm tra nếu đã đăng ký subscription cho userId này rồi thì không đăng ký lại
         this.stompClient.subscribe(`/queue/call/${userId}`, (message) => {
             try {
                 const signalResponse = JSON.parse(message.body);

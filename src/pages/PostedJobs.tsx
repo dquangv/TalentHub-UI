@@ -34,6 +34,7 @@ import {
   Download,
   Calendar,
   Briefcase,
+  User,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 
@@ -84,7 +85,7 @@ const PostedJobs = () => {
               </p>
             </div>
             <Button asChild>
-              <Link to="/employer/post-job">
+              <Link to="/client/post-job">
                 <Plus className="w-4 h-4 mr-2" />
                 Đăng tin mới
               </Link>
@@ -192,6 +193,16 @@ const PostedJobs = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600"
+                          >
+                            <Link to={`/client/applicants/${job.id}`}>
+                            
+                            <User className="w-4 h-4" />
+                            </Link>
+                          </Button>
                           <Button size="sm" variant="outline">
                             <Link to={`/jobs/${job.id}`}>
                               <Eye className="w-4 h-4" />
@@ -229,7 +240,7 @@ const PostedJobs = () => {
                 kiếm ứng viên phù hợp.
               </p>
               <Button asChild>
-                <Link to="/employer/post-job">
+                <Link to="/client/post-job">
                   <Plus className="w-4 h-4 mr-2" />
                   Đăng tin mới
                 </Link>

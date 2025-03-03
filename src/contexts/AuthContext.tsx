@@ -21,6 +21,8 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('adminRole', "true"); 
 
     }
+
+    console.log("data", data)
     localStorage.setItem(
         "userInfo",
         JSON.stringify({
@@ -28,6 +30,8 @@ export const AuthProvider = ({ children }) => {
           role: data.role,
           freelancerId: data.freelancerId,
           clientId: data.clientId,
+          lat: data.lat,
+          lng: data.lng
         })
       );
   };
