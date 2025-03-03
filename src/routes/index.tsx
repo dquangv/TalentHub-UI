@@ -29,6 +29,7 @@ import PostedJobs from '@/pages/PostedJobs';
 import ClientDetail from '@/pages/client/ClientDetail';
 import AppointmentClientList from '@/pages/employer/AppointmentList';
 import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
+import ChooseRole from '@/pages/auth/ChooseRole';
 import Wallet from '@/pages/Wallet';
 
 export const chatLayoutPaths = ['/messaging'];
@@ -65,6 +66,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/login',
         element: <Login />
+    },
+    {
+        path: '/choose-role',
+        element: <ChooseRole />
     },
     {
         path: '/register',
