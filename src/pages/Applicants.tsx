@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { Link, useParams } from "react-router-dom";
+import { notification } from "antd";
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -40,21 +41,19 @@ const Applicants = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { id } = useParams();
+  const fetchApplicants = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/v1/jobs/applicants/${id}`);
+      setApplicants(response.data);
+      setError(null);
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchApplicants = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get(`/v1/jobs/applicants/${id}`);
-        setApplicants(response.data);
-        setError(null);
-      } catch (err) {
-        setError("Error fetching applicants");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchApplicants();
   }, []);
 
@@ -79,6 +78,49 @@ const Applicants = () => {
 
   if (error) {
     return <div>{error}</div>;
+  }
+
+  async function handleApproved(data: {
+    jobId: string | undefined;
+    freelancerId: any;
+  }): void {
+    setLoading(true);
+    try {
+      const response = await api.post(`/v1/jobs/approve`, data);
+      notification.info({
+        message: "Thành công",
+        description: "Chấp thuận thành công",
+      });
+      fetchApplicants();
+    } catch (err) {
+      notification.error({
+        message: "Lỗi",
+        description: "Có lỗi trong quá trình chấp thuận",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReject(data: {
+    jobId: string | undefined;
+    freelancerId: any;
+  }): void {
+    setLoading(true);
+  
+    try {
+      await api.post(`/v1/jobs/reject`, data);
+      notification.info({
+        message: "Thành công",
+        description: "Từ chối thành công",
+      });
+    fetchApplicants();
+
+    } catch (err) {
+     
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -224,6 +266,12 @@ const Applicants = () => {
                           </Link>
                         </Button>
                         <Button
+                          onClick={() =>
+                            handleApproved({
+                              jobId: applicant?.jobId,
+                              freelancerId: applicant?.freelancerId,
+                            })
+                          }
                           size="sm"
                           variant="outline"
                           className="text-green-600"
@@ -233,6 +281,12 @@ const Applicants = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() =>
+                            handleReject({
+                              jobId: applicant?.jobId,
+                              freelancerId: applicant?.freelancerId,
+                            })
+                          }
                           className="text-red-600"
                         >
                           <XCircle className="w-4 h-4" />
