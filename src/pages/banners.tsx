@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { MoreHorizontal, PlusCircle, Upload } from "lucide-react";
@@ -20,101 +20,108 @@ import {
 } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import { notification } from "antd";
+import api from "@/api/axiosConfig";
+
 const bannerColumns: ColumnDef<any>[] = [
-    {
-      accessorKey: "title",
-      header: "Tiêu đề",
-    },
-    {
-      accessorKey: "image",
-      header: "Hình ảnh",
-      cell: ({ row }) => {
-        return (
-          <div className="relative h-20 w-40">
-            <img
-              src={row.original.image}
-              alt={row.original.title}
-              className="absolute inset-0 h-full w-full object-cover rounded-md"
-            />
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "vendor",
-      header: "Nhà cung cấp",
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Ngày tạo",
-      cell: ({ row }) => {
-        return new Date(row.original.createdAt).toLocaleDateString("vi-VN");
-      },
-    },
-    {
-      accessorKey: "updatedAt",
-      header: "Cập nhật lần cuối",
-      cell: ({ row }) => {
-        return new Date(row.original.updatedAt).toLocaleDateString("vi-VN");
-      },
-    },
-    {
-      accessorKey: "status",
-      header: "Trạng thái",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        return (
-          <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            status === "active" 
-              ? "bg-green-100 text-green-800"
-              : "bg-yellow-100 text-yellow-800"
-          }`}>
-            {status === "active" ? "Đang hiển thị" : "Đã ẩn"}
-          </div>
-        );
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row }) => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-              <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
-const data = [
   {
-    title: "Tuyển dụng lập trình viên React",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2072&q=80",
-    vendor: "Công ty ABC",
-    createdAt: "2024-03-15T07:00:00.000Z",
-    updatedAt: "2024-03-15T07:00:00.000Z",
-    status: "active",
+    accessorKey: "title",
+    header: "Tiêu đề",
   },
   {
-    title: "Tuyển Freelancer UI/UX Designer",
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2064&q=80",
-    vendor: "Công ty XYZ",
-    createdAt: "2024-03-14T07:00:00.000Z",
-    updatedAt: "2024-03-14T07:00:00.000Z",
-    status: "inactive",
+    accessorKey: "image",
+    header: "Hình ảnh",
+    cell: ({ row }) => {
+      return (
+        <div className="relative h-20 w-40">
+          <img
+            src={row.original.image}
+            alt={row.original.title}
+            className="absolute inset-0 h-full w-full object-cover rounded-md"
+          />
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "vendor",
+    header: "Nhà cung cấp",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Ngày tạo",
+    cell: ({ row }) => {
+      return new Date(row.original.createdAt).toLocaleDateString("vi-VN");
+    },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Cập nhật lần cuối",
+    cell: ({ row }) => {
+      return new Date(row.original.updatedAt).toLocaleDateString("vi-VN");
+    },
+  },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          status === "active" 
+            ? "bg-green-100 text-green-800"
+            : "bg-yellow-100 text-yellow-800"
+        }`}>
+          {status === "active" ? "Đang hiển thị" : "Đã ẩn"}
+        </div>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+            <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
 
 export function BannersPage() {
+  const [data, setData] = useState<any[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    vendor: "",
+    status: "active",
+    image: null,
+  });
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const response = await api.get("/v1/banners");
+        setData(response.data); 
+      } catch (error) {
+        notification.error({
+          message: "Lỗi khi tải danh sách banner",
+          description: "Có lỗi khi tải dữ liệu banner từ server.",
+        });
+      }
+    };
+    fetchBanners();
+  }, []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,8 +129,45 @@ export function BannersPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setFormData((prevData) => ({ ...prevData, image: file }));
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { title, vendor, status, image } = formData;
+
+    if (!title || !vendor || !image) {
+      notification.error({
+        message: "Lỗi",
+        description: "Vui lòng nhập đủ thông tin!",
+      });
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", title);
+      formDataToSend.append("vendor", vendor);
+      formDataToSend.append("status", status);
+      formDataToSend.append("image", image);
+
+      const response = await api.post("/v1/banners", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setData((prevData) => [response.data, ...prevData]);
+      notification.success({
+        message: "Thêm Banner thành công",
+        description: "Banner đã được thêm thành công",
+      });
+    } catch (error) {
+      notification.error({
+        message: "Lỗi khi thêm banner",
+        description: "Có lỗi khi thêm banner mới.",
+      });
     }
   };
 
@@ -142,15 +186,25 @@ export function BannersPage() {
             <DialogHeader>
               <DialogTitle>Thêm Banner Mới</DialogTitle>
             </DialogHeader>
-            <form className="space-y-6 py-4">
+            <form className="space-y-6 py-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="title">Tiêu đề</Label>
-                <Input id="title" placeholder="Nhập tiêu đề banner" />
+                <Input
+                  id="title"
+                  placeholder="Nhập tiêu đề banner"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="vendor">Nhà cung cấp</Label>
-                <Input id="vendor" placeholder="Nhập tên nhà cung cấp" />
+                <Input
+                  id="vendor"
+                  placeholder="Nhập tên nhà cung cấp"
+                  value={formData.vendor}
+                  onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
+                />
               </div>
 
               <div className="space-y-2">
@@ -188,7 +242,10 @@ export function BannersPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="status">Trạng thái</Label>
-                <Select defaultValue="active">
+                <Select
+                  defaultValue="active"
+                  onValueChange={(value) => setFormData({ ...formData, status: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>

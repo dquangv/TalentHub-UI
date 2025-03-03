@@ -172,6 +172,12 @@ const Login = () => {
                   Đăng ký ngay
                 </Link>
               </p>
+              <p className="text-center mt-6 text-sm text-muted-foreground">
+                Bạn quên mật khẩu?{" "}
+                <Link to="/forgot-password" className="text-primary hover:underline">
+                  vào đây
+                </Link>
+              </p>
             </Card>
           </FadeInWhenVisible>
         </div>
