@@ -40,6 +40,8 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     localStorage.removeItem('authToken');
     localStorage.removeItem('userInfo');
+    localStorage.setItem('adminRole', "false")
+    
   };
 
   return (
