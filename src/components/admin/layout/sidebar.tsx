@@ -18,6 +18,11 @@ const menuItems = [
     href: "/",
   },
   {
+    title: "Quản lý Account",
+    icon: Users,
+    href: "/accounts",
+  },
+  {
     title: "Quản lý Freelancer",
     icon: Users,
     href: "/freelancers",
