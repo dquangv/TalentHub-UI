@@ -49,7 +49,7 @@ export default function AccountsPage() {
 
   const handleUnban = async (email: string) => {
     try {
-      const response = await api.post(`/v1/account/admin/ban?email=${email}`);
+      const response = await api.post(`/v1/account/admin/unban?email=${email}`);
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
