@@ -8,7 +8,7 @@ export default function PostsPage() {
 
   useEffect(() => {
     async function fetchJobs() {
-      const response = await api.get("/v1/jobs");
+      const response = await api.get("/v1/jobs/admin");
       console.log("response ", response.data)
       if (response.status === 200) {
         
