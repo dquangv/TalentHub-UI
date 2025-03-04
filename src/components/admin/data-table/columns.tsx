@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 // Freelancer columns
 export const freelancerColumns: ColumnDef<any>[] = [
   {
@@ -15,19 +14,42 @@ export const freelancerColumns: ColumnDef<any>[] = [
     header: "Họ và tên",
   },
   {
-    accessorKey: "title",
-    header: "Title",
+    accessorKey: "categoryName",
+    header: "Danh mục công việc",
+  },
+  {
+    accessorKey: "hourlyRate",
+    header: "Giá theo giờ",
+    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate")} USD` : "Chưa có",
+  },
+  {
+    accessorKey: "rating",
+    header: "Đánh giá",
+    cell: ({ row }) => row.getValue("rating") ? row.getValue("rating").toFixed(1) : "Chưa có",
   },
   {
     accessorKey: "skills",
     header: "Kỹ năng",
+    cell: ({ row }) => row.getValue("skills").length > 0 ? row.getValue("skills").join(", ") : "Chưa có",
   },
   {
-    accessorKey: "status",
-    header: "Trạng thái",
+    accessorKey: "description",
+    header: "Mô tả",
+    cell: ({ row }) => row.getValue("description") || "Chưa có mô tả",
   },
   {
-    header:"Hành động",
+    accessorKey: "avatar",
+    header: "Avatar",
+    cell: ({ row }) => (
+      row.getValue("avatar") ? (
+        <img src={`${row.getValue("avatar")}`} alt={row.getValue("name")} className="w-10 h-10 rounded-full" />
+      ) : (
+        "Chưa có ảnh"
+      )
+    ),
+  },
+  {
+    header: "Hành động",
     id: "actions",
     cell: () => {
       return (
@@ -48,23 +70,53 @@ export const freelancerColumns: ColumnDef<any>[] = [
   },
 ];
 
+
 // Employer columns
 export const employerColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "companyName",
-    header: "Tên công ty",
+    accessorKey: "id", 
+    header: "ID",  
   },
   {
-    accessorKey: "contactPerson",
-    header: "Người liên hệ",
+    accessorKey: "fromPrice", 
+    header: "Giá từ",
+    cell: ({ row }) => row.getValue("fromPrice") ? `${row.getValue("fromPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
   },
   {
-    accessorKey: "email",
+    accessorKey: "toPrice", 
+    header: "Giá đến",
+    cell: ({ row }) => row.getValue("toPrice") ? `${row.getValue("toPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
+  },
+  {
+    accessorKey: "typePrice", 
+    header: "Loại tiền",
+  },
+  {
+    accessorKey: "jobsCount", 
+    header: "Công việc đã đăng",
+  },
+  {
+    accessorKey: "appointmentsCount", 
+    header: "Số lượng cuộc hẹn",
+  },
+  {
+    accessorKey: "email", 
     header: "Email",
   },
   {
-    accessorKey: "status",
-    header: "Trạng thái",
+    accessorKey: "address", 
+    header: "Địa chỉ",
+  },
+  {
+    accessorKey: "image", 
+    header: "Ảnh đại diện",
+    cell: ({ row }) => (
+      row.getValue("image") ? (
+        <img src={`${row.getValue("image")}`} alt="Avatar" className="w-10 h-10 rounded-full" />
+      ) : (
+        "Chưa có ảnh"
+      )
+    ),
   },
   {
     id: "actions",
@@ -86,6 +138,7 @@ export const employerColumns: ColumnDef<any>[] = [
     },
   },
 ];
+
 
 // Post columns
 export const postColumns: ColumnDef<any>[] = [
