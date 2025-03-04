@@ -31,6 +31,7 @@ import AppointmentClientList from '@/pages/employer/AppointmentList';
 import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
 import ChooseRole from '@/pages/auth/ChooseRole';
 import Wallet from '@/pages/Wallet';
+import AccountsPage from '@/pages/admin/accounts';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -153,6 +154,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/',
         element: <DashboardPage />
+    },
+    {
+        path: '/accounts',
+        element: <AccountsPage />
     },
     {
         path: '/freelancers',
