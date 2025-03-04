@@ -140,41 +140,139 @@ export const employerColumns: ColumnDef<any>[] = [
 ];
 
 
-// Post columns
-export const postColumns: ColumnDef<any>[] = [
+// Post columnsconst 
+export const  postColumns: ColumnDef<any>[] = [
+    {
+      accessorKey: "title",
+      header: "Tiêu đề",
+    },
+    {
+      accessorKey: "categoryName",
+      header: "Danh mục",
+    },
+    {
+      accessorKey: "status",
+      header: "Trạng thái",
+    },
+    {
+      accessorKey: "clientEmail",
+      header: "Email khách hàng",
+    },
+    {
+      accessorKey: "quantity",
+      header: "Số lượng",
+    },
+    {
+      accessorKey: "appliedQuantity",
+      header: "Đã ứng tuyển",
+    },
+    {
+      accessorKey: "cancelledQuantity",
+      header: "Đã hủy",
+    },
+    {
+      accessorKey: "inProgressQuantity",
+      header: "Đang tiến hành",
+    },
+    {
+      accessorKey: "viewedQuantity",
+      header: "Đã xem",
+    },
+    {
+      id: "actions",
+      cell: () => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
+              <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
+  export const accountColumns = [
+    {
+      id: "email", // Add an id here for the email column
+      accessorKey: "email",
+      header: "Email",
+    },
+    {
+      id: "role", // Add an id here for the role column
+      accessorKey: "role",
+      header: "Role",
+    },
+    {
+      id: "status", // Add an id here for the status column
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ value }) => (value ? "Active" : "Inactive"),
+    },
+    {
+      id: "createdAt", // Add an id here for the createdAt column
+      accessorKey: "createdAt",
+      header: "Created At",
+      cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
+    },
+    {
+      id: "updatedAt", // Add an id here for the updatedAt column
+      accessorKey: "updatedAt",
+      header: "Updated At",
+      cell: ({ row }) => new Date(row.getValue("updatedAt")).toLocaleString(),
+    },
+   
+  ];
+  
+  
+export const bannerColumns: ColumnDef<any>[] = [
+  {
+    accessorKey: "id",
+    header: "Mã",
+  },
   {
     accessorKey: "title",
     header: "Tiêu đề",
   },
   {
-    accessorKey: "author",
-    header: "Tác giả",
-  },
-  {
-    accessorKey: "category",
-    header: "Danh mục",
-  },
-  {
-    accessorKey: "status",
-    header: "Trạng thái",
-  },
-  {
-    id: "actions",
-    cell: () => {
+    accessorKey: "image",
+    header: "Hình ảnh",
+    cell: ({ row }) => {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-            <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="relative h-20 w-40">
+          <img
+            src={row.original.image}
+            alt={row.original.title}
+            className="absolute inset-0 h-full w-full object-cover rounded-md"
+          />
+        </div>
       );
     },
   },
+  {
+    accessorKey: "vendor",
+    header: "Nhà cung cấp",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Ngày tạo",
+    cell: ({ row }) => {
+      return new Date(row.original.createdAt).toLocaleDateString("vi-VN");
+    },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Cập nhật lần cuối",
+    cell: ({ row }) => {
+      return new Date(row.original.updatedAt).toLocaleDateString("vi-VN");
+    },
+  }
+ 
+ 
 ];
