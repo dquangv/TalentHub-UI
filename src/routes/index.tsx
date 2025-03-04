@@ -32,6 +32,7 @@ import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
 import ChooseRole from '@/pages/auth/ChooseRole';
 import Wallet from '@/pages/Wallet';
 import AccountsPage from '@/pages/admin/accounts';
+import OAuth2Callback from '@/pages/Oauth2Callback';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -67,6 +68,10 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/login',
         element: <Login />
+    },
+    {
+        path: '/oauth2-callback',
+        element: <OAuth2Callback />
     },
     {
         path: '/choose-role',
