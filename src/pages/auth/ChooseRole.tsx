@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,20 +10,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, BriefcaseIcon } from "lucide-react";
-import api from "@/api/axiosConfig";
+import { BriefcaseIcon } from "lucide-react";
 import { notification } from "antd";
+import api from "@/api/axiosConfig";
 
 const ChooseRole = () => {
   const [formData, setFormData] = useState({
+    email: "",  
     role: "",
   });
   const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const locationHook = useLocation(); 
 
   useEffect(() => {
+    const queryParams = new URLSearchParams(locationHook.search);
+    const emailFromUrl = queryParams.get("email");
+
+    if (emailFromUrl) {
+      setFormData((prevData) => ({
+        ...prevData,
+        email: emailFromUrl,
+      }));
+    }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
@@ -40,7 +51,7 @@ const ChooseRole = () => {
         });
       }
     );
-  }, []);
+  }, [locationHook.search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +64,14 @@ const ChooseRole = () => {
     setLoading(true);
 
     try {
-      const response = await api.post("/v1/account/register", {
-        ...formData,
-        lat: location.lat,
-        lng: location.lng,
-        status: true,
+      const queryParams = new URLSearchParams({
+        email: formData.email,
+        role: formData.role,
+        lat: location.lat?.toString() || "",
+        lng: location.lng?.toString() || "",
       });
+
+      const response = await api.post(`/v1/account/choose-role?${queryParams.toString()}`);
       navigate("/login");
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
