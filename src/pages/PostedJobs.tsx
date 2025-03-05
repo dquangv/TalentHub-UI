@@ -93,7 +93,6 @@ const PostedJobs = () => {
           </div>
         </FadeInWhenVisible>
 
-        {/* Loading or Error State */}
         {loading && (
           <div className="text-center mb-8">
             <p>Đang tải dữ liệu...</p>
@@ -150,11 +149,11 @@ const PostedJobs = () => {
               </TableHeader>
               <TableBody>
                 {jobs
-                  .filter(
+                  ?.filter(
                     (job) =>
                       statusFilter === "all" || job.status === statusFilter
                   )
-                  .map((job) => (
+                  ?.map((job) => (
                     <TableRow key={job.id}>
                       <TableCell>
                         <div>
@@ -228,7 +227,7 @@ const PostedJobs = () => {
         </FadeInWhenVisible>
 
         {/* Empty State */}
-        {jobs.length === 0 && !loading && !error && (
+        {jobs.length === 0 && !loading && (
           <FadeInWhenVisible>
             <Card className="p-12 text-center">
               <Briefcase className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />

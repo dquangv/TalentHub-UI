@@ -24,8 +24,8 @@ export const OAuth2Callback = () => {
         role: role,
         freelancerId: freelancerId,
         clientId: clientId,
-        lat: lat,
-        lng: lng
+        lat: Number(lat),
+        lng: Number(lng)
       }
       if (!accessToken || !role || !clientId || !freelancerId || !userId) {
         setError("Missing required parameters.");
