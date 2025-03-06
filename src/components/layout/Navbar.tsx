@@ -21,9 +21,8 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
-          isActive ? "text-primary-700" : ""
-        }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
+          }`}
       >
         {children}
       </span>
@@ -98,10 +97,9 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${
-            isActive
-              ? "text-primary-700 bg-primary-100/50"
-              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${isActive
+            ? "text-primary-700 bg-primary-100/50"
+            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -122,7 +120,7 @@ const Navbar = () => {
               className="favicon"
             />
             <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-              TalentHub 
+              TalentHub
             </span>
           </Link>
 
@@ -131,17 +129,17 @@ const Navbar = () => {
             <NavLink to="/">{t("home")}</NavLink>
             {role == "CLIENT" ? (
               <>
-                        <NavLink to="/freelancers">{t("freelancers")}</NavLink>
-                        <NavLink to="/client/posted-jobs">Đã đăng</NavLink>
+                <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+                <NavLink to="/client/posted-jobs">Đã đăng</NavLink>
               </>
-    
+
             ) : role == "FREELANCER" ? (
               <>
                 <NavLink to="/jobs">{t("jobs")}</NavLink>
                 <NavLink to="/saved-jobs">Đã lưu</NavLink>
                 <NavLink to="/freelancer/applied-jobs">Đã ứng tuyển</NavLink>
               </>
-            
+
             ) : (
               ""
             )}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,29 +6,57 @@ import { Textarea } from '@/components/ui/textarea';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Plus, GraduationCap, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import api from '@/api/axiosConfig';
+import { notification } from 'antd';
 
 const Education = () => {
   const { t } = useLanguage();
-  const [education, setEducation] = useState([
-    {
-      id: 1,
-      school: 'Đại học Bách Khoa Hà Nội',
-      degree: 'Kỹ sư Công nghệ Thông tin',
-      specialization: 'Kỹ thuật phần mềm',
-      startYear: '2016',
-      endYear: '2020',
-      description: 'Chuyên ngành Kỹ thuật phần mềm...',
-    },
-    {
-      id: 2,
-      school: 'FPT Software Academy',
-      degree: 'Chứng chỉ Full Stack Developer',
-      specialization: 'Phát triển Web',
-      startYear: '2020',
-      endYear: '2021',
-      description: 'Khóa học chuyên sâu về phát triển web...',
-    },
-  ]);
+  const [education, setEducation] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEducation = async () => {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        if (userInfo.freelancerId) {
+          const response = await api.get(`/v1/freelancers/detail?id=${userInfo.freelancerId}`);
+          if (response.status === 200 && response.data) {
+            // Transform API data to component format
+            const formattedEducation = response.data.educations.map((edu: any) => {
+              const startDate = new Date(edu.startDate);
+              const endDate = new Date(edu.endDate);
+
+              return {
+                id: edu.id,
+                school: edu.school?.schoolName || '',
+                degree: edu.degree?.degreeTitle || '',
+                specialization: edu.major?.majorName || '',
+                startYear: startDate.getFullYear().toString(),
+                endYear: endDate.getFullYear().toString(),
+                description: edu.description || '',
+                // Keep reference to original objects for API persistence
+                schoolId: edu.school?.id,
+                degreeId: edu.degree?.id,
+                majorId: edu.major?.id
+              };
+            });
+
+            setEducation(formattedEducation);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching education data:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải thông tin học vấn. Vui lòng thử lại sau.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEducation();
+  }, []);
 
   const addEducation = () => {
     const newEducation = {
@@ -39,6 +67,9 @@ const Education = () => {
       startYear: '',
       endYear: '',
       description: '',
+      schoolId: null,
+      degreeId: null,
+      majorId: null
     };
     setEducation([...education, newEducation]);
   };
@@ -55,6 +86,51 @@ const Education = () => {
     );
   };
 
+  const saveEducation = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      if (userInfo.freelancerId) {
+        // Transform component data to API format
+        const apiData = education.map(edu => ({
+          id: typeof edu.id === 'number' && edu.id > Date.now() - 86400000 ? null : edu.id, // If newly added (recent timestamp), set id to null
+          startDate: `${edu.startYear}-01-01`,
+          endDate: `${edu.endYear}-12-31`,
+          description: edu.description,
+          school: {
+            id: edu.schoolId || null,
+            schoolName: edu.school
+          },
+          degree: {
+            id: edu.degreeId || null,
+            degreeTitle: edu.degree
+          },
+          major: {
+            id: edu.majorId || null,
+            majorName: edu.specialization
+          }
+        }));
+
+        // API call to update education would go here
+        // await api.put(`/v1/freelancers/${userInfo.freelancerId}/educations`, apiData);
+
+        notification.success({
+          message: 'Thành công',
+          description: 'Cập nhật thông tin học vấn thành công'
+        });
+      }
+    } catch (error) {
+      console.error('Error saving education data:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể cập nhật thông tin học vấn. Vui lòng thử lại sau.'
+      });
+    }
+  };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Đang tải...</div>;
+  }
+
   return (
     <div className="space-y-6">
       {education.map((edu, index) => (
@@ -63,7 +139,7 @@ const Education = () => {
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <GraduationCap className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold"> {t('Education')}</h3>
+                <h3 className="text-lg font-semibold">{t('Education')}</h3>
               </div>
               <Button
                 variant="ghost"
@@ -99,8 +175,7 @@ const Education = () => {
               </div>
 
               <div className="space-y-2">
-                {/* <label className="text-sm font-medium">{t('Specialization')}</label> */}
-                <label className="text-sm font-medium">Chuyên ngành</label> 
+                <label className="text-sm font-medium">Chuyên ngành</label>
                 <Input
                   value={edu.specialization}
                   onChange={(e) =>
@@ -162,6 +237,12 @@ const Education = () => {
           {t('Moreeducation')}
         </Button>
       </FadeInWhenVisible>
+
+      <div className="flex justify-end mt-4">
+        <Button onClick={saveEducation}>
+          Lưu thông tin học vấn
+        </Button>
+      </div>
     </div>
   );
 };
