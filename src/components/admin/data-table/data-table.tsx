@@ -20,15 +20,18 @@ import { Input } from "@/components/ui/input";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onAction: any;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onAction
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
+    onAction: onAction,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
