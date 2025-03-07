@@ -58,37 +58,49 @@ const Navbar = () => {
     logout();
   };
 
-  const UserMenu = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="relative h-8 w-8 rounded-full ring-2 ring-offset-2 ring-primary/20 hover:ring-primary/30 transition-all"
-        >
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback className="bg-primary-100 text-primary-700">
-              CN
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <Link to={`/settingsfreelancer`}>
-          <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
-            <span className="text-primary-700">{t("settings")}</span>
+  const UserMenu = () => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+    const avatarImage = localStorage.getItem("avatarImage") || "https://github.com/shadcn.png";
+    const fullName = `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim() || 'User';
+
+    const settingsPath = userInfo.role === 'FREELANCER'
+      ? '/settingsfreelancer'
+      : userInfo.role === 'CLIENT'
+        ? '/client/profile'
+        : '/';
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-8 w-8 rounded-full ring-2 ring-offset-2 ring-primary/20 hover:ring-primary/30 transition-all"
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={avatarImage} alt={fullName} />
+              <AvatarFallback>
+                {fullName.split(' ').map(name => name[0]).join('').toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <Link to={settingsPath}>
+            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
+              <span className="text-primary-700">{t("settings")}</span>
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="hover:bg-destructive-50 focus:bg-destructive-50"
+          >
+            <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
+            <span className="text-destructive-500">{t("logout")}</span>
           </DropdownMenuItem>
-        </Link>
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="hover:bg-destructive-50 focus:bg-destructive-50"
-        >
-          <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
-          <span className="text-destructive-500">{t("logout")}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   const MobileNavLink = ({ to, children }: any) => {
     const isActive = location.pathname === to;
