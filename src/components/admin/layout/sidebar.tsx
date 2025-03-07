@@ -6,6 +6,7 @@ import {
   FileText,
   LayoutDashboard,
   CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 import { ExitIcon } from "@radix-ui/react-icons";
 import { Button } from "antd";
@@ -47,7 +48,11 @@ const menuItems = [
     icon: CreditCard,
     href: "/banners",
   },
-
+  {
+    title: "Quản lý Báo Cáo",
+    icon: AlertTriangle,
+    href: "/reports",
+  },
 ];
 
 export function Sidebar() {
