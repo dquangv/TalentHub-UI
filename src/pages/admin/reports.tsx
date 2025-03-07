@@ -480,6 +480,9 @@ export function ReportsPage() {
                         <h4 className="font-medium">{selectedReport.jobTitle}</h4>
                         <p className="text-sm text-muted-foreground">{selectedReport.jobPoster}</p>
                       </div>
+                      <div>
+                        <Badge variant="outline">Lý do: Nội dung không phù hợp</Badge>
+                      </div>
                     </div>
                   </div>
                   <Separator />
