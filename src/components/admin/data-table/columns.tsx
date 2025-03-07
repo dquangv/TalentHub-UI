@@ -1,12 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 // Freelancer columns
 export const freelancerColumns: ColumnDef<any>[] = [
@@ -121,6 +122,79 @@ export const postColumns: ColumnDef<any>[] = [
             <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      );
+    },
+  },
+];
+
+
+export const reportColumns: ColumnDef<any>[] = [
+  {
+    accessorKey: "reporterName",
+    header: "Người tố cáo",
+  },
+  {
+    accessorKey: "reason",
+    header: "Lý do",
+  },
+  {
+    accessorKey: "reportedAt",
+    header: "Thời gian",
+    cell: ({ row }) => {
+      return new Date(row.original.reportedAt).toLocaleString("vi-VN");
+    },
+  },
+  {
+    accessorKey: "jobTitle",
+    header: "Bài đăng",
+  },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <Badge
+          variant={
+            status === "banned"
+              ? "destructive"
+              : status === "ignored"
+              ? "secondary"
+              : "default"
+          }
+        >
+          {status === "banned"
+            ? "Đã cấm"
+            : status === "ignored"
+            ? "Đã bỏ qua"
+            : "Chưa xử lý"}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "adminReason",
+    header: "Lý do xử lý",
+  },
+  {
+    accessorKey: "processedAt",
+    header: "Thời gian xử lý",
+    cell: ({ row }) => {
+      const processedAt = row.original.processedAt;
+      return processedAt ? new Date(processedAt).toLocaleString("vi-VN") : "-";
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row, table }) => {
+      return (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => table.options.meta?.onAction?.(row.original)}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
       );
     },
   },
