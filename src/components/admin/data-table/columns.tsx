@@ -209,24 +209,24 @@ export const  postColumns: ColumnDef<any>[] = [
     {
       id: "role", 
       accessorKey: "role",
-      header: "Role",
+      header: "Quyền",
     },
     {
       id: "status", 
       accessorKey: "status",
-      header: "Status",
+      header: "Trạng thái",
       cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
     },
     {
       id: "createdAt",
       accessorKey: "createdAt",
-      header: "Created At",
+      header: "Ngày tạo",
       cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
     },
     {
-      id: "updatedAt", // Add an id here for the updatedAt column
+      id: "updatedAt", 
       accessorKey: "updatedAt",
-      header: "Updated At",
+      header: "Ngày sửa",
       cell: ({ row }) => new Date(row.getValue("updatedAt")).toLocaleString(),
     },
    
