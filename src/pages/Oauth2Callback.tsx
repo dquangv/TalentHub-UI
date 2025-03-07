@@ -22,8 +22,8 @@ export const OAuth2Callback = () => {
       var data: any = {
         userId: userId,
         role: role,
-        freelancerId: freelancerId,
-        clientId: clientId,
+        freelancerId: freelancerId == "null" ? null : freelancerId,
+        clientId: clientId == "null" ? null : clientId,
         lat: Number(lat),
         lng: Number(lng)
       }
