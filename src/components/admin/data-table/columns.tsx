@@ -200,23 +200,23 @@ export const  postColumns: ColumnDef<any>[] = [
   ];
   export const accountColumns = [
     {
-      id: "email", // Add an id here for the email column
+      id: "email", 
       accessorKey: "email",
       header: "Email",
     },
     {
-      id: "role", // Add an id here for the role column
+      id: "role", 
       accessorKey: "role",
       header: "Role",
     },
     {
-      id: "status", // Add an id here for the status column
+      id: "status", 
       accessorKey: "status",
       header: "Status",
-      cell: ({ value }) => (value ? "Active" : "Inactive"),
+      cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
     },
     {
-      id: "createdAt", // Add an id here for the createdAt column
+      id: "createdAt",
       accessorKey: "createdAt",
       header: "Created At",
       cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
