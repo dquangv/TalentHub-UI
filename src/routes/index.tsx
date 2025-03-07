@@ -30,6 +30,7 @@ import ClientDetail from '@/pages/client/ClientDetail';
 import AppointmentClientList from '@/pages/employer/AppointmentList';
 import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
 import Wallet from '@/pages/Wallet';
+import { ReportsPage } from '@/pages/admin/reports';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -138,6 +139,7 @@ export const mainRoutes: RouteObject[] = [
         path: '/wallet',
         element: <Wallet />
     },
+
     {
         path: '*',
         element: <div className='w-1/2 mx-auto'><NotFound /></div>
@@ -168,6 +170,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: "/banners",
         element: <BannersPage />
+    },
+    {
+        path: '/reports',
+        element: <ReportsPage />
     },
     {
         path: '*',
