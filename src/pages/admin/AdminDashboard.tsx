@@ -17,7 +17,8 @@ import {
     Menu,
     X,
     Sun,
-    Moon
+    Moon,
+    AlertTriangle
 } from "lucide-react";
 
 // Types
@@ -65,6 +66,7 @@ const menuItems: MenuItem[] = [
     { id: 'projects', label: 'Dự án', icon: <Briefcase size={20} /> },
     { id: 'statistics', label: 'Thống kê', icon: <ChartBar size={20} /> },
     { id: 'settings', label: 'Cài đặt', icon: <Settings size={20} /> },
+    { id: 'reports', label: 'Quản lý báo cáo', icon: <AlertTriangle size={20} /> },
 ];
 
 // Layout component
