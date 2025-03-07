@@ -58,30 +58,22 @@ const SavedJobs = () => {
   //   }
   
   // };
-
+  
   const handleUnSaveJob = async (jobId: any) => {
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-
     if (!data?.freelancerId) {
       navigate("/login");
     }
-
     const response = await api.post("/v1/jobs/unsave", {
       freelancerId: data?.freelancerId,
       jobId: Number(jobId),
     });
-    if (response.status !== 200) {
-      alert("có lỗi");
-
-    }else {
-      setSavedJobs(pre => pre.filter(item => item?.jobId != jobId))
-      notification.info({
-        message: "Thông báo",
-        description: "Hủy lưu việc thành công",
-      });
-    }
-
-  
+   
+    notification.info({
+      message: "Thông báo",
+      description: "Hủy lưu việc thành công",
+    });
+    setSavedJobs(pre => pre.filter(item => item?.jobId != jobId))
   };
 
   return (
@@ -136,8 +128,8 @@ const SavedJobs = () => {
                           <Badge variant={job.jobType === 'Toàn thời gian' ? 'default' : 'secondary'}>
                             {job.jobType}
                           </Badge>
-                          <Button variant="ghost" size="icon" className="text-primary">
-                            <Bookmark className="w-5 h-5 fill-current" onClick={() => handleUnSaveJob(job.jobId)}/>
+                          <Button onClick={() => handleUnSaveJob(job.jobId)} variant="ghost" size="icon" className="text-primary">
+                            <Bookmark className="w-5 h-5 fill-current"/>
                           </Button>
                         </div>
                       </div>
