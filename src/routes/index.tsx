@@ -29,8 +29,11 @@ import PostedJobs from '@/pages/PostedJobs';
 import ClientDetail from '@/pages/client/ClientDetail';
 import AppointmentClientList from '@/pages/employer/AppointmentList';
 import AppointmentFreelancerList from '@/pages/freelancer/AppointmentList';
+import ChooseRole from '@/pages/auth/ChooseRole';
 import Wallet from '@/pages/Wallet';
 import { ReportsPage } from '@/pages/admin/reports';
+import AccountsPage from '@/pages/admin/accounts';
+import OAuth2Callback from '@/pages/Oauth2Callback';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -66,6 +69,14 @@ export const mainRoutes: RouteObject[] = [
     {
         path: '/login',
         element: <Login />
+    },
+    {
+        path: '/oauth2-callback',
+        element: <OAuth2Callback />
+    },
+    {
+        path: '/choose-role',
+        element: <ChooseRole />
     },
     {
         path: '/register',
@@ -150,6 +161,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/',
         element: <DashboardPage />
+    },
+    {
+        path: '/accounts',
+        element: <AccountsPage />
     },
     {
         path: '/freelancers',

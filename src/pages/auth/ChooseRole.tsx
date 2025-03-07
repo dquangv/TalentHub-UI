@@ -1,0 +1,128 @@
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { BriefcaseIcon } from "lucide-react";
+import { notification } from "antd";
+import api from "@/api/axiosConfig";
+
+const ChooseRole = () => {
+  const [formData, setFormData] = useState({
+    email: "",  
+    role: "",
+  });
+  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const locationHook = useLocation(); 
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(locationHook.search);
+    const emailFromUrl = queryParams.get("email");
+
+    if (emailFromUrl) {
+      setFormData((prevData) => ({
+        ...prevData,
+        email: emailFromUrl,
+      }));
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (err) => {
+        console.error("Error getting location: ", err);
+        notification.error({
+          message: "Location Access Denied",
+          description: "Please allow location access to proceed with registration.",
+        });
+      }
+    );
+  }, [locationHook.search]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!location.lat || !location.lng) {
+      setError("Vui lòng cho phép địa chỉ của bạn");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const queryParams = new URLSearchParams({
+        email: formData.email,
+        role: formData.role,
+        lat: location.lat?.toString() || "",
+        lng: location.lng?.toString() || "",
+      });
+
+      const response = await api.post(`/v1/account/choose-role?${queryParams.toString()}`);
+      navigate("/login");
+    } catch (err: any) {
+      setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/5 via-background to-background">
+      <div className="container mx-auto px-4">
+        <div className="max-w-md mx-auto">
+          <FadeInWhenVisible>
+            <Card className="p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold mb-2">Chọn vai trò</h1>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <div className="relative">
+                    <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value) => setFormData({ ...formData, role: value })}
+                    >
+                      <SelectTrigger className="pl-10">
+                        <SelectValue placeholder="Chọn vai trò" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FREELANCER">Freelancer</SelectItem>
+                        <SelectItem value="CLIENT">Nhà tuyển dụng</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Error message */}
+                {error && <div className="text-red-500 text-center">{error}</div>}
+
+                {/* Submit Button */}
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Đang đăng ký..." : "Đăng ký"}
+                </Button>
+              </form>
+            </Card>
+          </FadeInWhenVisible>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChooseRole;

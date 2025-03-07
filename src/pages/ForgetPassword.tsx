@@ -1,79 +1,131 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { notification } from 'antd'
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Mail, ArrowLeft, Lock, KeyRound } from 'lucide-react';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { notification } from "antd";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { Mail, ArrowLeft, Lock, KeyRound } from "lucide-react";
+import api from "@/api/axiosConfig";
 
-type Step = 'email' | 'code' | 'password';
+type Step = "email" | "code" | "password";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<Step>('email');
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [currentStep, setCurrentStep] = useState<Step>("email");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await api.post(`/v1/account/send-otp?email=${email}`);
+      console.log(response)
+      if (response.status != 200){
+        notification.error({
+          message: "Lỗi",
+          description: response.message,
+        });
+        setIsLoading(false)
+        return
+      }
       setIsLoading(false);
-      setCurrentStep('code');
+      setCurrentStep("code");
       notification.info({
-        message: 'Mã xác thực đã được gửi',
-        description: 'Vui lòng kiểm tra email của bạn',
+        message: "Mã xác thực đã được gửi",
+        description: "Vui lòng kiểm tra email của bạn",
       });
-    }, 1500);
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+      notification.error({
+        message: "Lỗi",
+        description: "Có lỗi xảy ra khi gửi email xác thực",
+      });
+    }
   };
-
   const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      if (code === '1234') {
-        setCurrentStep('password');
-      } else {
+    try {
+      const response = await api.post("/v1/account/verify-code", {
+        email,
+         code,
+      });
+
+      if(!response.data.success){
         notification.warning({
-          message: 'Mã không hợp lệ',
-          description: 'Vui lòng kiểm tra lại mã xác thực',
+          message: "Mã không hợp lệ",
+          description: "Vui lòng kiểm tra lại mã xác thực",
         });
+        
+      setIsLoading(false);
+        return
       }
-    }, 1000);
+      setIsLoading(false);
+      notification.success({
+        message: "Mã xác thực thành công",
+        description:
+          "Mã xác thực hợp lệ. Vui lòng tiếp tục với việc đặt lại mật khẩu.",
+      });
+      setCurrentStep("password");
+    } catch (error) {
+      setIsLoading(false);
+      notification.warning({
+        message: "Mã không hợp lệ",
+        description: "Vui lòng kiểm tra lại mã xác thực",
+      });
+    }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       notification.warning({
-        message: 'Mật khẩu không khớp',
-        description: 'Vui lòng kiểm tra lại mật khẩu xác nhận'
+        message: "Mật khẩu không khớp",
+        description: "Vui lòng kiểm tra lại mật khẩu xác nhận",
       });
+      
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = api.post("/v1/account/reset-password", {
+        email: email,
+        newPassword: password,
+        code
+      });
+
+      setCurrentStep("password");
       setIsLoading(false);
       notification.info({
-        message: 'Đặt lại mật khẩu thành công',
-        description: 'Vui lòng đăng nhập với mật khẩu mới',
+        message: "Đặt lại mật khẩu thành công",
+        description: "Vui lòng đăng nhập với mật khẩu mới",
       });
-      navigate('/login');
-    }, 1500);
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+      notification.error({
+        message: "Lỗi",
+        description: "Có lỗi xảy ra khi đặt lại mật khẩu",
+      });
+    }
   };
 
   const renderStepContent = () => {
     switch (currentStep) {
-      case 'email':
+      case "email":
         return (
           <>
             <div className="text-center mb-8">
@@ -82,7 +134,8 @@ const ForgotPassword = () => {
               </div>
               <h1 className="text-2xl font-bold mb-2">Quên mật khẩu?</h1>
               <p className="text-muted-foreground">
-                Đừng lo lắng! Chỉ cần nhập email của bạn và chúng tôi sẽ gửi mã xác thực.
+                Đừng lo lắng! Chỉ cần nhập email của bạn và chúng tôi sẽ gửi mã
+                xác thực.
               </p>
             </div>
 
@@ -102,11 +155,15 @@ const ForgotPassword = () => {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Đang gửi...' : 'Gửi mã xác thực'}
+                {isLoading ? "Đang gửi..." : "Gửi mã xác thực"}
               </Button>
 
               <div className="text-center">
-                <Button variant="link" asChild className="text-muted-foreground">
+                <Button
+                  variant="link"
+                  asChild
+                  className="text-muted-foreground"
+                >
                   <Link to="/login" className="inline-flex items-center">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Quay lại đăng nhập
@@ -117,7 +174,7 @@ const ForgotPassword = () => {
           </>
         );
 
-      case 'code':
+      case "code":
         return (
           <>
             <div className="text-center mb-8">
@@ -129,11 +186,11 @@ const ForgotPassword = () => {
                 Chúng tôi đã gửi mã xác thực đến email {email}
               </p>
               <p className="text-sm text-muted-foreground">
-                Không nhận được mã?{' '}
+                Không nhận được mã?{" "}
                 <Button
                   variant="link"
                   className="p-0 h-auto"
-                  onClick={() => setCurrentStep('email')}
+                  onClick={() => setCurrentStep("email")}
                 >
                   Gửi lại
                 </Button>
@@ -147,19 +204,19 @@ const ForgotPassword = () => {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 className="text-center text-lg tracking-widest"
-                maxLength={4}
+                maxLength={6}
                 required
               />
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Đang xác thực...' : 'Xác nhận'}
+                {isLoading ? "Đang xác thực..." : "Xác nhận"}
               </Button>
 
               <div className="text-center">
                 <Button
                   variant="link"
                   className="text-muted-foreground"
-                  onClick={() => setCurrentStep('email')}
+                  onClick={() => setCurrentStep("email")}
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Quay lại
@@ -169,7 +226,7 @@ const ForgotPassword = () => {
           </>
         );
 
-      case 'password':
+      case "password":
         return (
           <>
             <div className="text-center mb-8">
@@ -209,7 +266,7 @@ const ForgotPassword = () => {
               </div>
 
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
+                {isLoading ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
               </Button>
             </form>
           </>

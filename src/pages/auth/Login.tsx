@@ -22,8 +22,10 @@ const Login = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
-
+  const [location, setLocation] = useState<{
+    lat: number | null;
+    lng: number | null;
+  }>({ lat: null, lng: null });
 
   useEffect(() => {
     // Get user location when component mounts
@@ -38,7 +40,8 @@ const Login = () => {
         console.error("Error getting location: ", err);
         notification.error({
           message: "Location Access Denied",
-          description: "Please allow location access to proceed with registration.",
+          description:
+            "Please allow location access to proceed with registration.",
         });
       }
     );
@@ -51,7 +54,6 @@ const Login = () => {
 
     let lat = null;
     let lng = null;
-
 
     try {
       const response = await api.post("/v1/auth/login", {
@@ -69,8 +71,7 @@ const Login = () => {
         freelancerId: data?.freelancerId,
         clientId: data?.clientId,
         lat: data?.lat,
-        lng: data?.lng
-
+        lng: data?.lng,
       });
 
       navigate("/");
@@ -156,20 +157,40 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="w-full">
-                  <Chrome className="mr-2 h-4 w-4" />
-                  Google
-                </Button>
-                <Button variant="outline" className="w-full">
+                <a
+                  href="http://localhost:8080/oauth2/authorization/google"
+                  className="w-full"
+                >
+                  <Button variant="outline" className="w-full">
+                    <Chrome className="mr-2 h-4 w-4" />
+                    Google
+                  </Button>
+                </a>
+                <a
+                  href="http://localhost:8080/oauth2/authorization/facebook"
+                  className="w-full"
+                >
+                   <Button variant="outline" className="w-full">
                   <Facebook className="mr-2 h-4 w-4" />
                   Facebook
                 </Button>
+                </a>
+              
               </div>
 
               <p className="text-center mt-6 text-sm text-muted-foreground">
                 Chưa có tài khoản?{" "}
                 <Link to="/register" className="text-primary hover:underline">
                   Đăng ký ngay
+                </Link>
+              </p>
+              <p className="text-center mt-6 text-sm text-muted-foreground">
+                Bạn quên mật khẩu?{" "}
+                <Link
+                  to="/forgot-password"
+                  className="text-primary hover:underline"
+                >
+                  vào đây
                 </Link>
               </p>
             </Card>
