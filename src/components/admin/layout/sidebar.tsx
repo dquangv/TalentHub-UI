@@ -6,6 +6,7 @@ import {
   FileText,
   LayoutDashboard,
   CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 
 const menuItems = [
@@ -38,7 +39,12 @@ const menuItems = [
     title: "Quản lý Banners",
     icon: CreditCard,
     href: "/banners",
-  }
+  },
+  {
+    title: "Quản lý Báo Cáo",
+    icon: AlertTriangle,
+    href: "/reports",
+  },
 ];
 
 export function Sidebar() {
