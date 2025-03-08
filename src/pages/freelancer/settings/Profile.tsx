@@ -18,6 +18,7 @@ import userService, { User } from '@/api/userService';
 import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
 import { notification } from 'antd';
 import { useLanguage } from '@/contexts/LanguageContext';
+import AddressSelector from './AddressSelector';
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -382,16 +383,10 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.5}>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('Address') || 'Địa chỉ'}</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  className="pl-10"
-                  value={profile.address}
-                  onChange={(e) =>
-                    setProfile({ ...profile, address: e.target.value })
-                  }
-                />
-              </div>
+              <AddressSelector
+                value={profile.address}
+                onChange={(address) => setProfile({ ...profile, address })}
+              />
             </div>
           </FadeInWhenVisible>
 
