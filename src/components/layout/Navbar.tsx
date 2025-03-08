@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import userService from "@/api/userService";
 const NavLink = ({ to, children, onClick }: any) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -40,7 +41,32 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
   const location = useLocation();
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (isLoggedIn) {
+        try {
+          const userInfoString = localStorage.getItem("userInfo");
+          if (!userInfoString) return;
 
+          const userInfo = JSON.parse(userInfoString);
+          if (!userInfo.userId) return;
+
+          const response = await userService.getUserById(userInfo.userId);
+          if (response.data) {
+            localStorage.setItem("userData", JSON.stringify({
+              firstName: response.data.firstName,
+              lastName: response.data.lastName,
+              image: response.data.image
+            }));
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [isLoggedIn]);
   useEffect(() => {
     if (isLoggedIn) {
       const userInfo = localStorage.getItem("userInfo");
@@ -59,15 +85,54 @@ const Navbar = () => {
   };
 
   const UserMenu = () => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
-    const avatarImage = localStorage.getItem("avatarImage") || "https://github.com/shadcn.png";
-    const fullName = `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim() || 'User';
+    const { t } = useLanguage();
+    const userInfoString = localStorage.getItem("userInfo");
+    const userInfo = userInfoString ? JSON.parse(userInfoString) : {};
+
+    const [userData, setUserData] = useState({
+      firstName: '',
+      lastName: '',
+      image: ''
+    });
+
+    useEffect(() => {
+      const storedUserData = localStorage.getItem("userData");
+      if (storedUserData) {
+        try {
+          const parsedUserData = JSON.parse(storedUserData);
+          setUserData(parsedUserData);
+        } catch (error) {
+          console.error("Lỗi khi parse userData:", error);
+        }
+      }
+    }, []);
+
+    const fullName = userData.firstName && userData.lastName
+      ? ` ${userData.lastName} ${userData.firstName}`
+      : 'User';
+
+    const avatarImage = userData.image || "https://github.com/shadcn.png";
+
+    const roleDisplay = () => {
+      switch (userInfo.role) {
+        case 'CLIENT':
+          return "Nhà tuyển dụng";
+        case 'FREELANCER':
+          return "Freelancer";
+        case 'ADMIN':
+          return "Quản trị viên";
+        default:
+          return '';
+      }
+    };
 
     const settingsPath = userInfo.role === 'FREELANCER'
       ? '/settingsfreelancer'
       : userInfo.role === 'CLIENT'
         ? '/client/profile'
-        : '/';
+        : userInfo.role === 'ADMIN'
+          ? '/admin/dashboard'
+          : '/';
 
     return (
       <DropdownMenu>
@@ -85,6 +150,12 @@ const Navbar = () => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
+          <div className="p-2 border-b border-primary-100">
+            <div className="font-medium">{fullName}</div>
+            {roleDisplay() && (
+              <div className="text-sm text-muted-foreground">{roleDisplay()}</div>
+            )}
+          </div>
           <Link to={settingsPath}>
             <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
               <span className="text-primary-700">{t("settings")}</span>
@@ -188,7 +259,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
             <ModeToggle />
             {isLoggedIn && <NotificationDropdown />}
@@ -205,7 +275,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 bg-gradient-to-b from-background via-primary-50/50 to-background">
             <div className="flex flex-col space-y-4">
