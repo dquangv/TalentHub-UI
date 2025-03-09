@@ -15,6 +15,7 @@ import addressService, {
     Ward,
     AddressData
 } from '@/api/addressService';
+import { Empty } from 'antd';
 
 interface AddressSelectorProps {
     value: string;
@@ -478,9 +479,7 @@ const AddressSelector: React.FC<AddressSelectorProps> = ({
                                             {addressData.province ? 'Không có quận/huyện' : 'Vui lòng chọn tỉnh/thành phố trước'}
                                         </div>
                                     ) : filteredDistricts.length === 0 ? (
-                                        <div className="p-2 text-center text-muted-foreground">
-                                            Không tìm thấy kết quả
-                                        </div>
+                                        <Empty description="Không tìm thấy kết quả" />
                                     ) : (
                                         filteredDistricts.map((district) => (
                                             <SelectItem key={district.code} value={district.code.toString()}>
