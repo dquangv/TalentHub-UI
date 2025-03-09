@@ -15,7 +15,7 @@ import SettingsTour from './SettingsTour';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [openTour, setOpenTour] = useState(true);
+  const [openTour, setOpenTour] = useState(false);
 
   const refs = {
     tabsRef1: useRef<HTMLDivElement>(null),
