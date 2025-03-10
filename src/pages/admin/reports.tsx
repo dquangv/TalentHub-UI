@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { AlertCircle, Briefcase, Calendar, FileText, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import api from "@/api/axiosConfig";
+import JobDetailPopup from "./JobDetailPopup";
 
 export function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
@@ -50,6 +51,18 @@ export function ReportsPage() {
     setIsDialogOpen(false);
   };
 
+  const [isPopupOpen, setPopupOpen] = useState(false);
+  const [jobId, setJobId] = useState<string>("");
+
+  const openJobDetailPopup = (id: string) => {
+    setJobId(id);
+    setPopupOpen(true);
+  };
+
+  const closeJobDetailPopup = () => {
+    setPopupOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -67,7 +80,7 @@ export function ReportsPage() {
         onAction={handleAction}
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen && !isPopupOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[700px] sm:max-h-[650px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -116,10 +129,19 @@ export function ReportsPage() {
                       <span className="text-muted-foreground">Mô tả:</span>
                       <p className="mt-1 text-sm">{selectedReport.job.description}</p>
                     </div>
+                    <div>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-muted-foreground hover:text-primary"
+                        onClick={() => openJobDetailPopup(selectedReport.jobId)}
+                      >
+                        Xem chi tiết
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-
+             
               {/* Report Information */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -150,7 +172,7 @@ export function ReportsPage() {
                     </div>
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Hình ảnh:</span>
-                      <img className="w-[100px] h-[100px]" src={selectedReport.image}/>
+                      <img className="w-[100px] h-[100px]" src={selectedReport.image} alt="Report evidence"/>
                     </div>
                   </div>
                 </div>
@@ -231,6 +253,7 @@ export function ReportsPage() {
           )}
         </DialogContent>
       </Dialog>
+      <JobDetailPopup jobId={jobId} isOpen={isPopupOpen} onClose={closeJobDetailPopup} />
     </div>
   );
 }
