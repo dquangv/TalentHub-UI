@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, BookMarked, FileCheck2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationDropdown from "./NotificationDropdown";
@@ -22,8 +22,9 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
-          }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+          isActive ? "text-primary-700" : ""
+        }`}
       >
         {children}
       </span>
@@ -53,11 +54,14 @@ const Navbar = () => {
 
           const response = await userService.getUserById(userInfo.userId);
           if (response.data) {
-            localStorage.setItem("userData", JSON.stringify({
-              firstName: response.data.firstName,
-              lastName: response.data.lastName,
-              image: response.data.image
-            }));
+            localStorage.setItem(
+              "userData",
+              JSON.stringify({
+                firstName: response.data.firstName,
+                lastName: response.data.lastName,
+                image: response.data.image,
+              })
+            );
           }
         } catch (error) {
           console.error("Lỗi khi lấy thông tin người dùng:", error);
@@ -90,9 +94,9 @@ const Navbar = () => {
     const userInfo = userInfoString ? JSON.parse(userInfoString) : {};
 
     const [userData, setUserData] = useState({
-      firstName: '',
-      lastName: '',
-      image: ''
+      firstName: "",
+      lastName: "",
+      image: "",
     });
 
     useEffect(() => {
@@ -107,32 +111,34 @@ const Navbar = () => {
       }
     }, []);
 
-    const fullName = userData.firstName && userData.lastName
-      ? ` ${userData.lastName} ${userData.firstName}`
-      : 'User';
+    const fullName =
+      userData.firstName && userData.lastName
+        ? ` ${userData.lastName} ${userData.firstName}`
+        : "User";
 
     const avatarImage = userData.image || "https://github.com/shadcn.png";
 
     const roleDisplay = () => {
       switch (userInfo.role) {
-        case 'CLIENT':
+        case "CLIENT":
           return "Nhà tuyển dụng";
-        case 'FREELANCER':
+        case "FREELANCER":
           return "Freelancer";
-        case 'ADMIN':
+        case "ADMIN":
           return "Quản trị viên";
         default:
-          return '';
+          return "";
       }
     };
 
-    const settingsPath = userInfo.role === 'FREELANCER'
-      ? '/settingsfreelancer'
-      : userInfo.role === 'CLIENT'
-        ? '/client/profile'
-        : userInfo.role === 'ADMIN'
-          ? '/admin/dashboard'
-          : '/';
+    const settingsPath =
+      userInfo.role === "FREELANCER"
+        ? "/settingsfreelancer"
+        : userInfo.role === "CLIENT"
+        ? "/client/profile"
+        : userInfo.role === "ADMIN"
+        ? "/admin/dashboard"
+        : "/";
 
     return (
       <DropdownMenu>
@@ -144,7 +150,11 @@ const Navbar = () => {
             <Avatar className="h-8 w-8">
               <AvatarImage src={avatarImage} alt={fullName} />
               <AvatarFallback>
-                {fullName.split(' ').map(name => name[0]).join('').toUpperCase()}
+                {fullName
+                  .split(" ")
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </Button>
@@ -153,7 +163,9 @@ const Navbar = () => {
           <div className="p-2 border-b border-primary-100">
             <div className="font-medium">{fullName}</div>
             {roleDisplay() && (
-              <div className="text-sm text-muted-foreground">{roleDisplay()}</div>
+              <div className="text-sm text-muted-foreground">
+                {roleDisplay()}
+              </div>
             )}
           </div>
           <Link to={settingsPath}>
@@ -180,9 +192,10 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${isActive
-            ? "text-primary-700 bg-primary-100/50"
-            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${
+            isActive
+              ? "text-primary-700 bg-primary-100/50"
+              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -212,19 +225,70 @@ const Navbar = () => {
             <NavLink to="/">{t("home")}</NavLink>
             {role == "CLIENT" ? (
               <>
-                <NavLink to="/freelancers">{t("freelancers")}</NavLink>
-                <NavLink to="/client/posted-jobs">Đã đăng</NavLink>
-                <NavLink to="/client/appointment">Lịch hẹn</NavLink>
+               <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <p className="flex items-center gap-2 text-dark">
+                      Quản lý công việc
+                    </p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuItem asChild>
+                    <Link to="/client/posted-jobs">Đã đăng</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                    <Link to="/client/appointment">Lịch hẹn</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              
+              
+                
               </>
-
             ) : role == "FREELANCER" ? (
               <>
-                <NavLink to="/jobs">{t("jobs")}</NavLink>
-                <NavLink to="/saved-jobs">Đã lưu</NavLink>
-                <NavLink to="/freelancer/applied-jobs">Đã ứng tuyển</NavLink>
-                <NavLink to="/freelancer/appointment">Lịch hẹn</NavLink>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <p className="flex items-center gap-2 text-dark">
+                      Quản lý công việc
+                    </p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem asChild>
+                      <Link
+                        to="/jobs"
+                        className="flex items-center gap-2"
+                      >
+                        {t("jobs")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/saved-jobs"
+                        className="flex items-center gap-2"
+                      >
+                        Đã lưu
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/freelancer/applied-jobs"
+                        className="flex items-center gap-2"
+                      >
+                        Đã ứng tuyển
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/freelancer/appointment"
+                        className="flex items-center gap-2"
+                      >
+                        Lịch hẹn
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
-
             ) : (
               ""
             )}
