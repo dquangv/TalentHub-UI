@@ -110,7 +110,7 @@ const AppointmentList = () => {
                   <TableHead>Công việc</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Hình thức</TableHead>
-                  <TableHead>Khách hàng</TableHead>
+                  <TableHead>Nhà tuyển dụng</TableHead>
                   {/* <TableHead>Trạng thái</TableHead> */}
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
