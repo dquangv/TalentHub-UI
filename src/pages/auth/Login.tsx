@@ -70,6 +70,7 @@ const Login = () => {
         role: data?.role,
         freelancerId: data?.freelancerId,
         clientId: data?.clientId,
+        email: data?.email,
         lat: data?.lat,
         lng: data?.lng,
       });
@@ -170,12 +171,12 @@ const Login = () => {
                   href="http://localhost:8080/oauth2/authorization/facebook"
                   className="w-full"
                 >
-                   <Button variant="outline" className="w-full">
-                  <Facebook className="mr-2 h-4 w-4" />
-                  Facebook
-                </Button>
+                  <Button variant="outline" className="w-full">
+                    <Facebook className="mr-2 h-4 w-4" />
+                    Facebook
+                  </Button>
                 </a>
-              
+
               </div>
 
               <p className="text-center mt-6 text-sm text-muted-foreground">

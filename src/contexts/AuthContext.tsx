@@ -16,9 +16,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = (data) => {
     setIsLoggedIn(true);
-    localStorage.setItem('authToken', data.token); 
-    if (data?.role == 'ADMIN'){
-      localStorage.setItem('adminRole', "true"); 
+    localStorage.setItem('authToken', data.token);
+    if (data?.role == 'ADMIN') {
+      localStorage.setItem('adminRole', "true");
 
     }
     setUserInfo({
@@ -26,21 +26,22 @@ export const AuthProvider = ({ children }) => {
       role: data.role,
       freelancerId: data.freelancerId,
       clientId: data.clientId,
+      email: data.email,
       lat: data.lat,
       lng: data.lng
     })
-    console.log("data", data)
     localStorage.setItem(
-        "userInfo",
-        JSON.stringify({
-          userId: data.userId,
-          role: data.role,
-          freelancerId: data.freelancerId,
-          clientId: data.clientId,
-          lat: data.lat,
-          lng: data.lng
-        })
-      );
+      "userInfo",
+      JSON.stringify({
+        userId: data.userId,
+        role: data.role,
+        freelancerId: data.freelancerId,
+        clientId: data.clientId,
+        email: data.email,
+        lat: data.lat,
+        lng: data.lng
+      })
+    );
   };
 
   const logout = () => {
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userInfo');
     localStorage.setItem('adminRole', "false")
-    
+
   };
 
   return (
