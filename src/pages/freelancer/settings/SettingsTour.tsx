@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tour } from 'antd';
 import type { TourProps } from 'antd';
 
@@ -16,9 +16,28 @@ interface SettingsTourProps {
     setOpen: (open: boolean) => void;
 }
 
+const TOUR_KEY = 'settings_tour_completed';
+
 const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
+    const [showTourButton, setShowTourButton] = useState<boolean>(true);
+
+    useEffect(() => {
+        const tourCompleted = localStorage.getItem(TOUR_KEY);
+
+        if (!tourCompleted) {
+            setOpen(true);
+        } else {
+            setOpen(false);
+        }
+    }, [setOpen]);
+
     const getTarget = (ref: React.RefObject<HTMLElement>) => {
         return () => ref.current as HTMLElement;
+    };
+
+    const handleCloseTour = () => {
+        setOpen(false);
+        localStorage.setItem(TOUR_KEY, 'true');
     };
 
     const steps: TourProps['steps'] = [
@@ -63,18 +82,20 @@ const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
         <>
             <Tour
                 open={open}
-                onClose={() => setOpen(false)}
+                onClose={handleCloseTour}
                 steps={steps}
                 placement="bottom"
             />
-            <div className="fixed bottom-4 right-4">
-                <button
-                    onClick={() => setOpen(true)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                    Xem hướng dẫn
-                </button>
-            </div>
+            {showTourButton && (
+                <div className="fixed bottom-4 right-4">
+                    <button
+                        onClick={() => setOpen(true)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                        Xem hướng dẫn
+                    </button>
+                </div>
+            )}
         </>
     );
 };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, BookMarked, FileCheck2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationDropdown from "./NotificationDropdown";
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import userService from "@/api/userService";
 const NavLink = ({ to, children, onClick }: any) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -21,8 +22,9 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
-          }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+          isActive ? "text-primary-700" : ""
+        }`}
       >
         {children}
       </span>
@@ -40,7 +42,35 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
   const location = useLocation();
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (isLoggedIn) {
+        try {
+          const userInfoString = localStorage.getItem("userInfo");
+          if (!userInfoString) return;
 
+          const userInfo = JSON.parse(userInfoString);
+          if (!userInfo.userId) return;
+
+          const response = await userService.getUserById(userInfo.userId);
+          if (response.data) {
+            localStorage.setItem(
+              "userData",
+              JSON.stringify({
+                firstName: response.data.firstName,
+                lastName: response.data.lastName,
+                image: response.data.image,
+              })
+            );
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [isLoggedIn]);
   useEffect(() => {
     if (isLoggedIn) {
       const userInfo = localStorage.getItem("userInfo");
@@ -58,37 +88,102 @@ const Navbar = () => {
     logout();
   };
 
-  const UserMenu = () => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="relative h-8 w-8 rounded-full ring-2 ring-offset-2 ring-primary/20 hover:ring-primary/30 transition-all"
-        >
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-            <AvatarFallback className="bg-primary-100 text-primary-700">
-              CN
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <Link to={`/settingsfreelancer`}>
-          <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
-            <span className="text-primary-700">{t("settings")}</span>
+  const UserMenu = () => {
+    const { t } = useLanguage();
+    const userInfoString = localStorage.getItem("userInfo");
+    const userInfo = userInfoString ? JSON.parse(userInfoString) : {};
+
+    const [userData, setUserData] = useState({
+      firstName: "",
+      lastName: "",
+      image: "",
+    });
+
+    useEffect(() => {
+      const storedUserData = localStorage.getItem("userData");
+      if (storedUserData) {
+        try {
+          const parsedUserData = JSON.parse(storedUserData);
+          setUserData(parsedUserData);
+        } catch (error) {
+          console.error("Lỗi khi parse userData:", error);
+        }
+      }
+    }, []);
+
+    const fullName =
+      userData.firstName && userData.lastName
+        ? ` ${userData.lastName} ${userData.firstName}`
+        : "User";
+
+    const avatarImage = userData.image || "https://github.com/shadcn.png";
+
+    const roleDisplay = () => {
+      switch (userInfo.role) {
+        case "CLIENT":
+          return "Nhà tuyển dụng";
+        case "FREELANCER":
+          return "Freelancer";
+        case "ADMIN":
+          return "Quản trị viên";
+        default:
+          return "";
+      }
+    };
+
+    const settingsPath =
+      userInfo.role === "FREELANCER"
+        ? "/settingsfreelancer"
+        : userInfo.role === "CLIENT"
+        ? "/client/profile"
+        : userInfo.role === "ADMIN"
+        ? "/admin/dashboard"
+        : "/";
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="relative h-8 w-8 rounded-full ring-2 ring-offset-2 ring-primary/20 hover:ring-primary/30 transition-all"
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={avatarImage} alt={fullName} />
+              <AvatarFallback>
+                {fullName
+                  .split(" ")
+                  .map((name) => name[0])
+                  .join("")
+                  .toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <div className="p-2 border-b border-primary-100">
+            <div className="font-medium">{fullName}</div>
+            {roleDisplay() && (
+              <div className="text-sm text-muted-foreground">
+                {roleDisplay()}
+              </div>
+            )}
+          </div>
+          <Link to={settingsPath}>
+            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
+              <span className="text-primary-700">{t("settings")}</span>
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="hover:bg-destructive-50 focus:bg-destructive-50"
+          >
+            <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
+            <span className="text-destructive-500">{t("logout")}</span>
           </DropdownMenuItem>
-        </Link>
-        <DropdownMenuItem
-          onClick={handleLogout}
-          className="hover:bg-destructive-50 focus:bg-destructive-50"
-        >
-          <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
-          <span className="text-destructive-500">{t("logout")}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  };
 
   const MobileNavLink = ({ to, children }: any) => {
     const isActive = location.pathname === to;
@@ -97,9 +192,10 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${isActive
-            ? "text-primary-700 bg-primary-100/50"
-            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${
+            isActive
+              ? "text-primary-700 bg-primary-100/50"
+              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -129,17 +225,70 @@ const Navbar = () => {
             <NavLink to="/">{t("home")}</NavLink>
             {role == "CLIENT" ? (
               <>
-                <NavLink to="/freelancers">{t("freelancers")}</NavLink>
-                <NavLink to="/client/posted-jobs">Đã đăng</NavLink>
+               <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <p className="flex items-center gap-2 text-dark">
+                      Quản lý công việc
+                    </p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuItem asChild>
+                    <Link to="/client/posted-jobs">Đã đăng</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                    <Link to="/client/appointment">Lịch hẹn</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              
+              
+                
               </>
-
             ) : role == "FREELANCER" ? (
               <>
-                <NavLink to="/jobs">{t("jobs")}</NavLink>
-                <NavLink to="/saved-jobs">Đã lưu</NavLink>
-                <NavLink to="/freelancer/applied-jobs">Đã ứng tuyển</NavLink>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <p className="flex items-center gap-2 text-dark">
+                      Quản lý công việc
+                    </p>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem asChild>
+                      <Link
+                        to="/jobs"
+                        className="flex items-center gap-2"
+                      >
+                        {t("jobs")}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/saved-jobs"
+                        className="flex items-center gap-2"
+                      >
+                        Đã lưu
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/freelancer/applied-jobs"
+                        className="flex items-center gap-2"
+                      >
+                        Đã ứng tuyển
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/freelancer/appointment"
+                        className="flex items-center gap-2"
+                      >
+                        Lịch hẹn
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
-
             ) : (
               ""
             )}
@@ -176,7 +325,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center space-x-4">
             <ModeToggle />
             {isLoggedIn && <NotificationDropdown />}
@@ -193,7 +341,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 bg-gradient-to-b from-background via-primary-50/50 to-background">
             <div className="flex flex-col space-y-4">

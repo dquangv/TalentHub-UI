@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Check, Plus, Search, Loader2 } from 'lucide-react';
 import { useAutofillInput, AutofillInputProps, entityConfigs } from '@/services/autoFillService';
+import { Empty } from 'antd';
 
 interface AutofillInputComponentProps extends AutofillInputProps {
     label?: string;
@@ -99,14 +100,12 @@ const AutofillInput: React.FC<AutofillInputComponentProps> = ({
                         ) : (
                             <div className="p-2 text-sm text-center">
                                 <div className="text-muted-foreground mb-2">
-                                    {loading ? 'Đang tải...' : 'Không tìm thấy kết quả'}
+                                    {loading ? 'Đang tải...' : <Empty description="Không tìm thấy kết quả" />}
                                 </div>
                                 {searchText && !loading && (
                                     <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="w-full"
                                         onClick={handleCreateItem}
+                                        className='bg-primary'
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
                                         Thêm mới: {searchText}

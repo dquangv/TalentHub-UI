@@ -6,7 +6,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [userInfo, setUserInfo] = useState<null | any>(null)
   useEffect(() => {
     const authToken = localStorage.getItem('authToken');
     if (authToken) {
@@ -16,24 +16,32 @@ export const AuthProvider = ({ children }) => {
 
   const login = (data) => {
     setIsLoggedIn(true);
-    localStorage.setItem('authToken', data.token); 
-    if (data?.role == 'ADMIN'){
-      localStorage.setItem('adminRole', "true"); 
+    localStorage.setItem('authToken', data.token);
+    if (data?.role == 'ADMIN') {
+      localStorage.setItem('adminRole', "true");
 
     }
-
-    console.log("data", data)
+    setUserInfo({
+      userId: data.userId,
+      role: data.role,
+      freelancerId: data.freelancerId,
+      clientId: data.clientId,
+      email: data.email,
+      lat: data.lat,
+      lng: data.lng
+    })
     localStorage.setItem(
-        "userInfo",
-        JSON.stringify({
-          userId: data.userId,
-          role: data.role,
-          freelancerId: data.freelancerId,
-          clientId: data.clientId,
-          lat: data.lat,
-          lng: data.lng
-        })
-      );
+      "userInfo",
+      JSON.stringify({
+        userId: data.userId,
+        role: data.role,
+        freelancerId: data.freelancerId,
+        clientId: data.clientId,
+        email: data.email,
+        lat: data.lat,
+        lng: data.lng
+      })
+    );
   };
 
   const logout = () => {
@@ -41,11 +49,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userInfo');
     localStorage.setItem('adminRole', "false")
-    
+
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ userInfo, isLoggedIn, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

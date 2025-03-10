@@ -1,7 +1,7 @@
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as Stomp from '@stomp/stompjs';
 import { SignalRequest, SignalResponse } from './webRTCService';
-export const serverURL = 'https://grants-atmospheric-pennsylvania-entire.trycloudflare.com';
+export const serverURL = 'http://localhost:8080';
 export interface MessageRequest {
     senderId: string;
     receiverId: string;

@@ -21,6 +21,23 @@ interface ImageUploadResponse {
     url: string;
 }
 
+interface ChangePasswordRequest {
+    email: string;
+    currentPassword: string;
+    newPassword: string;
+}
+
+interface ResetPasswordRequest {
+    email: string;
+    code: string;
+    newPassword: string;
+}
+
+interface OtpResponse {
+    message: string;
+    success: boolean;
+}
+
 const userService = {
     getUserById: async (userId: number): Promise<ApiResponse<User>> => {
         const response = await api.get(`/users/${userId}`);
@@ -55,8 +72,42 @@ const userService = {
 
     updateUserImage: async (userId: number, imageUrl: string): Promise<ApiResponse<User>> => {
         return await userService.updateUser(userId, { image: imageUrl });
+    },
+
+    changePassword: async (data: ChangePasswordRequest): Promise<ApiResponse<boolean>> => {
+        const response = await api.post('/v1/account/change-password', data);
+        return {
+            message: response.data?.message || 'Mật khẩu đã được thay đổi',
+            status: response.status,
+            data: response.data?.data || true
+        };
+    },
+
+    sendOtp: async (email: string): Promise<ApiResponse<string>> => {
+        const response = await api.post(`/v1/account/send-otp?email=${encodeURIComponent(email)}`);
+        return {
+            message: response.data?.message || 'Đã gửi mã OTP',
+            status: response.status,
+            data: response.data?.data || `Đã gửi mã OTP đến ${email}`
+        };
+    },
+
+    resetPassword: async (data: ResetPasswordRequest): Promise<ApiResponse<OtpResponse>> => {
+        const response = await api.post('/v1/account/reset-password', data);
+        return {
+            message: response.data?.message || 'Đặt lại mật khẩu thành công',
+            status: response.status,
+            data: response.data?.data || { message: 'Mật khẩu đã được đặt lại', success: true }
+        };
     }
 };
 
 export default userService;
-export type { User, ApiResponse, ImageUploadResponse };
+export type {
+    User,
+    ApiResponse,
+    ImageUploadResponse,
+    ChangePasswordRequest,
+    ResetPasswordRequest,
+    OtpResponse
+};

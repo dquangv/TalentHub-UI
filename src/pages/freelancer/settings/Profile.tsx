@@ -4,11 +4,21 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2 } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Plus, X, Code } from 'lucide-react';
 import userService, { User } from '@/api/userService';
+import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
 import { notification } from 'antd';
 import { useLanguage } from '@/contexts/LanguageContext';
+import AddressSelector from './AddressSelector';
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -27,10 +37,17 @@ const Profile = () => {
   const [fetching, setFetching] = useState<boolean>(true);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
 
+  const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
+  const [freelancerSkills, setFreelancerSkills] = useState<FreelancerSkill[]>([]);
+  const [selectedSkillId, setSelectedSkillId] = useState<number | null>(null);
+  const [newSkillName, setNewSkillName] = useState<string>('');
+  const [isAddingNewSkill, setIsAddingNewSkill] = useState<boolean>(false);
+  const [loadingSkills, setLoadingSkills] = useState<boolean>(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId;
-
+  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;;
   const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
 
   useEffect(() => {
@@ -52,8 +69,31 @@ const Profile = () => {
       }
     };
 
+    const fetchSkillsData = async () => {
+      try {
+        setLoadingSkills(true);
+        const allSkillsResponse = await skillService.getAllSkills();
+        if (allSkillsResponse.status === 200 && allSkillsResponse.data) {
+          setAvailableSkills(allSkillsResponse.data);
+        }
+        const freelancerSkillsResponse = await skillService.getFreelancerSkills(freelancerId);
+        if (freelancerSkillsResponse.status === 200 && freelancerSkillsResponse.data) {
+          setFreelancerSkills(freelancerSkillsResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching skills data:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.',
+        });
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
     fetchUserData();
-  }, [userId]);
+    fetchSkillsData();
+  }, [userId, freelancerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,6 +185,85 @@ const Profile = () => {
       }
     }
   };
+  const handleAddSkill = async () => {
+    if (!selectedSkillId) return;
+
+    try {
+      setLoadingSkills(true);
+      const response = await skillService.addSkillToFreelancer(freelancerId, selectedSkillId);
+
+      if (response.status === 201 && response.data) {
+        setFreelancerSkills([...freelancerSkills, response.data]);
+        setSelectedSkillId(null);
+        notification.success({
+          message: 'Thành công',
+          description: 'Thêm kỹ năng thành công!',
+        });
+      }
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể thêm kỹ năng. Vui lòng thử lại sau.',
+      });
+    } finally {
+      setLoadingSkills(false);
+    }
+  };
+
+  const handleRemoveSkill = async (skillId: number) => {
+    try {
+      setLoadingSkills(true);
+      const response = await skillService.removeSkillFromFreelancer(freelancerId, skillId);
+
+      if (response.status === 200) {
+        setFreelancerSkills(freelancerSkills.filter(skill => skill.skillId !== skillId));
+        notification.success({
+          message: 'Thành công',
+          description: 'Xóa kỹ năng thành công!',
+        });
+      }
+    } catch (error) {
+      console.error('Error removing skill:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể xóa kỹ năng. Vui lòng thử lại sau.',
+      });
+    } finally {
+      setLoadingSkills(false);
+    }
+  };
+
+  const handleCreateSkill = async () => {
+    if (!newSkillName.trim()) return;
+
+    try {
+      setLoadingSkills(true);
+      const response = await skillService.createSkill(newSkillName.trim());
+
+      if (response.status === 201 && response.data) {
+        setAvailableSkills([...availableSkills, response.data]);
+        setNewSkillName('');
+        setIsAddingNewSkill(false);
+        notification.success({
+          message: 'Thành công',
+          description: 'Tạo kỹ năng mới thành công!',
+        });
+        setSelectedSkillId(response.data.id);
+      }
+    } catch (error) {
+      console.error('Error creating skill:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể tạo kỹ năng mới. Vui lòng thử lại sau.',
+      });
+    } finally {
+      setLoadingSkills(false);
+    }
+  };
+  const filteredAvailableSkills = availableSkills.filter(
+    skill => !freelancerSkills.some(fs => fs.skillId === skill.id)
+  );
 
   if (fetching) {
     return (
@@ -264,16 +383,10 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.5}>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('Address') || 'Địa chỉ'}</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  className="pl-10"
-                  value={profile.address}
-                  onChange={(e) =>
-                    setProfile({ ...profile, address: e.target.value })
-                  }
-                />
-              </div>
+              <AddressSelector
+                value={profile.address}
+                onChange={(address) => setProfile({ ...profile, address })}
+              />
             </div>
           </FadeInWhenVisible>
 
@@ -287,10 +400,126 @@ const Profile = () => {
               />
             </div>
           </FadeInWhenVisible>
+
+          {/* Professional Skills Section */}
+          <FadeInWhenVisible delay={0.7}>
+            <div className="space-y-4 md:col-span-2">
+              <div className="flex items-center gap-3">
+                <Code className="w-5 h-5 text-primary" />
+                <label className="text-sm font-medium">Kỹ năng chuyên môn</label>
+              </div>
+
+              {/* Skills List */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {freelancerSkills.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">Chưa có kỹ năng nào được thêm</p>
+                ) : (
+                  freelancerSkills.map((skill) => (
+                    <Badge
+                      key={skill.id}
+                      variant="secondary"
+                      className="flex items-center gap-1 py-1 px-3"
+                    >
+                      {skill.skillName}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 rounded-full ml-1 p-0"
+                        onClick={() => handleRemoveSkill(skill.skillId)}
+                        disabled={loadingSkills}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))
+                )}
+              </div>
+
+              {/* Add Skill */}
+              {isAddingNewSkill ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="Tên kỹ năng mới"
+                    value={newSkillName}
+                    onChange={(e) => setNewSkillName(e.target.value)}
+                    disabled={loadingSkills}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCreateSkill}
+                      disabled={!newSkillName.trim() || loadingSkills}
+                    >
+                      {loadingSkills ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      Tạo
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setIsAddingNewSkill(false);
+                        setNewSkillName('');
+                      }}
+                      disabled={loadingSkills}
+                    >
+                      Hủy
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={selectedSkillId?.toString() || ''}
+                    onValueChange={(value) => setSelectedSkillId(Number(value))}
+                    disabled={loadingSkills || filteredAvailableSkills.length === 0}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn kỹ năng" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredAvailableSkills.map((skill) => (
+                        <SelectItem key={skill.id} value={skill.id.toString()}>
+                          {skill.skillName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddSkill}
+                    disabled={!selectedSkillId || loadingSkills}
+                  >
+                    {loadingSkills ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    Thêm
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsAddingNewSkill(true)}
+                    disabled={loadingSkills}
+                  >
+                    Tạo mới
+                  </Button>
+                </div>
+              )}
+            </div>
+          </FadeInWhenVisible>
         </div>
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" disabled={loading || uploadingImage}>
+          <Button type="submit" disabled={loading || uploadingImage || loadingSkills}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -305,4 +534,5 @@ const Profile = () => {
     </form>
   );
 };
+
 export default Profile;

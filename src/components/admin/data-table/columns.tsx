@@ -262,18 +262,18 @@ export const bannerColumns: ColumnDef<any>[] = [
 
 export const reportColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "reporterName",
+    accessorKey: "fullName",
     header: "Người tố cáo",
   },
   {
-    accessorKey: "reason",
+    accessorKey: "reasonFreelancer",
     header: "Lý do",
   },
   {
-    accessorKey: "reportedAt",
+    accessorKey: "createdAt",
     header: "Thời gian",
     cell: ({ row }) => {
-      return new Date(row.original.reportedAt).toLocaleString("vi-VN");
+      return new Date(row.original.createdAt).toLocaleString("vi-VN");
     },
   },
   {
@@ -305,15 +305,15 @@ export const reportColumns: ColumnDef<any>[] = [
     },
   },
   {
-    accessorKey: "adminReason",
+    accessorKey: "reasonAdmin",
     header: "Lý do xử lý",
   },
   {
-    accessorKey: "processedAt",
+    accessorKey: "updatedAt",
     header: "Thời gian xử lý",
     cell: ({ row }) => {
-      const processedAt = row.original.processedAt;
-      return processedAt ? new Date(processedAt).toLocaleString("vi-VN") : "-";
+      const updatedAt = row.original.updatedAt;
+      return updatedAt ? new Date(updatedAt).toLocaleString("vi-VN") : "-";
     },
   },
   {
