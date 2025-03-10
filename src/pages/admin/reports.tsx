@@ -166,9 +166,14 @@ export function ReportsPage() {
                         {new Date(selectedReport.createdAt).toLocaleString("vi-VN")}
                       </p>
                     </div>
+                    
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Lý do tố cáo:</span>
                       <p className="mt-1 font-medium">{selectedReport.reasonFreelancer}</p>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-muted-foreground">Mô tả tố cáo:</span>
+                      <p className="mt-1 font-medium">{selectedReport.description}</p>
                     </div>
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Hình ảnh:</span>
