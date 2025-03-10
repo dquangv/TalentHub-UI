@@ -82,24 +82,31 @@ const ReportDialog = ({
     if (!validateForm()) return;
 
     setIsSubmitting(true);
-    console.log(userInfo);
+
     if (!userInfo?.freelancerId) {
       setIsSubmitting(false);
-
       navigate("/");
       return;
     }
-    const requestData = {
-      freelancerId: userInfo.freelancerId,
-      jobId: itemId,
-      reasonFreelancer: formData.reason,
-      reasonAdmin: "",
-      status: "REPORTED",
-      description: formData.details || "",
-    };
+
+    const form = new FormData();
+    form.append("freelancerId", userInfo.freelancerId);
+    form.append("jobId", itemId);
+    form.append("reasonFreelancer", formData.reason);
+    form.append("reasonAdmin", "");
+
+    form.append("status", "REPORTED");
+    form.append("description", formData.details || "");
+
+    // Append the image file if it's selected
+    if (formData.image) {
+      form.append("image", formData.image);
+    }
 
     try {
-      await api.post("/v1/reported-jobs", requestData);
+      await api.post("/v1/reported-jobs", form,   {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setIsSubmitting(false);
       setIsSuccess(true);
@@ -140,6 +147,7 @@ const ReportDialog = ({
   };
 
   const reasons = reportReasons[itemType];
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -153,6 +161,7 @@ const ReportDialog = ({
   };
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -222,6 +231,7 @@ const ReportDialog = ({
                     </p>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="image">Hình ảnh</Label>
                   <div className="flex flex-col gap-4">
