@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataTable } from "@/components/ui/data-table";
 import { reportColumns } from "@/components/admin/data-table/columns";
 import {
@@ -13,415 +13,26 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Briefcase, Calendar, FileText, User } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import api from "@/api/axiosConfig";
 
-const data = [
-  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },
-    {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },  {
-    id: "REP001",
-    reporterId: "USER123",
-    reporterName: "Nguyễn Văn A",
-    reason: "Nội dung không phù hợp",
-    reportedAt: "2024-03-20T08:00:00Z",
-    jobId: "JOB123",
-    jobTitle: "Senior React Developer",
-    jobPoster: "Công ty ABC",
-    jobDescription: "Chúng tôi đang tìm kiếm một Senior React Developer với ít nhất 5 năm kinh nghiệm...",
-    jobBudget: "2000-3000 USD",
-    jobLocation: "Hồ Chí Minh",
-    jobType: "Full-time",
-    status: "pending",
-    adminReason: "",
-    processedAt: null,
-  },
-  {
-    id: "REP002",
-    reporterId: "USER124",
-    reporterName: "Trần Thị B",
-    reason: "Lừa đảo",
-    reportedAt: "2024-03-19T15:30:00Z",
-    jobId: "JOB124",
-    jobTitle: "UI/UX Designer",
-    jobPoster: "Công ty XYZ",
-    jobDescription: "Cần tuyển UI/UX Designer có kinh nghiệm thiết kế mobile app...",
-    jobBudget: "1500-2500 USD",
-    jobLocation: "Hà Nội",
-    jobType: "Remote",
-    status: "banned",
-    adminReason: "Vi phạm nghiêm trọng điều khoản sử dụng",
-    processedAt: "2024-03-19T16:45:00Z",
-  },
-  {
-    id: "REP003",
-    reporterId: "USER125",
-    reporterName: "Lê Văn C",
-    reason: "Spam",
-    reportedAt: "2024-03-18T10:20:00Z",
-    jobId: "JOB125",
-    jobTitle: "PHP Developer",
-    jobPoster: "Công ty DEF",
-    jobDescription: "Tuyển PHP Developer có kinh nghiệm làm việc với Laravel...",
-    jobBudget: "1000-2000 USD",
-    jobLocation: "Đà Nẵng",
-    jobType: "Part-time",
-    status: "ignored",
-    adminReason: "Không vi phạm quy định",
-    processedAt: "2024-03-18T11:30:00Z",
-  },
-];
 export function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [adminReason, setAdminReason] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [data, setData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await api.get("/v1/reported-jobs");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      }
+    };
+    
+    fetchReports();
+  }, []);
 
   const handleAction = (report: any) => {
     setSelectedReport(report);
@@ -452,7 +63,7 @@ export function ReportsPage() {
 
       <DataTable 
         columns={reportColumns} 
-        data={data}
+        data={data} 
         onAction={handleAction}
       />
 
@@ -481,7 +92,7 @@ export function ReportsPage() {
                         <p className="text-sm text-muted-foreground">{selectedReport.jobPoster}</p>
                       </div>
                       <div>
-                        <Badge variant="outline">Lý do: Nội dung không phù hợp</Badge>
+                        <Badge variant="outline">Lý do: {selectedReport.reasonFreelancer}</Badge>
                       </div>
                     </div>
                   </div>
@@ -494,16 +105,16 @@ export function ReportsPage() {
                       </div>
                       <div>
                         <span className="text-muted-foreground">Ngân sách:</span>
-                        <span className="ml-2 font-medium">{selectedReport.jobBudget}</span>
+                        <span className="ml-2 font-medium">{selectedReport.job.fromPrice} - {selectedReport.job.toPrice}</span>
                       </div>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Địa điểm:</span>
-                      <span className="ml-2 font-medium">{selectedReport.jobLocation}</span>
+                      <span className="text-muted-foreground">Tên công ty:</span>
+                      <span className="ml-2 font-medium">{selectedReport.job.companyName ? selectedReport.job.companyName : "Không có tên công ty"}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Mô tả:</span>
-                      <p className="mt-1 text-sm">{selectedReport.jobDescription}</p>
+                      <p className="mt-1 text-sm">{selectedReport.job.description}</p>
                     </div>
                   </div>
                 </div>
@@ -522,7 +133,7 @@ export function ReportsPage() {
                         <User className="h-4 w-4 text-muted-foreground" />
                         <span className="text-muted-foreground">Người tố cáo:</span>
                       </div>
-                      <p className="font-medium">{selectedReport.reporterName}</p>
+                      <p className="font-medium">{selectedReport.fullName}</p>
                     </div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
@@ -530,12 +141,12 @@ export function ReportsPage() {
                         <span className="text-muted-foreground">Thời gian:</span>
                       </div>
                       <p className="font-medium">
-                        {new Date(selectedReport.reportedAt).toLocaleString("vi-VN")}
+                        {new Date(selectedReport.createdAt).toLocaleString("vi-VN")}
                       </p>
                     </div>
                     <div className="col-span-2">
                       <span className="text-muted-foreground">Lý do tố cáo:</span>
-                      <p className="mt-1 font-medium">{selectedReport.reason}</p>
+                      <p className="mt-1 font-medium">{selectedReport.reasonFreelancer}</p>
                     </div>
                   </div>
                 </div>
@@ -571,7 +182,7 @@ export function ReportsPage() {
                       <div>
                         <span className="text-muted-foreground">Thời gian xử lý:</span>
                         <span className="ml-2 font-medium">
-                          {new Date(selectedReport.processedAt).toLocaleString("vi-VN")}
+                          {selectedReport.updatedAt ? new Date(selectedReport.updatedAt).toLocaleString("vi-VN") : "Chưa xử lý"}
                         </span>
                       </div>
                       {selectedReport.adminReason && (
