@@ -181,7 +181,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
                           : "bg-blue-500 text-white hover:bg-blue-600"
                       } 
                     >
-                      {isBanned ? "Mở bài đăng" : "Đóng bài đăng"}
+                      {isBanned ? "Mở khóa bài đăng" : "Khóa bài đăng"}
                     </Button>
                   </div>
                 </Card>
