@@ -13,6 +13,7 @@ import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { BriefcaseIcon } from "lucide-react";
 import { notification } from "antd";
 import api from "@/api/axiosConfig";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ChooseRole = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const ChooseRole = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const locationHook = useLocation(); 
-
+  const {login} = useAuth()
   useEffect(() => {
     const queryParams = new URLSearchParams(locationHook.search);
     const emailFromUrl = queryParams.get("email");
@@ -72,7 +73,8 @@ const ChooseRole = () => {
       });
 
       const response = await api.post(`/v1/account/choose-role?${queryParams.toString()}`);
-      navigate("/login");
+      login(response.data)
+      navigate("/");
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
