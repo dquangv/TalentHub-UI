@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Briefcase, Calendar, FileText, User, Edit2 } from "lucide-react";
+import { AlertCircle, Briefcase, Calendar, FileText, User, Edit2, X, Image as ImageIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -31,6 +31,8 @@ export function ReportsPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("IN_PROGRESS");
   const [data, setData] = useState<any[]>([]);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  
   const fetchReports = async () => {
     try {
       const response = await api.get("/v1/reported-jobs");
@@ -39,9 +41,8 @@ export function ReportsPage() {
       console.error("Error fetching reports:", error);
     }
   };
+  
   useEffect(() => {
-   
-    
     fetchReports();
   }, []);
 
@@ -103,6 +104,18 @@ export function ReportsPage() {
         return "default";
     }
   };
+
+  const getStatusVietnamese = (status: string) => {
+
+    switch (status) {
+      case "RESOLVED":
+        return "Đã giải quyết";
+      case "IN_PROGRESS":
+        return "Đang xử lý";
+      default:
+        return  "Đã báo cáo";
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -226,9 +239,31 @@ export function ReportsPage() {
                       <p className="mt-1 font-medium">{selectedReport.description}</p>
                     </div>
                     {selectedReport.image && (
-                      <div className="col-span-2">
-                        <span className="text-muted-foreground">Hình ảnh:</span>
-                        <img className="w-[100px] h-[100px] mt-2" src={selectedReport.image} alt="Report evidence"/>
+                      <div className="col-span-2 space-y-2">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <ImageIcon className="h-4 w-4" />
+                          Hình ảnh minh chứng:
+                        </span>
+                        <div className="relative group">
+                          <div className="overflow-hidden rounded-lg border border-gray-200 w-fit">
+                            <img 
+                              src={selectedReport.image} 
+                              alt="Report evidence" 
+                              className="w-[150px] h-[150px] object-cover cursor-pointer transition-transform duration-200 group-hover:scale-105"
+                              onClick={() => setIsImageModalOpen(true)}
+                            />
+                          </div>
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity duration-200 rounded-lg flex items-center justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              onClick={() => setIsImageModalOpen(true)}
+                            >
+                              Xem chi tiết
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -244,7 +279,7 @@ export function ReportsPage() {
                   </div>
                   {!isEditMode && (
                     <Badge variant={getStatusBadgeVariant(selectedReport.status)}>
-                      {selectedReport.status}
+                      {getStatusVietnamese(selectedReport.status)}
                     </Badge>
                   )}
                 </div>
@@ -310,9 +345,33 @@ export function ReportsPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Image Preview Modal */}
+      <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
+        <DialogContent className="sm:max-w-[90vw] sm:max-h-[90vh] p-0 overflow-hidden bg-black/90">
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 text-white hover:bg-white/20"
+              onClick={() => setIsImageModalOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            {selectedReport?.image && (
+              <img
+                src={selectedReport.image}
+                alt="Report evidence"
+                className="max-w-full max-h-[85vh] object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <JobDetailPopup jobId={jobId} isOpen={isPopupOpen} onClose={closeJobDetailPopup} />
     </div>
   );
 }
 
-export default ReportsPage
+export default ReportsPage;
