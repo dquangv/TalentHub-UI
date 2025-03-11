@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/utils";
 
 // Freelancer columns
 export const freelancerColumns: ColumnDef<any>[] = [
@@ -262,51 +263,74 @@ export const bannerColumns: ColumnDef<any>[] = [
 
 export const reportColumns: ColumnDef<any>[] = [
   {
+    accessorKey: "id",
+    header: "Mã",
+  },
+  {
     accessorKey: "fullName",
     header: "Người tố cáo",
   },
   {
-    accessorKey: "reasonFreelancer",
-    header: "Lý do",
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Thời gian",
+    accessorKey: "jobTitle",
+    header: "Tiêu đề công việc",
     cell: ({ row }) => {
-      return new Date(row.original.createdAt).toLocaleString("vi-VN");
+      const job = row.original.job;
+      return (
+        <div className="space-y-1">
+          <div className="font-medium">{job.title}</div>
+          <div className="text-sm text-muted-foreground">
+            {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
+          </div>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "jobTitle",
-    header: "Bài đăng",
+    accessorKey: "reasonFreelancer",
+    header: "Lý do tố cáo",
+    cell: ({ row }) => row.original.reasonFreelancer || "-",
+  },
+  {
+    accessorKey: "description",
+    header: "Mô tả chi tiết",
+    cell: ({ row }) => row.original.description || "-",
   },
   {
     accessorKey: "status",
     header: "Trạng thái",
     cell: ({ row }) => {
       const status = row.original.status;
-      return (
-        <Badge
-          variant={
-            status === "banned"
-              ? "destructive"
-              : status === "ignored"
-              ? "secondary"
-              : "default"
-          }
-        >
-          {status === "banned"
-            ? "Đã cấm"
-            : status === "ignored"
-            ? "Đã bỏ qua"
-            : "Chưa xử lý"}
-        </Badge>
-      );
+      let variant: "default" | "success" | "warning" = "default";
+      let label = "Đã báo cáo";
+
+      switch (status) {
+        case "RESOLVED":
+          variant = "success";
+          label = "Đã giải quyết";
+          break;
+        case "IN_PROGRESS":
+          variant = "warning";
+          label = "Đang xử lý";
+          break;
+        default:
+          variant = "default";
+          label = "Đã báo cáo";
+      }
+
+      return <Badge variant={variant}>{label}</Badge>;
     },
   },
   {
     accessorKey: "reasonAdmin",
     header: "Lý do xử lý",
+    cell: ({ row }) => row.original.reasonAdmin || "-",
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Thời gian tố cáo",
+    cell: ({ row }) => {
+      return new Date(row.original.createdAt).toLocaleString("vi-VN");
+    },
   },
   {
     accessorKey: "updatedAt",
