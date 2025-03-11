@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,26 +28,46 @@ import {
   XCircle,
   Users,
   Clock,
-  BookUser,
-  FileUser,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { Link, useParams } from "react-router-dom";
 import { notification } from "antd";
+
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    Applied: 0,
+    Viewed: 0,
+    InProgress: 0,
+    Completed: 0,
+    Cancelled: 0,
+  });
   const { id } = useParams();
+
   const fetchApplicants = async () => {
     setLoading(true);
     try {
       const response = await api.get(`/v1/jobs/applicants/${id}`);
       setApplicants(response.data);
+      
+      // Calculate stats
+      const newStats = {
+        total: response.data.length,
+        Applied: response.data.filter(a => a.status === "Applied").length,
+        Viewed: response.data.filter(a => a.status === "Viewed").length,
+        InProgress: response.data.filter(a => a.status === "In Progress").length,
+        Completed: response.data.filter(a => a.status === "Completed").length,
+        Cancelled: response.data.filter(a => a.status === "Cancelled").length,
+      };
+      setStats(newStats);
       setError(null);
     } catch (err) {
+      setError("Error fetching applicants");
     } finally {
       setLoading(false);
     }
@@ -57,20 +77,46 @@ const Applicants = () => {
     fetchApplicants();
   }, []);
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status) => {
     switch (status) {
-      case "pending":
-        return "Đang chờ";
-      case "interviewing":
-        return "Phỏng vấn";
-      case "accepted":
-        return "Đã chấp nhận";
-      case "rejected":
-        return "Từ chối";
+      case "Applied":
+        return "Đã ứng tuyển";
+      case "Viewed":
+        return "Đã xem";
+      case "In Progress":
+        return "Đang thực hiện";
+      case "Completed":
+        return "Hoàn thành";
+      case "Cancelled":
+        return "Đã hủy";
       default:
         return status;
     }
   };
+
+  const getStatusBadgeVariant = (status) => {
+    switch (status) {
+      case "Applied":
+        return "secondary";
+      case "Viewed":
+        return "default";
+      case "In Progress":
+        return "warning";
+      case "Completed":
+        return "success";
+      case "Cancelled":
+        return "destructive";
+      default:
+        return "default";
+    }
+  };
+
+  const filteredApplicants = applicants.filter(applicant => {
+    const matchesSearch = applicant?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         applicant?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || applicant?.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return <div>Loading...</div>;
@@ -80,10 +126,7 @@ const Applicants = () => {
     return <div>{error}</div>;
   }
 
-  async function handleApproved(data: {
-    jobId: string | undefined;
-    freelancerId: any;
-  }): void {
+  async function handleApproved(data) {
     setLoading(true);
     try {
       const response = await api.post(`/v1/jobs/approve`, data);
@@ -102,26 +145,47 @@ const Applicants = () => {
     }
   }
 
-  async function handleReject(data: {
-    jobId: string | undefined;
-    freelancerId: any;
-  }): void {
+  async function handleReject(data) {
     setLoading(true);
-  
     try {
       await api.post(`/v1/jobs/reject`, data);
       notification.info({
         message: "Thành công",
         description: "Từ chối thành công",
       });
-    fetchApplicants();
-
+      fetchApplicants();
     } catch (err) {
-     
+      notification.error({
+        message: "Lỗi",
+        description: "Có lỗi trong quá trình từ chối",
+      });
     } finally {
       setLoading(false);
     }
   }
+
+  const statsCards = [
+    {
+      label: "Tổng ứng viên",
+      value: stats.total,
+      icon: <Users className="w-8 h-8 text-primary" />,
+    },
+    {
+      label: "Đã hủy",
+      value: stats.Cancelled,
+      icon: <Clock className="w-8 h-8 text-yellow-500" />,
+    },
+    {
+      label: "Đang thực hiện",
+      value: stats.InProgress,
+      icon: <CheckCircle className="w-8 h-8 text-green-500" />,
+    },
+    {
+      label: "Hoàn thành",
+      value: stats.Completed,
+      icon: <CheckCircle className="w-8 h-8 text-blue-500" />,
+    },
+  ];
 
   return (
     <div className="py-12">
@@ -131,8 +195,7 @@ const Applicants = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Danh sách ứng viên</h1>
             <p className="text-muted-foreground">
-              Quản lý và đánh giá các ứng viên đã ứng tuyển vào công việc của
-              bạn
+              Quản lý và đánh giá các ứng viên đã ứng tuyển vào công việc của bạn
             </p>
           </div>
         </FadeInWhenVisible>
@@ -140,15 +203,13 @@ const Applicants = () => {
         {/* Stats */}
         <FadeInWhenVisible delay={0.1}>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {stats.map((stat, index) => (
+            {statsCards.map((stat, index) => (
               <Card key={index} className="p-6">
                 <div className="flex items-center gap-4">
                   {stat.icon}
                   <div>
                     <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {stat.label}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
                   </div>
                 </div>
               </Card>
@@ -174,16 +235,14 @@ const Applicants = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="pending">Đang chờ</SelectItem>
-                  <SelectItem value="interviewing">Phỏng vấn</SelectItem>
-                  <SelectItem value="accepted">Đã chấp nhận</SelectItem>
-                  <SelectItem value="rejected">Từ chối</SelectItem>
+                  <SelectItem value="Applied">Đã ứng tuyển</SelectItem>
+                  <SelectItem value="Viewed">Đã xem</SelectItem>
+                  <SelectItem value="In Progress">Đang thực hiện</SelectItem>
+                  <SelectItem value="Completed">Hoàn thành</SelectItem>
+                  <SelectItem value="Cancelled">Đã hủy</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline">
-                <Filter className="w-4 h-4 mr-2" />
-                Lọc
-              </Button>
+            
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
                 Xuất Excel
@@ -200,14 +259,14 @@ const Applicants = () => {
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chuyên môn</TableHead>
-                  <TableHead>Ngày ứng tuyển</TableHead>
+                  {/* <TableHead>Ngày ứng tuyển</TableHead> */}
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Đánh giá</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {applicants.map((applicant) => (
+                {filteredApplicants.map((applicant) => (
                   <TableRow key={applicant.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
@@ -229,22 +288,14 @@ const Applicants = () => {
                         {applicant?.position || "Không có chuyên môn"}
                       </p>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
                         {applicant.appliedDate}
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
-                      <Badge
-                        variant={
-                          applicant.status === "accepted"
-                            ? "success"
-                            : applicant.status === "rejected"
-                            ? "destructive"
-                            : "secondary"
-                        }
-                      >
+                      <Badge variant={getStatusBadgeVariant(applicant.status)}>
                         {getStatusText(applicant.status)}
                       </Badge>
                     </TableCell>
@@ -258,6 +309,7 @@ const Applicants = () => {
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
+                          disabled={applicant.status !== "Completed"}
                           variant="outline"
                           className="text-green-600"
                         >
@@ -266,6 +318,7 @@ const Applicants = () => {
                           </Link>
                         </Button>
                         <Button
+                          disabled={applicant.status !== "Applied"}
                           onClick={() =>
                             handleApproved({
                               jobId: applicant?.jobId,
@@ -281,6 +334,7 @@ const Applicants = () => {
                         <Button
                           size="sm"
                           variant="outline"
+                          disabled={applicant.status !== "Applied"}
                           onClick={() =>
                             handleReject({
                               jobId: applicant?.jobId,
@@ -303,28 +357,5 @@ const Applicants = () => {
     </div>
   );
 };
-
-const stats = [
-  {
-    label: "Tổng ứng viên",
-    value: "245",
-    icon: <Users className="w-8 h-8 text-primary" />,
-  },
-  {
-    label: "Chờ duyệt",
-    value: "45",
-    icon: <Clock className="w-8 h-8 text-yellow-500" />,
-  },
-  {
-    label: "Đã chấp nhận",
-    value: "82",
-    icon: <CheckCircle className="w-8 h-8 text-green-500" />,
-  },
-  {
-    label: "Từ chối",
-    value: "18",
-    icon: <XCircle className="w-8 h-8 text-red-500" />,
-  },
-];
 
 export default Applicants;
