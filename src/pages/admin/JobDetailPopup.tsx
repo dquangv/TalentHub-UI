@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 
-// Define types for JobDetail
 interface JobDetailResponse {
   title: string;
   companyName: string;
@@ -31,14 +30,6 @@ interface JobDetailResponse {
   skillNames: string[];
   experience?: string;
   deadline?: string;
-}
-
-interface JobFreelancerInfo {
-  id: number;
-  status: string;
-  jobId: number;
-  freelancerId: number;
-  saved: boolean;
 }
 
 interface JobDetailPopupProps {
@@ -54,24 +45,45 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
 }) => {
   const [job, setJob] = useState<JobDetailResponse | null>(null);
   const [error, setError] = useState("");
+  const [isBanned, setIsBanned] = useState(false); 
+
+  const fetchJobDetail = async () => {
+    try {
+      const response = await api.get(`/v1/jobs/detail-job/${jobId}`);
+      setJob(response.data);
+      setIsBanned(response.data.status === "Bị cấm"); 
+      setError("");
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+      setError("Có lỗi xảy ra khi tải thông tin công việc");
+    }
+  };
 
   useEffect(() => {
     if (isOpen && jobId) {
-      const fetchJobDetail = async () => {
-        try {
-          const response = await api.get(`/v1/jobs/detail-job/${jobId}`);
-          setJob(response.data);
-          setError("");
-        } catch (error) {
-          console.error("Error fetching job details:", error);
-          setError("Có lỗi xảy ra khi tải thông tin công việc");
-        }
-      };
       fetchJobDetail();
     }
   }, [jobId, isOpen]);
 
   if (!isOpen) return null;
+
+  const handleHide = async () => {
+    try {
+      await api.post(`/v1/jobs/admin/ban?jobId=${jobId}`);
+      setIsBanned(true); // Update isBanned to true after successful ban
+    } catch (error) {
+      console.error("Error banning job:", error);
+    }
+  };
+
+  const handleUnHide = async () => {
+    try {
+      await api.post(`/v1/jobs/admin/unban?jobId=${jobId}`);
+      setIsBanned(false); // Update isBanned to false after successful unban
+    } catch (error) {
+      console.error("Error unbanning job:", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
@@ -161,7 +173,16 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
                         {job.description}
                       </p>
                     </div>
-                    <Button>Ẩn bài đăng</Button>
+                    <Button
+                      onClick={isBanned ? handleUnHide : handleHide}
+                      className={
+                        !isBanned
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      } 
+                    >
+                      {isBanned ? "Mở bài đăng" : "Đóng bài đăng"}
+                    </Button>
                   </div>
                 </Card>
               </div>
