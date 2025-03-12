@@ -1,88 +1,221 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Clock, DollarSign } from 'lucide-react';
+import { Clock, DollarSign, Check, ChevronsUpDown, Plus, X } from 'lucide-react';
+import api from '@/api/axiosConfig';
+import { useNavigate } from 'react-router-dom';
+import { notification } from 'antd';
 
-// Enums cho các lựa chọn
 enum TypePayment {
-    HOURLY = 'HOURLY',
-    FIXED = 'FIXED'
+    CASH = 'CASH',
+    BANK = 'BANK'
 }
 
 enum StatusJob {
-    DRAFT = 'DRAFT',
-    PUBLISHED = 'PUBLISHED',
-    CLOSED = 'CLOSED'
+    OPEN = 'Mở',
+    DRAFT = 'Bản nháp'
 }
-
-interface Category {
-    id: number;
-    categoryTitle: string;
-}
-
-interface Skill {
-    id: number;
-    skillName: string;
-}
-
-const sampleCategories: Category[] = [
-    { id: 1, categoryTitle: 'Lập trình web' },
-    { id: 2, categoryTitle: 'Thiết kế đồ họa' },
-    { id: 3, categoryTitle: 'Marketing' }
-];
-
-const sampleSkills: Skill[] = [
-    { id: 1, skillName: 'React' },
-    { id: 2, skillName: 'Node.js' },
-    { id: 3, skillName: 'UI/UX Design' }
-];
 
 const PostJob = () => {
-    const [jobData, setJobData] = useState({
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [skills, setSkills] = useState<any[]>([]);
+    const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
+    const [categoryOpen, setCategoryOpen] = useState(false);
+    const [skillOpen, setSkillOpen] = useState(false);
+    const [newCategory, setNewCategory] = useState('');
+    const [newSkill, setNewSkill] = useState('');
+
+    const [jobData, setJobData] = useState<any>({
         title: '',
+        description: '',
         scope: '',
-        hourWork: 0,
+        hourWork: 40,
+        duration: 30,
         jobOpportunity: false,
         fromPrice: 0,
         toPrice: 0,
-        typePrice: '',
-        typePayment: TypePayment.FIXED,
-        status: StatusJob.DRAFT,
+        typePrice: 'USD',
+        typePayment: TypePayment.CASH,
+        status: StatusJob.OPEN,
+        clientId: 1,
         categoryId: 0,
-        skills: [] as number[]
+        skills: []
     });
 
-    const handleSkillToggle = (skillId: number) => {
-        setJobData(prev => {
-            const skills = prev.skills.includes(skillId)
-                ? prev.skills.filter(id => id !== skillId)
-                : [...prev.skills, skillId];
-            return { ...prev, skills };
-        });
+    useEffect(() => {
+        const initializeData = async () => {
+            try {
+                await Promise.all([fetchCategories(), fetchSkills()]);
+            } catch (error) {
+                console.error('Error initializing data:', error);
+            }
+        };
+
+        initializeData();
+    }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await api.get("/v1/categories");
+            setCategories(response.data);
+        } catch (error) {
+            toast.error('Không thể tải danh mục');
+            throw error;
+        }
     };
 
-    const handleSubmit = (e: React.FormEvent, status: StatusJob) => {
+    const fetchSkills = async () => {
+        try {
+            const response = await api.get("/v1/jobs/skills");
+            setSkills(response.data);
+        } catch (error) {
+            toast.error('Không thể tải kỹ năng');
+            throw error;
+        }
+    };
+
+    const handleCreateCategory = async () => {
+        if (!newCategory.trim()) return;
+        
+        try {
+            const response = await api.post("/v1/categories", {
+                categoryTitle: newCategory.trim()
+            });
+            
+            const newCategoryData = response.data;
+            setCategories(prev => [...prev, newCategoryData]);
+            setJobData(prev => ({ ...prev, categoryId: newCategoryData.id }));
+            setNewCategory('');
+            setCategoryOpen(false);
+            toast.success('Đã thêm danh mục mới');
+        } catch (error) {
+            toast.error('Không thể thêm danh mục');
+        }
+    };
+
+    const handleCreateSkill = async () => {
+        if (!newSkill.trim()) return;
+        
+        try {
+            const response = await api.post("/v1/jobs/skills", {
+                skillName: newSkill.trim()
+            });
+            
+            const newSkillData = response.data;
+            setSkills(prev => [...prev, newSkillData]);
+            setSelectedSkills(prev => [...prev, newSkillData.id]);
+            setNewSkill('');
+            setSkillOpen(false);
+            toast.success('Đã thêm kỹ năng mới');
+        } catch (error) {
+            toast.error('Không thể thêm kỹ năng');
+        }
+    };
+
+    const validateJobData = (data: Partial<any>): boolean => {
+        if (!data.title?.trim()) {
+            toast.error('Vui lòng nhập tiêu đề công việc');
+            return false;
+        }
+        if (!data.scope?.trim()) {
+            toast.error('Vui lòng nhập phạm vi công việc');
+            return false;
+        }
+        if (!data.fromPrice || !data.toPrice || data.fromPrice <= 0 || data.toPrice <= 0) {
+            toast.error('Ngân sách không hợp lệ');
+            return false;
+        }
+        if (data.fromPrice > data.toPrice) {
+            toast.error('Ngân sách từ không thể lớn hơn ngân sách đến');
+            return false;
+        }
+        if (!data.categoryId || data.categoryId === 0) {
+            toast.error('Vui lòng chọn danh mục');
+            return false;
+        }
+        if (selectedSkills.length === 0) {
+            toast.error('Vui lòng chọn ít nhất một kỹ năng');
+            return false;
+        }
+        return true;
+    };
+    const navigate = useNavigate()
+    const handleSubmit = async (e: React.FormEvent, status: StatusJob) => {
         e.preventDefault();
-        const submitData = { ...jobData, status };
-        console.log('Submitting job data:', submitData);
+        const userInfo: any = JSON.parse(localStorage.getItem("userInfo") || "{}")
+        if (!userInfo.clientId){
+            navigate("/")
+            return
+        }
+        console.log("userInfo ", userInfo)
+        const submitData = {
+            ...jobData,
+            statusJob: status,
+            description: jobData.scope,
+            skills: selectedSkills
+            ,clientId: userInfo.clientId
+        };
+
+        if (!validateJobData(submitData)) {
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+          
+            const response = await api.post('/v1/jobs/createJob', submitData);
+            notification.info({
+                message: "Thành công",
+                 description: 'Thêm công việc thành công'
+            })
+                setJobData({
+                    title: '',
+                    description: '',
+                    scope: '',
+                    hourWork: 40,
+                    duration: 30,
+                    jobOpportunity: false,
+                    fromPrice: 0,
+                    toPrice: 0,
+                    typePrice: 'USD',
+                    typePayment: TypePayment.BANK,
+                    statusJob: StatusJob.OPEN,
+                    clientId: userInfo.clientId,
+                    categoryId: 0,
+                    skills: []  
+                });
+                setSelectedSkills([]);
+           
+        } catch (error) {
+            console.error('Error creating job:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <div className="p-6">
             <Card className="max-w-4xl mx-auto p-8">
-                <form onSubmit={(e) => handleSubmit(e, StatusJob.PUBLISHED)} className="space-y-8">
-                    {/* Thông tin cơ bản */}
+                <form onSubmit={(e) => handleSubmit(e, StatusJob.OPEN)} className="space-y-8">
                     <div className="space-y-6">
                         <h2 className="text-2xl font-semibold">Thông tin cơ bản</h2>
 
@@ -103,21 +236,62 @@ const PostJob = () => {
                                 <label className="block text-sm font-medium mb-2">
                                     Danh mục *
                                 </label>
-                                <Select
-                                    value={jobData.categoryId.toString()}
-                                    onValueChange={(value) => setJobData({ ...jobData, categoryId: parseInt(value) })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Chọn danh mục" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sampleCategories.map((category) => (
-                                            <SelectItem key={category.id} value={category.id.toString()}>
-                                                {category.categoryTitle}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={categoryOpen}
+                                            className="w-full justify-between"
+                                        >
+                                            {jobData.categoryId
+                                                ? categories.find((category) => category.id === jobData.categoryId)?.categoryTitle
+                                                : "Chọn danh mục"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandInput
+                                                placeholder="Tìm danh mục..."
+                                                value={newCategory}
+                                                onValueChange={setNewCategory}
+                                            />
+                                            <CommandList>
+                                                <CommandEmpty>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        className="w-full justify-start"
+                                                        onClick={handleCreateCategory}
+                                                    >
+                                                        <Plus className="mr-2 h-4 w-4" />
+                                                        Thêm "{newCategory}"
+                                                    </Button>
+                                                </CommandEmpty>
+                                                <CommandGroup>
+                                                    {categories.map((category) => (
+                                                        <CommandItem
+                                                            key={category.id}
+                                                            value={category.categoryTitle}
+                                                            onSelect={() => {
+                                                                setJobData({ ...jobData, categoryId: category.id });
+                                                                setCategoryOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={`mr-2 h-4 w-4 ${
+                                                                    jobData.categoryId === category.id ? "opacity-100" : "opacity-0"
+                                                                }`}
+                                                            />
+                                                            {category.categoryTitle}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
 
                             <div>
@@ -129,6 +303,7 @@ const PostJob = () => {
                                     value={jobData.scope}
                                     onChange={(e) => setJobData({ ...jobData, scope: e.target.value })}
                                     required
+                                    className="min-h-[150px]"
                                 />
                             </div>
 
@@ -141,9 +316,10 @@ const PostJob = () => {
                                         <Clock className="w-5 h-5 text-muted-foreground mr-2" />
                                         <Input
                                             type="number"
+                                            min="0"
                                             placeholder="40"
                                             value={jobData.hourWork || ''}
-                                            onChange={(e) => setJobData({ ...jobData, hourWork: parseFloat(e.target.value) })}
+                                            onChange={(e) => setJobData({ ...jobData, hourWork: Math.max(0, parseFloat(e.target.value)) })}
                                         />
                                     </div>
                                 </div>
@@ -152,18 +328,44 @@ const PostJob = () => {
                                     <label className="block text-sm font-medium mb-2">
                                         Hình thức thanh toán *
                                     </label>
-                                    <Select
-                                        value={jobData.typePayment}
-                                        onValueChange={(value: TypePayment) => setJobData({ ...jobData, typePayment: value })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Chọn hình thức thanh toán" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value={TypePayment.FIXED}>Trọn gói</SelectItem>
-                                            <SelectItem value={TypePayment.HOURLY}>Theo giờ</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className="w-full justify-between"
+                                            >
+                                                {jobData.typePayment === TypePayment.CASH ? 'CASH' : 'BANK'}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandList>
+                                                    <CommandItem
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.CASH })}
+                                                    >
+                                                        <Check
+                                                            className={`mr-2 h-4 w-4 ${
+                                                                jobData.typePayment === TypePayment.CASH ? "opacity-100" : "opacity-0"
+                                                            }`}
+                                                        />
+                                                        CASH
+                                                    </CommandItem>
+                                                    <CommandItem
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.BANK })}
+                                                    >
+                                                        <Check
+                                                            className={`mr-2 h-4 w-4 ${
+                                                                jobData.typePayment === TypePayment.BANK ? "opacity-100" : "opacity-0"
+                                                            }`}
+                                                        />
+                                                        BANK
+                                                    </CommandItem>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                             </div>
 
@@ -176,9 +378,10 @@ const PostJob = () => {
                                         <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
                                         <Input
                                             type="number"
+                                            min="0"
                                             placeholder="0"
                                             value={jobData.fromPrice || ''}
-                                            onChange={(e) => setJobData({ ...jobData, fromPrice: parseFloat(e.target.value) })}
+                                            onChange={(e) => setJobData({ ...jobData, fromPrice: Math.max(0, parseFloat(e.target.value)) })}
                                             required
                                         />
                                     </div>
@@ -192,9 +395,10 @@ const PostJob = () => {
                                         <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
                                         <Input
                                             type="number"
+                                            min="0"
                                             placeholder="0"
                                             value={jobData.toPrice || ''}
-                                            onChange={(e) => setJobData({ ...jobData, toPrice: parseFloat(e.target.value) })}
+                                            onChange={(e) => setJobData({ ...jobData, toPrice: Math.max(0, parseFloat(e.target.value)) })}
                                             required
                                         />
                                     </div>
@@ -219,36 +423,99 @@ const PostJob = () => {
                         </div>
                     </div>
 
-                    {/* Kỹ năng yêu cầu */}
                     <div className="space-y-4">
-                        <h2 className="text-2xl font-semibold">Kỹ năng yêu cầu</h2>
-                        <div className="flex flex-wrap gap-2">
-                            {sampleSkills.map((skill) => (
-                                <Badge
-                                    key={skill.id}
-                                    variant={jobData.skills.includes(skill.id) ? "default" : "outline"}
-                                    className="cursor-pointer hover:bg-primary/20"
-                                    onClick={() => handleSkillToggle(skill.id)}
+                        <h2 className="text-2xl font-semibold">Kỹ năng yêu cầu *</h2>
+                        <Popover open={skillOpen} onOpenChange={setSkillOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={skillOpen}
+                                    className="w-full justify-between"
                                 >
-                                    {skill.skillName}
-                                </Badge>
-                            ))}
+                                    Thêm kỹ năng
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                                <Command>
+                                    <CommandInput
+                                        placeholder="Tìm kỹ năng..."
+                                        value={newSkill}
+                                        onValueChange={setNewSkill}
+                                    />
+                                    <CommandList>
+                                        <CommandEmpty>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                className="w-full justify-start"
+                                                onClick={handleCreateSkill}
+                                            >
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                Thêm "{newSkill}"
+                                            </Button>
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                            {skills.map((skill) => (
+                                                <CommandItem
+                                                    key={skill.id}
+                                                    value={skill.skillName}
+                                                    onSelect={() => {
+                                                        setSelectedSkills(prev =>
+                                                            prev.includes(skill.id)
+                                                                ? prev.filter(id => id !== skill.id)
+                                                                : [...prev, skill.id]
+                                                        );
+                                                        setSkillOpen(false);
+                                                    }}
+                                                >
+                                                    <Check
+                                                        className={`mr-2 h-4 w-4 ${
+                                                            selectedSkills.includes(skill.id) ? "opacity-100" : "opacity-0"
+                                                        }`}
+                                                    />
+                                                    {skill.skillName}
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+
+                        <div className="flex flex-wrap gap-2 mt-4">
+                            {selectedSkills.map((skillId) => {
+                                const skill = skills.find(s => s.id === skillId);
+                                return skill ? (
+                                    <Badge
+                                        key={skill.id}
+                                        variant="secondary"
+                                        className="cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
+                                        onClick={() => setSelectedSkills(prev => prev.filter(id => id !== skill.id))}
+                                    >
+                                        {skill.skillName}
+                                        <X className="ml-1 h-3 w-3" />
+                                    </Badge>
+                                ) : null;
+                            })}
                         </div>
                     </div>
 
-                    {/* Nút submit */}
                     <div className="flex justify-end gap-4">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={(e) => handleSubmit(e, StatusJob.DRAFT)}
+                            disabled={isSubmitting}
                         >
-                            Lưu nháp
+                            {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
                         </Button>
                         <Button
                             type="submit"
+                            disabled={isSubmitting}
                         >
-                            Đăng tin
+                            {isSubmitting ? 'Đang đăng...' : 'Đăng tin'}
                         </Button>
                     </div>
                 </form>
