@@ -208,7 +208,7 @@ const FreelancerDetail = () => {
           </FadeInWhenVisible>
         </div>
       </div>
-      <GoogleMapComponent otherLocation = {{lat: freelancer?.lat, lng: freelancer?.lng, label: freelancer?.name}}/>
+      {/* <GoogleMapComponent otherLocation = {{lat: freelancer?.lat, lng: freelancer?.lng, label: freelancer?.name}}/> */}
     </div>
   );
 };
