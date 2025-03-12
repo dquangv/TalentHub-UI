@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import GoogleMapComponent from '@/components/GoogleMapComponent';
 
 const Contact = () => {
   const { t } = useLanguage();
@@ -23,6 +24,7 @@ const Contact = () => {
 
   return (
     <div className="py-12">
+      <GoogleMapComponent/>
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
