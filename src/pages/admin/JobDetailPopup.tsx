@@ -70,7 +70,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
   const handleHide = async () => {
     try {
       await api.post(`/v1/jobs/admin/ban?jobId=${jobId}`);
-      setIsBanned(true); // Update isBanned to true after successful ban
+      setIsBanned(true);
     } catch (error) {
       console.error("Error banning job:", error);
     }
@@ -79,7 +79,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
   const handleUnHide = async () => {
     try {
       await api.post(`/v1/jobs/admin/unban?jobId=${jobId}`);
-      setIsBanned(false); // Update isBanned to false after successful unban
+      setIsBanned(false); 
     } catch (error) {
       console.error("Error unbanning job:", error);
     }

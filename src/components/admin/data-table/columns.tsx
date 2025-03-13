@@ -145,6 +145,10 @@ export const employerColumns: ColumnDef<any>[] = [
 
 // Post columnsconst 
 export const  postColumns: ColumnDef<any>[] = [
+  {
+    accessorKey: "id",
+    header: "Mã",
+  },
     {
       accessorKey: "title",
       header: "Tiêu đề",
@@ -180,26 +184,8 @@ export const  postColumns: ColumnDef<any>[] = [
     {
       accessorKey: "viewedQuantity",
       header: "Đã xem",
-    },
-    {
-      id: "actions",
-      cell: () => {
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-              <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Xóa</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
+    }
+   
   ];
   export const accountColumns = [
     {
