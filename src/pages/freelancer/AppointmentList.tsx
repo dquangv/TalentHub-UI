@@ -44,7 +44,7 @@ const AppointmentList = () => {
         return;
       }
       try {
-        const response = await api.get(`/v1/appointments/freelancer/${data.freelancerId}`);
+        const response = await api.get(`/v1/appointments/freelancers/${data.freelancerId}`);
         const appointmentsWithStatus = response.data.map((appointment: any) => ({
           ...appointment,
         }));
