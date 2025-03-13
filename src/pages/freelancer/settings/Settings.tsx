@@ -10,7 +10,8 @@ import Experience from './Experience';
 import Education from './Education';
 import Portfolio from './Portfolio';
 import Security from './Security';
-import { User, Briefcase, GraduationCap, FolderKanban, Shield } from 'lucide-react';
+import CVManager from '../CVManager';
+import { User, Briefcase, GraduationCap, FolderKanban, Shield, FileText } from 'lucide-react';
 import SettingsTour from './SettingsTour';
 
 const Settings = () => {
@@ -24,6 +25,7 @@ const Settings = () => {
     experienceRef: useRef<HTMLButtonElement>(null),
     educationRef: useRef<HTMLButtonElement>(null),
     portfolioRef: useRef<HTMLButtonElement>(null),
+    cvRef: useRef<HTMLButtonElement>(null),
     securityRef: useRef<HTMLButtonElement>(null),
   };
 
@@ -34,7 +36,7 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Cài đặt tài khoản</h1>
           <div >
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList ref={refs.tabsRef} className="grid grid-cols-2 md:grid-cols-5 mb-8">
+              <TabsList ref={refs.tabsRef} className="grid grid-cols-2 md:grid-cols-6 mb-8">
                 <TabsTrigger ref={refs.profileRef} value="profile" className="flex items-center gap-2">
                   <User className="w-4 h-4" />
                   <span className="hidden md:inline">Hồ sơ</span>
@@ -50,6 +52,10 @@ const Settings = () => {
                 <TabsTrigger ref={refs.portfolioRef} value="portfolio" className="flex items-center gap-2">
                   <FolderKanban className="w-4 h-4" />
                   <span className="hidden md:inline">Portfolio</span>
+                </TabsTrigger>
+                <TabsTrigger ref={refs.cvRef} value="cv" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden md:inline">CV</span>
                 </TabsTrigger>
                 <TabsTrigger ref={refs.securityRef} value="security" className="flex items-center gap-2">
                   <Shield className="w-4 h-4" />
@@ -68,6 +74,9 @@ const Settings = () => {
               </TabsContent>
               <TabsContent value="portfolio">
                 <Portfolio />
+              </TabsContent>
+              <TabsContent value="cv">
+                <CVManager />
               </TabsContent>
               <TabsContent value="security">
                 <Security />
