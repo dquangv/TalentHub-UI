@@ -48,7 +48,7 @@ const AppointmentList = () => {
         return;
       }
       try {
-        const response = await api.get(`/v1/appointments/client/${data.clientId}`);
+        const response = await api.get(`/v1/appointments/clients/${data.clientId}`);
         const appointmentsWithStatus = response.data.map((appointment: any) => ({
           ...appointment,
         }));

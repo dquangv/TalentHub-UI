@@ -39,6 +39,7 @@ import {
   Ban,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import { notification } from "antd";
 
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,30 +55,31 @@ const PostedJobs = () => {
     BANNED: 0,
     DRAFT: 0,
   });
+  const fetchJobs = async () => {
+    try {
+      const response = await api.get("/v1/jobs/PostedJobs/2");
+      setJobs(response.data);
+
+      const newStats = {
+        total: response.data.length,
+        OPEN: response.data.filter((job) => job.status === "OPEN").length,
+        POSTED: response.data.filter((job) => job.status === "POSTED").length,
+        CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
+        Pending: response.data.filter((job) => job.status === "Pending")
+          .length,
+        BANNED: response.data.filter((job) => job.status === "BANNED").length,
+        DRAFT: response.data.filter((job) => job.status === "DRAFT").length,
+      };
+      setStats(newStats);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching jobs:", err);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await api.get("/v1/jobs/PostedJobs/2");
-        setJobs(response.data);
-
-        const newStats = {
-          total: response.data.length,
-          OPEN: response.data.filter((job) => job.status === "OPEN").length,
-          POSTED: response.data.filter((job) => job.status === "POSTED").length,
-          CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
-          Pending: response.data.filter((job) => job.status === "Pending")
-            .length,
-          BANNED: response.data.filter((job) => job.status === "BANNED").length,
-          DRAFT: response.data.filter((job) => job.status === "DRAFT").length,
-        };
-        setStats(newStats);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setLoading(false);
-      }
-    };
+    
 
     fetchJobs();
   }, []);
@@ -130,6 +132,23 @@ const PostedJobs = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/v1/jobs/${id}`)
+      notification.success({
+        message:"Thành công",
+        description: "Xóa thành công"
+      })
+      fetchJobs();
+      
+    }catch(e){
+      notification.success({
+        message:"Thất bại",
+        description: "Xóa thất bại"
+      })
+    }
+  }
 
   const statsCards = [
     {
@@ -298,7 +317,7 @@ const PostedJobs = () => {
                           </Link>
                         </Button>
                         <Button size="sm" variant="outline">
-                          <Link to="/client/post-job">
+                          <Link to={`/client/post-job?id=${job.id}`}>
                             <Edit2 className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -306,6 +325,7 @@ const PostedJobs = () => {
                           size="sm"
                           variant="outline"
                           className="text-red-600"
+                          onClick={() => handleDelete(job.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
