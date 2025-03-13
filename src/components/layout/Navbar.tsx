@@ -22,9 +22,8 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
-          isActive ? "text-primary-700" : ""
-        }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
+          }`}
       >
         {children}
       </span>
@@ -33,6 +32,42 @@ const NavLink = ({ to, children, onClick }: any) => {
           ${isActive ? "w-full" : "w-0"}`}
       />
     </Link>
+  );
+};
+
+const NavLinkDropdown = ({ children, menuItems }: any) => {
+  const location = useLocation();
+
+  const isAnyActive = menuItems.some((item: any) =>
+    location.pathname === item.to
+  );
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div className="relative group cursor-pointer">
+          <span
+            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isAnyActive ? "text-primary-700" : ""}`}
+          >
+            {children}
+          </span>
+          <span
+            className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full
+              ${isAnyActive ? "w-full" : "w-0"}`}
+          />
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        {menuItems.map((item: any, index: number) => (
+          <DropdownMenuItem key={index} asChild>
+            <Link to={item.to} className="flex items-center gap-2">
+              {item.icon && <item.icon className="h-4 w-4" />}
+              {item.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
@@ -88,6 +123,18 @@ const Navbar = () => {
     logout();
   };
 
+  const clientMenuItems = [
+    { to: "/client/posted-jobs", label: "Đã đăng", icon: FileCheck2 },
+    { to: "/client/appointment", label: "Lịch hẹn", icon: BookMarked }
+  ];
+
+  const freelancerMenuItems = [
+    { to: "/jobs", label: t("jobs"), icon: FileCheck2 },
+    { to: "/saved-jobs", label: "Đã lưu", icon: BookMarked },
+    { to: "/freelancer/applied-jobs", label: "Đã ứng tuyển", icon: FileCheck2 },
+    { to: "/freelancer/appointment", label: "Lịch hẹn", icon: BookMarked }
+  ];
+
   const UserMenu = () => {
     const { t } = useLanguage();
     const userInfoString = localStorage.getItem("userInfo");
@@ -135,10 +182,10 @@ const Navbar = () => {
       userInfo.role === "FREELANCER"
         ? "/settingsfreelancer"
         : userInfo.role === "CLIENT"
-        ? "/client/profile"
-        : userInfo.role === "ADMIN"
-        ? "/admin/dashboard"
-        : "/";
+          ? "/client/profile"
+          : userInfo.role === "ADMIN"
+            ? "/admin/dashboard"
+            : "/";
 
     return (
       <DropdownMenu>
@@ -192,10 +239,9 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${
-            isActive
-              ? "text-primary-700 bg-primary-100/50"
-              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${isActive
+            ? "text-primary-700 bg-primary-100/50"
+            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -223,75 +269,20 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/">{t("home")}</NavLink>
-            {role == "CLIENT" ? (
+            {role === "CLIENT" ? (
               <>
-               <NavLink to="/freelancers">{t("freelancers")}</NavLink>
-              <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <p className="flex items-center gap-2 text-dark">
-                      Quản lý công việc
-                    </p>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuItem asChild>
-                    <Link to="/client/posted-jobs">Đã đăng</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                    <Link to="/client/appointment">Lịch hẹn</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              
-              
-                
+                <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+                <NavLinkDropdown menuItems={clientMenuItems}>
+                  Quản lý công việc
+                </NavLinkDropdown>
               </>
-            ) : role == "FREELANCER" ? (
+            ) : role === "FREELANCER" ? (
               <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <p className="flex items-center gap-2 text-dark">
-                      Quản lý công việc
-                    </p>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                  <DropdownMenuItem asChild>
-                      <Link
-                        to="/jobs"
-                        className="flex items-center gap-2"
-                      >
-                        {t("jobs")}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/saved-jobs"
-                        className="flex items-center gap-2"
-                      >
-                        Đã lưu
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/freelancer/applied-jobs"
-                        className="flex items-center gap-2"
-                      >
-                        Đã ứng tuyển
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/freelancer/appointment"
-                        className="flex items-center gap-2"
-                      >
-                        Lịch hẹn
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <NavLinkDropdown menuItems={freelancerMenuItems}>
+                  Quản lý công việc
+                </NavLinkDropdown>
               </>
-            ) : (
-              ""
-            )}
+            ) : null}
 
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
