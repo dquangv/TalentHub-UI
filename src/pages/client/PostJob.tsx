@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { notification } from 'antd';
 import {
     Command,
     CommandEmpty,
@@ -21,8 +21,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Clock, DollarSign, Check, ChevronsUpDown, Plus, X } from 'lucide-react';
 import api from '@/api/axiosConfig';
-import { useNavigate } from 'react-router-dom';
-import { notification } from 'antd';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 enum TypePayment {
     CASH = 'CASH',
@@ -31,16 +30,25 @@ enum TypePayment {
 
 enum StatusJob {
     OPEN = 'Mở',
+    POSTED = 'Đã đăng',
+    CLOSED = 'Đóng',
+    PENDING = 'Chờ xử lý',
+    BANNED = 'Bị cấm',
     DRAFT = 'Bản nháp'
 }
 
 const PostJob = () => {
+    const [searchParams] = useSearchParams();
+    const jobId = searchParams.get('id');
+    const isEditMode = !!jobId;
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [skills, setSkills] = useState<any[]>([]);
     const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
     const [categoryOpen, setCategoryOpen] = useState(false);
     const [skillOpen, setSkillOpen] = useState(false);
+    const [statusOpen, setStatusOpen] = useState(false);
     const [newCategory, setNewCategory] = useState('');
     const [newSkill, setNewSkill] = useState('');
 
@@ -55,7 +63,7 @@ const PostJob = () => {
         toPrice: 0,
         typePrice: 'USD',
         typePayment: TypePayment.CASH,
-        status: StatusJob.OPEN,
+        statusJob: StatusJob.OPEN,
         clientId: 1,
         categoryId: 0,
         skills: []
@@ -63,22 +71,43 @@ const PostJob = () => {
 
     useEffect(() => {
         const initializeData = async () => {
-            try {
-                await Promise.all([fetchCategories(), fetchSkills()]);
-            } catch (error) {
-                console.error('Error initializing data:', error);
+            fetchCategories()
+             fetchSkills()
+            if (isEditMode) {
+                await fetchJobDetails();
             }
+         
         };
 
         initializeData();
-    }, []);
+    }, [jobId]);
+
+    const fetchJobDetails = async () => {
+        try {
+            const response = await api.post(`/v1/jobs/getByID/${jobId}`);
+            const jobDetails = response.data;
+            setJobData({
+                ...jobDetails,
+                scope: jobDetails.description,
+            });
+            setSelectedSkills(jobDetails.skillId || []);
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể tải thông tin công việc'
+            });
+        }
+    };
 
     const fetchCategories = async () => {
         try {
             const response = await api.get("/v1/categories");
             setCategories(response.data);
         } catch (error) {
-            toast.error('Không thể tải danh mục');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể tải danh mục'
+            });
             throw error;
         }
     };
@@ -88,7 +117,10 @@ const PostJob = () => {
             const response = await api.get("/v1/jobs/skills");
             setSkills(response.data);
         } catch (error) {
-            toast.error('Không thể tải kỹ năng');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể tải kỹ năng'
+            });
             throw error;
         }
     };
@@ -106,9 +138,15 @@ const PostJob = () => {
             setJobData(prev => ({ ...prev, categoryId: newCategoryData.id }));
             setNewCategory('');
             setCategoryOpen(false);
-            toast.success('Đã thêm danh mục mới');
+            notification.success({
+                message: 'Thành công',
+                description: 'Đã thêm danh mục mới'
+            });
         } catch (error) {
-            toast.error('Không thể thêm danh mục');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể thêm danh mục'
+            });
         }
     };
 
@@ -125,54 +163,79 @@ const PostJob = () => {
             setSelectedSkills(prev => [...prev, newSkillData.id]);
             setNewSkill('');
             setSkillOpen(false);
-            toast.success('Đã thêm kỹ năng mới');
+            notification.success({
+                message: 'Thành công',
+                description: 'Đã thêm kỹ năng mới'
+            });
         } catch (error) {
-            toast.error('Không thể thêm kỹ năng');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể thêm kỹ năng'
+            });
         }
     };
 
     const validateJobData = (data: Partial<any>): boolean => {
         if (!data.title?.trim()) {
-            toast.error('Vui lòng nhập tiêu đề công việc');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Vui lòng nhập tiêu đề công việc'
+            });
             return false;
         }
         if (!data.scope?.trim()) {
-            toast.error('Vui lòng nhập phạm vi công việc');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Vui lòng nhập phạm vi công việc'
+            });
             return false;
         }
         if (!data.fromPrice || !data.toPrice || data.fromPrice <= 0 || data.toPrice <= 0) {
-            toast.error('Ngân sách không hợp lệ');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Ngân sách không hợp lệ'
+            });
             return false;
         }
         if (data.fromPrice > data.toPrice) {
-            toast.error('Ngân sách từ không thể lớn hơn ngân sách đến');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Ngân sách từ không thể lớn hơn ngân sách đến'
+            });
             return false;
         }
         if (!data.categoryId || data.categoryId === 0) {
-            toast.error('Vui lòng chọn danh mục');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Vui lòng chọn danh mục'
+            });
             return false;
         }
         if (selectedSkills.length === 0) {
-            toast.error('Vui lòng chọn ít nhất một kỹ năng');
+            notification.error({
+                message: 'Lỗi',
+                description: 'Vui lòng chọn ít nhất một kỹ năng'
+            });
             return false;
         }
         return true;
     };
-    const navigate = useNavigate()
-    const handleSubmit = async (e: React.FormEvent, status: StatusJob) => {
+
+    const navigate = useNavigate();
+    
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const userInfo: any = JSON.parse(localStorage.getItem("userInfo") || "{}")
-        if (!userInfo.clientId){
-            navigate("/")
-            return
+        const userInfo: any = JSON.parse(localStorage.getItem("userInfo") || "{}");
+        if (!userInfo.clientId) {
+            navigate("/");
+            return;
         }
-        console.log("userInfo ", userInfo)
+
         const submitData = {
             ...jobData,
-            statusJob: status,
             description: jobData.scope,
-            skills: selectedSkills
-            ,clientId: userInfo.clientId
+            skillId: selectedSkills,
+            clientId: userInfo.clientId
         };
 
         if (!validateJobData(submitData)) {
@@ -181,12 +244,19 @@ const PostJob = () => {
 
         setIsSubmitting(true);
         try {
-          
-            const response = await api.post('/v1/jobs/createJob', submitData);
-            notification.info({
-                message: "Thành công",
-                 description: 'Thêm công việc thành công'
-            })
+            if (isEditMode) {
+                await api.put(`/v1/jobs/update/${jobId}`, submitData);
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Cập nhật công việc thành công'
+                });
+            } else {
+                await api.post('/v1/jobs/createJob', submitData);
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Thêm công việc thành công'
+                });
+                
                 setJobData({
                     title: '',
                     description: '',
@@ -201,12 +271,16 @@ const PostJob = () => {
                     statusJob: StatusJob.OPEN,
                     clientId: userInfo.clientId,
                     categoryId: 0,
-                    skills: []  
+                    skillIds: []
                 });
                 setSelectedSkills([]);
-           
+            }
         } catch (error) {
-            console.error('Error creating job:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: isEditMode ? 'Không thể cập nhật công việc' : 'Không thể tạo công việc'
+            });
+            console.error('Error handling job:', error);
         } finally {
             setIsSubmitting(false);
         }
@@ -215,9 +289,11 @@ const PostJob = () => {
     return (
         <div className="p-6">
             <Card className="max-w-4xl mx-auto p-8">
-                <form onSubmit={(e) => handleSubmit(e, StatusJob.OPEN)} className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-semibold">Thông tin cơ bản</h2>
+                        <h2 className="text-2xl font-semibold">
+                            {isEditMode ? 'Cập nhật công việc' : 'Thông tin cơ bản'}
+                        </h2>
 
                         <div className="space-y-4">
                             <div>
@@ -231,6 +307,50 @@ const PostJob = () => {
                                     required
                                 />
                             </div>
+
+                            {isEditMode && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Trạng thái *
+                                    </label>
+                                    <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={statusOpen}
+                                                className="w-full justify-between"
+                                            >
+                                                {jobData.statusJob || "Chọn trạng thái"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-full p-0">
+                                            <Command>
+                                                <CommandList>
+                                                    {Object.values(StatusJob).map((status) => (
+                                                        <CommandItem
+                                                            key={status}
+                                                            value={status}
+                                                            onSelect={() => {
+                                                                setJobData({ ...jobData, statusJob: status });
+                                                                setStatusOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={`mr-2 h-4 w-4 ${
+                                                                    jobData.statusJob === status ? "opacity-100" : "opacity-0"
+                                                                }`}
+                                                            />
+                                                            {status}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-medium mb-2">
@@ -503,19 +623,25 @@ const PostJob = () => {
                     </div>
 
                     <div className="flex justify-end gap-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={(e) => handleSubmit(e, StatusJob.DRAFT)}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
-                        </Button>
+                        {!isEditMode && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setJobData({ ...jobData, statusJob: StatusJob.DRAFT });
+                                    handleSubmit(e);
+                                }}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
+                            </Button>
+                        )}
                         <Button
                             type="submit"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Đang đăng...' : 'Đăng tin'}
+                            {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Đăng tin'}
                         </Button>
                     </div>
                 </form>
