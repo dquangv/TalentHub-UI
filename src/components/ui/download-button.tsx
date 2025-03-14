@@ -1,8 +1,9 @@
 import { Button } from "antd";
 import axios from "axios";
 
-const DownloadButton = (publicId: string) => {
+const DownloadButton = ({publicId}: any) => {
   const handleDownload = () => {
+    console.log('public id ', publicId)
     axios
       .get(
         `http://localhost:8080/api/pdf/download?publicId=${publicId}`,
