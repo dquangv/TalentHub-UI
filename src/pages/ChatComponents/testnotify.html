@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Notification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #notifications {
+            border: 1px solid #ccc;
+            padding: 10px;
+            min-height: 200px;
+            margin-top: 10px;
+        }
+        .notification {
+            padding: 5px;
+            margin: 5px 0;
+            background: #f0f0f0;
+        }
+        .unread {
+            background: #ffe6e6;
+        }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Notification Test</h2>
+    
+    <div>
+        <label>User ID: </label>
+        <input type="number" id="userId" value="3">
+        <button onclick="connect()">Connect</button>
+        <button onclick="disconnect()">Disconnect</button>
+        <button onclick="sendTestNotification()">Send Test</button>
+    </div>
+
+    <div>
+        <h3>Notifications</h3>
+        <button onclick="markAllRead()">Mark All as Read</button>
+        <div>Unread count: <span id="unreadCount">0</span></div>
+        <div id="notifications"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script>
+        let stompClient = null;
+        let userId = null;
+        const BASE_URL = 'http://localhost:8080';
+
+        function connect() {
+            userId = document.getElementById('userId').value;
+            const socket = new SockJS(`${BASE_URL}/ws`, null, { headers: { 'userId': userId } });
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                console.log('Connected with frame:', frame);
+                
+                stompClient.subscribe('/user/' + userId + '/queue/notifications', function(message) {
+                    console.log('Received user-specific message:', message.body);
+                    showNotification(JSON.parse(message.body));
+                }, function(error) {
+                    console.error('Subscription error:', error);
+                });
+                
+                stompClient.subscribe('/topic/notifications', function(message) {
+                    console.log('Received topic message:', message.body);
+                    showNotification(JSON.parse(message.body));
+                }, function(error) {
+                    console.error('Subscription error:', error);
+                });
+                
+                getInitialNotifications();
+                updateUnreadCount();
+            }, function(error) {
+                console.error('Connection error:', error);
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect(function() {
+                    console.log("Disconnected");
+                });
+            }
+        }
+
+        function sendTestNotification() {
+            fetch(`${BASE_URL}/api/notifications/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.text())
+            .then(text => console.log('Server response:', text))
+            .catch(error => console.error('Send error:', error));
+        }
+
+        function getInitialNotifications() {
+            fetch(`${BASE_URL}/api/notifications/${userId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to fetch notifications');
+                    return response.json();
+                })
+                .then(notifications => {
+                    document.getElementById('notifications').innerHTML = ''; 
+                    notifications.forEach(showNotification);
+                })
+                .catch(error => console.error('Fetch notifications error:', error));
+        }
+
+        function showNotification(notification) {
+            const notificationsDiv = document.getElementById('notifications');
+            const div = document.createElement('div');
+            div.className = 'notification' + (notification.read ? '' : ' unread');
+            div.innerHTML = `
+                ${notification.message} 
+                <button onclick="markRead(${notification.id})">Mark as Read</button>
+            `;
+            notificationsDiv.insertBefore(div, notificationsDiv.firstChild);
+            updateUnreadCount();
+        }
+
+        function markRead(notificationId) {
+            fetch(`${BASE_URL}/api/notifications/read/${notificationId}`, {
+                method: 'POST'
+            })
+            .then(() => getInitialNotifications())
+            .catch(error => console.error('Mark read error:', error));
+        }
+
+        function markAllRead() {
+            fetch(`${BASE_URL}/api/notifications/read-all/${userId}`, {
+                method: 'POST'
+            })
+            .then(() => getInitialNotifications())
+            .catch(error => console.error('Mark all read error:', error));
+        }
+
+        function updateUnreadCount() {
+            fetch(`${BASE_URL}/api/notifications/unread-count/${userId}`)
+                .then(response => response.json())
+                .then(count => {
+                    document.getElementById('unreadCount').textContent = count;
+                })
+                .catch(error => console.error('Update unread count error:', error));
+        }
+    </script>
+</body>
+</html>
