@@ -35,42 +35,143 @@ import {
   Calendar,
   Briefcase,
   User,
+  AlertCircle,
+  Ban,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import { notification } from "antd";
 
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    OPEN: 0,
+    POSTED: 0,
+    CLOSED: 0,
+    Pending: 0,
+    BANNED: 0,
+    DRAFT: 0,
+  });
+  const fetchJobs = async () => {
+    try {
+      const response = await api.get("/v1/jobs/PostedJobs/2");
+      setJobs(response.data);
+
+      const newStats = {
+        total: response.data.length,
+        OPEN: response.data.filter((job) => job.status === "OPEN").length,
+        POSTED: response.data.filter((job) => job.status === "POSTED").length,
+        CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
+        Pending: response.data.filter((job) => job.status === "Pending")
+          .length,
+        BANNED: response.data.filter((job) => job.status === "BANNED").length,
+        DRAFT: response.data.filter((job) => job.status === "DRAFT").length,
+      };
+      setStats(newStats);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching jobs:", err);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await api.get("/v1/jobs/PostedJobs/2");
-
-        setJobs(response.data);
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-      }
-    };
+    
 
     fetchJobs();
   }, []);
 
   const getStatusText = (status) => {
     switch (status) {
-      case "active":
-        return "Đang tuyển";
-      case "closed":
-        return "Đã đóng";
-      case "draft":
+      case "OPEN":
+        return "Mở";
+      case "POSTED":
+        return "Đã đăng";
+      case "CLOSED":
+        return "Đóng";
+      case "Pending":
+        return "Chờ xử lý";
+      case "BANNED":
+        return "Bị cấm";
+      case "DRAFT":
         return "Bản nháp";
       default:
         return status;
     }
   };
+
+  const getStatusBadgeVariant = (status) => {
+    switch (status) {
+      case "OPEN":
+        return "default";
+      case "POSTED":
+        return "success";
+      case "CLOSED":
+        return "secondary";
+      case "Pending":
+        return "warning";
+      case "BANNED":
+        return "destructive";
+      case "DRAFT":
+        return "outline";
+      default:
+        return "default";
+    }
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    const matchesSearch =
+      job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/v1/jobs/${id}`)
+      notification.success({
+        message:"Thành công",
+        description: "Xóa thành công"
+      })
+      fetchJobs();
+      
+    }catch(e){
+      notification.success({
+        message:"Thất bại",
+        description: "Xóa thất bại"
+      })
+    }
+  }
+
+  const statsCards = [
+    {
+      label: "Tổng tin đăng",
+      value: stats.total,
+      icon: <Briefcase className="w-8 h-8 text-primary" />,
+    },
+    {
+      label: "Đang mở",
+      value: stats.OPEN + stats.POSTED,
+      icon: <CheckCircle className="w-8 h-8 text-green-500" />,
+    },
+    {
+      label: "Chờ xử lý",
+      value: stats.Pending,
+      icon: <AlertCircle className="w-8 h-8 text-yellow-500" />,
+    },
+    {
+      label: "Đã đóng/Bị cấm",
+      value: stats.CLOSED + stats.BANNED,
+      icon: <Ban className="w-8 h-8 text-red-500" />,
+    },
+  ];
 
   return (
     <div className="py-12">
@@ -93,6 +194,25 @@ const PostedJobs = () => {
           </div>
         </FadeInWhenVisible>
 
+        {/* Stats */}
+        <FadeInWhenVisible delay={0.1}>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {statsCards.map((stat, index) => (
+              <Card key={index} className="p-6">
+                <div className="flex items-center gap-4">
+                  {stat.icon}
+                  <div>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stat.label}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </FadeInWhenVisible>
+
         {loading && (
           <div className="text-center mb-8">
             <p>Đang tải dữ liệu...</p>
@@ -103,12 +223,13 @@ const PostedJobs = () => {
         <FadeInWhenVisible delay={0.2}>
           <Card className="p-6 mb-8">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Tìm kiếm công việc..."
+                  placeholder="Tìm kiếm theo tiêu đề, loại công việc..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full"
+                  className="pl-10 w-full"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -117,9 +238,12 @@ const PostedJobs = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="active">Đang tuyển</SelectItem>
-                  <SelectItem value="closed">Đã đóng</SelectItem>
-                  <SelectItem value="draft">Bản nháp</SelectItem>
+                  <SelectItem value="OPEN">Mở</SelectItem>
+                  <SelectItem value="POSTED">Đã đăng</SelectItem>
+                  <SelectItem value="CLOSED">Đóng</SelectItem>
+                  <SelectItem value="Pending">Chờ xử lý</SelectItem>
+                  <SelectItem value="BANNED">Bị cấm</SelectItem>
+                  <SelectItem value="DRAFT">Bản nháp</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline">
@@ -148,95 +272,86 @@ const PostedJobs = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {jobs
-                  ?.filter(
-                    (job) =>
-                      statusFilter === "all" || job.status === statusFilter
-                  )
-                  ?.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{job.title}</p>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Briefcase className="w-4 h-4 mr-2" />
-                            {job.type}
-                          </div>
+                {filteredJobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{job.title}</p>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Briefcase className="w-4 h-4 mr-2" />
+                          {job.type}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-muted-foreground" />
-                          <span>{job.applicants} ứng viên</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {job.postedDate}
-                        </div>
-                      </TableCell>
-
-                      <TableCell>
-                        <Badge
-                          variant={
-                            job.status === "active"
-                              ? "default"
-                              : job.status === "closed"
-                              ? "secondary"
-                              : "outline"
-                          }
-                        >
-                          {getStatusText(job.status)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <span>{job.applicants} ứng viên</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
+                        {job.postedDate}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusBadgeVariant(job.status)}>
+                        {getStatusText(job.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600"
-                          >
-                            <Link to={`/client/applicants/${job.id}`}>
-                            
+                          size="sm"
+                          variant="outline"
+                          className="text-green-600"
+                        >
+                          <Link to={`/client/applicants/${job.id}`}>
                             <User className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            <Link to={`/jobs/${job.id}`}>
-                              <Eye className="w-4 h-4" />
-                            </Link>
-                          </Button>
-                          <Button size="sm" variant="outline">
+                          </Link>
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <Link to={`/jobs/${job.id}`}>
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <Link to={`/client/post-job?id=${job.id}`}>
                             <Edit2 className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                          </Link>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600"
+                          onClick={() => handleDelete(job.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Card>
         </FadeInWhenVisible>
 
         {/* Empty State */}
-        {jobs.length === 0 && !loading && (
+        {filteredJobs.length === 0 && !loading && (
           <FadeInWhenVisible>
             <Card className="p-12 text-center">
               <Briefcase className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
               <h3 className="text-xl font-semibold mb-2">
-                Chưa có công việc nào
+                {searchTerm || statusFilter !== "all"
+                  ? "Không tìm thấy công việc nào"
+                  : "Chưa có công việc nào"}
               </h3>
               <p className="text-muted-foreground mb-6">
-                Bạn chưa đăng tin tuyển dụng nào. Hãy bắt đầu đăng tin để tìm
-                kiếm ứng viên phù hợp.
+                {searchTerm || statusFilter !== "all"
+                  ? "Không tìm thấy công việc nào phù hợp với bộ lọc của bạn."
+                  : "Bạn chưa đăng tin tuyển dụng nào. Hãy bắt đầu đăng tin để tìm kiếm ứng viên phù hợp."}
               </p>
               <Button asChild>
                 <Link to="/client/post-job">
