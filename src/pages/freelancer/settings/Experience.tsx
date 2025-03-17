@@ -305,25 +305,7 @@ const ExperienceComponent = () => {
                     onChange={(e) =>
                       experience.id && updateExperienceField(experience.id, 'endDate', e.target.value)
                     }
-                    disabled={isSaving || !experience.endDate}
                   />
-                  <div className="flex items-center gap-2 mt-2">
-                    <input
-                      type="checkbox"
-                      checked={!experience.endDate}
-                      onChange={(e) =>
-                        experience.id && handleCurrentChange(experience.id, e.target.checked)
-                      }
-                      id={`current-${experience.id}`}
-                      disabled={isSaving}
-                    />
-                    <label
-                      htmlFor={`current-${experience.id}`}
-                      className="text-sm text-muted-foreground"
-                    >
-                      {t('Workinghere')}
-                    </label>
-                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

@@ -196,7 +196,7 @@ const JobDetail = () => {
                         ? "Ứng tuyển ngay"
                         : "Đã ứng tuyển"}
                     </Button>
-                   
+
                     {/* Save/Unsave job button */}
                     <Button
                       variant="outline"
@@ -208,14 +208,14 @@ const JobDetail = () => {
                     >
                       {jobFreelancerInfo?.saved ? "Hủy lưu" : "Lưu việc làm"}
                     </Button>
-                    <ReportDialog 
-                      itemId={String(id)} 
-                      itemType="job" 
+                    <ReportDialog
+                      itemId={String(id)}
+                      itemType="job"
                       itemTitle={job.title}
                     >
                       <Button variant="outline" size="icon" className="text-muted-foreground w-full d-flex gap-2">
                         <Flag className="w-4 h-4" />
-                       <div> Báo cáo</div>
+                        <div> Báo cáo</div>
                       </Button>
                     </ReportDialog>
                   </div>
@@ -233,7 +233,7 @@ const JobDetail = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
                     <p className="font-semibold">
-                      {job.fromPrice} - {job.toPrice} VND
+                      {new Intl.NumberFormat('vi-VN').format(job.fromPrice)} - {new Intl.NumberFormat('vi-VN').format(job.toPrice)} VND
                     </p>
                   </div>
                 </div>

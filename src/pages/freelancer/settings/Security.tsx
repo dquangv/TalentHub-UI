@@ -6,7 +6,7 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Lock, Key, Shield, Loader2, Mail } from 'lucide-react';
 import { notification } from 'antd';
 import userService from '@/api/userService';
-const PASSWORD_PATTERN = /^.{6,}$/;
+const PASSWORD_PATTERN = /^.{3,}$/;
 
 const Security = () => {
   const [passwords, setPasswords] = useState({
