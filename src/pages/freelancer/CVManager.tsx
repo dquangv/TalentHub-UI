@@ -5,12 +5,11 @@ import {
     Dialog,
     DialogContent,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { notification } from 'antd';
 import {
     Plus, FileText, Trash2, Loader2, Download, Eye, ExternalLink
 } from 'lucide-react';
-import cvService, { CV } from '@/api/cvService';
+import cvService from '@/api/cvService';
 import { format } from 'date-fns';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 
@@ -188,23 +187,7 @@ const CVManager = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    {cv.status !== undefined && (
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-medium">Trạng thái:</span>
-                                            <Badge variant={cv.status ? "success" : "secondary"}>
-                                                {cv.status ? 'Đang kích hoạt' : 'Chưa kích hoạt'}
-                                            </Badge>
-                                        </div>
-                                    )}
                                     <div className="flex flex-col gap-2">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handlePreviewCV(cv)}
-                                            disabled={deletingIds.includes(cv.id)}
-                                        >
-                                            <Eye className="w-4 h-4 mr-2" />
-                                            Xem phóng to
-                                        </Button>
                                         <Button
                                             variant="outline"
                                             onClick={() => handleDownloadCV(cv)}
