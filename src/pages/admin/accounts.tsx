@@ -2,7 +2,9 @@ import { DataTable } from "@/components/admin/data-table/data-table";
 import { accountColumns } from "@/components/admin/data-table/columns";
 import { useEffect, useState } from "react";
 import api from "@/api/axiosConfig";
-import { Button } from "@/components/ui/button"; // Assuming you have a Button component to use
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Account {
   id: number;
@@ -16,6 +18,11 @@ interface Account {
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [filters, setFilters] = useState({
+    email: "",
+    role: "all",
+    status: "all",
+  });
 
   useEffect(() => {
     async function fetchAccounts() {
@@ -60,10 +67,58 @@ export default function AccountsPage() {
     } catch (err) {}
   };
 
+  const filteredAccounts = accounts.filter(account => {
+    const emailMatch = account.email.toLowerCase().includes(filters.email.toLowerCase());
+    const roleMatch = filters.role === "all" || account.role === filters.role;
+    const statusMatch = filters.status === "all" || 
+      (filters.status === "active" && account.status) ||
+      (filters.status === "banned" && !account.status);
+    
+    return emailMatch && roleMatch && statusMatch;
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Quản lý Tài khoản</h2>
+      </div>
+
+      <div className="flex gap-4 items-center">
+        <div className="flex-1">
+          <Input
+            placeholder="Tìm kiếm theo email..."
+            value={filters.email}
+            onChange={(e) => setFilters(prev => ({ ...prev, email: e.target.value }))}
+            className="max-w-sm"
+          />
+        </div>
+        <Select
+          value={filters.role}
+          onValueChange={(value) => setFilters(prev => ({ ...prev, role: value }))}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Lọc theo vai trò" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="FREELANCER">Freelancer</SelectItem>
+            <SelectItem value="CLIENT">Client</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select
+          value={filters.status}
+          onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Lọc theo trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tất cả</SelectItem>
+            <SelectItem value="active">Đang hoạt động</SelectItem>
+            <SelectItem value="banned">Đã khóa</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {loading ? (
@@ -102,7 +157,7 @@ export default function AccountsPage() {
               },
             },
           ]}
-          data={accounts}
+          data={filteredAccounts}
         />
       )}
     </div>
