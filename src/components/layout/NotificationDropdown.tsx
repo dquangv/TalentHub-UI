@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { Empty } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationDropdown = () => {
   const [notifications, setNotifications] = useState([]);
@@ -18,7 +19,6 @@ const NotificationDropdown = () => {
   const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
   const BASE_URL = 'http://localhost:8080';
   let stompClient = null;
-
   useEffect(() => {
     fetchNotifications();
     fetchUnreadCount();
@@ -79,6 +79,13 @@ const NotificationDropdown = () => {
       console.error('Error marking notification as read:', error);
     }
   };
+  const navigate = useNavigate()
+  const handleNotificationClick = (read: boolean, notificationId: number, url: string) => {
+    if (!read) {
+      markAsRead(notificationId);
+    }
+    window.location.href = `${window.location.origin}/${url}`; 
+  };
 
   return (
     <DropdownMenu>
@@ -107,7 +114,7 @@ const NotificationDropdown = () => {
                 <DropdownMenuItem
                   key={notification.id}
                   className={`flex flex-col items-start p-3 ${!notification.read ? 'bg-primary/5 cursor-pointer' : ''}`}
-                  onClick={() => !notification.read && markAsRead(notification.id)}
+                  onClick={() => handleNotificationClick(notification.read, notification.id, notification.url)}
                 >
                   <p className="text-sm font-medium">{notification.title || notification.message}</p>
                   <span className="text-xs text-muted-foreground">
