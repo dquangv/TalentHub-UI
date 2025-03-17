@@ -12,7 +12,6 @@ export interface EntityConfig {
     nameField: string;
     createEndpoint?: string;
 }
-
 export const entityConfigs: Record<string, EntityConfig> = {
     school: {
         endpoint: '/v1/schools',
@@ -25,6 +24,10 @@ export const entityConfigs: Record<string, EntityConfig> = {
     major: {
         endpoint: '/v1/majors',
         nameField: 'majorName',
+    },
+    category: {
+        endpoint: '/v1/categories',
+        nameField: 'categoryTitle',
     },
 };
 

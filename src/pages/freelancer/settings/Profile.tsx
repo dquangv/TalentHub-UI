@@ -13,12 +13,14 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2, Plus, X, Code } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Plus, X, Code, DollarSign, Star } from 'lucide-react';
 import userService, { User } from '@/api/userService';
 import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
 import { notification } from 'antd';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AddressSelector from './AddressSelector';
+import freelancerService from '@/api/freelancerService';
+import AutofillInput from '@/components/AutofillInput';
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -32,7 +34,13 @@ const Profile = () => {
     introduction: '',
     image: '',
   });
-
+  const [freelancerProfile, setFreelancerProfile] = useState<any>(null);
+  const [hourlyRate, setHourlyRate] = useState<number>(0);
+  const [rating, setRating] = useState<number>(0);
+  const [categoryId, setCategoryId] = useState<number>(0);
+  const [categoryName, setCategoryName] = useState<string>('');
+  const [updatingCategory, setUpdatingCategory] = useState<boolean>(false);
+  const [updatingHourlyRate, setUpdatingHourlyRate] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(true);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
@@ -49,6 +57,122 @@ const Profile = () => {
   const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId;
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;;
   const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setFetching(true);
+        const response = await userService.getUserById(userId);
+        if (response.status === 200 && response.data) {
+          setProfile(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải thông tin người dùng. Vui lòng thử lại sau.',
+        });
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    const fetchFreelancerData = async () => {
+      try {
+        const response = await freelancerService.getFreelancerById(freelancerId);
+        if (response.status === 200 && response.data) {
+          setFreelancerProfile(response.data);
+          setHourlyRate(response.data.hourlyRate);
+          setRating(response.data.rating || 0);
+          setCategoryName(response.data.categoryName || '');
+        }
+      } catch (error) {
+        console.error('Error fetching freelancer data:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải thông tin freelancer. Vui lòng thử lại sau.',
+        });
+      }
+    };
+
+    const fetchSkillsData = async () => {
+      try {
+        setLoadingSkills(true);
+        const allSkillsResponse = await skillService.getAllSkills();
+        if (allSkillsResponse.status === 200 && allSkillsResponse.data) {
+          setAvailableSkills(allSkillsResponse.data);
+        }
+        const freelancerSkillsResponse = await skillService.getFreelancerSkills(freelancerId);
+        if (freelancerSkillsResponse.status === 200 && freelancerSkillsResponse.data) {
+          setFreelancerSkills(freelancerSkillsResponse.data);
+        }
+      } catch (error) {
+        console.error('Error fetching skills data:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.',
+        });
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
+    fetchUserData();
+    fetchFreelancerData();
+    fetchSkillsData();
+  }, [userId, freelancerId]);
+
+
+  const handleHourlyRateUpdate = async () => {
+    try {
+      setUpdatingHourlyRate(true);
+
+      const response = await freelancerService.updateHourlyRate(freelancerId, hourlyRate);
+
+      if (response.status === 200) {
+        setHourlyRate(response.data?.hourlyRate || hourlyRate);
+        notification.success({
+          message: 'Thành công',
+          description: 'Cập nhật giá giờ làm việc thành công!',
+        });
+      }
+    } catch (error) {
+      console.error('Error updating hourly rate:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể cập nhật giá giờ làm việc. Vui lòng thử lại sau.',
+      });
+    } finally {
+      setUpdatingHourlyRate(false);
+    }
+  };
+
+  const handleCategoryChange = async (id: number, name: string) => {
+    if (id > 0) {
+      try {
+        setUpdatingCategory(true);
+        setCategoryId(id);
+        setCategoryName(name);
+
+        const response = await freelancerService.updateFreelancerCategory(freelancerId, id);
+
+        if (response.status === 200 && response.data) {
+          setCategoryName(response.data.categoryName);
+          notification.success({
+            message: 'Thành công',
+            description: 'Cập nhật danh mục thành công!',
+          });
+        }
+      } catch (error) {
+        console.error('Error updating category:', error);
+        notification.error({
+          message: 'Lỗi',
+          description: 'Không thể cập nhật danh mục. Vui lòng thử lại sau.',
+        });
+      } finally {
+        setUpdatingCategory(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -351,6 +475,63 @@ const Profile = () => {
             </div>
           </FadeInWhenVisible>
 
+          <FadeInWhenVisible delay={0.25}>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Danh mục dịch vụ</label>
+                {updatingCategory && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+              </div>
+              <AutofillInput
+                entityType="category"
+                value={categoryId}
+                initialText={categoryName}
+                onChange={handleCategoryChange}
+                placeholder="Chọn hoặc nhập danh mục dịch vụ"
+                disabled={updatingCategory}
+              />
+            </div>
+          </FadeInWhenVisible>
+
+          <FadeInWhenVisible delay={0.25}>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Giá giờ làm việc (VND)</label>
+                {updatingHourlyRate && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+              </div>
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1">
+                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    className="pl-10"
+                    value={hourlyRate}
+                    onChange={(e) => setHourlyRate(Number(e.target.value))}
+                    placeholder="Nhập giá theo giờ"
+                    disabled={updatingHourlyRate}
+                  />
+                </div>
+                <Button
+                  onClick={handleHourlyRateUpdate}
+                  disabled={updatingHourlyRate}
+                  size="sm"
+                >
+                  Cập nhật
+                </Button>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {rating > 0 && (
+            <FadeInWhenVisible delay={0.26}>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Đánh giá</label>
+                <div className="flex items-center gap-1">
+                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{rating.toFixed(1)}</span>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+          )}
           <FadeInWhenVisible delay={0.3}>
             <div className="space-y-2">
               <label className="text-sm font-medium">{'Chức danh'}</label>
