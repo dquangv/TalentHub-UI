@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import { Empty } from 'antd';
 
 const NotificationDropdown = () => {
   const [notifications, setNotifications] = useState([]);
@@ -100,7 +101,7 @@ const NotificationDropdown = () => {
           <h3 className="font-semibold mb-2">Thông báo</h3>
           <div className="space-y-2">
             {notifications.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Không có thông báo</p>
+              <Empty description="Chưa có thông báo nào" />
             ) : (
               notifications.map((notification) => (
                 <DropdownMenuItem
