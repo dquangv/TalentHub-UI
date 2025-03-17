@@ -20,8 +20,8 @@ export default function AdminLayout({ children }: MainLayoutProps) {
                         <div className="flex-1">
                             {/* Header */}
                             <header className="border-b">
-                                <div className="flex h-16 items-center px-4 justify-between">
-                                    <h1 className="text-2xl font-bold">Quản Lý Freelancer & Nhà Tuyển Dụng</h1>
+                                <div className="flex h-16 items-center px-4 justify-between flex">
+                                    <div className="flex-1"></div>
                                     <ThemeToggle />
                                 </div>
                             </header>
