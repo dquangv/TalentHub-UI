@@ -37,6 +37,8 @@ export function BannersPage() {
     vendor: "",
     status: "active",
     image: null,
+    startTime: "",
+    endTime: "",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<any | null>(null);
@@ -70,12 +72,20 @@ export function BannersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, vendor, status, image } = formData;
+    const { title, vendor, status, image, startTime, endTime } = formData;
 
-    if (!title || !vendor) {
+    if (!title || !vendor || !startTime || !endTime) {
       notification.error({
         message: "Lỗi",
         description: "Vui lòng nhập đủ thông tin!",
+      });
+      return;
+    }
+
+    if (new Date(startTime) >= new Date(endTime)) {
+      notification.error({
+        message: "Lỗi",
+        description: "Thời gian kết thúc phải sau thời gian bắt đầu!",
       });
       return;
     }
@@ -86,6 +96,8 @@ export function BannersPage() {
       formDataToSend.append("vendor", vendor);
       formDataToSend.append("status", status);
       formDataToSend.append("image", image);
+      formDataToSend.append("startTime", startTime);
+      formDataToSend.append("endTime", endTime);
 
       let response;
       if (editingBanner) {
@@ -122,7 +134,7 @@ export function BannersPage() {
 
       setDialogOpen(false); 
       setEditingBanner(null);
-      clearFormData()
+      clearFormData();
     } catch (error) {
       notification.error({
         message: "Lỗi khi thêm/cập nhật banner",
@@ -137,7 +149,9 @@ export function BannersPage() {
       title: banner.title,
       vendor: banner.vendor,
       status: banner.status,
-      image: null, 
+      image: null,
+      startTime: banner.startTime,
+      endTime: banner.endTime,
     });
     setImagePreview(banner.image);
     setDialogOpen(true); 
@@ -167,6 +181,8 @@ export function BannersPage() {
       vendor: "",
       status: "active",
       image: null,
+      startTime: "",
+      endTime: "",
     });
     setImagePreview(null);
     setEditingBanner(null);
@@ -186,8 +202,8 @@ export function BannersPage() {
               {editingBanner ? "Chỉnh sửa Banner" : "Thêm Banner"}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="sticky top-0 bg-white z-10 py-2">
               <DialogTitle>
                 {editingBanner ? "Chỉnh sửa Banner" : "Thêm Banner Mới"}
               </DialogTitle>
@@ -213,6 +229,30 @@ export function BannersPage() {
                   value={formData.vendor}
                   onChange={(e) =>
                     setFormData({ ...formData, vendor: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="startTime">Thời gian bắt đầu</Label>
+                <Input
+                  id="startTime"
+                  type="date"
+                  value={formData.startTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startTime: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="endTime">Thời gian kết thúc</Label>
+                <Input
+                  id="endTime"
+                  type="date"
+                  value={formData.endTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endTime: e.target.value })
                   }
                 />
               </div>
@@ -268,7 +308,7 @@ export function BannersPage() {
                 </Select>
               </div>
 
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-4 sticky bottom-0 bg-white py-4">
                 <Button
                   type="button"
                   variant="outline"
@@ -318,3 +358,5 @@ export function BannersPage() {
     </div>
   );
 }
+
+export default BannersPage;
