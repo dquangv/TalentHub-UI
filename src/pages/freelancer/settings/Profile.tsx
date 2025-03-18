@@ -18,9 +18,9 @@ import userService, { User } from '@/api/userService';
 import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
 import { notification } from 'antd';
 import { useLanguage } from '@/contexts/LanguageContext';
-import AddressSelector from './AddressSelector';
 import freelancerService from '@/api/freelancerService';
 import AutofillInput from '@/components/AutofillInput';
+import LocationSelector from './LocationSelector';
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -29,10 +29,12 @@ const Profile = () => {
     firstName: '',
     lastName: '',
     phoneNumber: '',
-    address: '',
+    country: null,
+    province: null,
     title: '',
     introduction: '',
     image: '',
+    role: '',
   });
   const [freelancerProfile, setFreelancerProfile] = useState<any>(null);
   const [hourlyRate, setHourlyRate] = useState<number>(0);
@@ -229,12 +231,12 @@ const Profile = () => {
         firstName: profile.firstName,
         lastName: profile.lastName,
         phoneNumber: profile.phoneNumber,
-        address: profile.address,
+        country: profile.country,
+        province: profile.province,
         title: profile.title,
         introduction: profile.introduction,
         image: profile.image,
       };
-
       const response = await userService.updateUser(userId, userData);
 
       if (response.status === 200) {
@@ -563,10 +565,19 @@ const Profile = () => {
 
           <FadeInWhenVisible delay={0.5}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t('Address') || 'Địa chỉ'}</label>
-              <AddressSelector
-                value={profile.address}
-                onChange={(address) => setProfile({ ...profile, address })}
+              <label className="text-sm font-medium">{'Vị trí'}</label>
+              <LocationSelector
+                countryId={profile.country}
+                provinceId={profile.province}
+                onCountryChange={(country) => {
+                  console.log("Country selected:", country);
+                  setProfile((prev) => ({ ...prev, country: country }));
+                }}
+                onProvinceChange={(province) => {
+                  console.log("Province selected:", province);
+                  setProfile((prev) => ({ ...prev, province: province }));
+                }}
+                disabled={loading}
               />
             </div>
           </FadeInWhenVisible>
