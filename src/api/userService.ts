@@ -5,7 +5,8 @@ interface User {
     firstName: string;
     lastName: string;
     phoneNumber: string;
-    address: string;
+    country: string | null;
+    province: string | null;
     title: string;
     introduction: string;
     image: string;
@@ -50,6 +51,7 @@ const userService = {
     },
 
     updateUser: async (userId: number, userData: Partial<User>): Promise<ApiResponse<User>> => {
+        console.log('Sending user data to server:', userData);
         const response = await api.put(`/users/${userId}`, userData);
         return {
             message: response.statusText,
@@ -100,6 +102,20 @@ const userService = {
             status: response.status,
             data: response.data?.data || { message: 'Mật khẩu đã được đặt lại', success: true }
         };
+    },
+
+    getLocationDisplay: (country: string | null, province: string | null): string => {
+        const parts = [];
+
+        if (province) {
+            parts.push(province);
+        }
+
+        if (country) {
+            parts.push(country);
+        }
+
+        return parts.join(', ');
     }
 };
 
