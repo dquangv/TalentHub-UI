@@ -34,6 +34,7 @@ import Wallet from '@/pages/Wallet';
 import { ReportsPage } from '@/pages/admin/reports';
 import AccountsPage from '@/pages/admin/accounts';
 import OAuth2Callback from '@/pages/Oauth2Callback';
+import SchoolPage from '@/pages/admin/SchoolPage';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -189,6 +190,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/reports',
         element: <ReportsPage />
+    },
+    {
+        path: '/schools',
+        element: <SchoolPage />
     },
     {
         path: '*',
