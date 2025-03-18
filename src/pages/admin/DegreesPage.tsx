@@ -28,12 +28,12 @@ const schoolColumns = [
 
 export function DegreesPage() {
   const [data, setData] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ schoolName: "" });
+  const [formData, setFormData] = useState({ degreeTitle: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchool, setEditingSchool] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchSchools = async () => {
+    const fetchdegrees = async () => {
       try {
         const response = await api.get("/v1/degrees");
         setData(response.data);
@@ -44,12 +44,12 @@ export function DegreesPage() {
         });
       }
     };
-    fetchSchools();
+    fetchdegrees();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.schoolName.trim()) {
+    if (!formData.degreeTitle.trim()) {
       notification.error({ message: "Lỗi", description: "Tên bằng cấp không được để trống!" });
       return;
     }
@@ -57,10 +57,10 @@ export function DegreesPage() {
     try {
       let response;
       if (editingSchool) {
-        response = await api.put(`/v1/schools/${editingSchool.id}`, formData);
+        response = await api.put(`/v1/degrees/${editingSchool.id}`, formData);
         notification.success({ message: "Cập nhật thành công", description: "Bằng cấp học đã được cập nhật." });
       } else {
-        response = await api.post("/v1/schools", formData);
+        response = await api.post("/v1/degrees", formData);
         notification.success({ message: "Thêm thành công", description: "Bằng cấp học đã được thêm." });
       }
 
@@ -76,7 +76,7 @@ export function DegreesPage() {
 
       setDialogOpen(false);
       setEditingSchool(null);
-      setFormData({ schoolName: "" });
+      setFormData({ degreeTitle: "" });
     } catch (error) {
       notification.error({
         message: "Lỗi khi thêm/cập nhật bằng cấp học",
@@ -87,13 +87,13 @@ export function DegreesPage() {
 
   const handleEdit = (school: any) => {
     setEditingSchool(school);
-    setFormData({ schoolName: school.schoolName });
+    setFormData({ degreeTitle: school.degreeTitle });
     setDialogOpen(true);
   };
 
   const handleDelete = async (schoolId: string) => {
     try {
-      await api.delete(`/v1/schools/${schoolId}`);
+      await api.delete(`/v1/degrees/${schoolId}`);
       setData((prevData) => prevData.filter((school) => school.id !== schoolId));
       notification.success({ message: "Xóa thành công", description: "Bằng cấp học đã bị xóa." });
     } catch (error) {
@@ -111,7 +111,7 @@ export function DegreesPage() {
             setDialogOpen(open);
             if (!open) {
               setEditingSchool(null);
-              setFormData({ schoolName: "" });
+              setFormData({ degreeTitle: "" });
             }
           }}
         >
@@ -129,12 +129,12 @@ export function DegreesPage() {
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="schoolName">Tên bằng cấp</Label>
+                <Label htmlFor="degreeTitle">Tên bằng cấp</Label>
                 <Input
-                  id="schoolName"
+                  id="degreeTitle"
                   placeholder="Nhập tên bằng cấp"
-                  value={formData.schoolName}
-                  onChange={(e) => setFormData({ schoolName: e.target.value })}
+                  value={formData.degreeTitle}
+                  onChange={(e) => setFormData({ degreeTitle: e.target.value })}
                 />
               </div>
 
