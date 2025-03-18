@@ -9,14 +9,20 @@ import { Camera, Phone, MapPin, Loader2 } from 'lucide-react';
 import { notification } from 'antd';
 import userService, { User } from '@/api/userService';
 import clientService from '@/api/clientService';
+import LocationSelector from '../freelancer/settings/LocationSelector';
 
 const ClientProfile = () => {
-    const [profile, setProfile] = useState<User>({
+    const [profile, setProfile] = useState<User & {
+        fromPrice: number;
+        toPrice: number;
+        typePrice: string;
+    }>({
         id: 0,
         firstName: '',
         lastName: '',
         phoneNumber: '',
-        address: '',
+        country: null,
+        province: null,
         title: '',
         introduction: '',
         image: '',
@@ -78,7 +84,8 @@ const ClientProfile = () => {
                 firstName: profile.firstName,
                 lastName: profile.lastName,
                 phoneNumber: profile.phoneNumber,
-                address: profile.address,
+                country: profile.country,
+                province: profile.province,
                 title: profile.title,
                 introduction: profile.introduction,
                 image: profile.image,
@@ -330,17 +337,20 @@ const ClientProfile = () => {
 
                         <FadeInWhenVisible delay={0.5}>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Địa chỉ</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        className="pl-10"
-                                        value={profile.address}
-                                        onChange={(e) =>
-                                            setProfile({ ...profile, address: e.target.value })
-                                        }
-                                    />
-                                </div>
+                                <label className="text-sm font-medium">Vị trí</label>
+                                <LocationSelector
+                                    countryId={profile.country}
+                                    provinceId={profile.province}
+                                    onCountryChange={(countryId) => {
+                                        console.log("Country selected:", countryId);
+                                        setProfile((prev) => ({ ...prev, country: countryId }));
+                                    }}
+                                    onProvinceChange={(provinceId) => {
+                                        console.log("Province selected:", provinceId);
+                                        setProfile((prev) => ({ ...prev, province: provinceId }));
+                                    }}
+                                    disabled={loading}
+                                />
                             </div>
                         </FadeInWhenVisible>
 
