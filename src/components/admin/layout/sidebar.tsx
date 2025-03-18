@@ -67,7 +67,7 @@ const menuItems = [
   {
     title: "Quản lý kỹ năng",
     icon: School,
-    href: "/degrees",
+    href: "/skills",
   },
 ];
 
