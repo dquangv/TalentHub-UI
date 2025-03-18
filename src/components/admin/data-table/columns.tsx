@@ -229,6 +229,7 @@ export const bannerColumns: ColumnDef<any>[] = [
     accessorKey: "title",
     header: "Tiêu đề",
   },
+
   {
     accessorKey: "image",
     header: "Hình ảnh",
@@ -243,6 +244,14 @@ export const bannerColumns: ColumnDef<any>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "startTime",
+    header: "Ngày bắt đầu",
+  },
+  {
+    accessorKey: "endTime",
+    header: "Ngày kết thúc",
   },
 ];
 
