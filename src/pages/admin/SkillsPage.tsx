@@ -14,60 +14,59 @@ import { Label } from "@/components/ui/label";
 import { notification } from "antd";
 import api from "@/api/axiosConfig";
 
-const schoolColumns = [
+const skillColumns = [
   {
     accessorKey: "id",
     header: "ID",
   },
   {
-    accessorKey: "degreeTitle",
-    header: "Tên bằng cấp",
+    accessorKey: "skillName",
+    header: "Tên kỹ năng",
   }
-  
 ];
 
-export function DegreesPage() {
+export function SkillsPage() {
   const [data, setData] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ degreeTitle: "" });
+  const [formData, setFormData] = useState({ skillName: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSchool, setEditingSchool] = useState<any | null>(null);
+  const [editingSkill, setEditingSkill] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchdegrees = async () => {
+    const fetchSkills = async () => {
       try {
-        const response = await api.get("/v1/degrees");
-        setData(response.data);
+        const response = await api.get("/v1/jobs/skills");
+        setData(response.data); 
       } catch (error) {
         notification.error({
-          message: "Lỗi khi tải danh sách bằng cấp",
+          message: "Lỗi khi tải danh sách kỹ năng",
           description: "Có lỗi xảy ra khi tải dữ liệu từ server.",
         });
       }
     };
-    fetchdegrees();
+    fetchSkills();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.degreeTitle.trim()) {
-      notification.error({ message: "Lỗi", description: "Tên bằng cấp không được để trống!" });
+    if (!formData.skillName.trim()) {
+      notification.error({ message: "Lỗi", description: "Tên kỹ năng không được để trống!" });
       return;
     }
 
     try {
       let response;
-      if (editingSchool) {
-        response = await api.put(`/v1/degrees/${editingSchool.id}`, formData);
-        notification.success({ message: "Cập nhật thành công", description: "Bằng cấp học đã được cập nhật." });
+      if (editingSkill) {
+        response = await api.put(`/v1/jobs/skills/${editingSkill.id}`, formData);
+        notification.success({ message: "Cập nhật thành công", description: "Kỹ năng đã được cập nhật." });
       } else {
-        response = await api.post("/v1/degrees", formData);
-        notification.success({ message: "Thêm thành công", description: "Bằng cấp học đã được thêm." });
+        response = await api.post("/v1/jobs/skills", formData);
+        notification.success({ message: "Thêm thành công", description: "Kỹ năng mới đã được thêm." });
       }
 
       setData((prevData) => {
-        if (editingSchool) {
-          return prevData.map((school) =>
-            school.id === editingSchool.id ? response.data : school
+        if (editingSkill) {
+          return prevData.map((skill) =>
+            skill.id === editingSkill.id ? response.data : skill
           );
         } else {
           return [response.data, ...prevData];
@@ -75,66 +74,66 @@ export function DegreesPage() {
       });
 
       setDialogOpen(false);
-      setEditingSchool(null);
-      setFormData({ degreeTitle: "" });
+      setEditingSkill(null);
+      setFormData({ skillName: "" });
     } catch (error) {
       notification.error({
-        message: "Lỗi khi thêm/cập nhật bằng cấp học",
+        message: "Lỗi khi thêm/cập nhật kỹ năng",
         description: "Có lỗi xảy ra khi lưu thông tin.",
       });
     }
   };
 
-  const handleEdit = (school: any) => {
-    setEditingSchool(school);
-    setFormData({ degreeTitle: school.degreeTitle });
+  const handleEdit = (skill: any) => {
+    setEditingSkill(skill);
+    setFormData({ skillName: skill.skillName });
     setDialogOpen(true);
   };
 
-  const handleDelete = async (schoolId: string) => {
+  const handleDelete = async (skillId: string) => {
     try {
-      await api.delete(`/v1/degrees/${schoolId}`);
-      setData((prevData) => prevData.filter((school) => school.id !== schoolId));
-      notification.success({ message: "Xóa thành công", description: "Bằng cấp học đã bị xóa." });
+      await api.delete(`/v1/jobs/skills/${skillId}`);
+      setData((prevData) => prevData.filter((skill) => skill.id !== skillId));
+      notification.success({ message: "Xóa thành công", description: "Kỹ năng đã bị xóa." });
     } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa bằng cấp học này." });
+      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa kỹ năng này." });
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý bằng cấp Học</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Quản lý Kỹ Năng</h2>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) {
-              setEditingSchool(null);
-              setFormData({ degreeTitle: "" });
+              setEditingSkill(null);
+              setFormData({ skillName: "" });
             }
           }}
         >
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
-              {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp"}
+              {editingSkill ? "Chỉnh sửa kỹ năng" : "Thêm kỹ năng"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
-                {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp Mới"}
+                {editingSkill ? "Chỉnh sửa kỹ năng" : "Thêm kỹ năng Mới"}
               </DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="degreeTitle">Tên bằng cấp</Label>
+                <Label htmlFor="skillName">Tên kỹ năng</Label>
                 <Input
-                  id="degreeTitle"
-                  placeholder="Nhập tên bằng cấp"
-                  value={formData.degreeTitle}
-                  onChange={(e) => setFormData({ degreeTitle: e.target.value })}
+                  id="skillName"
+                  placeholder="Nhập tên kỹ năng"
+                  value={formData.skillName}
+                  onChange={(e) => setFormData({ skillName: e.target.value })}
                 />
               </div>
 
@@ -143,7 +142,7 @@ export function DegreesPage() {
                   Hủy
                 </Button>
                 <Button type="submit">
-                  {editingSchool ? "Lưu thay đổi" : "Lưu"}
+                  {editingSkill ? "Lưu thay đổi" : "Lưu"}
                 </Button>
               </div>
             </form>
@@ -152,7 +151,7 @@ export function DegreesPage() {
       </div>
 
       <DataTable columns={[
-                ...schoolColumns,
+                ...skillColumns,
                 {
                   id: "actions",
                   header: "Actions",
@@ -183,4 +182,4 @@ export function DegreesPage() {
   );
 }
 
-export default DegreesPage;
+export default SkillsPage;
