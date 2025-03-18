@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { notification } from "antd";
 import api from "@/api/axiosConfig";
 
-// Định nghĩa cột cho DataTable
 const schoolColumns = [
   {
     accessorKey: "id",
@@ -33,7 +32,6 @@ export function SchoolsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchool, setEditingSchool] = useState<any | null>(null);
 
-  // Fetch danh sách trường học
   useEffect(() => {
     const fetchSchools = async () => {
       try {
