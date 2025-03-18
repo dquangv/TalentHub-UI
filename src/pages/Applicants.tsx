@@ -21,16 +21,21 @@ import {
 } from "@/components/ui/table";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
-  Filter,
   Star,
   Download,
-  Calendar,
   CheckCircle,
   XCircle,
   Users,
   Clock,
+  FileText,
+  Loader2,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import cvService from "@/api/cvService";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { Link, useParams } from "react-router-dom";
 import { notification } from "antd";
 
@@ -48,6 +53,10 @@ const Applicants = () => {
     Completed: 0,
     Cancelled: 0,
   });
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [currentPdfUrl, setCurrentPdfUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [currentApplicant, setCurrentApplicant] = useState(null);
   const { id } = useParams();
 
   const fetchApplicants = async () => {
@@ -111,7 +120,33 @@ const Applicants = () => {
         return "default";
     }
   };
+  const handleViewCV = async (applicant) => {
+    if (!applicant.cvURL) {
+      notification.info({
+        message: "Thông báo",
+        description: "Ứng viên chưa có CV",
+      });
+      return;
+    }
 
+    setCurrentApplicant(applicant);
+    setPreviewLoading(true);
+    setPreviewVisible(true);
+
+    try {
+      // Use the cvURL directly with the previewCV method
+      const previewUrl = await cvService.previewCV(applicant.cvURL);
+      setCurrentPdfUrl(previewUrl);
+    } catch (error) {
+      console.error("Error loading CV:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể tải CV. Vui lòng thử lại sau.",
+      });
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
   const filteredApplicants = applicants.filter(applicant => {
     const fullName = `${applicant?.firstName || ''} ${applicant?.lastName || ''}`.trim().toLowerCase();
     const matchesSearch = fullName.includes(searchTerm.toLowerCase()) ||
@@ -310,6 +345,15 @@ const Applicants = () => {
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
+                          variant="outline"
+                          disabled={applicant.cvId === 0}
+                          onClick={() => handleViewCV(applicant)}
+                          className="text-blue-600"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
                           disabled={applicant.appointmentId != -1}
                           variant="outline"
                           className="text-green-600"
@@ -355,6 +399,42 @@ const Applicants = () => {
           </Card>
         </FadeInWhenVisible>
       </div>
+      <Dialog open={previewVisible} onOpenChange={(open) => !open && setPreviewVisible(false)}>
+        <DialogContent className="max-w-5xl h-[90vh] p-0 sm:rounded-lg">
+          <div className="h-full w-full p-2 bg-gray-50">
+            {previewLoading ? (
+              <div className="flex flex-col justify-center items-center h-full">
+                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                <span className="text-gray-500">Đang tải xem trước...</span>
+              </div>
+            ) : !currentPdfUrl ? (
+              <div className="flex flex-col justify-center items-center h-full">
+                <FileText className="w-12 h-12 text-gray-400 mb-4" />
+                <span className="text-gray-500">Không thể tải CV</span>
+              </div>
+            ) : (
+              <iframe
+                src={currentPdfUrl}
+                width="100%"
+                height="100%"
+                style={{
+                  border: 'none',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                }}
+                title="CV Preview"
+                onError={() => {
+                  notification.error({
+                    message: 'Lỗi',
+                    description: 'Không thể tải xem trước CV. Vui lòng thử lại sau.'
+                  });
+                  setPreviewVisible(false);
+                }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
