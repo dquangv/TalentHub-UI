@@ -29,13 +29,15 @@ interface Freelancer {
   title: string;
   avatar: string;
   rating: number;
-  location: string;
+  province: string | null;
+  country: string | null;
   skills: string[];
   hourlyRate: string;
 }
 
 interface FilterState {
-  location: string;
+  province: string;
+  country: string;
   minRate: number;
   maxRate: number;
   selectedSkills: string[];
@@ -51,17 +53,25 @@ const Freelancers = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [filters, setFilters] = useState<FilterState>({
-    location: '',
+    province: '',
+    country: '',
     minRate: 0,
     maxRate: 200,
     selectedSkills: [],
     minRating: 0,
   });
 
-  const uniqueLocations: any = [];
+  const uniqueProvinces: any = [];
   for (const f of freelancers) {
-    if (!uniqueLocations.includes(f.location)) {
-      uniqueLocations.push(f.location);
+    if (f.province && !uniqueProvinces.includes(f.province)) {
+      uniqueProvinces.push(f.province);
+    }
+  }
+
+  const uniqueCountries: any = [];
+  for (const f of freelancers) {
+    if (f.country && !uniqueCountries.includes(f.country)) {
+      uniqueCountries.push(f.country);
     }
   }
 
@@ -104,9 +114,15 @@ const Freelancers = () => {
       );
     }
 
-    if (filters.location) {
+    if (filters.province) {
       filtered = filtered.filter(freelancer =>
-        freelancer.location === filters.location
+        freelancer.province === filters.province
+      );
+    }
+
+    if (filters.country) {
+      filtered = filtered.filter(freelancer =>
+        freelancer.country === filters.country
       );
     }
 
@@ -135,7 +151,8 @@ const Freelancers = () => {
 
   const resetFilters = () => {
     setFilters({
-      location: '',
+      province: '',
+      country: '',
       minRate: 0,
       maxRate: 200,
       selectedSkills: [],
@@ -189,24 +206,47 @@ const Freelancers = () => {
                     </SheetHeader>
                     <div className="py-6 space-y-6">
                       <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Địa điểm</h3>
-                        <Select
-                          value={filters.location}
-                          onValueChange={(value) =>
-                            setFilters(prev => ({ ...prev, location: value }))
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn địa điểm" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {uniqueLocations.map(location => (
-                              <SelectItem key={location} value={location}>
-                                {location}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Tỉnh/Thành phố</h3>
+                          <Select
+                            value={filters.province}
+                            onValueChange={(value) =>
+                              setFilters(prev => ({ ...prev, province: value }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn tỉnh/thành phố" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {uniqueProvinces.map(province => (
+                                <SelectItem key={province} value={province}>
+                                  {province}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Quốc gia</h3>
+                          <Select
+                            value={filters.country}
+                            onValueChange={(value) =>
+                              setFilters(prev => ({ ...prev, country: value }))
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Chọn quốc gia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {uniqueCountries.map(country => (
+                                <SelectItem key={country} value={country}>
+                                  {country}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <div className="space-y-2">
@@ -318,7 +358,9 @@ const Freelancers = () => {
                       </p>
                       <div className="flex items-center text-sm text-muted-foreground mb-4">
                         <MapPin className="w-4 h-4 mr-1" />
-                        {freelancer.location}
+                        {freelancer.province && freelancer.country
+                          ? `${freelancer.province}, ${freelancer.country}`
+                          : freelancer.province || freelancer.country || 'Chưa cập nhật'}
                       </div>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {freelancer.skills.map((skill) => (
