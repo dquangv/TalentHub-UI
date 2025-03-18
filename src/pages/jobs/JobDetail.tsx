@@ -8,16 +8,20 @@ import {
   Clock,
   DollarSign,
   Briefcase,
-  MapPin,
   Calendar,
   Users,
-  CheckCircle,
   User,
   Flag,
+  FileText,
+  CheckCircle,
+  Loader2,
+  Plus,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import cvService, { CV } from "@/api/cvService";
 import { notification } from "antd";
 import ReportDialog from "@/components/report/ReportDialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface JobDetailResponse {
   title: string;
@@ -41,15 +45,21 @@ interface JobFreelancerInfo {
   saved: boolean;
 }
 
+
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [job, setJob] = useState<JobDetailResponse | null>(null);
-  const [error, setError] = useState("");
   const [isClient, setClient] = useState(null);
-  const [jobFreelancerInfo, setJobFreelancerInfo] =
-    useState<JobFreelancerInfo | null>(null);
+  const [jobFreelancerInfo, setJobFreelancerInfo] = useState<JobFreelancerInfo | null>(null);
+  const [cvs, setCVs] = useState<CV[]>([]);
+  const [cvPreviews, setCvPreviews] = useState<{ [key: number]: string }>({});
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [selectedCvId, setSelectedCvId] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
-  console.log("data ", job);
+
+  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
@@ -78,7 +88,10 @@ const JobDetail = () => {
           jobId: Number(id),
         });
         if (response.status !== 200) {
-          setError("Có lỗi xảy ra");
+          notification.error({
+            message: "Lỗi",
+            description: response.message || "Dữ liệu không hợp lệ",
+          })
         }
         setJobFreelancerInfo(response?.data || null);
       };
@@ -87,29 +100,115 @@ const JobDetail = () => {
     }
   }, []);
 
-  const handleApplyJob = async () => {
-    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
-    if (!data?.freelancerId) {
-      navigate("/login");
-    }
-    const response = await api.post("/v1/jobs/apply", {
-      freelancerId: data?.freelancerId,
-      jobId: Number(id),
-    });
-    if (response.status !== 200) {
+  const fetchCVs = async () => {
+    try {
+      const response = await cvService.getCVsByFreelancerId(freelancerId);
+      if (response.data) {
+        setCVs(response.data);
+
+        const previewsObj: { [key: number]: string } = {};
+        for (const cv of response.data) {
+          try {
+            const previewUrl = await cvService.previewCV(cv.url);
+            previewsObj[cv.id] = previewUrl;
+          } catch (error) {
+            console.error(`Error creating preview for CV ${cv.id}:`, error);
+          }
+        }
+        setCvPreviews(previewsObj);
+      }
+    } catch (error) {
+      console.error('Error loading CV list:', error);
       notification.error({
-        message: "Lỗi dữ liệu",
-        description: response.data.message || "Dữ liệu không hợp lệ",
+        message: 'Lỗi',
+        description: 'Không thể tải danh sách CV. Vui lòng thử lại sau.'
+      });
+    }
+  };
+
+
+  const handleOpenApplyDialog = () => {
+    fetchCVs();
+    setIsApplyDialogOpen(true);
+  };
+
+  const handleUploadCV = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      notification.error({
+        message: 'Lỗi',
+        description: 'Chỉ cho phép upload file PDF'
+      });
+      return;
+    }
+
+    try {
+      setUploading(true);
+      await cvService.uploadCV(file, freelancerId);
+      notification.success({
+        message: 'Thành công',
+        description: 'Upload CV thành công'
+      });
+      await fetchCVs();
+    } catch (error) {
+      console.error('Error uploading CV:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể upload CV. Vui lòng thử lại sau.'
+      });
+    } finally {
+      setUploading(false);
+      event.target.value = '';
+    }
+  };
+  const handlePreviewCV = (cv: CV) => {
+    const previewUrl = cvPreviews[cv.id];
+  };
+  const handleApplyJob = async () => {
+    if (!selectedCvId) {
+      notification.error({
+        message: 'Lỗi',
+        description: 'Vui lòng chọn CV'
+      });
+      return;
+    }
+
+    try {
+      const response = await api.post("/v1/jobs/apply", {
+        jobId: Number(id),
+        freelancerId: freelancerId,
+        cvId: selectedCvId
       });
 
-      setError("Có lỗi xảy ra");
+      if (response.status !== 200) {
+        notification.error({
+          message: 'Lỗi dữ liệu',
+          description: response.data.message || 'Dữ liệu không hợp lệ'
+        });
+        notification.error({
+          message: "Lỗi dữ liệu",
+          description: response.message || "Dữ liệu không hợp lệ",
+        });
+        return;
+      }
+
+      notification.info({
+        message: 'Thông báo',
+        description: 'Ứng tuyển thành công. Vui lòng chờ để được chấp nhận'
+      });
+
+      setJobFreelancerInfo(response?.data || null);
+      setIsApplyDialogOpen(false);
+    } catch (error) {
+      console.error('Error applying for job:', error);
+      notification.error({
+        message: 'Lỗi',
+        description: 'Không thể ứng tuyển. Vui lòng thử lại sau.'
+      });
     }
-    notification.info({
-      message: "Thông báo",
-      description: "Ứng tuyển thành công. Vui lòng chờ để được chấp nhận",
-    });
-    setJobFreelancerInfo(response?.data || null);
   };
 
   const handleSaveJob = async () => {
@@ -127,8 +226,6 @@ const JobDetail = () => {
         message: "Lỗi dữ liệu",
         description: response.message || "Dữ liệu không hợp lệ",
       });
-
-      setError("Có lỗi xảy ra");
     }
     notification.info({
       message: "Thông báo",
@@ -143,9 +240,10 @@ const JobDetail = () => {
       jobId: Number(id),
     });
     if (response.status !== 200) {
-      alert("có lỗi");
-
-      setError("Có lỗi xảy ra");
+      notification.error({
+        message: "Lỗi dữ liệu",
+        description: response.message || "Dữ liệu không hợp lệ",
+      });
     }
     notification.info({
       message: "Thông báo",
@@ -157,6 +255,7 @@ const JobDetail = () => {
   if (!job) {
     return <div>Loading...</div>;
   }
+
 
   return (
     <div className="py-12">
@@ -189,7 +288,7 @@ const JobDetail = () => {
                     {/* Apply button */}
                     <Button
                       size="lg"
-                      onClick={handleApplyJob}
+                      onClick={handleOpenApplyDialog}
                       disabled={jobFreelancerInfo?.status != null}
                     >
                       {!jobFreelancerInfo?.status
@@ -302,7 +401,7 @@ const JobDetail = () => {
                   <Button
                     size="lg"
                     className="px-8 mt-8 w-full"
-                    onClick={handleApplyJob}
+                    onClick={handleOpenApplyDialog}
                     disabled={jobFreelancerInfo?.status != null}
                   >
                     {!jobFreelancerInfo?.status
@@ -315,6 +414,139 @@ const JobDetail = () => {
           </FadeInWhenVisible>
         </div>
       </div>
+
+      <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
+        <DialogContent className="w-full max-w-[1000px] max-h-[90vh] p-0 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 h-full">
+            <div className="col-span-1 p-6 border-r overflow-y-auto max-h-[80vh]">
+              <DialogHeader className="mb-4">
+                <DialogTitle>Chọn CV để ứng tuyển</DialogTitle>
+                <DialogDescription>
+                  Chọn một CV để gửi kèm với đơn ứng tuyển công việc {job.title}
+                </DialogDescription>
+              </DialogHeader>
+
+              {cvs.length === 0 ? (
+                <div className="text-center py-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                    <FileText className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="text-lg font-medium mb-2">Chưa có CV nào</h3>
+                  <p className="text-gray-500 mb-6">
+                    Bạn chưa có CV nào trong hệ thống. Hãy tải lên CV để ứng tuyển.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {cvs.map((cv) => (
+                    <div
+                      key={cv.id}
+                      className={`
+                  border rounded-lg p-4 cursor-pointer transition-all flex justify-between items-center
+                  ${selectedCvId === cv.id ? 'border-primary bg-primary/10' : 'hover:bg-gray-50'}
+                `}
+                      onClick={() => setSelectedCvId(cv.id)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-primary" />
+                        <span className="font-medium truncate max-w-[200px]">
+                          {cv.title || 'CV không đặt tên'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePreviewCV(cv);
+                          }}
+                        >
+                        </Button>
+                        {selectedCvId === cv.id && (
+                          <CheckCircle className="w-5 h-5 text-primary" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-4">
+                <input
+                  type="file"
+                  id="cv-upload"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleUploadCV}
+                  disabled={uploading}
+                />
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => document.getElementById('cv-upload')?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Đang tải lên...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Tải CV mới
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="col-span-2 p-6">
+              <div className="h-[70vh] border rounded-lg overflow-hidden">
+                {selectedCvId ? (
+                  cvPreviews[selectedCvId] ? (
+                    <iframe
+                      src={cvPreviews[selectedCvId]}
+                      width="100%"
+                      height="100%"
+                      style={{
+                        border: 'none',
+                        borderRadius: '8px',
+                      }}
+                      title={`CV Preview: ${cvs.find(cv => cv.id === selectedCvId)?.title || 'Untitled'}`}
+                    />
+                  ) : (
+                    <div className="flex justify-center items-center h-full">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary mr-2" />
+                      <span>Đang tải preview...</span>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex justify-center items-center h-full text-muted-foreground">
+                    Chọn một CV để xem trước
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsApplyDialogOpen(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleApplyJob}
+                  disabled={!selectedCvId}
+                >
+                  Ứng tuyển
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
