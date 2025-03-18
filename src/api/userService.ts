@@ -9,6 +9,7 @@ interface User {
     title: string;
     introduction: string;
     image: string;
+    role: string;
 }
 
 interface ApiResponse<T> {

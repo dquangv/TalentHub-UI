@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   CreditCard,
   AlertTriangle,
+  School,
 } from "lucide-react";
 import { ExitIcon } from "@radix-ui/react-icons";
 import { Button } from "antd";
@@ -52,6 +53,21 @@ const menuItems = [
     title: "Quản lý Báo Cáo",
     icon: AlertTriangle,
     href: "/reports",
+  },
+  {
+    title: "Quản lý Trường",
+    icon: School,
+    href: "/schools",
+  },
+  {
+    title: "Quản lý bằng cấp",
+    icon: School,
+    href: "/degrees",
+  },
+  {
+    title: "Quản lý kỹ năng",
+    icon: School,
+    href: "/degrees",
   },
 ];
 

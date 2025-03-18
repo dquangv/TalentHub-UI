@@ -14,9 +14,7 @@ export interface ApiResponse<T> {
     status: number;
     data: T | null;
 }
-
 const cvService = {
-
     uploadCV: async (file: File, freelancerId: number): Promise<ApiResponse<string>> => {
         const formData = new FormData();
         formData.append('file', file);

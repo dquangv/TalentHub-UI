@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -54,7 +55,7 @@ const Applicants = () => {
     try {
       const response = await api.get(`/v1/jobs/applicants/${id}`);
       setApplicants(response.data);
-      
+
       // Calculate stats
       const newStats = {
         total: response.data.length,
@@ -112,8 +113,9 @@ const Applicants = () => {
   };
 
   const filteredApplicants = applicants.filter(applicant => {
-    const matchesSearch = applicant?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         applicant?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    const fullName = `${applicant?.firstName || ''} ${applicant?.lastName || ''}`.trim().toLowerCase();
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) ||
+      applicant?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || applicant?.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -242,7 +244,7 @@ const Applicants = () => {
                   <SelectItem value="Cancelled">Đã hủy</SelectItem>
                 </SelectContent>
               </Select>
-            
+
               <Button variant="outline">
                 <Download className="w-4 h-4 mr-2" />
                 Xuất Excel
@@ -270,13 +272,12 @@ const Applicants = () => {
                   <TableRow key={applicant.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <img
-                          src={applicant.avatar}
-                          alt={applicant.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={applicant.image} alt={`${applicant.firstName} ${applicant.lastName}`} />
+                          <AvatarFallback>{`${applicant.firstName?.[0] || ''}${applicant.lastName?.[0] || ''}`}</AvatarFallback>
+                        </Avatar>
                         <div>
-                          <p className="font-medium">{applicant.name}</p>
+                          <p className="font-medium">{`${applicant.firstName || ''} ${applicant.lastName || ''}`}</p>
                           <p className="text-sm text-muted-foreground">
                             {applicant.email}
                           </p>
@@ -309,7 +310,7 @@ const Applicants = () => {
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          disabled={applicant.status !== "Completed"}
+                          disabled={applicant.appointmentId != -1}
                           variant="outline"
                           className="text-green-600"
                         >

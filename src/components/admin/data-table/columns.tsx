@@ -229,6 +229,7 @@ export const bannerColumns: ColumnDef<any>[] = [
     accessorKey: "title",
     header: "Tiêu đề",
   },
+
   {
     accessorKey: "image",
     header: "Hình ảnh",
@@ -243,6 +244,14 @@ export const bannerColumns: ColumnDef<any>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "startTime",
+    header: "Ngày bắt đầu",
+  },
+  {
+    accessorKey: "endTime",
+    header: "Ngày kết thúc",
   },
 ];
 
@@ -339,5 +348,35 @@ export const reportColumns: ColumnDef<any>[] = [
         </Button>
       );
     },
+  },
+];
+
+
+export const schoolColumns: ColumnDef<any>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+  },
+  {
+    accessorKey: "schoolName",
+    header: "Tên Trường",
+  },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => (
+      <span className={row.original.status === "ACTIVE" ? "text-green-600" : "text-red-600"}>
+        {row.original.status === "ACTIVE" ? "Hoạt động" : "Ngừng hoạt động"}
+      </span>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Thao tác",
+    cell: ({ row }) => (
+      <Button variant="outline" size="sm" onClick={() => row.original.onAction(row.original)}>
+        Chỉnh sửa
+      </Button>
+    ),
   },
 ];
