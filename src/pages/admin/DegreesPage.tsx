@@ -20,13 +20,13 @@ const schoolColumns = [
     header: "ID",
   },
   {
-    accessorKey: "schoolName",
-    header: "Tên Trường",
+    accessorKey: "degreeTitle",
+    header: "Tên bằng cấp",
   }
   
 ];
 
-export function SchoolsPage() {
+export function DegreesPage() {
   const [data, setData] = useState<any[]>([]);
   const [formData, setFormData] = useState({ schoolName: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -35,11 +35,11 @@ export function SchoolsPage() {
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await api.get("/v1/schools");
+        const response = await api.get("/v1/degrees");
         setData(response.data);
       } catch (error) {
         notification.error({
-          message: "Lỗi khi tải danh sách trường",
+          message: "Lỗi khi tải danh sách bằng cấp",
           description: "Có lỗi xảy ra khi tải dữ liệu từ server.",
         });
       }
@@ -50,7 +50,7 @@ export function SchoolsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.schoolName.trim()) {
-      notification.error({ message: "Lỗi", description: "Tên trường không được để trống!" });
+      notification.error({ message: "Lỗi", description: "Tên bằng cấp không được để trống!" });
       return;
     }
 
@@ -58,10 +58,10 @@ export function SchoolsPage() {
       let response;
       if (editingSchool) {
         response = await api.put(`/v1/schools/${editingSchool.id}`, formData);
-        notification.success({ message: "Cập nhật thành công", description: "Trường học đã được cập nhật." });
+        notification.success({ message: "Cập nhật thành công", description: "Bằng cấp học đã được cập nhật." });
       } else {
         response = await api.post("/v1/schools", formData);
-        notification.success({ message: "Thêm thành công", description: "Trường học đã được thêm." });
+        notification.success({ message: "Thêm thành công", description: "Bằng cấp học đã được thêm." });
       }
 
       setData((prevData) => {
@@ -79,7 +79,7 @@ export function SchoolsPage() {
       setFormData({ schoolName: "" });
     } catch (error) {
       notification.error({
-        message: "Lỗi khi thêm/cập nhật trường học",
+        message: "Lỗi khi thêm/cập nhật bằng cấp học",
         description: "Có lỗi xảy ra khi lưu thông tin.",
       });
     }
@@ -95,16 +95,16 @@ export function SchoolsPage() {
     try {
       await api.delete(`/v1/schools/${schoolId}`);
       setData((prevData) => prevData.filter((school) => school.id !== schoolId));
-      notification.success({ message: "Xóa thành công", description: "Trường học đã bị xóa." });
+      notification.success({ message: "Xóa thành công", description: "Bằng cấp học đã bị xóa." });
     } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa trường học này." });
+      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa bằng cấp học này." });
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý Trường Học</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Quản lý bằng cấp Học</h2>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
@@ -118,21 +118,21 @@ export function SchoolsPage() {
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
-              {editingSchool ? "Chỉnh sửa Trường" : "Thêm Trường"}
+              {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
-                {editingSchool ? "Chỉnh sửa Trường" : "Thêm Trường Mới"}
+                {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp Mới"}
               </DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="schoolName">Tên Trường</Label>
+                <Label htmlFor="schoolName">Tên bằng cấp</Label>
                 <Input
                   id="schoolName"
-                  placeholder="Nhập tên trường"
+                  placeholder="Nhập tên bằng cấp"
                   value={formData.schoolName}
                   onChange={(e) => setFormData({ schoolName: e.target.value })}
                 />
@@ -183,4 +183,4 @@ export function SchoolsPage() {
   );
 }
 
-export default SchoolsPage;
+export default DegreesPage;

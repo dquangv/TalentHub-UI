@@ -59,6 +59,16 @@ const menuItems = [
     icon: School,
     href: "/schools",
   },
+  {
+    title: "Quản lý bằng cấp",
+    icon: School,
+    href: "/degrees",
+  },
+  {
+    title: "Quản lý kỹ năng",
+    icon: School,
+    href: "/degrees",
+  },
 ];
 
 export function Sidebar() {
