@@ -36,6 +36,7 @@ import AccountsPage from '@/pages/admin/accounts';
 import OAuth2Callback from '@/pages/Oauth2Callback';
 import SchoolPage from '@/pages/admin/SchoolPage';
 import DegreesPage from '@/pages/admin/DegreesPage';
+import SkillsPage from '@/pages/admin/SkillsPage';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -200,6 +201,10 @@ export const adminRoutes: RouteObject[] = [
     {
         path: '/degrees',
         element: <DegreesPage />
+    },
+    {
+        path: '/skills',
+        element: <SkillsPage />
     },
     {
         path: '*',
