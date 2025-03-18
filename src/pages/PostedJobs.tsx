@@ -55,9 +55,10 @@ const PostedJobs = () => {
     BANNED: 0,
     DRAFT: 0,
   });
+  const clientId = JSON.parse(localStorage.getItem("userInfo") || "{}").clientId;
   const fetchJobs = async () => {
     try {
-      const response = await api.get("/v1/jobs/PostedJobs/2");
+      const response = await api.get(`/v1/jobs/PostedJobs/${clientId}`);
       setJobs(response.data);
 
       const newStats = {
@@ -79,7 +80,7 @@ const PostedJobs = () => {
   };
 
   useEffect(() => {
-    
+
 
     fetchJobs();
   }, []);
@@ -137,14 +138,14 @@ const PostedJobs = () => {
     try {
       await api.delete(`/v1/jobs/${id}`)
       notification.success({
-        message:"Thành công",
+        message: "Thành công",
         description: "Xóa thành công"
       })
       fetchJobs();
-      
-    }catch(e){
+
+    } catch (e) {
       notification.success({
-        message:"Thất bại",
+        message: "Thất bại",
         description: "Xóa thất bại"
       })
     }
