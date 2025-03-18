@@ -310,7 +310,7 @@ const Applicants = () => {
                       <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          disabled={applicant.status !== "Completed"}
+                          disabled={applicant.appointmentId != -1}
                           variant="outline"
                           className="text-green-600"
                         >
