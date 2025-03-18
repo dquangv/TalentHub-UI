@@ -38,7 +38,12 @@ import {
 } from "@/components/ui/dialog";
 import { Link, useParams } from "react-router-dom";
 import { notification } from "antd";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -134,7 +139,6 @@ const Applicants = () => {
     setPreviewVisible(true);
 
     try {
-      // Use the cvURL directly with the previewCV method
       const previewUrl = await cvService.previewCV(applicant.cvURL);
       setCurrentPdfUrl(previewUrl);
     } catch (error) {
@@ -343,53 +347,92 @@ const Applicants = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={applicant.cvId === 0}
-                          onClick={() => handleViewCV(applicant)}
-                          className="text-blue-600"
-                        >
-                          <FileText className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={applicant.appointmentId != -1}
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <Link to={`/appointment/${applicant.id}`}>
-                            <Clock className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          disabled={applicant.status !== "Applied"}
-                          onClick={() =>
-                            handleApproved({
-                              jobId: applicant?.jobId,
-                              freelancerId: applicant?.freelancerId,
-                            })
-                          }
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          disabled={applicant.status !== "Applied"}
-                          onClick={() =>
-                            handleReject({
-                              jobId: applicant?.jobId,
-                              freelancerId: applicant?.freelancerId,
-                            })
-                          }
-                          className="text-red-600"
-                        >
-                          <XCircle className="w-4 h-4" />
-                        </Button>
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!applicant.cvURL}
+                                onClick={() => handleViewCV(applicant)}
+                                className="text-blue-600"
+                              >
+                                <FileText className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Xem CV</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                disabled={applicant.appointmentId != -1}
+                                variant="outline"
+                                className="text-green-600"
+                              >
+                                <Link to={`/appointment/${applicant.id}`}>
+                                  <Clock className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Đặt lịch hẹn</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                disabled={applicant.status !== "Applied"}
+                                onClick={() =>
+                                  handleApproved({
+                                    jobId: applicant?.jobId,
+                                    freelancerId: applicant?.freelancerId,
+                                  })
+                                }
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Chấp nhận ứng viên</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={applicant.status !== "Applied"}
+                                onClick={() =>
+                                  handleReject({
+                                    jobId: applicant?.jobId,
+                                    freelancerId: applicant?.freelancerId,
+                                  })
+                                }
+                                className="text-red-600"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Từ chối ứng viên</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
