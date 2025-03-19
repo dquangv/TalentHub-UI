@@ -22,6 +22,14 @@ const skillColumns = [
   {
     accessorKey: "skillName",
     header: "Tên kỹ năng",
+  },
+  {
+    accessorKey: "quantityFreelancerSkill",
+    header: "Số lượng freelancer",
+  },
+  {
+    accessorKey: "quantityJobSkill",
+    header: "Số lượng công việc",
   }
 ];
 
