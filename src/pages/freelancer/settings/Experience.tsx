@@ -29,7 +29,7 @@ const ExperienceComponent = () => {
       const response = await experienceService.getFreelancerExperiences(freelancerId);
       if (response.status === 200 && response.data) {
         setExperiences(response.data);
-        setOriginalExperiences(JSON.parse(JSON.stringify(response.data))); // Deep copy for comparison
+        setOriginalExperiences(JSON.parse(JSON.stringify(response.data)));
       }
     } catch (error) {
       console.error('Error fetching experiences:', error);
@@ -42,9 +42,8 @@ const ExperienceComponent = () => {
     }
   };
 
-  // Check if an experience has been modified
   const isExperienceModified = (experience: Experience): boolean => {
-    if (!experience.id) return true; // New experience
+    if (!experience.id) return true;
 
     const original = originalExperiences.find(exp => exp.id === experience.id);
     if (!original) return true;
@@ -60,14 +59,14 @@ const ExperienceComponent = () => {
 
   const addExperience = () => {
     const currentDate = new Date().toISOString().split('T')[0];
-    const newId = -Date.now(); // Temporary negative ID to identify new items
+    const newId = -Date.now();
 
     const newExperience: Experience = {
       id: newId,
       companyName: 'Công ty mới',
       position: 'Vị trí mới',
       startDate: currentDate,
-      endDate: null, // Mặc định là đang làm việc tại đây
+      endDate: currentDate,
       description: '',
       status: 'active',
       freelancerId: freelancerId
@@ -77,7 +76,6 @@ const ExperienceComponent = () => {
   };
 
   const removeExperience = async (id: number) => {
-    // If it's a new unsaved experience (negative ID), just remove from state
     if (id < 0) {
       setExperiences(experiences.filter((exp) => exp.id !== id));
       return;
@@ -106,7 +104,6 @@ const ExperienceComponent = () => {
   };
 
   const updateExperienceField = (id: number, field: string, value: string | null) => {
-    // Kiểm tra trường bắt buộc không được để trống
     if (value === '' && ['companyName', 'position', 'startDate'].includes(field)) {
       notification.warning({
         message: 'Cảnh báo',
@@ -115,7 +112,6 @@ const ExperienceComponent = () => {
       return;
     }
 
-    // Cập nhật UI trước
     const updatedExperiences = experiences.map((exp) =>
       exp.id === id ? { ...exp, [field]: value } : exp
     );
@@ -123,20 +119,12 @@ const ExperienceComponent = () => {
     setExperiences(updatedExperiences);
   };
 
-  const handleCurrentChange = (id: number, isCurrent: boolean) => {
-    // Cập nhật UI trước
-    const updatedExperiences = experiences.map((exp) =>
-      exp.id === id ? { ...exp, endDate: isCurrent ? null : new Date().toISOString().split('T')[0] } : exp
-    );
 
-    setExperiences(updatedExperiences);
-  };
 
   const saveExperience = async (id: number) => {
     const experience = experiences.find(exp => exp.id === id);
     if (!experience) return;
 
-    // Validate required fields
     if (!experience.companyName || !experience.position || !experience.startDate) {
       notification.error({
         message: 'Lỗi',
@@ -149,7 +137,6 @@ const ExperienceComponent = () => {
       setSavingIds(prev => [...prev, id]);
       let response;
       if (id < 0) {
-        // This is a new experience
         const newExperienceData = {
           companyName: experience.companyName,
           position: experience.position,
@@ -163,7 +150,6 @@ const ExperienceComponent = () => {
         response = await experienceService.createExperience(newExperienceData);
 
         if (response.status === 201 && response.data) {
-          // Replace temporary experience with saved one
           setExperiences(prev =>
             prev.map(exp => exp.id === id ? response.data : exp)
           );
@@ -175,7 +161,6 @@ const ExperienceComponent = () => {
           });
         }
       } else {
-        // Update existing experience
         const updateData = {
           companyName: experience.companyName,
           position: experience.position,
@@ -188,7 +173,6 @@ const ExperienceComponent = () => {
         response = await experienceService.updateExperience(id, updateData);
 
         if (response.status === 200 && response.data) {
-          // Update original data for future comparisons
           setOriginalExperiences(prev =>
             prev.map(exp => exp.id === id ? response.data : exp)
           );
@@ -221,6 +205,17 @@ const ExperienceComponent = () => {
 
   return (
     <div className="space-y-6">
+      {experiences.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <Briefcase className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">Chưa có kinh nghiệm làm việc</h3>
+          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+            Bạn chưa có thông tin kinh nghiệm làm việc nào. Hãy thêm kinh nghiệm làm việc để nhà tuyển dụng có thể đánh giá tốt hơn.
+          </p>
+        </div>
+      )}
       {experiences.map((experience, index) => {
         const isSaving = savingIds.includes(experience.id || 0);
         const isModified = isExperienceModified(experience);

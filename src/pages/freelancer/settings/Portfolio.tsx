@@ -176,6 +176,17 @@ const Portfolio = () => {
 
   return (
     <div className="space-y-6">
+      {projects.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <LinkIcon className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">Chưa có dự án nào</h3>
+          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+            Bạn chưa có dự án nào trong danh mục. Hãy thêm dự án để giới thiệu năng lực và kinh nghiệm của bạn với nhà tuyển dụng.
+          </p>
+        </div>
+      )}
       {projects.map((project, index) => (
         <FadeInWhenVisible key={project.id} delay={index * 0.1}>
           <Card className="p-6">

@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import AutofillInput from '@/components/AutofillInput';
 
-// Interface definitions
 interface Education {
   id: number;
   startDate: string;
@@ -39,7 +38,6 @@ interface Major {
   majorName: string;
 }
 
-// Simplified form state for education entry
 interface EducationForm {
   id: number;
   startDate: string;
@@ -62,12 +60,10 @@ const Education = () => {
 
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId || 1;
 
-  // Fetch education data on component mount
   useEffect(() => {
     const fetchEducationData = async () => {
       setFetching(true);
       try {
-        // Fetch education data
         const educationResponse = await api.get(`/v1/educations/freelancer/${freelancerId}`);
         if (educationResponse.status === 200) {
           const educationData = educationResponse.data.map((edu: Education) => ({
@@ -114,7 +110,7 @@ const Education = () => {
 
   const addEducation = useCallback(() => {
     const newEducation = {
-      id: Date.now(), // Temporary ID for UI purposes
+      id: Date.now(),
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
       description: '',
@@ -129,20 +125,17 @@ const Education = () => {
   }, []);
 
   const removeEducation = useCallback(async (id: number) => {
-    // Check if this is an existing record (has a real ID) or a new one
     const existingRecord = education.find(edu => edu.id === id && edu.id < Date.now() - 86400000);
 
     if (existingRecord) {
       try {
         setSavingIds(prev => [...prev, id]);
-        // Call the delete API
         const response = await api.delete(`/v1/educations/${id}`);
         if (response.status === 204) {
           notification.success({
             message: 'Thành công',
             description: 'Xóa thông tin học vấn thành công!',
           });
-          // Remove from state
           setEducation(prevEducation => prevEducation.filter((edu) => edu.id !== id));
         }
       } catch (error) {
@@ -155,12 +148,10 @@ const Education = () => {
         setSavingIds(prev => prev.filter(itemId => itemId !== id));
       }
     } else {
-      // Just remove from state if it's a new record
       setEducation(prevEducation => prevEducation.filter((edu) => edu.id !== id));
     }
   }, [education]);
 
-  // Update a single field in an education entry
   const updateEducationField = useCallback((id: number, field: string, value: any) => {
     setEducation(prevEducation =>
       prevEducation.map(edu =>
@@ -171,14 +162,12 @@ const Education = () => {
     console.log(`Updated ${field} to ${value} for education ${id}`);
   }, []);
 
-  // Update multiple fields at once (for related fields like school)
   const handleAutofillChange = useCallback((id: number, field: 'school' | 'degree' | 'major', itemId: number, itemName: string) => {
     console.log(`Autofill change for ${field}: ID=${itemId}, Name=${itemName}`);
 
     setEducation(prevEducation => {
       return prevEducation.map(edu => {
         if (edu.id === id) {
-          // Create a new object with updated fields
           const updatedEdu = { ...edu };
 
           if (field === 'school') {
@@ -202,7 +191,6 @@ const Education = () => {
 
   const saveEducation = useCallback(async (eduId: number) => {
     try {
-      // Find the current education entry from state
       const edu = education.find(e => e.id === eduId);
 
       if (!edu) {
@@ -216,7 +204,6 @@ const Education = () => {
 
       setSavingIds(prev => [...prev, eduId]);
 
-      // Log the education data that will be sent
       console.log('Saving education data:', edu);
 
       const educationData = {
@@ -229,16 +216,12 @@ const Education = () => {
         freelancerId: freelancerId
       };
 
-      // Log the payload being sent to the server
       console.log('Payload being sent to server:', educationData);
 
       let response;
-      // Check if this is an existing record (has a real ID) or a new one
       if (edu.id < Date.now() - 86400000) {
-        // Update existing record
         response = await api.put(`/v1/educations/${edu.id}`, educationData);
       } else {
-        // Create new record
         response = await api.post('/v1/educations', educationData);
       }
 
@@ -247,13 +230,8 @@ const Education = () => {
           message: 'Thành công',
           description: 'Lưu thông tin học vấn thành công!',
         });
-
-        // Log the response from the server
         console.log('Server response after saving:', response.data);
-
-        // If it was a new record, update its ID with the real one from the API
         if (edu.id >= Date.now() - 86400000 && response.data) {
-          // Handle different response formats to get the ID
           let newId;
           if (response.data.data && response.data.data.id) {
             newId = response.data.data.id;
@@ -292,10 +270,22 @@ const Education = () => {
 
   return (
     <div className="space-y-6">
+      {education.length === 0 && (
+        <div className="text-center py-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <GraduationCap className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">Chưa có thông tin học vấn</h3>
+          <p className="text-gray-500 mb-6 max-w-md mx-auto">
+            Bạn chưa có thông tin học vấn nào. Hãy thêm thông tin học vấn để hoàn thiện hồ sơ của bạn.
+          </p>
+        </div>
+      )}
       {education.map((edu, index) => {
         const isSaving = savingIds.includes(edu.id);
 
         return (
+
           <FadeInWhenVisible key={edu.id} delay={index * 0.1}>
             <Card className="p-6">
               <div className="flex items-start justify-between mb-6">
