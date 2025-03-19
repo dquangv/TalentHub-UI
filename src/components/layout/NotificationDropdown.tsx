@@ -103,7 +103,7 @@ const NotificationDropdown = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-80 overflow-y-auto h-[400px]">
         <div className="p-2">
           <h3 className="font-semibold mb-2">Thông báo</h3>
           <div className="space-y-2">
