@@ -1,10 +1,18 @@
 import api from "@/api/axiosConfig";
 
+export interface JobApplication {
+    jobId: number;
+    jobTitle: string;
+    companyName: string;
+    status: string;
+}
+
 export interface CV {
     id: number;
     title: string;
     url: string;
     status: boolean;
+    jobs?: JobApplication[];
     createdAt?: string;
     updatedAt?: string;
 }
@@ -14,6 +22,7 @@ export interface ApiResponse<T> {
     status: number;
     data: T | null;
 }
+
 const cvService = {
     uploadCV: async (file: File, freelancerId: number): Promise<ApiResponse<string>> => {
         const formData = new FormData();
@@ -51,14 +60,12 @@ const cvService = {
         };
     },
 
-
     downloadCV: async (filePath: string): Promise<Blob> => {
         const response = await api.get(`/pdf/download?filePath=${encodeURIComponent(filePath)}`, {
             responseType: 'blob',
         });
         return response;
     },
-
 
     getPreviewUrl: (filePath: string): string => {
         return `${api.defaults.baseURL}/pdf/download?filePath=${encodeURIComponent(filePath)}`;

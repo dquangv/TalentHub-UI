@@ -11,8 +11,40 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { useEffect, useState } from 'react';
+import api from '@/api/axiosConfig';
 const Home = () => {
   const { t } = useLanguage();
+  const [stats, setStats] = useState({
+    freelancers: 0,
+    clients: 0,
+    jobs: 0,
+    loading: true
+  });
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const response = await api.get("statistics/home");
+        if (response.success) {
+          setStats({
+            freelancers: response.freelancers,
+            clients: response.clients,
+            jobs: response.jobs,
+            loading: false
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+        setStats(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchStatistics();
+  }, []);
+
   return (
     <div>
       {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
@@ -82,27 +114,49 @@ const Home = () => {
             <FadeInWhenVisible>
               <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
-                <p className="text-muted-foreground"> {t('projectDones')}</p>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700">
+                  {stats.loading ? (
+                    <AnimatedNumber start={0} end={50000} />
+                  ) : (
+                    <AnimatedNumber start={0} end={stats.freelancers} />
+                  )}
+                  +
+                </h3>
+                Số lượng freelancer
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
               <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <Briefcase className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
-                <p className="text-muted-foreground">{t('projectDones')}</p>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700">
+                  {stats.loading ? (
+                    <AnimatedNumber start={0} end={50000} />
+                  ) : (
+                    <AnimatedNumber start={0} end={stats.clients} />
+                  )}
+                  +
+                </h3>
+                Số lượng nhà tuyển dụng
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
               <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700"><AnimatedNumber start={25000} end={50000} />+</h3>
-                <p className="text-muted-foreground">{t('Featuredareas')}</p>
+                <h3 className="text-3xl font-bold mb-2 text-primary-700">
+                  {stats.loading ? (
+                    <AnimatedNumber start={0} end={50000} />
+                  ) : (
+                    <AnimatedNumber start={0} end={stats.jobs} />
+                  )}
+                  +
+                </h3>
+                Số lượng dự án
               </Card>
             </FadeInWhenVisible>
           </div>
         </div>
       </section>
+
 
       {/* Categories Section */}
       <section className="py-16 bg-secondary-50">

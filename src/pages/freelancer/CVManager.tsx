@@ -9,21 +9,18 @@ import { notification } from 'antd';
 import {
     Plus, FileText, Trash2, Loader2, Download, Eye, ExternalLink
 } from 'lucide-react';
-import cvService from '@/api/cvService';
-import { format } from 'date-fns';
+import cvService, { CV } from '@/api/cvService';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 
 const CVManager = () => {
-    const [cvs, setCVs] = useState([]);
+    const [cvs, setCVs] = useState<CV[]>([]);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
-    const [deletingIds, setDeletingIds] = useState([]);
-    const [cvPreviews, setCvPreviews] = useState({});
+    const [deletingIds, setDeletingIds] = useState<number[]>([]);
+    const [cvPreviews, setCvPreviews] = useState<Record<number, string>>({});
 
     const [previewVisible, setPreviewVisible] = useState(false);
     const [currentPdfUrl, setCurrentPdfUrl] = useState('');
-    const [currentPdfTitle, setCurrentPdfTitle] = useState('');
-    const [previewLoading, setPreviewLoading] = useState(false);
 
     const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId || 1;
 
@@ -33,8 +30,7 @@ const CVManager = () => {
             const response = await cvService.getCVsByFreelancerId(freelancerId);
             if (response.data) {
                 setCVs(response.data);
-                // Tạo preview URLs cho tất cả CV
-                const previewsObj = {};
+                const previewsObj: Record<number, string> = {};
                 for (const cv of response.data) {
                     try {
                         const previewUrl = await cvService.previewCV(cv.url);
@@ -60,7 +56,7 @@ const CVManager = () => {
         fetchCVs();
     }, [fetchCVs]);
 
-    const handleUploadCV = async (event) => {
+    const handleUploadCV = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
@@ -92,7 +88,16 @@ const CVManager = () => {
         }
     };
 
-    const handleDeleteCV = async (cvId) => {
+    const handleDeleteCV = async (cvId: number) => {
+        const cv = cvs.find(cv => cv.id === cvId);
+        if (cv?.jobs && cv.jobs.length > 0) {
+            notification.error({
+                message: 'Không thể xóa',
+                description: 'CV này đã được sử dụng để ứng tuyển công việc và không thể xóa.'
+            });
+            return;
+        }
+
         try {
             setDeletingIds(prev => [...prev, cvId]);
             await cvService.deleteCV(cvId);
@@ -102,7 +107,6 @@ const CVManager = () => {
             });
             setCVs(prev => prev.filter(cv => cv.id !== cvId));
 
-            // Xóa preview URL
             setCvPreviews(prev => {
                 const newPreviews = { ...prev };
                 if (newPreviews[cvId]) {
@@ -122,7 +126,7 @@ const CVManager = () => {
         }
     };
 
-    const handleDownloadCV = async (cv) => {
+    const handleDownloadCV = async (cv: CV) => {
         try {
             const blob = await cvService.downloadCV(cv.url);
 
@@ -144,23 +148,13 @@ const CVManager = () => {
         }
     };
 
-    const handlePreviewCV = (cv) => {
+    const handlePreviewCV = (cv: CV) => {
         setPreviewVisible(true);
-        setCurrentPdfTitle(cv.title);
         setCurrentPdfUrl(cvPreviews[cv.id] || '');
     };
 
     const handleClosePreview = () => {
         setPreviewVisible(false);
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return '';
-        try {
-            return format(new Date(dateString), 'dd/MM/yyyy HH:mm');
-        } catch {
-            return dateString;
-        }
     };
 
     if (loading) {
@@ -186,6 +180,20 @@ const CVManager = () => {
                                     </div>
                                 </div>
 
+                                {/* Danh sách công việc đã ứng tuyển */}
+                                {cv.jobs && cv.jobs.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-sm font-medium text-gray-700 mb-2">Công việc đã ứng tuyển:</h4>
+                                        <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                                            {cv.jobs.map(job => (
+                                                <li key={job.jobId}>
+                                                    {job.jobTitle} - {job.companyName} ({job.status})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
                                 <div className="space-y-4">
                                     <div className="flex flex-col gap-2">
                                         <Button
@@ -200,14 +208,15 @@ const CVManager = () => {
                                             variant="ghost"
                                             className="text-destructive"
                                             onClick={() => handleDeleteCV(cv.id)}
-                                            disabled={deletingIds.includes(cv.id)}
+                                            disabled={deletingIds.includes(cv.id) || (cv.jobs && cv.jobs.length > 0)}
+                                            title={cv.jobs && cv.jobs.length > 0 ? "Không thể xóa CV đã được sử dụng để ứng tuyển" : ""}
                                         >
                                             {deletingIds.includes(cv.id) ? (
                                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                                             ) : (
                                                 <Trash2 className="w-4 h-4 mr-2" />
                                             )}
-                                            Xóa CV
+                                            {cv.jobs && cv.jobs.length > 0 ? "Không thể xóa" : "Xóa CV"}
                                         </Button>
                                     </div>
                                 </div>
