@@ -5,6 +5,13 @@ import { adminRoutes, mainRoutes } from '@/routes';
 import AdminLayout from './components/layout/AdminLayout';
 import ChatLayout from './components/layout/ChatLayout';
 import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
+import ChatNotificationManager from './components/layout/ChatNotificationManager';
+
+const AuthenticatedNotifications = () => {
+  const { isLoggedIn } = useAuth();
+  return isLoggedIn ? <ChatNotificationManager /> : null;
+};
 
 const chatLayoutPaths = ['/messaging'];
 
@@ -51,6 +58,7 @@ function App(): JSX.Element {
       <AuthProvider>
         <Router>
           <AppRoutes />
+          <AuthenticatedNotifications />
         </Router>
       </AuthProvider>
     </ThemeProvider>
