@@ -14,65 +14,67 @@ import { Label } from "@/components/ui/label";
 import { notification } from "antd";
 import api from "@/api/axiosConfig";
 
-const schoolColumns = [
+const categoryColumns = [
   {
     accessorKey: "id",
     header: "ID",
   },
   {
-    accessorKey: "degreeTitle",
-    header: "Tên bằng cấp",
+    accessorKey: "categoryTitle",
+    header: "Tên danh mục",
   },
   {
-    accessorKey: "quantityEducation",
-    header: "Số lượng người dùng",
+    accessorKey: "quantityFreelancer",
+    header: "Số lượng freelancer",
+  },
+  {
+    accessorKey: "quantityJob",
+    header: "Số lượng công việc",
   }
-  
-  
 ];
 
-export function DegreesPage() {
+export function CategoriesPage() {
   const [data, setData] = useState<any[]>([]);
-  const [formData, setFormData] = useState({ degreeTitle: "" });
+  const [formData, setFormData] = useState({ categoryTitle: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSchool, setEditingSchool] = useState<any | null>(null);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
 
   useEffect(() => {
-    const fetchdegrees = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await api.get("/v1/degrees");
+        const response = await api.get("/v1/categories");
         setData(response.data);
       } catch (error) {
         notification.error({
-          message: "Lỗi khi tải danh sách bằng cấp",
+          message: "Lỗi khi tải danh sách danh mục",
           description: "Có lỗi xảy ra khi tải dữ liệu từ server.",
         });
       }
     };
-    fetchdegrees();
+    fetchCategories();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.degreeTitle.trim()) {
-      notification.error({ message: "Lỗi", description: "Tên bằng cấp không được để trống!" });
+    if (!formData.categoryTitle.trim()) {
+      notification.error({ message: "Lỗi", description: "Tên danh mục không được để trống!" });
       return;
     }
 
     try {
       let response;
-      if (editingSchool) {
-        response = await api.put(`/v1/degrees/${editingSchool.id}`, formData);
-        notification.success({ message: "Cập nhật thành công", description: "Bằng cấp học đã được cập nhật." });
+      if (editingCategory) {
+        response = await api.put(`/v1/categories/${editingCategory.id}`, formData);
+        notification.success({ message: "Cập nhật thành công", description: "Danh mục đã được cập nhật." });
       } else {
-        response = await api.post("/v1/degrees", formData);
-        notification.success({ message: "Thêm thành công", description: "Bằng cấp học đã được thêm." });
+        response = await api.post("/v1/categories", formData);
+        notification.success({ message: "Thêm thành công", description: "Danh mục đã được thêm." });
       }
 
       setData((prevData) => {
-        if (editingSchool) {
-          return prevData.map((school) =>
-            school.id === editingSchool.id ? response.data : school
+        if (editingCategory) {
+          return prevData.map((category) =>
+            category.id === editingCategory.id ? response.data : category
           );
         } else {
           return [response.data, ...prevData];
@@ -80,66 +82,66 @@ export function DegreesPage() {
       });
 
       setDialogOpen(false);
-      setEditingSchool(null);
-      setFormData({ degreeTitle: "" });
+      setEditingCategory(null);
+      setFormData({ categoryTitle: "" });
     } catch (error) {
       notification.error({
-        message: "Lỗi khi thêm/cập nhật bằng cấp học",
+        message: "Lỗi khi thêm/cập nhật danh mục",
         description: "Có lỗi xảy ra khi lưu thông tin.",
       });
     }
   };
 
-  const handleEdit = (school: any) => {
-    setEditingSchool(school);
-    setFormData({ degreeTitle: school.degreeTitle });
+  const handleEdit = (category: any) => {
+    setEditingCategory(category);
+    setFormData({ categoryTitle: category.categoryTitle });
     setDialogOpen(true);
   };
 
-  const handleDelete = async (schoolId: string) => {
+  const handleDelete = async (categoryId: string) => {
     try {
-      await api.delete(`/v1/degrees/${schoolId}`);
-      setData((prevData) => prevData.filter((school) => school.id !== schoolId));
-      notification.success({ message: "Xóa thành công", description: "Bằng cấp học đã bị xóa." });
+      await api.delete(`/v1/categories/${categoryId}`);
+      setData((prevData) => prevData.filter((category) => category.id !== categoryId));
+      notification.success({ message: "Xóa thành công", description: "Danh mục đã bị xóa." });
     } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa bằng cấp học này." });
+      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa danh mục này." });
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý bằng cấp Học</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Quản lý Danh mục</h2>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
             if (!open) {
-              setEditingSchool(null);
-              setFormData({ degreeTitle: "" });
+              setEditingCategory(null);
+              setFormData({ categoryTitle: "" });
             }
           }}
         >
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <PlusCircle className="h-4 w-4" />
-              {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp"}
+              {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục"}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
-                {editingSchool ? "Chỉnh sửa bằng cấp" : "Thêm bằng cấp Mới"}
+                {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục Mới"}
               </DialogTitle>
             </DialogHeader>
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="degreeTitle">Tên bằng cấp</Label>
+                <Label htmlFor="categoryTitle">Tên danh mục</Label>
                 <Input
-                  id="degreeTitle"
-                  placeholder="Nhập tên bằng cấp"
-                  value={formData.degreeTitle}
-                  onChange={(e) => setFormData({ degreeTitle: e.target.value })}
+                  id="categoryTitle"
+                  placeholder="Nhập tên danh mục"
+                  value={formData.categoryTitle}
+                  onChange={(e) => setFormData({ categoryTitle: e.target.value })}
                 />
               </div>
 
@@ -148,7 +150,7 @@ export function DegreesPage() {
                   Hủy
                 </Button>
                 <Button type="submit">
-                  {editingSchool ? "Lưu thay đổi" : "Lưu"}
+                  {editingCategory ? "Lưu thay đổi" : "Lưu"}
                 </Button>
               </div>
             </form>
@@ -157,7 +159,7 @@ export function DegreesPage() {
       </div>
 
       <DataTable columns={[
-                ...schoolColumns,
+                ...categoryColumns,
                 {
                   id: "actions",
                   header: "Actions",
@@ -188,4 +190,4 @@ export function DegreesPage() {
   );
 }
 
-export default DegreesPage;
+export default CategoriesPage;

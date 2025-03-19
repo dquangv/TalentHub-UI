@@ -22,7 +22,12 @@ const schoolColumns = [
   {
     accessorKey: "schoolName",
     header: "Tên Trường",
+  },
+  {
+    accessorKey: "quantityEducation",
+    header: "Số lượng người dùng",
   }
+  
   
 ];
 
