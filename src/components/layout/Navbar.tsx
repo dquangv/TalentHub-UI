@@ -15,6 +15,8 @@ import { LanguageToggle } from "@/components/language-toggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import userService from "@/api/userService";
+import MessageDropdown from "./MessageDropdown";
+
 const NavLink = ({ to, children, onClick }: any) => {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -77,6 +79,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
   const location = useLocation();
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (isLoggedIn) {
@@ -106,6 +109,7 @@ const Navbar = () => {
 
     fetchUserData();
   }, [isLoggedIn]);
+
   useEffect(() => {
     if (isLoggedIn) {
       const userInfo = localStorage.getItem("userInfo");
@@ -295,6 +299,7 @@ const Navbar = () => {
             <LanguageToggle />
             {isLoggedIn ? (
               <>
+                <MessageDropdown />
                 <NotificationDropdown />
                 <UserMenu />
               </>
@@ -319,7 +324,12 @@ const Navbar = () => {
 
           <div className="flex md:hidden items-center space-x-4">
             <ModeToggle />
-            {isLoggedIn && <NotificationDropdown />}
+            {isLoggedIn && (
+              <>
+                <MessageDropdown />
+                <NotificationDropdown />
+              </>
+            )}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-primary-600 hover:text-primary-700 transition-colors"
