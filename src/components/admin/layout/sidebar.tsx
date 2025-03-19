@@ -74,6 +74,11 @@ const menuItems = [
         icon: GraduationCap,
       },
       {
+        title: "Quản lý loại",
+        href: "/categories",
+        icon: GraduationCap,
+      },
+      {
         title: "Quản lý kỹ năng",
         icon: Wrench,
         href: "/skills",

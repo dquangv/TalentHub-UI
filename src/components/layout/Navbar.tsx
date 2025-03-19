@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, BookMarked, FileCheck2 } from "lucide-react";
+import { Menu, X, LogOut, BookMarked, FileCheck2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationDropdown from "./NotificationDropdown";
@@ -124,6 +124,7 @@ const Navbar = () => {
   };
 
   const clientMenuItems = [
+    { to: "/client/post-job", label: "Đăng việc làm", icon: Plus },
     { to: "/client/posted-jobs", label: "Đã đăng", icon: FileCheck2 },
     { to: "/client/appointment", label: "Lịch hẹn", icon: BookMarked }
   ];
