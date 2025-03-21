@@ -21,6 +21,7 @@ interface VoucherPackage {
   duration: number;
   subscribers?: number;
   revenue?: number;
+  numberPost?: number;
   status: boolean;
 }
 
@@ -146,7 +147,7 @@ export default function PricingManagement() {
                   <th className="px-4 py-3 text-left font-medium">Tên gói</th>
                   <th className="px-4 py-3 text-left font-medium">Giá</th>
                   <th className="px-4 py-3 text-left font-medium">Thời hạn</th>
-                 
+                  <th className="px-4 py-3 text-left font-medium">Số bài đăng</th>
                   <th className="px-4 py-3 text-left font-medium">
                     Trạng thái
                   </th>
@@ -166,7 +167,7 @@ export default function PricingManagement() {
                       {formatCurrency(pkg?.price)}
                     </td>
                     <td className="px-4 py-3">{pkg?.duration} ngày</td>
-                    
+                    <td className="px-4 py-3">{pkg?.numberPost} bài</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
