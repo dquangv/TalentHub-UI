@@ -99,7 +99,7 @@ export function DegreesPage() {
     if (quantityEducation > 0) {
       Modal.confirm({
         title: "Xóa bằng cấp",
-        content: "Bằng cấp này có người dùng. Bạn có chắc chắn muốn xóa không?",
+        content: "Bằng cấp này có người dùng. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn có chắc chắn muốn xóa không?",
         onOk: async () => {
           try {
             await api.delete(`/v1/degrees/${degreeId}`);
