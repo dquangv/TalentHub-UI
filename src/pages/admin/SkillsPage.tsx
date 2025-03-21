@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { MoreHorizontal, PlusCircle, Trash2, Edit2 } from "lucide-react";
+import { PlusCircle, Trash2, Edit2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import api from "@/api/axiosConfig";
 
 const skillColumns = [
@@ -30,7 +30,7 @@ const skillColumns = [
   {
     accessorKey: "quantityJobSkill",
     header: "Số lượng công việc",
-  }
+  },
 ];
 
 export function SkillsPage() {
@@ -38,6 +38,7 @@ export function SkillsPage() {
   const [formData, setFormData] = useState({ skillName: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSkill, setEditingSkill] = useState<any | null>(null);
+  const [filterValue, setFilterValue] = useState<string>("");
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -98,13 +99,35 @@ export function SkillsPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (skillId: string) => {
-    try {
-      await api.delete(`/v1/jobs/skills/${skillId}`);
-      setData((prevData) => prevData.filter((skill) => skill.id !== skillId));
-      notification.success({ message: "Xóa thành công", description: "Kỹ năng đã bị xóa." });
-    } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa kỹ năng này." });
+  const handleDelete = (skillId: string, quantityFreelancerSkill: number, quantityJobSkill: number) => {
+    if (quantityFreelancerSkill > 0 || quantityJobSkill > 0) {
+      Modal.confirm({
+        title: "Xóa kỹ năng",
+        content: "Kỹ năng này có freelancer hoặc công việc. Bạn có chắc chắn muốn xóa không?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/jobs/skills/${skillId}`);
+            setData((prevData) => prevData.filter((skill) => skill.id !== skillId));
+            notification.success({ message: "Xóa thành công", description: "Kỹ năng đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa kỹ năng này." });
+          }
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Xóa kỹ năng",
+        content: "Bạn có chắc chắn muốn xóa không?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/jobs/skills/${skillId}`);
+            setData((prevData) => prevData.filter((skill) => skill.id !== skillId));
+            notification.success({ message: "Xóa thành công", description: "Kỹ năng đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa kỹ năng này." });
+          }
+        },
+      });
     }
   };
 
@@ -158,34 +181,46 @@ export function SkillsPage() {
         </Dialog>
       </div>
 
-      <DataTable columns={[
-                ...skillColumns,
-                {
-                  id: "actions",
-                  header: "Actions",
-                  cell: ({ row }) => {
-                    const id = row.getValue("id");
-                    return (
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleEdit(row.original)} 
-                          variant="outline"
-                          className="text-blue-600"
-                        >
-                          Chỉnh sửa
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(id)} 
-                          variant="outline"
-                          className="text-red-600"
-                        >
-                          Xóa
-                        </Button>
-                      </div>
-                    );
-                  },
-                },
-              ]} data={data} />
+      {/* Filter Input */}
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Tìm kiếm..."
+          className="max-w-sm"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+        />
+      </div>
+
+      {/* DataTable */}
+      <DataTable
+        columns={[
+          ...skillColumns,
+          {
+            id: "actions",
+            header: "Actions",
+            cell: ({ row }) => {
+              const id = row.getValue("id");
+              const quantityFreelancerSkill = row.getValue("quantityFreelancerSkill");
+              const quantityJobSkill = row.getValue("quantityJobSkill");
+              return (
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleEdit(row.original)} variant="outline" className="text-blue-600">
+                    Chỉnh sửa
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(id, quantityFreelancerSkill, quantityJobSkill)}
+                    variant="outline"
+                    className="text-red-600"
+                  >
+                    Xóa
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={data.filter((skill) => skill.skillName.toLowerCase().includes(filterValue.toLowerCase()))}
+      />
     </div>
   );
 }
