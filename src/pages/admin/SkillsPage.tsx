@@ -103,7 +103,7 @@ export function SkillsPage() {
     if (quantityFreelancerSkill > 0 || quantityJobSkill > 0) {
       Modal.confirm({
         title: "Xóa kỹ năng",
-        content: "Kỹ năng này có freelancer hoặc công việc. Bạn có chắc chắn muốn xóa không?",
+        content: "Kỹ năng này có freelancer hoặc công việc. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn có chắc chắn muốn xóa không?",
         onOk: async () => {
           try {
             await api.delete(`/v1/jobs/skills/${skillId}`);
