@@ -100,7 +100,6 @@ export function CategoriesPage() {
   };
 
   const handleDelete = (categoryId: string, quantityFreelancer: number, quantityJob: number) => {
-    // Checking if category has freelancers or jobs associated
     if (quantityFreelancer > 0 || quantityJob > 0) {
       Modal.confirm({
         title: "Xóa danh mục",
