@@ -103,7 +103,7 @@ export function CategoriesPage() {
     if (quantityFreelancer > 0 || quantityJob > 0) {
       Modal.confirm({
         title: "Xóa danh mục",
-        content: "Danh mục này có freelancer hoặc công việc. Bạn có chắc chắn muốn xóa không?",
+        content: "Danh mục này có freelancer hoặc công việc. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn có chắc chắn muốn xóa không?",
         onOk: async () => {
           try {
             await api.delete(`/v1/categories/${categoryId}`);
