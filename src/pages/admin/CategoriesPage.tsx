@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { MoreHorizontal, PlusCircle, Trash2, Edit2 } from "lucide-react";
+import { PlusCircle, Trash2, Edit2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import api from "@/api/axiosConfig";
 
 const categoryColumns = [
@@ -30,7 +30,7 @@ const categoryColumns = [
   {
     accessorKey: "quantityJob",
     header: "Số lượng công việc",
-  }
+  },
 ];
 
 export function CategoriesPage() {
@@ -38,6 +38,7 @@ export function CategoriesPage() {
   const [formData, setFormData] = useState({ categoryTitle: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [filterValue, setFilterValue] = useState<string>("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -98,13 +99,35 @@ export function CategoriesPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (categoryId: string) => {
-    try {
-      await api.delete(`/v1/categories/${categoryId}`);
-      setData((prevData) => prevData.filter((category) => category.id !== categoryId));
-      notification.success({ message: "Xóa thành công", description: "Danh mục đã bị xóa." });
-    } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa danh mục này." });
+  const handleDelete = (categoryId: string, quantityFreelancer: number, quantityJob: number) => {
+    if (quantityFreelancer > 0 || quantityJob > 0) {
+      Modal.confirm({
+        title: "Xóa danh mục",
+        content: "Danh mục này có freelancer hoặc công việc. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn có chắc chắn muốn xóa không?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/categories/${categoryId}`);
+            setData((prevData) => prevData.filter((category) => category.id !== categoryId));
+            notification.success({ message: "Xóa thành công", description: "Danh mục đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa danh mục này." });
+          }
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Xóa danh mục",
+        content: "Bạn có chắc chắn muốn xóa không?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/categories/${categoryId}`);
+            setData((prevData) => prevData.filter((category) => category.id !== categoryId));
+            notification.success({ message: "Xóa thành công", description: "Danh mục đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa danh mục này." });
+          }
+        },
+      });
     }
   };
 
@@ -158,34 +181,46 @@ export function CategoriesPage() {
         </Dialog>
       </div>
 
-      <DataTable columns={[
-                ...categoryColumns,
-                {
-                  id: "actions",
-                  header: "Actions",
-                  cell: ({ row }) => {
-                    const id = row.getValue("id");
-                    return (
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleEdit(row.original)} 
-                          variant="outline"
-                          className="text-blue-600"
-                        >
-                          Chỉnh sửa
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(id)} 
-                          variant="outline"
-                          className="text-red-600"
-                        >
-                          Xóa
-                        </Button>
-                      </div>
-                    );
-                  },
-                },
-              ]} data={data} />
+      {/* Filter Input */}
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Tìm kiếm..."
+          className="max-w-sm"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
+        />
+      </div>
+
+      {/* DataTable */}
+      <DataTable
+        columns={[
+          ...categoryColumns,
+          {
+            id: "actions",
+            header: "Actions",
+            cell: ({ row }) => {
+              const id = row.getValue("id");
+              const quantityFreelancer = row.getValue("quantityFreelancer");
+              const quantityJob = row.getValue("quantityJob");
+              return (
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleEdit(row.original)} variant="outline" className="text-blue-600">
+                    Chỉnh sửa
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(id, quantityFreelancer, quantityJob)}
+                    variant="outline"
+                    className="text-red-600"
+                  >
+                    Xóa
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={data.filter((category) => category.categoryTitle.toLowerCase().includes(filterValue.toLowerCase()))}
+      />
     </div>
   );
 }
