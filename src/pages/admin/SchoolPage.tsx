@@ -34,7 +34,7 @@ export function SchoolsPage() {
   const [formData, setFormData] = useState({ schoolName: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchool, setEditingSchool] = useState<any | null>(null);
-  const [filterValue, setFilterValue] = useState(""); // Filter input value
+  const [filterValue, setFilterValue] = useState("");
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -127,9 +127,8 @@ export function SchoolsPage() {
     }
   };
 
-  // Filter the data based on the schoolName
   const filteredData = data.filter((school) =>
-    school.schoolName.toLowerCase().includes(filterValue.toLowerCase()) // Case-insensitive filter
+    school.schoolName.toLowerCase().includes(filterValue.toLowerCase())
   );
 
   return (
