@@ -99,7 +99,7 @@ export function SchoolsPage() {
     if (quantityEducation > 0) {
       Modal.confirm({
         title: "Xác nhận xóa",
-        content: "Trường này có người dùng. Bạn chắc chắn muốn xóa không?",
+        content: "Trường này có người dùng. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn chắc chắn muốn xóa không?",
         onOk: async () => {
           try {
             await api.delete(`/v1/schools/${schoolId}`);
