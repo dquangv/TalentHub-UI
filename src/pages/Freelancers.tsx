@@ -22,6 +22,7 @@ import { Star, MapPin, Search, Filter, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { fetchFreelancers } from '../services/freelancerFetch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Freelancer {
   id: number;
@@ -340,11 +341,12 @@ const Freelancers = () => {
               <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
                 <Card className="p-6">
                   <div className="flex items-start gap-4">
-                    <img
-                      src={freelancer.avatar}
-                      alt={freelancer.name}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
+                    <Avatar className="w-16 h-16 rounded-full">
+                      <AvatarImage src={freelancer.avatar} alt={freelancer.name} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+                        {freelancer.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold">{freelancer.name}</h3>

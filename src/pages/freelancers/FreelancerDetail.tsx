@@ -17,9 +17,10 @@ import {
   GraduationCap,
   MessageCircle,
   Calendar,
-  } from 'lucide-react';
+} from 'lucide-react';
 import api from '@/api/axiosConfig';
 import GoogleMapComponent from '@/components/MapComponent';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const FreelancerDetail = () => {
   const { id } = useParams();
@@ -30,7 +31,7 @@ const FreelancerDetail = () => {
     const fetchFreelancerDetail = async () => {
       try {
         const response = await api.get(`/v1/freelancers/detail?id=${id}`);
-        setFreelancer(response.data); 
+        setFreelancer(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching freelancer detail: ", error);
@@ -65,11 +66,17 @@ const FreelancerDetail = () => {
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <img
-                      src={freelancer?.avatar || "/placeholder-avatar.png"}
+                    <Avatar
+                      src={freelancer?.avatar || undefined}
                       alt={freelancer?.name}
                       className="w-32 h-32 rounded-full object-cover ring-4 ring-primary/10"
-                    />
+                    >
+                      <AvatarFallback
+                        className="bg-primary/10 text-primary text-[10px] md:text-xs"
+                      >
+                        {freelancer?.name?.slice(0, 2).toUpperCase() || 'UN'}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="absolute -bottom-2 -right-2 bg-green-500 w-6 h-6 rounded-full border-4 border-white"></div>
                   </div>
                 </div>
@@ -129,8 +136,8 @@ const FreelancerDetail = () => {
                   <h3 className="text-xl font-semibold mb-4 text-gray-900">Kỹ năng chuyên môn</h3>
                   <div className="flex flex-wrap gap-2">
                     {freelancer?.skills.map((skill) => (
-                      <Badge 
-                        key={skill} 
+                      <Badge
+                        key={skill}
                         variant="secondary"
                         className="px-4 py-2 text-sm hover:bg-primary hover:text-white transition-colors cursor-default"
                       >
