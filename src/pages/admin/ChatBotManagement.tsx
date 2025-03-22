@@ -456,7 +456,7 @@ const ChatbotManagement: React.FC = () => {
 
                 {/* Test ChatBot Tab */}
                 <TabsContent value="test">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                         <Card className="md:col-span-2">
                             <CardHeader>
                                 <CardTitle>Test ChatBot</CardTitle>
@@ -512,7 +512,7 @@ const ChatbotManagement: React.FC = () => {
                                 </div>
                             </CardContent>
                         </Card>
-
+                        {/* 
                         <Card>
                             <CardHeader>
                                 <CardTitle>Cài đặt ChatBot</CardTitle>
@@ -585,7 +585,7 @@ const ChatbotManagement: React.FC = () => {
                                     </Button>
                                 </div>
                             </CardContent>
-                        </Card>
+                        </Card> */}
                     </div>
                 </TabsContent>
                 {/* Training Tab */}
@@ -844,14 +844,14 @@ const ChatbotManagement: React.FC = () => {
                                                                 <div className="flex justify-between items-start">
                                                                     <div className="space-y-1 flex-1">
                                                                         <p>{response.text}</p>
-                                                                        {response.requiresDbQuery && (
+                                                                        {/* {response.requiresDbQuery && (
                                                                             <div className="mt-2">
                                                                                 <Badge>DB Query</Badge>
                                                                                 <pre className="mt-1 text-xs bg-muted p-2 rounded overflow-x-auto">
                                                                                     {response.queryTemplate}
                                                                                 </pre>
                                                                             </div>
-                                                                        )}
+                                                                        )} */}
                                                                     </div>
                                                                     <div className="flex space-x-1 ml-2">
                                                                         <Button
