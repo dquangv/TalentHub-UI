@@ -54,9 +54,9 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
 
     const messages = activeConversationId ? allMessages[activeConversationId] || [] : [];
 
-    // Initialize userId from localStorage
     useEffect(() => {
-        const storedUserId = JSON.parse(localStorage.getItem('userInfo') || '').userId;
+        const storedUserInfo = localStorage.getItem('userInfo');
+        const storedUserId = storedUserInfo ? JSON.parse(storedUserInfo).userId : null;
         if (storedUserId) {
             setUserId(storedUserId);
         }
