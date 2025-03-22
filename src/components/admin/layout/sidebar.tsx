@@ -80,7 +80,7 @@ const menuItems = [
         icon: GraduationCap,
       },
       {
-        title: "Quản lý loại",
+        title: "Quản lý ngành nghề",
         href: "/categories",
         icon: GraduationCap,
       },
