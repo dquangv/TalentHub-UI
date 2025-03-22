@@ -293,7 +293,7 @@ const ChatbotManagement: React.FC = () => {
         if (!selectedIntent) return;
 
         try {
-            await chatbotService.addResponse(selectedIntent.id, editResponse);
+            await chatbotService.addResponse(selectedIntent.id, { ...editResponse, responseText: editResponse.text, text: undefined });
             notification.success({ message: 'Success', description: 'Response added successfully' });
             const updatedIntent = await fetchIntentDetails(selectedIntent.id);
             setSelectedIntent(updatedIntent);
