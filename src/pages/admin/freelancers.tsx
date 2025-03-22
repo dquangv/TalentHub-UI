@@ -52,18 +52,18 @@ export default function FreelancersPage() {
 
   const filteredFreelancers = freelancers?.filter(freelancer => {
     const searchTerm = filters.search.toLowerCase();
-    const searchMatch = 
+    const searchMatch =
       (freelancer.name?.toLowerCase() || '').includes(searchTerm) ||
       (freelancer.description?.toLowerCase() || '').includes(searchTerm) ||
-      (Array.isArray(freelancer.skills) && freelancer.skills.some(skill => 
+      (Array.isArray(freelancer.skills) && freelancer.skills.some(skill =>
         (skill?.toLowerCase() || '').includes(searchTerm)
       ));
-    
+
     const categoryMatch = filters.category === "all" || freelancer.categoryName === filters.category;
-    
-    const priceRangeMatch = filters.priceRange === "all" || 
+
+    const priceRangeMatch = filters.priceRange === "all" ||
       getPriceRange(freelancer.hourlyRate) === filters.priceRange;
-    
+
     return searchMatch && categoryMatch && priceRangeMatch;
   });
 
@@ -117,9 +117,9 @@ export default function FreelancersPage() {
       {loading ? (
         <div className="text-center">Loading...</div>
       ) : (
-        <DataTable 
-          columns={freelancerColumns} 
-          data={filteredFreelancers} 
+        <DataTable
+          columns={freelancerColumns}
+          data={filteredFreelancers}
         />
       )}
     </div>
