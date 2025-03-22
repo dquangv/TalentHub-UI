@@ -38,6 +38,7 @@ import SchoolPage from '@/pages/admin/SchoolPage';
 import DegreesPage from '@/pages/admin/DegreesPage';
 import SkillsPage from '@/pages/admin/SkillsPage';
 import CategoriesPage from '@/pages/admin/CategoriesPage';
+import ChatbotManagement from '@/pages/admin/ChatBotManagement';
 
 export const chatLayoutPaths = ['/messaging'];
 
@@ -179,6 +180,10 @@ export const adminRoutes: RouteObject[] = [
         element: <EmployersPage />
     },
     {
+        path: '/chatbot',
+        element: <ChatbotManagement />
+    },
+    {
         path: '/posts',
         element: <PostsPage />
     },
@@ -198,7 +203,6 @@ export const adminRoutes: RouteObject[] = [
         path: '/schools',
         element: <SchoolPage />
     },
-
     {
         path: '/degrees',
         element: <DegreesPage />
