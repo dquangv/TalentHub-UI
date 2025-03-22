@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import api from "@/api/axiosConfig";
 
 const schoolColumns = [
@@ -26,9 +26,7 @@ const schoolColumns = [
   {
     accessorKey: "quantityEducation",
     header: "Số lượng người dùng",
-  }
-  
-  
+  },
 ];
 
 export function SchoolsPage() {
@@ -36,6 +34,7 @@ export function SchoolsPage() {
   const [formData, setFormData] = useState({ schoolName: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSchool, setEditingSchool] = useState<any | null>(null);
+  const [filterValue, setFilterValue] = useState("");
 
   useEffect(() => {
     const fetchSchools = async () => {
@@ -96,15 +95,41 @@ export function SchoolsPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (schoolId: string) => {
-    try {
-      await api.delete(`/v1/schools/${schoolId}`);
-      setData((prevData) => prevData.filter((school) => school.id !== schoolId));
-      notification.success({ message: "Xóa thành công", description: "Trường học đã bị xóa." });
-    } catch (error) {
-      notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa trường học này." });
+  const handleDelete = (schoolId: string, quantityEducation: number) => {
+    if (quantityEducation > 0) {
+      Modal.confirm({
+        title: "Xác nhận xóa",
+        content: "Trường này có người dùng. Hành động này sẽ xóa toàn bộ các liên quan và không thể thu hồi. Bạn chắc chắn muốn xóa không?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/schools/${schoolId}`);
+            setData((prevData) => prevData.filter((school) => school.id !== schoolId));
+            notification.success({ message: "Xóa thành công", description: "Trường học đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa trường học này." });
+          }
+        },
+      });
+    } else {
+      Modal.confirm({
+        title: "Xác nhận xóa",
+        content: "Bạn chắc chắn muốn xóa trường này?",
+        onOk: async () => {
+          try {
+            await api.delete(`/v1/schools/${schoolId}`);
+            setData((prevData) => prevData.filter((school) => school.id !== schoolId));
+            notification.success({ message: "Xóa thành công", description: "Trường học đã bị xóa." });
+          } catch (error) {
+            notification.error({ message: "Lỗi khi xóa", description: "Không thể xóa trường học này." });
+          }
+        },
+      });
     }
   };
+
+  const filteredData = data.filter((school) =>
+    school.schoolName.toLowerCase().includes(filterValue.toLowerCase())
+  );
 
   return (
     <div className="space-y-4">
@@ -156,34 +181,45 @@ export function SchoolsPage() {
         </Dialog>
       </div>
 
-      <DataTable columns={[
-                ...schoolColumns,
-                {
-                  id: "actions",
-                  header: "Actions",
-                  cell: ({ row }) => {
-                    const id = row.getValue("id");
-                    return (
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => handleEdit(row.original)} 
-                          variant="outline"
-                          className="text-blue-600"
-                        >
-                          Chỉnh sửa
-                        </Button>
-                        <Button
-                          onClick={() => handleDelete(id)} 
-                          variant="outline"
-                          className="text-red-600"
-                        >
-                          Xóa
-                        </Button>
-                      </div>
-                    );
-                  },
-                },
-              ]} data={data} />
+      {/* Filter Input */}
+      <div className="flex items-center mb-4">
+        <Label htmlFor="filter" className="mr-2">Tìm kiếm Trường:</Label>
+        <Input
+          id="filter"
+          placeholder="Nhập tên trường"
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)} 
+        />
+      </div>
+
+      <DataTable
+        columns={[
+          ...schoolColumns,
+          {
+            id: "actions",
+            header: "Actions",
+            cell: ({ row }) => {
+              const id = row.getValue("id");
+              const quantity = row.getValue("quantityEducation");
+              return (
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleEdit(row.original)} variant="outline" className="text-blue-600">
+                    Chỉnh sửa
+                  </Button>
+                  <Button
+                    onClick={() => handleDelete(id, quantity)}
+                    variant="outline"
+                    className="text-red-600"
+                  >
+                    Xóa
+                  </Button>
+                </div>
+              );
+            },
+          },
+        ]}
+        data={filteredData}
+      />
     </div>
   );
 }

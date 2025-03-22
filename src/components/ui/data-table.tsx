@@ -41,15 +41,15 @@ import {
   
     return (
       <div>
-        <div className="flex items-center py-4">
-          <Input
+        {/* <div className="flex items-center py-4"> */}
+          {/* <Input
             placeholder="Tìm kiếm..."
             className="max-w-sm"
             onChange={(event) =>
               table.getColumn("name")?.setFilterValue(event.target.value)
             }
-          />
-        </div>
+          /> */}
+        {/* </div> */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
