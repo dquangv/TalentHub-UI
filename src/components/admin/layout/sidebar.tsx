@@ -11,7 +11,8 @@ import {
   GraduationCap,
   Building,
   Wrench,
-  ChevronDown
+  ChevronDown,
+  MessageSquare
 } from "lucide-react";
 import { ExitIcon } from "@radix-ui/react-icons";
 import { Button } from "antd";
@@ -38,6 +39,11 @@ const menuItems = [
     title: "Quản lý Nhà tuyển dụng",
     icon: Building2,
     href: "/employers",
+  },
+  {
+    title: "Quản lý ChatBot",
+    icon: MessageSquare,
+    href: "/chatbot",
   },
   {
     title: "Quản lý Bài viết",
@@ -85,7 +91,6 @@ const menuItems = [
       },
     ]
   },
-
 ];
 
 export function Sidebar() {
