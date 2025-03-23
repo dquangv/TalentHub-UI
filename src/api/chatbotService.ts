@@ -82,11 +82,21 @@ export interface ProcessQueryDTO {
     queryTemplate: string;
 }
 
+export interface SuggestedIntent {
+    id: number;
+    name: string;
+    description: string;
+    friendlyDescription: string;
+}
+
+export interface SuggestionsData {
+    intents: SuggestedIntent[];
+    questionsByIntent: Record<string, string[]>;
+}
+
 const chatbotService = {
     getAllIntents: async (): Promise<ChatIntent[]> => {
         const response = await api.get('/chatbot/intents');
-        console.log(response.data);
-
         return response.data || [];
     },
 
@@ -166,7 +176,23 @@ const chatbotService = {
 
     updateSettings: async (settings: ChatBotSettings): Promise<void> => {
         await api.post('/chatbot/settings', settings);
-    }
+    },
+
+
+    getSuggestedIntents: async (): Promise<SuggestedIntent[]> => {
+        const response = await api.get('/chatbot/suggestions/intents');
+        return response.data || [];
+    },
+
+    getSuggestedQuestionsForIntent: async (intentId: number): Promise<string[]> => {
+        const response = await api.get(`/chatbot/suggestions/questions/${intentId}`);
+        return response.data || [];
+    },
+
+    getAllSuggestions: async (): Promise<SuggestionsData> => {
+        const response = await api.get('/chatbot/suggestions');
+        return response.data || { intents: [], questionsByIntent: {} };
+    },
 };
 
 export default chatbotService;
