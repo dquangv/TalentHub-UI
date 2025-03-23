@@ -11,11 +11,27 @@ import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-// Freelancer columns
-export const freelancerColumns: ColumnDef<any>[] = [
+export const freelancerColumns = [
   {
     accessorKey: "name",
     header: "Họ và tên",
+    cell: ({ row }) => {
+      const name = row.getValue("name");
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={row.original.avatar || undefined}
+            alt={name}
+            className="w-10 h-10"
+          >
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+              {name?.slice(0, 2).toUpperCase() || "UN"}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{name}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "categoryName",
@@ -24,7 +40,7 @@ export const freelancerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "hourlyRate",
     header: "Giá theo giờ",
-    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate")} USD` : "Chưa có",
+    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
   },
   {
     accessorKey: "rating",
@@ -34,7 +50,10 @@ export const freelancerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "skills",
     header: "Kỹ năng",
-    cell: ({ row }) => row.getValue("skills").length > 0 ? row.getValue("skills").join(", ") : "Chưa có",
+    cell: ({ row }) => {
+      const skills = row.getValue("skills");
+      return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
+    },
   },
   {
     accessorKey: "description",
@@ -42,26 +61,6 @@ export const freelancerColumns: ColumnDef<any>[] = [
     cell: ({ row }) => row.getValue("description") || "Chưa có mô tả",
   },
   {
-    accessorKey: "avatar",
-    header: "Avatar",
-    cell: ({ row }) => {
-      console.log(row.getValue("name"));
-      return (
-        <Avatar
-          src={row.getValue("avatar") || undefined}
-          alt={row.getValue("name")}
-          className="w-10 h-10 rounded-full"
-        >
-          <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
-            {row.getValue("name")?.slice(0, 2).toUpperCase() || "UN"}
-          </AvatarFallback>
-        </Avatar>
-
-      );
-    },
-  },
-  {
-    header: "Hành động",
     id: "actions",
     cell: () => {
       return (
@@ -83,21 +82,38 @@ export const freelancerColumns: ColumnDef<any>[] = [
 ];
 
 
-// Employer columns
-export const employerColumns: ColumnDef<any>[] = [
+export const employerColumns = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "name",
+    header: "Họ và tên",
+    accessorFn: (row) => `${row.lastName} ${row.firstName}`,
+    cell: ({ row }) => {
+      const fullName = `${row.original.lastName} ${row.original.firstName}`;
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={row.original.image || undefined}
+            alt={fullName}
+            className="w-10 h-10"
+          >
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+              {`${row.original.lastName?.[0] || ""}${row.original.firstName?.[0] || ""}`}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{fullName}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "fromPrice",
     header: "Giá từ",
-    cell: ({ row }) => row.getValue("fromPrice") ? `${row.getValue("fromPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
+    cell: ({ row }) => row.getValue("fromPrice") ? `${row.getValue("fromPrice").toLocaleString()} ${row.original.typePrice}` : "Chưa có",
   },
   {
     accessorKey: "toPrice",
     header: "Giá đến",
-    cell: ({ row }) => row.getValue("toPrice") ? `${row.getValue("toPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
+    cell: ({ row }) => row.getValue("toPrice") ? `${row.getValue("toPrice").toLocaleString()} ${row.original.typePrice}` : "Chưa có",
   },
   {
     accessorKey: "typePrice",
@@ -118,17 +134,8 @@ export const employerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "address",
     header: "Địa chỉ",
-  },
-  {
-    accessorKey: "image",
-    header: "Ảnh đại diện",
-    cell: ({ row }) => (
-      row.getValue("image") ? (
-        <img src={`${row.getValue("image")}`} alt="Avatar" className="w-10 h-10 rounded-full" />
-      ) : (
-        "Chưa có ảnh"
-      )
-    ),
+    accessorFn: (row) => `${row.province}, ${row.country}`,
+    cell: ({ row }) => `${row.original.province}, ${row.original.country}`,
   },
   {
     id: "actions",
