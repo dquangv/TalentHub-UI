@@ -44,7 +44,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -55,9 +54,7 @@ import {
     Settings,
     Edit,
     Trash,
-    Save,
     Send,
-    Database,
     BarChart,
     RefreshCw,
     Plus
@@ -69,7 +66,6 @@ import chatbotService, {
     ChatTrainingPhrase,
     UnprocessedQuery,
     ChatbotStats,
-    ChatBotSettings,
     IntentDTO,
     ResponseDTO,
     ProcessQueryDTO
@@ -81,8 +77,6 @@ const ChatbotManagement: React.FC = () => {
     const [sessionId, setSessionId] = useState(`session-${Date.now()}`);
     const [chatHistory, setChatHistory] = useState<Array<{ message: string; isBot: boolean; intent?: string; confidence?: number }>>([]);
     const [loading, setLoading] = useState(false);
-
-    // Intents management
     const [intents, setIntents] = useState<ChatIntent[]>([]);
     const [selectedIntent, setSelectedIntent] = useState<ChatIntent | null>(null);
     const [newIntent, setNewIntent] = useState<IntentDTO>({
@@ -94,7 +88,6 @@ const ChatbotManagement: React.FC = () => {
         dbQuery: ''
     });
 
-    // Training tab
     const [unprocessedQueries, setUnprocessedQueries] = useState<UnprocessedQuery[]>([]);
     const [selectedQuery, setSelectedQuery] = useState<UnprocessedQuery | null>(null);
     const [processingData, setProcessingData] = useState<ProcessQueryDTO>({
@@ -105,27 +98,15 @@ const ChatbotManagement: React.FC = () => {
         queryTemplate: ''
     });
 
-    // Statistics
     const [stats, setStats] = useState<ChatbotStats | null>(null);
 
-    // Settings
-    const [settings, setSettings] = useState<ChatBotSettings>({
-        confidenceThreshold: 0.7,
-        maxResponses: 1,
-        fallbackStrategy: 'default',
-        enableLearning: true
-    });
-
-    // Dialog states
     const [intentDialogOpen, setIntentDialogOpen] = useState(false);
     const [responseDialogOpen, setResponseDialogOpen] = useState(false);
     const [deleteIntentDialogOpen, setDeleteIntentDialogOpen] = useState(false);
     const [deleteResponseDialogOpen, setDeleteResponseDialogOpen] = useState(false);
     const [editIntentDialogOpen, setEditIntentDialogOpen] = useState(false);
     const [editResponseDialogOpen, setEditResponseDialogOpen] = useState(false);
-    const [queryTestDialogOpen, setQueryTestDialogOpen] = useState(false);
 
-    // Response editing
     const [selectedResponse, setSelectedResponse] = useState<ChatResponse | null>(null);
     const [editResponse, setEditResponse] = useState<ResponseDTO>({
         responseText: '',
@@ -133,19 +114,12 @@ const ChatbotManagement: React.FC = () => {
         queryTemplate: ''
     });
 
-    // Query testing
-    const [queryToTest, setQueryToTest] = useState("");
-    const [queryResults, setQueryResults] = useState<any[]>([]);
-
-    // Load data
     useEffect(() => {
         fetchIntents();
         fetchUnprocessedQueries();
         fetchStatistics();
-        fetchSettings();
     }, []);
 
-    // API calls via service
     const fetchIntents = async () => {
         try {
             const data = await chatbotService.getAllIntents();
@@ -176,16 +150,6 @@ const ChatbotManagement: React.FC = () => {
         }
     };
 
-    const fetchSettings = async () => {
-        try {
-            const data = await chatbotService.getSettings();
-            setSettings(data);
-        } catch (error) {
-            notification.error({ message: 'Error', description: 'Failed to fetch settings' });
-            console.error(error);
-        }
-    };
-
     const fetchIntentDetails = async (intentId: number) => {
         try {
             const data = await chatbotService.getIntentDetails(intentId);
@@ -200,18 +164,13 @@ const ChatbotManagement: React.FC = () => {
         }
     };
 
-    // ChatBot interactions
     const sendMessage = async () => {
         if (!chatMessage.trim()) return;
-
-        // Add user message to history
         setChatHistory(prev => [...prev, { message: chatMessage, isBot: false }]);
         setLoading(true);
 
         try {
             const response = await chatbotService.processMessage(sessionId, chatMessage);
-
-            // Add bot response to history
             setChatHistory(prev => [
                 ...prev,
                 {
@@ -238,8 +197,6 @@ const ChatbotManagement: React.FC = () => {
         setChatHistory([]);
         setSessionId(`session-${Date.now()}`);
     };
-
-    // Intent management
     const handleAddIntent = async () => {
         try {
             await chatbotService.addIntent(newIntent);
@@ -255,7 +212,6 @@ const ChatbotManagement: React.FC = () => {
 
     const handleUpdateIntent = async (intentId: number) => {
         if (!selectedIntent) return;
-
         try {
             const intentDTO: Partial<IntentDTO> = {
                 intentName: selectedIntent.intentName,
@@ -288,7 +244,6 @@ const ChatbotManagement: React.FC = () => {
         }
     };
 
-    // Response management
     const handleAddResponse = async () => {
         if (!selectedIntent) return;
 
@@ -340,7 +295,6 @@ const ChatbotManagement: React.FC = () => {
         }
     };
 
-    // Training queries
     const handleProcessQuery = async () => {
         if (!selectedQuery) return;
 
@@ -365,32 +319,7 @@ const ChatbotManagement: React.FC = () => {
         }
     };
 
-    // Database query testing
-    const handleTestQuery = async () => {
-        if (!queryToTest.trim()) return;
 
-        try {
-            const results = await chatbotService.testQuery(queryToTest);
-            setQueryResults(results);
-        } catch (error) {
-            notification.error({ message: 'Error', description: 'Failed to execute query' });
-            console.error(error);
-            setQueryResults([]);
-        }
-    };
-
-    // Settings
-    const handleUpdateSettings = async () => {
-        try {
-            await chatbotService.updateSettings(settings);
-            notification.success({ message: 'Success', description: 'Settings updated successfully' });
-        } catch (error) {
-            notification.error({ message: 'Error', description: 'Failed to update settings' });
-            console.error(error);
-        }
-    };
-
-    // Utility functions
     const resetNewIntent = () => {
         setNewIntent({
             intentName: '',
@@ -484,9 +413,6 @@ const ChatbotManagement: React.FC = () => {
                                                         {chat.isBot && chat.intent && (
                                                             <div className="mt-1 text-xs">
                                                                 <span className="opacity-70">Ý định: {chat.intent} </span>
-                                                                {/* <span className="opacity-70">
-                                                                    (Độ tự tin: {(chat.confidence! * 100).toFixed(1)}%)
-                                                                </span> */}
                                                             </div>
                                                         )}
                                                     </div>
@@ -512,80 +438,6 @@ const ChatbotManagement: React.FC = () => {
                                 </div>
                             </CardContent>
                         </Card>
-                        {/* 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Cài đặt ChatBot</CardTitle>
-                                <CardDescription>Configure how the chatbot behaves</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="confidenceThreshold">Confidence Threshold</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                id="confidenceThreshold"
-                                                type="number"
-                                                min="0"
-                                                max="1"
-                                                step="0.1"
-                                                value={settings.confidenceThreshold}
-                                                onChange={(e) =>
-                                                    setSettings({ ...settings, confidenceThreshold: parseFloat(e.target.value) })
-                                                }
-                                            />
-                                            <span>{(settings.confidenceThreshold * 100).toFixed(0)}%</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="maxResponses">Max Responses</Label>
-                                        <Input
-                                            id="maxResponses"
-                                            type="number"
-                                            min="1"
-                                            value={settings.maxResponses}
-                                            onChange={(e) =>
-                                                setSettings({ ...settings, maxResponses: parseInt(e.target.value) })
-                                            }
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fallbackStrategy">Fallback Strategy</Label>
-                                        <Select
-                                            value={settings.fallbackStrategy}
-                                            onValueChange={(value) => setSettings({ ...settings, fallbackStrategy: value })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select strategy" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="default">Default Response</SelectItem>
-                                                <SelectItem value="closest">Closest Intent</SelectItem>
-                                                <SelectItem value="humanAgent">Transfer to Human</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="flex items-center space-x-2">
-                                        <Switch
-                                            id="enableLearning"
-                                            checked={settings.enableLearning}
-                                            onCheckedChange={(checked) =>
-                                                setSettings({ ...settings, enableLearning: checked })
-                                            }
-                                        />
-                                        <Label htmlFor="enableLearning">Enable Learning from Unrecognized Queries</Label>
-                                    </div>
-
-                                    <Button onClick={handleUpdateSettings} className="w-full mt-4">
-                                        <Save className="h-4 w-4 mr-2" />
-                                        Save Settings
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card> */}
                     </div>
                 </TabsContent>
                 {/* Training Tab */}
