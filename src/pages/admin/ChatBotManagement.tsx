@@ -425,7 +425,7 @@ const ChatbotManagement: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="space-y-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Quản lý ChatBot</h1>
                 <Button onClick={() => fetchStatistics()} variant="outline" size="sm">
