@@ -31,6 +31,8 @@ const FreelancerDetail = () => {
     const fetchFreelancerDetail = async () => {
       try {
         const response = await api.get(`/v1/freelancers/detail?id=${id}`);
+        console.log(response.data);
+
         setFreelancer(response.data);
         setLoading(false);
       } catch (error) {
@@ -126,6 +128,7 @@ const FreelancerDetail = () => {
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
+                <TabsTrigger value="projects">Dự án</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
@@ -147,7 +150,6 @@ const FreelancerDetail = () => {
                   </div>
                 </Card>
               </TabsContent>
-
               <TabsContent value="experience">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
                   {freelancer?.experiences?.length > 0 ? (
@@ -162,11 +164,11 @@ const FreelancerDetail = () => {
                           <div>
                             <h3 className="text-xl font-semibold text-gray-900">{exp.position}</h3>
                             <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
-                              <span className="font-medium">{exp.company}</span>
+                              <span className="font-medium">{exp.companyName}</span>
                               <span>•</span>
                               <div className="flex items-center">
                                 <Calendar className="w-4 h-4 mr-1" />
-                                {exp.period}
+                                {exp.startDate} - {exp.endDate || 'Hiện tại'}
                               </div>
                             </div>
                             <p className="text-gray-600 leading-relaxed">{exp.description}</p>
@@ -181,7 +183,63 @@ const FreelancerDetail = () => {
                   )}
                 </Card>
               </TabsContent>
-
+              <TabsContent value="projects">
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  {freelancer?.projects?.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {freelancer.projects.map((project) => (
+                        <div key={project.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                          <div className="aspect-video bg-gray-100 relative">
+                            {project.image && (
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.parentNode.classList.add('flex', 'items-center', 'justify-center');
+                                  e.target.parentNode.innerHTML = '<div class="text-gray-400"><Briefcase className="w-16 h-16 mx-auto" /></div>';
+                                }}
+                              />
+                            )}
+                            {!project.image && (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Briefcase className="w-16 h-16 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4">
+                            <h3 className="font-semibold text-lg text-gray-900 mb-2">{project.title}</h3>
+                            <div className="mb-3">
+                              <Badge variant="outline" className="text-xs">
+                                {project.tech}
+                              </Badge>
+                            </div>
+                            <p className="text-gray-600 text-sm mb-4">{project.description}</p>
+                            {project.link && (
+                              <a
+                                href={project.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline text-sm flex items-center"
+                              >
+                                <span>Xem dự án</span>
+                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Chưa có dự án nào được thêm vào
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
               <TabsContent value="education">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
                   <div className="space-y-8">
