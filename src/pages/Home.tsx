@@ -13,6 +13,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
+import CustomChatbot from '@/components/CustomChatbot';
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
@@ -167,7 +168,7 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 h-100">
             {categories.map((category, index) => (
               <FadeInWhenVisible key={category.title} delay={index * 0.1}>
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background h-100" style={{height: '100%'}}>
+                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background h-100" style={{ height: '100%' }}>
                   <div className="flex items-start gap-4">
                     {category.icon}
                     <div>
@@ -237,7 +238,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <CustomDialogflowMessenger />
     </div>
   );
 };
