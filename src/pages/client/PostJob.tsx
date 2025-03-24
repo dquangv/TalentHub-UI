@@ -223,16 +223,15 @@ const PostJob = () => {
 
     const navigate = useNavigate();
     
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (data: any) => {
         const userInfo: any = JSON.parse(localStorage.getItem("userInfo") || "{}");
         if (!userInfo.clientId) {
             navigate("/");
             return;
         }
-
+console.log('dataaaaaaaaaa ', data)
         const submitData = {
-            ...jobData,
+            ...data,
             description: jobData.scope,
             skillId: selectedSkills,
             clientId: userInfo.clientId
@@ -251,6 +250,7 @@ const PostJob = () => {
                     description: 'Cập nhật công việc thành công'
                 });
             } else {
+                console.log('submitDta ', submitData)
                 await api.post('/v1/jobs/createJob', submitData);
                 notification.success({
                     message: 'Thành công',
@@ -289,7 +289,7 @@ const PostJob = () => {
     return (
         <div className="p-6">
             <Card className="max-w-4xl mx-auto p-8">
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-8">
                     <div className="space-y-6">
                         <h2 className="text-2xl font-semibold">
                             {isEditMode ? 'Cập nhật công việc' : 'Thông tin cơ bản'}
@@ -629,22 +629,26 @@ const PostJob = () => {
                                 variant="outline"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    setJobData({ ...jobData, statusJob: StatusJob.DRAFT });
-                                    handleSubmit(e);
+                                    handleSubmit({ ...jobData, statusJob: StatusJob.DRAFT });
                                 }}
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
                             </Button>
                         )}
+                        
                         <Button
-                            type="submit"
+                            type="button"
                             disabled={isSubmitting}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSubmit({ ...jobData, statusJob: StatusJob.OPEN });
+                            }}
                         >
                             {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Đăng tin'}
                         </Button>
                     </div>
-                </form>
+                </div>
             </Card>
         </div>
     );
