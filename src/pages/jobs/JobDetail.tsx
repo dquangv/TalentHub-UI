@@ -21,7 +21,13 @@ import api from "@/api/axiosConfig";
 import cvService, { CV } from "@/api/cvService";
 import { notification } from "antd";
 import ReportDialog from "@/components/report/ReportDialog";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface JobDetailResponse {
   title: string;
@@ -36,6 +42,9 @@ interface JobDetailResponse {
   experience?: string;
   deadline?: string;
   totalApplicants?: number;
+  duration?: number;
+  scope?: string;
+  jobOpportunity?: boolean;
 }
 
 interface JobFreelancerInfo {
@@ -46,12 +55,12 @@ interface JobFreelancerInfo {
   saved: boolean;
 }
 
-
 const JobDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [job, setJob] = useState<JobDetailResponse | null>(null);
   const [isClient, setClient] = useState(null);
-  const [jobFreelancerInfo, setJobFreelancerInfo] = useState<JobFreelancerInfo | null>(null);
+  const [jobFreelancerInfo, setJobFreelancerInfo] =
+    useState<JobFreelancerInfo | null>(null);
   const [cvs, setCVs] = useState<CV[]>([]);
   const [cvPreviews, setCvPreviews] = useState<{ [key: number]: string }>({});
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
@@ -59,7 +68,9 @@ const JobDetail = () => {
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
-  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+  const freelancerId = JSON.parse(
+    localStorage.getItem("userInfo") || "{}"
+  ).freelancerId;
 
   useEffect(() => {
     const fetchJobDetail = async () => {
@@ -92,7 +103,7 @@ const JobDetail = () => {
           notification.error({
             message: "Lỗi",
             description: response.message || "Dữ liệu không hợp lệ",
-          })
+          });
         }
         setJobFreelancerInfo(response?.data || null);
       };
@@ -100,7 +111,6 @@ const JobDetail = () => {
       handleViewJob();
     }
   }, []);
-
 
   const fetchCVs = async () => {
     try {
@@ -120,14 +130,13 @@ const JobDetail = () => {
         setCvPreviews(previewsObj);
       }
     } catch (error) {
-      console.error('Error loading CV list:', error);
+      console.error("Error loading CV list:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể tải danh sách CV. Vui lòng thử lại sau.'
+        message: "Lỗi",
+        description: "Không thể tải danh sách CV. Vui lòng thử lại sau.",
       });
     }
   };
-
 
   const handleOpenApplyDialog = () => {
     fetchCVs();
@@ -138,10 +147,10 @@ const JobDetail = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
+    if (file.type !== "application/pdf") {
       notification.error({
-        message: 'Lỗi',
-        description: 'Chỉ cho phép upload file PDF'
+        message: "Lỗi",
+        description: "Chỉ cho phép upload file PDF",
       });
       return;
     }
@@ -150,19 +159,19 @@ const JobDetail = () => {
       setUploading(true);
       await cvService.uploadCV(file, freelancerId);
       notification.success({
-        message: 'Thành công',
-        description: 'Upload CV thành công'
+        message: "Thành công",
+        description: "Upload CV thành công",
       });
       await fetchCVs();
     } catch (error) {
-      console.error('Error uploading CV:', error);
+      console.error("Error uploading CV:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể upload CV. Vui lòng thử lại sau.'
+        message: "Lỗi",
+        description: "Không thể upload CV. Vui lòng thử lại sau.",
       });
     } finally {
       setUploading(false);
-      event.target.value = '';
+      event.target.value = "";
     }
   };
   const handlePreviewCV = (cv: CV) => {
@@ -171,8 +180,8 @@ const JobDetail = () => {
   const handleApplyJob = async () => {
     if (!selectedCvId) {
       notification.error({
-        message: 'Lỗi',
-        description: 'Vui lòng chọn CV'
+        message: "Lỗi",
+        description: "Vui lòng chọn CV",
       });
       return;
     }
@@ -181,13 +190,13 @@ const JobDetail = () => {
       const response = await api.post("/v1/jobs/apply", {
         jobId: Number(id),
         freelancerId: freelancerId,
-        cvId: selectedCvId
+        cvId: selectedCvId,
       });
 
       if (response.status !== 200) {
         notification.error({
-          message: 'Lỗi dữ liệu',
-          description: response.data.message || 'Dữ liệu không hợp lệ'
+          message: "Lỗi dữ liệu",
+          description: response.data.message || "Dữ liệu không hợp lệ",
         });
         notification.error({
           message: "Lỗi dữ liệu",
@@ -197,17 +206,17 @@ const JobDetail = () => {
       }
 
       notification.info({
-        message: 'Thông báo',
-        description: 'Ứng tuyển thành công. Vui lòng chờ để được chấp nhận'
+        message: "Thông báo",
+        description: "Ứng tuyển thành công. Vui lòng chờ để được chấp nhận",
       });
 
       setJobFreelancerInfo(response?.data || null);
       setIsApplyDialogOpen(false);
     } catch (error) {
-      console.error('Error applying for job:', error);
+      console.error("Error applying for job:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể ứng tuyển. Vui lòng thử lại sau.'
+        message: "Lỗi",
+        description: "Không thể ứng tuyển. Vui lòng thử lại sau.",
       });
     }
   };
@@ -257,7 +266,6 @@ const JobDetail = () => {
     return <div>Loading...</div>;
   }
 
-
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -282,6 +290,12 @@ const JobDetail = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{job.type}</Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="secondary">Mức độ dự án: {job.scope}</Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Badge variant="secondary">{!job.jobOpportunity ? "" : "Cơ hội hợp tác lâu dài"}</Badge>
                   </div>
                 </div>
                 {isClient == null && (
@@ -313,7 +327,11 @@ const JobDetail = () => {
                       itemType="job"
                       itemTitle={job.title}
                     >
-                      <Button variant="outline" size="icon" className="text-muted-foreground w-full d-flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-muted-foreground w-full d-flex gap-2"
+                      >
                         <Flag className="w-4 h-4" />
                         <div> Báo cáo</div>
                       </Button>
@@ -333,7 +351,8 @@ const JobDetail = () => {
                   <div>
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
                     <p className="font-semibold">
-                      {new Intl.NumberFormat('vi-VN').format(job.fromPrice)} - {new Intl.NumberFormat('vi-VN').format(job.toPrice)} VND
+                      {new Intl.NumberFormat("vi-VN").format(job.fromPrice)} -{" "}
+                      {new Intl.NumberFormat("vi-VN").format(job.toPrice)} VND
                     </p>
                   </div>
                 </div>
@@ -348,7 +367,7 @@ const JobDetail = () => {
                     <p className="text-sm text-muted-foreground">
                       Số giờ làm việc
                     </p>
-                    <p className="font-semibold">{job.hourWork} giờ/tuần</p>
+                    <p className="font-semibold">{job.hourWork} giờ/ngày</p>
                   </div>
                 </div>
               </Card>
@@ -359,9 +378,9 @@ const JobDetail = () => {
                 <div className="flex items-center gap-4">
                   <Calendar className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Kinh nghiệm</p>
+                    <p className="text-sm text-muted-foreground">Thời hạn</p>
                     <p className="font-semibold">
-                      {!job.experience ? "Không yêu cầu" : job.experience}
+                      {!job.duration ? "Không yêu cầu" : job.duration} ngày
                     </p>
                   </div>
                 </div>
@@ -374,7 +393,7 @@ const JobDetail = () => {
                   <Users className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Số lượng ứng viên đã ứng tuyển
+                      Đã ứng tuyển
                     </p>
                     <p className="font-semibold">{job?.totalApplicants || 0}</p>
                   </div>
@@ -434,7 +453,8 @@ const JobDetail = () => {
                   </div>
                   <h3 className="text-lg font-medium mb-2">Chưa có CV nào</h3>
                   <p className="text-gray-500 mb-6">
-                    Bạn chưa có CV nào trong hệ thống. Hãy tải lên CV để ứng tuyển.
+                    Bạn chưa có CV nào trong hệ thống. Hãy tải lên CV để ứng
+                    tuyển.
                   </p>
                 </div>
               ) : (
@@ -444,14 +464,18 @@ const JobDetail = () => {
                       key={cv.id}
                       className={`
                   border rounded-lg p-4 cursor-pointer transition-all flex justify-between items-center
-                  ${selectedCvId === cv.id ? 'border-primary bg-primary/10' : 'hover:bg-gray-50'}
+                  ${
+                    selectedCvId === cv.id
+                      ? "border-primary bg-primary/10"
+                      : "hover:bg-gray-50"
+                  }
                 `}
                       onClick={() => setSelectedCvId(cv.id)}
                     >
                       <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-primary" />
                         <span className="font-medium truncate max-w-[200px]">
-                          {cv.title || 'CV không đặt tên'}
+                          {cv.title || "CV không đặt tên"}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -462,8 +486,7 @@ const JobDetail = () => {
                             e.stopPropagation();
                             handlePreviewCV(cv);
                           }}
-                        >
-                        </Button>
+                        ></Button>
                         {selectedCvId === cv.id && (
                           <CheckCircle className="w-5 h-5 text-primary" />
                         )}
@@ -485,7 +508,7 @@ const JobDetail = () => {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => document.getElementById('cv-upload')?.click()}
+                  onClick={() => document.getElementById("cv-upload")?.click()}
                   disabled={uploading}
                 >
                   {uploading ? (
@@ -512,10 +535,13 @@ const JobDetail = () => {
                       width="100%"
                       height="100%"
                       style={{
-                        border: 'none',
-                        borderRadius: '8px',
+                        border: "none",
+                        borderRadius: "8px",
                       }}
-                      title={`CV Preview: ${cvs.find(cv => cv.id === selectedCvId)?.title || 'Untitled'}`}
+                      title={`CV Preview: ${
+                        cvs.find((cv) => cv.id === selectedCvId)?.title ||
+                        "Untitled"
+                      }`}
                     />
                   ) : (
                     <div className="flex justify-center items-center h-full">
@@ -537,10 +563,7 @@ const JobDetail = () => {
                 >
                   Hủy
                 </Button>
-                <Button
-                  onClick={handleApplyJob}
-                  disabled={!selectedCvId}
-                >
+                <Button onClick={handleApplyJob} disabled={!selectedCvId}>
                   Ứng tuyển
                 </Button>
               </div>
