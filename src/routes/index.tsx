@@ -40,6 +40,8 @@ import SkillsPage from '@/pages/admin/SkillsPage';
 import CategoriesPage from '@/pages/admin/CategoriesPage';
 import ChatbotManagement from '@/pages/admin/ChatBotManagement';
 import PaymentResult from "@/pages/payment/payment-result";
+import ReportsOfJob from '@/pages/ReportsOfJob';
+import FreelancerReports from '@/pages/FreelancerReports';
 export const chatLayoutPaths = ['/messaging'];
 
 export const mainRoutes: RouteObject[] = [
@@ -94,6 +96,14 @@ export const mainRoutes: RouteObject[] = [
   {
     path: '/pricing',
     element: <Pricing />
+  },
+  {
+    path: '/reports-job/:id',
+    element: <ReportsOfJob />
+  },
+  {
+    path: '/reports-freelancer',
+    element: <FreelancerReports />
   },
   {
     path: '/client/post-job',
