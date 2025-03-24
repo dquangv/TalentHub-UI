@@ -299,6 +299,7 @@ const Navbar = () => {
             <LanguageToggle />
             {isLoggedIn ? (
               <>
+                <MessageDropdown />
                 <NotificationDropdown />
                 <UserMenu />
               </>
@@ -325,6 +326,7 @@ const Navbar = () => {
             <ModeToggle />
             {isLoggedIn && (
               <>
+                <MessageDropdown />
                 <NotificationDropdown />
               </>
             )}
