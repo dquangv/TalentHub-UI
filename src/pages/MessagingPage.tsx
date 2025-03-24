@@ -120,7 +120,20 @@ const MessagingContent = () => {
             setShowConversationDrawer(false);
         }
     }, []);
+    useEffect(() => {
+        const handleSelectConversation = (event: CustomEvent<any>) => {
+            const { conversationId } = event.detail;
+            if (conversationId) {
+                setActiveConversationId(conversationId);
+            }
+        };
 
+        window.addEventListener('select-conversation', handleSelectConversation as EventListener);
+
+        return () => {
+            window.removeEventListener('select-conversation', handleSelectConversation as EventListener);
+        };
+    }, [setActiveConversationId]);
     // Initialize and set up resize listener
     useEffect(() => {
         checkViewportSize();

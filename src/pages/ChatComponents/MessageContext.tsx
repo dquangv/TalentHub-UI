@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import websocketService from './websocketService';
+import websocketService, { WebSocketCallbacks } from './websocketService';
 import chatApiService from './chatApiService';
 
 export interface Message {
@@ -54,14 +54,50 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
 
     const messages = activeConversationId ? allMessages[activeConversationId] || [] : [];
 
-    // Initialize userId from localStorage
     useEffect(() => {
-        const storedUserId = JSON.parse(localStorage.getItem('userInfo') || '').userId;
+        const storedUserInfo = localStorage.getItem('userInfo');
+        const storedUserId = storedUserInfo ? JSON.parse(storedUserInfo).userId : null;
         if (storedUserId) {
             setUserId(storedUserId);
         }
     }, []);
 
+    // Mark messages as read
+    const markAsRead = useCallback((conversationId: string) => {
+        if (!userId || !conversationId) return;
+
+        // Mark messages as read locally
+        setAllMessages(prev => {
+            if (!prev[conversationId]) return prev;
+
+            return {
+                ...prev,
+                [conversationId]: prev[conversationId].map(msg => ({
+                    ...msg,
+                    isRead: true,
+                })),
+            };
+        });
+
+        // Update conversation unread count
+        setConversations(prev =>
+            prev.map(conv =>
+                conv.id === conversationId
+                    ? {
+                        ...conv,
+                        unread: 0,
+                    }
+                    : conv
+            )
+        );
+
+        websocketService.markAsRead(conversationId);
+
+        chatApiService.markMessagesAsRead({
+            receiverId: userId,
+            senderId: conversationId
+        });
+    }, [userId]);
     // Load conversation list from API
     const loadConversations = useCallback(async () => {
         if (!userId) return;
@@ -87,10 +123,9 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         }
     }, [userId]);
 
-    // Handle incoming messages from WebSocket
+    // Cập nhật hàm handleIncomingMessage trong MessageContext.tsx
     const handleIncomingMessage = useCallback((message: any) => {
         const isActiveConversation = activeConversationId === message.senderId;
-
         // Create our message format
         const newMessage: Message = {
             id: message.id || uuidv4(),
@@ -98,7 +133,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
             content: message.content,
             timestamp: new Date(message.timestamp || new Date()),
             isMe: false,
-            isRead: isActiveConversation, // If active conversation, mark as read immediately
+            isRead: isActiveConversation,
             senderId: message.senderId,
             senderName: message.senderName,
             senderAvatar: message.senderAvatar
@@ -131,17 +166,37 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
                 // Move this conversation to the top
                 const [updatedConv] = updatedConversations.splice(existingConvIndex, 1);
                 return [updatedConv, ...updatedConversations];
+            } else {
+                // Nếu không tìm thấy cuộc trò chuyện, tạo một cuộc trò chuyện mới
+                const newConversation: Conversation = {
+                    id: message.senderId,
+                    name: message.senderName || `User ${message.senderId}`,
+                    avatar: message.senderAvatar,
+                    lastMessage: message.content,
+                    timestamp: new Date(),
+                    unread: 1,
+                    isOnline: true
+                };
+                return [newConversation, ...prev];
             }
-
-            // New conversation (shouldn't normally happen without API update)
-            return prev;
         });
 
         // If this is the active conversation, mark as read automatically
         if (isActiveConversation) {
             markAsRead(message.senderId);
+        } else {
+            // Trigger notification for new message
+            showNewMessageNotification(message);
         }
-    }, [activeConversationId]);
+    }, [activeConversationId, markAsRead]);
+
+    // Thêm hàm hiển thị thông báo tin nhắn mới
+    const showNewMessageNotification = (message: any) => {
+        // Có thể thêm mã hiển thị thông báo ở đây (thông qua context API hoặc event)
+        // Ví dụ: tạo một event để thông báo cho các component khác
+        const newMessageEvent = new CustomEvent('new-message', { detail: message });
+        window.dispatchEvent(newMessageEvent);
+    };
 
     // Handle read receipts from WebSocket
     const handleReadReceipt = useCallback((receipt: any) => {
@@ -213,9 +268,30 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
 
             websocketService.connect(userId, callbacks);
         } else {
-            console.log('WebSocket already connected, skipping initialization');
-            setIsConnected(true);
-            setReconnecting(false);
+            console.log('WebSocket already connected, updating callbacks');
+            // Chỉ cập nhật lại callbacks nếu WebSocket đã kết nối
+            const callbacks: WebSocketCallbacks = {
+                onMessageReceived: (message: any) => {
+                    handleIncomingMessage(message);
+                },
+                onReadReceiptReceived: (receipt: any) => {
+                    handleReadReceipt(receipt);
+                },
+                onStatusReceived: (status: any) => {
+                    handleStatusUpdate(status);
+                },
+                onConnectionEstablished: () => {
+                    setIsConnected(true);
+                    setReconnecting(false);
+                    // Reload conversation list when reconnected
+                    loadConversations();
+                },
+                onConnectionLost: () => {
+                    setIsConnected(false);
+                    setReconnecting(true);
+                }
+            };
+            websocketService.updateCallbacks(callbacks);
         }
 
         // Load initial conversation list
@@ -264,44 +340,6 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         loadMessages();
     }, [userId, activeConversationId]);
 
-    // Mark messages as read
-    const markAsRead = useCallback((conversationId: string) => {
-        if (!userId || !conversationId) return;
-
-        // Mark messages as read locally
-        setAllMessages(prev => {
-            if (!prev[conversationId]) return prev;
-
-            return {
-                ...prev,
-                [conversationId]: prev[conversationId].map(msg => ({
-                    ...msg,
-                    isRead: true,
-                })),
-            };
-        });
-
-        // Update conversation unread count
-        setConversations(prev =>
-            prev.map(conv =>
-                conv.id === conversationId
-                    ? {
-                        ...conv,
-                        unread: 0,
-                    }
-                    : conv
-            )
-        );
-
-        // Send read receipt via WebSocket
-        websocketService.markAsRead(conversationId);
-
-        // Also send via API to ensure persistence
-        chatApiService.markMessagesAsRead({
-            receiverId: userId,
-            senderId: conversationId
-        });
-    }, [userId]);
 
     // Send a message via WebSocket
     const sendMessage = useCallback((content: string) => {

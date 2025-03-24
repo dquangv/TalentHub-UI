@@ -26,7 +26,7 @@ export default function EmployersPage() {
   useEffect(() => {
     const filtered = clients.filter((client) => {
       const search = searchTerm.toLowerCase();
-      
+
       return (
         (client.name?.toLowerCase().includes(search) ?? false) ||
         (client.email?.toLowerCase().includes(search) ?? false) ||
@@ -61,8 +61,8 @@ export default function EmployersPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={resetFilter}
           disabled={!searchTerm}
         >

@@ -286,6 +286,7 @@ const Navbar = () => {
                 <NavLinkDropdown menuItems={freelancerMenuItems}>
                   Quản lý công việc
                 </NavLinkDropdown>
+                <NavLink to="/reports-freelancer">Báo cáo</NavLink>
               </>
             ) : null}
 

@@ -9,12 +9,29 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-// Freelancer columns
-export const freelancerColumns: ColumnDef<any>[] = [
+export const freelancerColumns = [
   {
     accessorKey: "name",
     header: "Họ và tên",
+    cell: ({ row }) => {
+      const name = row.getValue("name");
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={row.original.avatar || undefined}
+            alt={name}
+            className="w-10 h-10"
+          >
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+              {name?.slice(0, 2).toUpperCase() || "UN"}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{name}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "categoryName",
@@ -23,7 +40,7 @@ export const freelancerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "hourlyRate",
     header: "Giá theo giờ",
-    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate")} USD` : "Chưa có",
+    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
   },
   {
     accessorKey: "rating",
@@ -33,7 +50,10 @@ export const freelancerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "skills",
     header: "Kỹ năng",
-    cell: ({ row }) => row.getValue("skills").length > 0 ? row.getValue("skills").join(", ") : "Chưa có",
+    cell: ({ row }) => {
+      const skills = row.getValue("skills");
+      return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
+    },
   },
   {
     accessorKey: "description",
@@ -41,18 +61,6 @@ export const freelancerColumns: ColumnDef<any>[] = [
     cell: ({ row }) => row.getValue("description") || "Chưa có mô tả",
   },
   {
-    accessorKey: "avatar",
-    header: "Avatar",
-    cell: ({ row }) => (
-      row.getValue("avatar") ? (
-        <img src={`${row.getValue("avatar")}`} alt={row.getValue("name")} className="w-10 h-10 rounded-full" />
-      ) : (
-        "Chưa có ảnh"
-      )
-    ),
-  },
-  {
-    header: "Hành động",
     id: "actions",
     cell: () => {
       return (
@@ -74,52 +82,60 @@ export const freelancerColumns: ColumnDef<any>[] = [
 ];
 
 
-// Employer columns
-export const employerColumns: ColumnDef<any>[] = [
+export const employerColumns = [
   {
-    accessorKey: "id", 
-    header: "ID",  
+    accessorKey: "name",
+    header: "Họ và tên",
+    accessorFn: (row) => `${row.lastName} ${row.firstName}`,
+    cell: ({ row }) => {
+      const fullName = `${row.original.lastName} ${row.original.firstName}`;
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={row.original.image || undefined}
+            alt={fullName}
+            className="w-10 h-10"
+          >
+            <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+              {`${row.original.lastName?.[0] || ""}${row.original.firstName?.[0] || ""}`}
+            </AvatarFallback>
+          </Avatar>
+          <span className="font-medium">{fullName}</span>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "fromPrice", 
+    accessorKey: "fromPrice",
     header: "Giá từ",
-    cell: ({ row }) => row.getValue("fromPrice") ? `${row.getValue("fromPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
+    cell: ({ row }) => row.getValue("fromPrice") ? `${row.getValue("fromPrice").toLocaleString()} ${row.original.typePrice}` : "Chưa có",
   },
   {
-    accessorKey: "toPrice", 
+    accessorKey: "toPrice",
     header: "Giá đến",
-    cell: ({ row }) => row.getValue("toPrice") ? `${row.getValue("toPrice")} VNĐ` : "Chưa có",  // Format as currency if needed
+    cell: ({ row }) => row.getValue("toPrice") ? `${row.getValue("toPrice").toLocaleString()} ${row.original.typePrice}` : "Chưa có",
   },
   {
-    accessorKey: "typePrice", 
+    accessorKey: "typePrice",
     header: "Loại tiền",
   },
   {
-    accessorKey: "jobsCount", 
+    accessorKey: "jobsCount",
     header: "Công việc đã đăng",
   },
   {
-    accessorKey: "appointmentsCount", 
+    accessorKey: "appointmentsCount",
     header: "Số lượng cuộc hẹn",
   },
   {
-    accessorKey: "email", 
+    accessorKey: "email",
     header: "Email",
   },
   {
-    accessorKey: "address", 
+    accessorKey: "address",
     header: "Địa chỉ",
-  },
-  {
-    accessorKey: "image", 
-    header: "Ảnh đại diện",
-    cell: ({ row }) => (
-      row.getValue("image") ? (
-        <img src={`${row.getValue("image")}`} alt="Avatar" className="w-10 h-10 rounded-full" />
-      ) : (
-        "Chưa có ảnh"
-      )
-    ),
+    accessorFn: (row) => `${row.province}, ${row.country}`,
+    cell: ({ row }) => `${row.original.province}, ${row.original.country}`,
   },
   {
     id: "actions",
@@ -144,82 +160,82 @@ export const employerColumns: ColumnDef<any>[] = [
 
 
 // Post columnsconst 
-export const  postColumns: ColumnDef<any>[] = [
+export const postColumns: ColumnDef<any>[] = [
   {
     accessorKey: "id",
     header: "Mã",
   },
-    {
-      accessorKey: "title",
-      header: "Tiêu đề",
-    },
-    {
-      accessorKey: "categoryName",
-      header: "Danh mục",
-    },
-    {
-      accessorKey: "status",
-      header: "Trạng thái",
-    },
-    {
-      accessorKey: "clientEmail",
-      header: "Email khách hàng",
-    },
-    {
-      accessorKey: "quantity",
-      header: "Số lượng",
-    },
-    {
-      accessorKey: "appliedQuantity",
-      header: "Đã ứng tuyển",
-    },
-    {
-      accessorKey: "cancelledQuantity",
-      header: "Đã hủy",
-    },
-    {
-      accessorKey: "inProgressQuantity",
-      header: "Đang tiến hành",
-    },
-    {
-      accessorKey: "viewedQuantity",
-      header: "Đã xem",
-    }
-   
-  ];
-  export const accountColumns = [
-    {
-      id: "email", 
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      id: "role", 
-      accessorKey: "role",
-      header: "Quyền",
-    },
-    {
-      id: "status", 
-      accessorKey: "status",
-      header: "Trạng thái",
-      cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
-    },
-    {
-      id: "createdAt",
-      accessorKey: "createdAt",
-      header: "Ngày tạo",
-      cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
-    },
-    {
-      id: "updatedAt", 
-      accessorKey: "updatedAt",
-      header: "Ngày sửa",
-      cell: ({ row }) => new Date(row.getValue("updatedAt")).toLocaleString(),
-    },
-   
-  ];
-  
-  
+  {
+    accessorKey: "title",
+    header: "Tiêu đề",
+  },
+  {
+    accessorKey: "categoryName",
+    header: "Danh mục",
+  },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+  },
+  {
+    accessorKey: "clientEmail",
+    header: "Email khách hàng",
+  },
+  {
+    accessorKey: "quantity",
+    header: "Số lượng",
+  },
+  {
+    accessorKey: "appliedQuantity",
+    header: "Đã ứng tuyển",
+  },
+  {
+    accessorKey: "cancelledQuantity",
+    header: "Đã hủy",
+  },
+  {
+    accessorKey: "inProgressQuantity",
+    header: "Đang tiến hành",
+  },
+  {
+    accessorKey: "viewedQuantity",
+    header: "Đã xem",
+  }
+
+];
+export const accountColumns = [
+  {
+    id: "email",
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    id: "role",
+    accessorKey: "role",
+    header: "Quyền",
+  },
+  {
+    id: "status",
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
+  },
+  {
+    id: "createdAt",
+    accessorKey: "createdAt",
+    header: "Ngày tạo",
+    cell: ({ row }) => new Date(row.getValue("createdAt")).toLocaleString(),
+  },
+  {
+    id: "updatedAt",
+    accessorKey: "updatedAt",
+    header: "Ngày sửa",
+    cell: ({ row }) => new Date(row.getValue("updatedAt")).toLocaleString(),
+  },
+
+];
+
+
 export const bannerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "id",

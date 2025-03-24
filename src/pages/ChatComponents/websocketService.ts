@@ -175,7 +175,12 @@ class WebSocketService {
             this.subscribeToCallInternal(userId, callback);
         }
     }
-
+    updateCallbacks(callbacks: WebSocketCallbacks): void {
+        if (this.connected) {
+            this.callbacks = callbacks;
+            callbacks.onConnectionEstablished();
+        }
+    }
     private subscribeToCallInternal(userId: string, callback: (response: SignalResponse) => void): void {
         if (!this.stompClient) return;
 

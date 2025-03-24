@@ -38,181 +38,198 @@ import SchoolPage from '@/pages/admin/SchoolPage';
 import DegreesPage from '@/pages/admin/DegreesPage';
 import SkillsPage from '@/pages/admin/SkillsPage';
 import CategoriesPage from '@/pages/admin/CategoriesPage';
-
+import ChatbotManagement from '@/pages/admin/ChatBotManagement';
+import PaymentResult from "@/pages/payment/payment-result";
+import ReportsOfJob from '@/pages/ReportsOfJob';
+import FreelancerReports from '@/pages/FreelancerReports';
 export const chatLayoutPaths = ['/messaging'];
 
 export const mainRoutes: RouteObject[] = [
-    {
-        path: '/',
-        element: <Home />
-    },
-    {
-        path: '/freelancers',
-        element: <Freelancers />
-    },
-    {
-        path: '/freelancers/:id',
-        element: <FreelancerDetail />
-    },
-    {
-        path: '/jobs',
-        element: <Jobs />
-    },
-    {
-        path: '/jobs/:id',
-        element: <JobDetail />
-    },
-    {
-        path: '/about',
-        element: <About />
-    },
-    {
-        path: '/contact',
-        element: <Contact />
-    },
-    {
-        path: '/login',
-        element: <Login />
-    },
-    {
-        path: '/oauth2-callback',
-        element: <OAuth2Callback />
-    },
-    {
-        path: '/choose-role',
-        element: <ChooseRole />
-    },
-    {
-        path: '/register',
-        element: <Register />
-    },
-    {
-        path: '/settingsfreelancer',
-        element: <Settings />
-    },
-    {
-        path: '/pricing',
-        element: <Pricing />
-    },
-    {
-        path: '/client/post-job',
-        element: <PostJob />
-    },
-    {
-        path: '/client/profile',
-        element: <ClientProfile />
-    },
-    {
-        path: '/clients/:id',
-        element: <ClientDetail />
-    },
-    {
-        path: '/client/jobs/:id',
-        element: <JobDetail />
-    },
-    {
-        path: '/client/posted-jobs',
-        element: <PostedJobs />
-    },
-    {
-        path: '/client/applied-jobs',
-        element: <AppliedJobs />
-    },
-    {
-        path: '/client/applicants/:id',
-        element: <Applicants />
-    },
-    {
-        path: '/saved-jobs',
-        element: <SavedJobs />
-    },
-    {
-        path: '/forgot-password',
-        element: <ForgotPassword />
-    },
-    {
-        path: '/appointment/:id',
-        element: <Appointment />
-    },
-    {
-        path: 'freelancer/appointment',
-        element: <AppointmentFreelancerList />
-    },
-    {
-        path: 'client/appointment',
-        element: <AppointmentClientList />
-    },
-    {
-        path: '/messaging',
-        element: <MessagingPage />
-    },
-    {
-        path: '/freelancer/applied-jobs',
-        element: <AppliedJobs />
-    },
-    {
-        path: '/wallet',
-        element: <Wallet />
-    },
-
-    {
-        path: '*',
-        element: <div className='w-1/2 mx-auto'><NotFound /></div>
-    }
+  {
+    path: '/',
+    element: <Home />
+  },
+  {
+    path: '/freelancers',
+    element: <Freelancers />
+  },
+  {
+    path: '/freelancers/:id',
+    element: <FreelancerDetail />
+  },
+  {
+    path: '/jobs',
+    element: <Jobs />
+  },
+  {
+    path: '/jobs/:id',
+    element: <JobDetail />
+  },
+  {
+    path: '/about',
+    element: <About />
+  },
+  {
+    path: '/contact',
+    element: <Contact />
+  },
+  {
+    path: '/login',
+    element: <Login />
+  },
+  {
+    path: '/oauth2-callback',
+    element: <OAuth2Callback />
+  },
+  {
+    path: '/choose-role',
+    element: <ChooseRole />
+  },
+  {
+    path: '/register',
+    element: <Register />
+  },
+  {
+    path: '/settingsfreelancer',
+    element: <Settings />
+  },
+  {
+    path: '/pricing',
+    element: <Pricing />
+  },
+  {
+    path: '/reports-job/:id',
+    element: <ReportsOfJob />
+  },
+  {
+    path: '/reports-freelancer',
+    element: <FreelancerReports />
+  },
+  {
+    path: '/client/post-job',
+    element: <PostJob />
+  },
+  {
+    path: '/client/profile',
+    element: <ClientProfile />
+  },
+  {
+    path: '/clients/:id',
+    element: <ClientDetail />
+  },
+  {
+    path: '/client/jobs/:id',
+    element: <JobDetail />
+  },
+  {
+    path: '/client/posted-jobs',
+    element: <PostedJobs />
+  },
+  {
+    path: '/client/applied-jobs',
+    element: <AppliedJobs />
+  },
+  {
+    path: '/client/applicants/:id',
+    element: <Applicants />
+  },
+  {
+    path: '/saved-jobs',
+    element: <SavedJobs />
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />
+  },
+  {
+    path: '/appointment/:id',
+    element: <Appointment />
+  },
+  {
+    path: 'freelancer/appointment',
+    element: <AppointmentFreelancerList />
+  },
+  {
+    path: 'client/appointment',
+    element: <AppointmentClientList />
+  },
+  {
+    path: '/messaging',
+    element: <MessagingPage />
+  },
+  {
+    path: '/freelancer/applied-jobs',
+    element: <AppliedJobs />
+  },
+  {
+    path: '/wallet',
+    element: <Wallet />
+  },
+  {
+    path: "/PaymentResult",
+    element: <PaymentResult />,
+  },
+  {
+    path: '*',
+    element: <div className='w-1/2 mx-auto'><NotFound /></div>
+  }
 ];
 
 export const adminRoutes: RouteObject[] = [
-    {
-        path: '/',
-        element: <DashboardPage />
-    },
-    {
-        path: '/accounts',
-        element: <AccountsPage />
-    },
-    {
-        path: '/freelancers',
-        element: <FreelancersPage />
-    },
-    {
-        path: '/employers',
-        element: <EmployersPage />
-    },
-    {
-        path: '/posts',
-        element: <PostsPage />
-    },
-    {
-        path: "/pricing",
-        element: <PricingManagement />
-    },
-    {
-        path: "/banners",
-        element: <BannersPage />
-    },
-    {
-        path: '/reports',
-        element: <ReportsPage />
-    },
-    {
-        path: '/schools',
-        element: <SchoolPage />
-    },
-
-    {
-        path: '/degrees',
-        element: <DegreesPage />
-    },
-    {
-        path: '/categories',
-        element: <CategoriesPage />
-    },
-    {
-        path: '/skills',
-        element: <SkillsPage />
-    },
-    {
-        path: '*',
-        element: <div className='w-1/2 mx-auto'><NotFound /></div>
-    }
+  {
+    path: '/',
+    element: <DashboardPage />
+  },
+  {
+    path: '/accounts',
+    element: <AccountsPage />
+  },
+  {
+    path: '/freelancers',
+    element: <FreelancersPage />
+  },
+  {
+    path: '/employers',
+    element: <EmployersPage />
+  },
+  {
+    path: '/chatbot',
+    element: <ChatbotManagement />
+  },
+  {
+    path: '/posts',
+    element: <PostsPage />
+  },
+  {
+    path: "/pricing",
+    element: <PricingManagement />
+  },
+  {
+    path: "/banners",
+    element: <BannersPage />
+  },
+  {
+    path: '/reports',
+    element: <ReportsPage />
+  },
+  {
+    path: '/schools',
+    element: <SchoolPage />
+  },
+  {
+    path: '/degrees',
+    element: <DegreesPage />
+  },
+  {
+    path: '/categories',
+    element: <CategoriesPage />
+  },
+  {
+    path: '/skills',
+    element: <SkillsPage />
+  },
+  {
+    path: '*',
+    element: <div className='w-1/2 mx-auto'><NotFound /></div>
+  }
 ];

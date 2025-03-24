@@ -26,6 +26,7 @@ interface Job {
   categoryName: string;
 }
 
+import CustomChatbot from '@/components/CustomChatbot';
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
@@ -332,7 +333,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-      <CustomDialogflowMessenger />
     </div>
   );
 };
