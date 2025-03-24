@@ -35,6 +35,7 @@ interface JobDetailResponse {
   skillNames: string[];
   experience?: string;
   deadline?: string;
+  totalApplicants?: number;
 }
 
 interface JobFreelancerInfo {
@@ -373,9 +374,9 @@ const JobDetail = () => {
                   <Users className="w-8 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Số lượng ứng viên
+                      Số lượng ứng viên đã ứng tuyển
                     </p>
-                    <p className="font-semibold">{job?.totalApplicant || 0}</p>
+                    <p className="font-semibold">{job?.totalApplicants || 0}</p>
                   </div>
                 </div>
               </Card>
