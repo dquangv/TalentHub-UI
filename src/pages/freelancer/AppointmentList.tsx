@@ -103,11 +103,11 @@ const AppointmentList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ứng viên</TableHead>
+                  <TableHead>Nhà tuyển dụng</TableHead>
                   <TableHead>Chủ đề</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Hình thức</TableHead>
-                  <TableHead>Nhà tuyển dụng</TableHead>
+                  {/* <TableHead>Nhà tuyển dụng</TableHead> */}
                   {/* <TableHead>Trạng thái</TableHead> */}
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
@@ -116,7 +116,7 @@ const AppointmentList = () => {
                 {filteredAppointments.map((appointment) => (
                   <TableRow key={appointment.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         <Avatar>
                           <AvatarImage src="https://via.placeholder.com/256" />
                           <AvatarFallback>
