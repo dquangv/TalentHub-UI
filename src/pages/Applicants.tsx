@@ -35,6 +35,8 @@ import cvService from "@/api/cvService";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Link, useParams } from "react-router-dom";
 import { notification } from "antd";
@@ -44,6 +46,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
+
 const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -59,9 +63,13 @@ const Applicants = () => {
     Cancelled: 0,
   });
   const [previewVisible, setPreviewVisible] = useState(false);
-  const [currentPdfUrl, setCurrentPdfUrl] = useState('');
+  const [currentPdfUrl, setCurrentPdfUrl] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [selectedFreelancerId, setSelectedFreelancerId] = useState<number | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [note, setNote] = useState<string>("");
   const { id } = useParams();
 
   const fetchApplicants = async () => {
@@ -70,14 +78,13 @@ const Applicants = () => {
       const response = await api.get(`/v1/jobs/applicants/${id}`);
       setApplicants(response.data);
 
-      // Calculate stats
       const newStats = {
         total: response.data.length,
-        Applied: response.data.filter(a => a.status === "Applied").length,
-        Viewed: response.data.filter(a => a.status === "Viewed").length,
-        InProgress: response.data.filter(a => a.status === "In Progress").length,
-        Completed: response.data.filter(a => a.status === "Completed").length,
-        Cancelled: response.data.filter(a => a.status === "Cancelled").length,
+        Applied: response.data.filter((a) => a.status === "Applied").length,
+        Viewed: response.data.filter((a) => a.status === "Viewed").length,
+        InProgress: response.data.filter((a) => a.status === "In Progress").length,
+        Completed: response.data.filter((a) => a.status === "Completed").length,
+        Cancelled: response.data.filter((a) => a.status === "Cancelled").length,
       };
       setStats(newStats);
       setError(null);
@@ -125,6 +132,7 @@ const Applicants = () => {
         return "default";
     }
   };
+
   const handleViewCV = async (applicant) => {
     if (!applicant.cvURL) {
       notification.info({
@@ -151,9 +159,56 @@ const Applicants = () => {
       setPreviewLoading(false);
     }
   };
-  const filteredApplicants = applicants.filter(applicant => {
-    const fullName = `${applicant?.firstName || ''} ${applicant?.lastName || ''}`.trim().toLowerCase();
-    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) ||
+
+  const handleReviewSubmit = async () => {
+    if (!selectedFreelancerId) return;
+
+    const reviewData = {
+      rating: rating,
+      note: note,
+    };
+
+    try {
+      const response = await api.post(`/v1/jobs/${selectedFreelancerId}/freelance/review`, reviewData);
+      notification.success({
+        message: "Thành công",
+        description: "Đánh giá đã được gửi thành công",
+      });
+      setReviewDialogOpen(false);
+      setRating(0);
+      setNote("");
+      fetchApplicants(); 
+    } catch (error) {
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể gửi đánh giá",
+      });
+      console.error("Error submitting review:", error);
+    }
+  };
+
+  const StarRating = ({ rating, setRating }: { rating: number; setRating: (value: number) => void }) => {
+    return (
+      <div className="flex gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-6 h-6 cursor-pointer ${
+              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+            }`}
+            onClick={() => setRating(star)}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const filteredApplicants = applicants.filter((applicant) => {
+    const fullName = `${applicant?.firstName || ""} ${applicant?.lastName || ""}`
+      .trim()
+      .toLowerCase();
+    const matchesSearch =
+      fullName.includes(searchTerm.toLowerCase()) ||
       applicant?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || applicant?.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -300,7 +355,6 @@ const Applicants = () => {
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chuyên môn</TableHead>
-                  {/* <TableHead>Ngày ứng tuyển</TableHead> */}
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Đánh giá</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -312,14 +366,19 @@ const Applicants = () => {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={applicant.image} alt={`${applicant.firstName} ${applicant.lastName}`} />
-                          <AvatarFallback>{`${applicant.firstName?.[0] || ''}${applicant.lastName?.[0] || ''}`}</AvatarFallback>
+                          <AvatarImage
+                            src={applicant.image}
+                            alt={`${applicant.firstName} ${applicant.lastName}`}
+                          />
+                          <AvatarFallback>{`${applicant.firstName?.[0] || ""}${
+                            applicant.lastName?.[0] || ""
+                          }`}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{`${applicant.firstName || ''} ${applicant.lastName || ''}`}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {applicant.email}
-                          </p>
+                          <p className="font-medium">{`${applicant.firstName || ""} ${
+                            applicant.lastName || ""
+                          }`}</p>
+                          <p className="text-sm text-muted-foreground">{applicant.email}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -328,12 +387,6 @@ const Applicants = () => {
                         {applicant?.position || "Không có chuyên môn"}
                       </p>
                     </TableCell>
-                    {/* <TableCell>
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                        {applicant.appliedDate}
-                      </div>
-                    </TableCell> */}
                     <TableCell>
                       <Badge variant={getStatusBadgeVariant(applicant.status)}>
                         {getStatusText(applicant.status)}
@@ -342,7 +395,7 @@ const Applicants = () => {
                     <TableCell>
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="ml-1">{applicant.rating}</span>
+                        <span className="ml-1">{applicant.rating || "Chưa đánh giá"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -433,6 +486,28 @@ const Applicants = () => {
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
+
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={applicant.status !== "Completed"}
+                                onClick={() => {
+                                  setSelectedFreelancerId(applicant.id);
+                                  setReviewDialogOpen(true);
+                                }}
+                                className="text-yellow-600"
+                              >
+                                <Star className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Đánh giá ứng viên</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -441,43 +516,76 @@ const Applicants = () => {
             </Table>
           </Card>
         </FadeInWhenVisible>
+
+        {/* Dialog xem CV */}
+        <Dialog open={previewVisible} onOpenChange={(open) => !open && setPreviewVisible(false)}>
+          <DialogContent className="max-w-5xl h-[90vh] p-0 sm:rounded-lg">
+            <div className="h-full w-full p-2 bg-gray-50">
+              {previewLoading ? (
+                <div className="flex flex-col justify-center items-center h-full">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                  <span className="text-gray-500">Đang tải xem trước...</span>
+                </div>
+              ) : !currentPdfUrl ? (
+                <div className="flex flex-col justify-center items-center h-full">
+                  <FileText className="w-12 h-12 text-gray-400 mb-4" />
+                  <span className="text-gray-500">Không thể tải CV</span>
+                </div>
+              ) : (
+                <iframe
+                  src={currentPdfUrl}
+                  width="100%"
+                  height="100%"
+                  style={{
+                    border: "none",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                  }}
+                  title="CV Preview"
+                  onError={() => {
+                    notification.error({
+                      message: "Lỗi",
+                      description: "Không thể tải xem trước CV. Vui lòng thử lại sau.",
+                    });
+                    setPreviewVisible(false);
+                  }}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Đánh giá ứng viên: {applicants.find((a) => a.freelancerId === selectedFreelancerId)?.firstName}{" "}
+                {applicants.find((a) => a.freelancerId === selectedFreelancerId)?.lastName}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Điểm đánh giá (1-5 sao)</label>
+                <StarRating rating={rating} setRating={setRating} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Ghi chú</label>
+                <Textarea
+                  placeholder="Nhập ghi chú về ứng viên"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
+                  Hủy
+                </Button>
+                <Button onClick={handleReviewSubmit}>Gửi đánh giá</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-      <Dialog open={previewVisible} onOpenChange={(open) => !open && setPreviewVisible(false)}>
-        <DialogContent className="max-w-5xl h-[90vh] p-0 sm:rounded-lg">
-          <div className="h-full w-full p-2 bg-gray-50">
-            {previewLoading ? (
-              <div className="flex flex-col justify-center items-center h-full">
-                <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                <span className="text-gray-500">Đang tải xem trước...</span>
-              </div>
-            ) : !currentPdfUrl ? (
-              <div className="flex flex-col justify-center items-center h-full">
-                <FileText className="w-12 h-12 text-gray-400 mb-4" />
-                <span className="text-gray-500">Không thể tải CV</span>
-              </div>
-            ) : (
-              <iframe
-                src={currentPdfUrl}
-                width="100%"
-                height="100%"
-                style={{
-                  border: 'none',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
-                }}
-                title="CV Preview"
-                onError={() => {
-                  notification.error({
-                    message: 'Lỗi',
-                    description: 'Không thể tải xem trước CV. Vui lòng thử lại sau.'
-                  });
-                  setPreviewVisible(false);
-                }}
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
