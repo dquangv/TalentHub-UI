@@ -5,7 +5,6 @@ import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
-import CustomDialogflowMessenger from '@/components/CustomDialogflowMessenger';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -13,42 +12,66 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
-import CustomChatbot from '@/components/CustomChatbot';
+
+interface Banner {
+  id: number;
+  title: string;
+  image: string;
+  status: string;
+  vendor: string;
+  startTime: string;
+  endTime: string;
+}
+
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
     freelancers: 0,
     clients: 0,
     jobs: 0,
-    loading: true
+    loading: true,
   });
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loadingJobs, setLoadingJobs] = useState(true);
+  const [banners, setBanners] = useState<Banner[]>([]);
 
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         const response = await api.get("statistics/home");
-        if (response.success) {
+        if (response.data.success) {
           setStats({
-            freelancers: response.freelancers,
-            clients: response.clients,
-            jobs: response.jobs,
-            loading: false
+            freelancers: response.data.freelancers,
+            clients: response.data.clients,
+            jobs: response.data.jobs,
+            loading: false,
           });
         }
       } catch (error) {
         console.error('Error fetching statistics:', error);
-        setStats(prev => ({ ...prev, loading: false }));
+        setStats((prev) => ({ ...prev, loading: false }));
+      }
+    };
+
+    const fetchBanners = async () => {
+      try {
+        const response = await api.get('/v1/banners');
+        if (response.status === 200) {
+          const today = new Date().toISOString().split('T')[0];
+          const validBanners = response.data.filter(
+            (banner: Banner) => banner.endTime >= today && banner.status === 'active'
+          );
+          setBanners(validBanners);
+        }
+      } catch (error) {
+        console.error('Error fetching banners:', error);
       }
     };
 
     fetchStatistics();
+    fetchBanners();
   }, []);
 
   return (
     <div>
-      {/* Hero Section - Gradient từ primary sang secondary nhẹ nhàng */}
       <section className="relative py-[70px] bg-gradient-to-b from-primary-100 via-background to-background">
         <div className="absolute inset-x-0 bottom-0 w-full h-96">
           <Swiper
@@ -59,33 +82,46 @@ const Home = () => {
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             className="w-full h-full shadow-lg overflow-hidden"
           >
-            <SwiperSlide>
-              <img
-                src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
-                alt="Laptop"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img
-                src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
-                alt="Laptop"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img
-                src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
-                alt="Laptop"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
+            {banners.map((banner) => (
+              <SwiperSlide key={banner.id}>
+                <img
+                  src={banner.image}
+                  alt={banner.title}
+                  className="w-full h-full object-cover"
+                />
+              </SwiperSlide>
+            ))}
+            {banners.length === 0 && (
+              <>
+                <SwiperSlide>
+                  <img
+                    src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
+                    alt="Laptop"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+                <SwiperSlide>
+                  <img
+                    src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
+                    alt="Freelancer"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+                <SwiperSlide>
+                  <img
+                    src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
+                    alt="Work"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+              </>
+            )}
           </Swiper>
         </div>
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
-              <h1 className=" text-2xl md:text-6xl font-bold pb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-6xl font-bold pb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                 {t('connetWith')}
               </h1>
             </FadeInWhenVisible>
@@ -108,7 +144,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -158,8 +193,6 @@ const Home = () => {
         </div>
       </section>
 
-
-      {/* Categories Section */}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -190,7 +223,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Steps Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -212,7 +244,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
         <div className="container relative mx-auto px-4">
