@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Menu, X, Info, Video } from 'lucide-react';
+import { MessageSquare, Menu, Info, } from 'lucide-react';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-
-// Import existing components
 import { MessageProvider, useMessages } from './ChatComponents/MessageContext';
 import { CallProvider, useCall } from './ChatComponents/CallContext';
 import ConversationList from './ChatComponents/ConversationList';
@@ -18,8 +16,7 @@ import MessageInfoPanel from './ChatComponents/MessageInfoPanel';
 import ConnectionStatus from './ChatComponents/ConnectionStatus';
 import MobileDrawer from './ChatComponents/MobileDrawer';
 import VideoCallDialog from './ChatComponents/VideoCallDialog';
-
-// Dialog component for creating a new conversation
+import { useSearchParams } from 'react-router-dom';
 const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
     const [name, setName] = useState('');
 
@@ -67,11 +64,11 @@ const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
     );
 };
 
-// Main component that uses MessageContext and CallContext
-const MessagingContent = () => {
+const MessagingContent = ({ contactId }) => {
     const {
         conversations,
         activeConversationId,
+        checkAndCreateConversation,
         messages,
         isConnected,
         setActiveConversationId,
@@ -79,7 +76,11 @@ const MessagingContent = () => {
         createNewConversation,
         markAsRead
     } = useMessages();
-
+    useEffect(() => {
+        if (contactId) {
+            checkAndCreateConversation(contactId);
+        }
+    }, [contactId, checkAndCreateConversation]);
     const {
         isInCall,
         isCallActive,
@@ -134,34 +135,27 @@ const MessagingContent = () => {
             window.removeEventListener('select-conversation', handleSelectConversation as EventListener);
         };
     }, [setActiveConversationId]);
-    // Initialize and set up resize listener
     useEffect(() => {
         checkViewportSize();
-
         const handleResize = () => {
             checkViewportSize();
         };
-
         window.addEventListener('resize', handleResize);
         return () => {
             window.removeEventListener('resize', handleResize);
         };
     }, [checkViewportSize]);
 
-    // Toggle conversation drawer on mobile
     const toggleConversationDrawer = () => {
         setShowConversationDrawer(prev => !prev);
-        // Close info drawer if opening conversation drawer
         if (!showConversationDrawer && showInfoDrawer) {
             setShowInfoDrawer(false);
         }
     };
 
-    // Toggle info drawer/panel
     const toggleInfoPanel = () => {
         if (isMobile || isTablet) {
             setShowInfoDrawer(prev => !prev);
-            // Close conversation drawer if opening info drawer
             if (!showInfoDrawer && showConversationDrawer) {
                 setShowConversationDrawer(false);
             }
@@ -170,14 +164,11 @@ const MessagingContent = () => {
         }
     };
 
-    // Find the active conversation
     const activeConversation = conversations.find(conv => conv.id === activeConversationId);
 
-    // Handle creating a new conversation
     const handleCreateNewConversation = (name) => {
         const newId = createNewConversation(name);
         setActiveConversationId(newId);
-        // Close mobile conversation drawer when creating a new one
         if (isMobile) {
             setShowConversationDrawer(false);
         }
@@ -205,12 +196,10 @@ const MessagingContent = () => {
         sendMessage(content);
     };
 
-    // Handle ending a call
     const handleEndCall = () => {
         endCall();
     };
 
-    // Mark messages as read when active conversation changes
     useEffect(() => {
         if (activeConversationId) {
             markAsRead(activeConversationId);
@@ -251,7 +240,6 @@ const MessagingContent = () => {
 
                 <FadeInWhenVisible delay={0.1}>
                     <Card className="flex flex-col h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-hidden lg:flex-row">
-                        {/* Conversation list - Show in layout on tablet/desktop */}
                         {!isMobile && (
                             <div className="w-full md:w-80 lg:w-72 xl:w-80 md:flex-shrink-0 md:border-r h-auto">
                                 <ConversationList
@@ -263,7 +251,6 @@ const MessagingContent = () => {
                             </div>
                         )}
 
-                        {/* Chat area (main content) */}
                         <div
                             className={`
                                 flex-1 flex flex-col h-full overflow-hidden
@@ -302,7 +289,6 @@ const MessagingContent = () => {
                             )}
                         </div>
 
-                        {/* Info panel - Show in layout on desktop */}
                         {showInfoPanel && !isMobile && !isTablet && activeConversation && (
                             <div className="hidden lg:block lg:w-72 xl:w-80 lg:flex-shrink-0 lg:border-l">
                                 <MessageInfoPanel
@@ -321,8 +307,6 @@ const MessagingContent = () => {
                 </FadeInWhenVisible>
             </div>
 
-            {/* Mobile Drawers */}
-            {/* Conversation List Drawer */}
             {isMobile && (
                 <MobileDrawer
                     isOpen={showConversationDrawer}
@@ -342,7 +326,6 @@ const MessagingContent = () => {
                 </MobileDrawer>
             )}
 
-            {/* Info Panel Drawer */}
             {(isMobile || isTablet) && activeConversation && (
                 <MobileDrawer
                     isOpen={showInfoDrawer}
@@ -363,7 +346,6 @@ const MessagingContent = () => {
                 </MobileDrawer>
             )}
 
-            {/* Video Call Dialog */}
             {isInCall && callerInfo && (
                 <VideoCallDialog
                     open={isInCall}
@@ -383,7 +365,6 @@ const MessagingContent = () => {
                 />
             )}
 
-            {/* Fixed Action Buttons for Mobile */}
             {isMobile && !showConversationDrawer && !showInfoDrawer && (
                 <Button
                     variant="outline"
@@ -395,10 +376,8 @@ const MessagingContent = () => {
                 </Button>
             )}
 
-            {/* Show connection status alerts */}
             <ConnectionStatus />
 
-            {/* Dialog to create new conversation */}
             <NewConversationDialog
                 open={isNewConversationDialogOpen}
                 onClose={() => setIsNewConversationDialogOpen(false)}
@@ -407,19 +386,25 @@ const MessagingContent = () => {
         </div>
     );
 };
-
-// Wrapper component that provides MessageContext and CallContext
 const MessagingPage = () => {
-    // Get the user ID from local storage or context
-    const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId || '';
+    const userInfoStr = localStorage.getItem('userInfo');
+    const userId = userInfoStr ? JSON.parse(userInfoStr).userId || '' : '';
+    const [searchParams] = useSearchParams();
+    const contactId = searchParams.get('contactId') || '';
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     return (
-        <MessageProvider>
+        <MessageProvider initialContactId={contactId}>
             <CallProvider userId={userId}>
-                <MessagingContent />
+                <MessagingContent
+                    contactId={contactId}
+                    hasInitialized={hasInitialized}
+                    setHasInitialized={setHasInitialized}
+                />
             </CallProvider>
         </MessageProvider>
     );
 };
+
 
 export default MessagingPage;

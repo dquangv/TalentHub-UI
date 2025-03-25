@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PopupChat from './PopupChat';
 import { v4 as uuidv4 } from 'uuid';
 import websocketService, { MessageResponse } from '@/pages/ChatComponents/websocketService';
-
 export interface ChatNotification {
     id: string;
     contactId: string;
@@ -13,16 +12,13 @@ export interface ChatNotification {
     timestamp: Date;
     unread: number;
 }
-
 const ChatNotificationManager: React.FC = () => {
     const [activeChats, setActiveChats] = useState<ChatNotification[]>([]);
     const [newMessageNotifications, setNewMessageNotifications] = useState<ChatNotification[]>([]);
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
     const userId = userInfo.userId;
-
     useEffect(() => {
         if (!userId) return;
-
         const handleNewMessage = (message: MessageResponse) => {
             if (message.receiverId === userId) {
                 const senderId = message.senderId;

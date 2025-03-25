@@ -1,4 +1,3 @@
-// ConnectionStatus.tsx - Responsive for all screen sizes
 import React from 'react';
 import { Wifi, WifiOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -6,11 +5,9 @@ import { useMessages } from './MessageContext';
 
 const ConnectionStatus: React.FC = () => {
     const { isConnected, reconnecting } = useMessages();
-
     if (isConnected) {
-        return null; // Don't show anything when connected
+        return null;
     }
-
     return (
         <Alert
             variant="destructive"
