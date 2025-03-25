@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -23,7 +23,6 @@ interface Banner {
   endTime: string;
 }
 
-
 interface Job {
   id: number;
   title: string;
@@ -36,16 +35,17 @@ interface Job {
   categoryName: string;
 }
 
-import CustomChatbot from '@/components/CustomChatbot';
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
-    freelancers: 0,
-    clients: 0,
-    jobs: 0,
+    totalAccounts: 0,
+    approvedFreelancerJobs: 0,
+    postedJobs: 0,
     loading: true,
   });
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
 
   useEffect(() => {
     const fetchStatistics = async () => {
@@ -53,10 +53,10 @@ const Home = () => {
         const response = await api.get("statistics/home");
         if (response.data.success) {
           setStats({
-            totalAccounts: response.totalAccounts,
-            approvedFreelancerJobs: response.approvedFreelancerJobs,
-            postedJobs: response.postedJobs,
-            loading: false
+            totalAccounts: response.data.totalAccounts || 0,
+            approvedFreelancerJobs: response.data.approvedFreelancerJobs || 0,
+            postedJobs: response.data.postedJobs || 0,
+            loading: false,
           });
         }
       } catch (error) {
@@ -90,11 +90,11 @@ const Home = () => {
         const response = await api.get('/v1/jobs');
         if (response.status === 200) {
           const jobData: Job[] = response.data;
-          const filteredJobs: any = {};
-          const categoryCount: any = {};
+          const filteredJobs: { [key: string]: Job } = {};
+          const categoryCount: { [key: string]: number } = {};
           let uniqueCategories = 0;
 
-          jobData.forEach(job => {
+          jobData.forEach((job) => {
             const category = job.categoryName;
             if (uniqueCategories < 6) {
               if (!categoryCount[category]) {
@@ -103,8 +103,10 @@ const Home = () => {
               }
               if (!filteredJobs[category] || job.toPrice > filteredJobs[category].toPrice) {
                 filteredJobs[category] = job;
-              } else if (job.toPrice === filteredJobs[category].toPrice &&
-                job.fromPrice > filteredJobs[category].fromPrice) {
+              } else if (
+                job.toPrice === filteredJobs[category].toPrice &&
+                job.fromPrice > filteredJobs[category].fromPrice
+              ) {
                 filteredJobs[category] = job;
               }
             }
@@ -122,10 +124,6 @@ const Home = () => {
     fetchJobs();
   }, []);
 
-
-
-  console.log('statisctics ', stats);
-
   return (
     <div>
       <section className="relative py-[70px] bg-gradient-to-b from-primary-100 via-background to-background">
@@ -140,11 +138,7 @@ const Home = () => {
           >
             {banners.map((banner) => (
               <SwiperSlide key={banner.id}>
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="w-full h-full object-cover"
-                />
+                <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
               </SwiperSlide>
             ))}
             {banners.length === 0 && (
@@ -182,16 +176,18 @@ const Home = () => {
               </h1>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
-              <p className="text-xl text-muted-foreground mb-8">
-                {t('platform')}
-              </p>
+              <p className="text-xl text-muted-foreground mb-8">{t('platform')}</p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="text-lg bg-primary hover:bg-primary-600">
                   {t('postJob')}
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary"
+                >
                   {t('postJob')}
                 </Button>
               </div>
@@ -249,7 +245,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Jobs Section */}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -270,7 +265,6 @@ const Home = () => {
                     style={{ height: '100%' }}
                   >
                     <div className="flex items-start gap-4">
-                      {/* Icon dựa trên category */}
                       {job.categoryName.includes('Lập trình') ? (
                         <Code className="w-8 h-8 text-primary-600" />
                       ) : job.categoryName.includes('Thiết kế') ? (
@@ -283,10 +277,7 @@ const Home = () => {
                         <Briefcase className="w-8 h-8 text-primary-600" />
                       )}
                       <div>
-                        {/* <h3 className="font-semibold mb-2 text-primary-700">{job.title}</h3> */}
                         <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
-
-                        {/* <p className="text-sm text-muted-foreground mb-2">{job.companyName}</p> */}
                         <p className="text-sm text-muted-foreground mb-2">
                           <span className="font-medium">Khoảng giá:</span>{' '}
                           {job.fromPrice !== undefined && job.toPrice !== undefined
@@ -296,7 +287,7 @@ const Home = () => {
                         <p className="text-sm text-muted-foreground mb-4">{job.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {job.skillName.length > 0 ? (
-                            job.skillName.map((skill: string) => (
+                            job.skillName.map((skill) => (
                               <Badge
                                 key={skill}
                                 variant="secondary"
