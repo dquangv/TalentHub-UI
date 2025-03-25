@@ -10,15 +10,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Search, Filter, Clock, DollarSign, Briefcase, X } from "lucide-react";
+import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
@@ -29,6 +22,7 @@ interface Job {
   description: string;
   skillName: string[];
   companyName: string;
+  categoryName: string;
   hourWork: number;
   fromPrice: number;
   toPrice: number;
@@ -40,6 +34,7 @@ interface FilterState {
   maxPrice: number;
   minHours: number;
   maxHours: number;
+  selectedCategories: string[];
 }
 
 const Jobs = () => {
@@ -55,17 +50,52 @@ const Jobs = () => {
     maxPrice: 1000000000,
     minHours: 0,
     maxHours: 168,
+    selectedCategories: [],
   });
 
-  const uniqueSkills: any = [];
-  for (const job of jobs) {
-      for (const skill of job.skillName) {
-          if (!uniqueSkills.includes(skill)) {
-              uniqueSkills.push(skill);
-          }
+  const uniqueCategories: string[] = [];
+  jobs.forEach(job => {
+    if (!uniqueCategories.includes(job.categoryName)) {
+      uniqueCategories.push(job.categoryName);
+    }
+  });
+
+  const categorySkills: any = {};
+  jobs.forEach(job => {
+    if (!categorySkills[job.categoryName]) {
+      categorySkills[job.categoryName] = [];
+    }
+    job.skillName.forEach(skill => {
+      if (!categorySkills[job.categoryName].includes(skill)) {
+        categorySkills[job.categoryName].push(skill);
       }
-  }
-  
+    });
+  });
+
+  const getAvailableSkills = () => {
+    let skills: string[] = [];
+    if (filters.selectedCategories.length === 0) {
+      jobs.forEach(job => {
+        job.skillName.forEach(skill => {
+          if (!skills.includes(skill)) {
+            skills.push(skill);
+          }
+        });
+      });
+    } else {
+      filters.selectedCategories.forEach(category => {
+        categorySkills[category].forEach(skill => {
+          if (!skills.includes(skill)) {
+            skills.push(skill);
+          }
+        });
+      });
+    }
+    return skills;
+  };
+
+  const uniqueSkills = getAvailableSkills();
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -80,7 +110,6 @@ const Jobs = () => {
         console.error("Error fetching jobs:", error);
       }
     };
-
     fetchJobs();
   }, []);
 
@@ -93,6 +122,23 @@ const Jobs = () => {
     }));
   };
 
+  const toggleCategory = (category: string) => {
+    setFilters(prev => {
+      const newCategories = prev.selectedCategories.includes(category)
+        ? prev.selectedCategories.filter(c => c !== category)
+        : [...prev.selectedCategories, category];
+      const newSkills = prev.selectedSkills.filter(skill =>
+        newCategories.length === 0 ||
+        newCategories.some(cat => categorySkills[cat].includes(skill))
+      );
+      return {
+        ...prev,
+        selectedCategories: newCategories,
+        selectedSkills: newSkills,
+      };
+    });
+  };
+
   const applyFilters = () => {
     let filtered = [...jobs];
 
@@ -100,7 +146,7 @@ const Jobs = () => {
       filtered = filtered.filter(job =>
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.skillName.some(skill => 
+        job.skillName.some(skill =>
           skill.toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
@@ -108,7 +154,7 @@ const Jobs = () => {
 
     if (filters.selectedSkills.length > 0) {
       filtered = filtered.filter(job =>
-        filters.selectedSkills.some(skill => 
+        filters.selectedSkills.some(skill =>
           job.skillName.includes(skill)
         )
       );
@@ -124,6 +170,12 @@ const Jobs = () => {
       job.hourWork <= filters.maxHours
     );
 
+    if (filters.selectedCategories.length > 0) {
+      filtered = filtered.filter(job =>
+        filters.selectedCategories.includes(job.categoryName)
+      );
+    }
+
     setFilteredJobs(filtered);
     setIsFilterOpen(false);
   };
@@ -135,6 +187,7 @@ const Jobs = () => {
       maxPrice: 1000000000,
       minHours: 0,
       maxHours: 168,
+      selectedCategories: [],
     });
     setFilteredJobs(jobs);
   };
@@ -142,7 +195,6 @@ const Jobs = () => {
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
-        {/* Search Section */}
         <div className="mb-12">
           <FadeInWhenVisible>
             <h1 className="text-3xl font-bold text-center mb-8">
@@ -176,6 +228,24 @@ const Jobs = () => {
                     </SheetHeader>
                     <div className="py-6 space-y-6">
                       <div className="space-y-2">
+                        <h3 className="text-sm font-medium">Danh mục</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {uniqueCategories.map(category => (
+                            <Badge
+                              key={category}
+                              variant={filters.selectedCategories.includes(category) ? "default" : "outline"}
+                              className="cursor-pointer"
+                              onClick={() => toggleCategory(category)}
+                            >
+                              {category}
+                              {filters.selectedCategories.includes(category) && (
+                                <X className="w-3 h-3 ml-1" />
+                              )}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
                         <h3 className="text-sm font-medium">Kỹ năng</h3>
                         <div className="flex flex-wrap gap-2">
                           {uniqueSkills.map(skill => (
@@ -193,16 +263,15 @@ const Jobs = () => {
                           ))}
                         </div>
                       </div>
-
                       <div className="space-y-2">
                         <h3 className="text-sm font-medium">Mức giá (VND)</h3>
                         <div className="flex items-center gap-4">
                           <Input
                             type="number"
                             value={filters.minPrice}
-                            onChange={(e) => setFilters(prev => ({ 
-                              ...prev, 
-                              minPrice: parseInt(e.target.value) 
+                            onChange={(e) => setFilters(prev => ({
+                              ...prev,
+                              minPrice: parseInt(e.target.value) || 0
                             }))}
                             className="w-32"
                             placeholder="Tối thiểu"
@@ -211,25 +280,24 @@ const Jobs = () => {
                           <Input
                             type="number"
                             value={filters.maxPrice}
-                            onChange={(e) => setFilters(prev => ({ 
-                              ...prev, 
-                              maxPrice: parseInt(e.target.value) 
+                            onChange={(e) => setFilters(prev => ({
+                              ...prev,
+                              maxPrice: parseInt(e.target.value) || 1000000000
                             }))}
                             className="w-32"
                             placeholder="Tối đa"
                           />
                         </div>
                       </div>
-
                       <div className="space-y-2">
                         <h3 className="text-sm font-medium">Số giờ làm việc/tuần</h3>
                         <div className="flex items-center gap-4">
                           <Input
                             type="number"
                             value={filters.minHours}
-                            onChange={(e) => setFilters(prev => ({ 
-                              ...prev, 
-                              minHours: parseInt(e.target.value) 
+                            onChange={(e) => setFilters(prev => ({
+                              ...prev,
+                              minHours: parseInt(e.target.value) || 0
                             }))}
                             className="w-20"
                             min="0"
@@ -239,9 +307,9 @@ const Jobs = () => {
                           <Input
                             type="number"
                             value={filters.maxHours}
-                            onChange={(e) => setFilters(prev => ({ 
-                              ...prev, 
-                              maxHours: parseInt(e.target.value) 
+                            onChange={(e) => setFilters(prev => ({
+                              ...prev,
+                              maxHours: parseInt(e.target.value) || 168
                             }))}
                             className="w-20"
                             min="0"
@@ -249,7 +317,6 @@ const Jobs = () => {
                           />
                         </div>
                       </div>
-
                       <div className="flex gap-4 pt-4">
                         <Button onClick={applyFilters} className="flex-1">
                           Áp dụng
@@ -265,8 +332,6 @@ const Jobs = () => {
             </FadeInWhenVisible>
           </div>
         </div>
-
-        {/* Jobs List */}
         <div className="space-y-6">
           {filteredJobs.map((job, index) => (
             <FadeInWhenVisible key={job.id} delay={index * 0.1}>
@@ -292,12 +357,16 @@ const Jobs = () => {
                         {job.companyName}
                       </div>
                       <div className="flex items-center">
+                        <Tag className="w-4 h-4 mr-2" />
+                        {job.categoryName}
+                      </div>
+                      <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
                         {job.hourWork} hours/week
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-2" />
-                        {job.fromPrice} - {job.toPrice} VND
+                        {job.fromPrice.toLocaleString()} - {job.toPrice.toLocaleString()} VND
                       </div>
                     </div>
                   </div>
@@ -312,8 +381,6 @@ const Jobs = () => {
             </FadeInWhenVisible>
           ))}
         </div>
-
-        {/* Load More Button */}
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
             {t("Seemorejobs")}

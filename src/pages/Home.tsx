@@ -23,6 +23,20 @@ interface Banner {
   endTime: string;
 }
 
+
+interface Job {
+  id: number;
+  title: string;
+  companyName: string;
+  hourWork: number;
+  fromPrice: number;
+  toPrice: number;
+  description: string;
+  skillName: string[];
+  categoryName: string;
+}
+
+import CustomChatbot from '@/components/CustomChatbot';
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
@@ -39,10 +53,10 @@ const Home = () => {
         const response = await api.get("statistics/home");
         if (response.data.success) {
           setStats({
-            freelancers: response.data.freelancers,
-            clients: response.data.clients,
-            jobs: response.data.jobs,
-            loading: false,
+            totalAccounts: response.totalAccounts,
+            approvedFreelancerJobs: response.approvedFreelancerJobs,
+            postedJobs: response.postedJobs,
+            loading: false
           });
         }
       } catch (error) {
@@ -69,6 +83,48 @@ const Home = () => {
     fetchStatistics();
     fetchBanners();
   }, []);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await api.get('/v1/jobs');
+        if (response.status === 200) {
+          const jobData: Job[] = response.data;
+          const filteredJobs: any = {};
+          const categoryCount: any = {};
+          let uniqueCategories = 0;
+
+          jobData.forEach(job => {
+            const category = job.categoryName;
+            if (uniqueCategories < 6) {
+              if (!categoryCount[category]) {
+                categoryCount[category] = 1;
+                uniqueCategories++;
+              }
+              if (!filteredJobs[category] || job.toPrice > filteredJobs[category].toPrice) {
+                filteredJobs[category] = job;
+              } else if (job.toPrice === filteredJobs[category].toPrice &&
+                job.fromPrice > filteredJobs[category].fromPrice) {
+                filteredJobs[category] = job;
+              }
+            }
+          });
+
+          setJobs(Object.values(filteredJobs));
+        }
+        setLoadingJobs(false);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+        setLoadingJobs(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+
+
+  console.log('statisctics ', stats);
 
   return (
     <div>
@@ -154,11 +210,11 @@ const Home = () => {
                   {stats.loading ? (
                     <AnimatedNumber start={0} end={50000} />
                   ) : (
-                    <AnimatedNumber start={0} end={stats.freelancers} />
+                    <AnimatedNumber start={0} end={stats.totalAccounts} />
                   )}
                   +
                 </h3>
-                Số lượng freelancer
+                Tổng số tài khoản
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
@@ -168,11 +224,11 @@ const Home = () => {
                   {stats.loading ? (
                     <AnimatedNumber start={0} end={50000} />
                   ) : (
-                    <AnimatedNumber start={0} end={stats.clients} />
+                    <AnimatedNumber start={0} end={stats.postedJobs} />
                   )}
                   +
                 </h3>
-                Số lượng nhà tuyển dụng
+                Dự án đã đăng
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -182,44 +238,86 @@ const Home = () => {
                   {stats.loading ? (
                     <AnimatedNumber start={0} end={50000} />
                   ) : (
-                    <AnimatedNumber start={0} end={stats.jobs} />
+                    <AnimatedNumber start={0} end={stats.approvedFreelancerJobs} />
                   )}
                   +
                 </h3>
-                Số lượng dự án
+                Freelancer được chấp thuận
               </Card>
             </FadeInWhenVisible>
           </div>
         </div>
       </section>
 
+      {/* Jobs Section */}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Featuredareas')}</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
+              Khám Phá Các Dự Án Hấp Dẫn
+            </h2>
           </FadeInWhenVisible>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 h-100">
-            {categories.map((category, index) => (
-              <FadeInWhenVisible key={category.title} delay={index * 0.1}>
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background h-100" style={{ height: '100%' }}>
-                  <div className="flex items-start gap-4">
-                    {category.icon}
-                    <div>
-                      <h3 className="font-semibold mb-2 text-primary-700">{category.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{category.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {category.skills.map((skill) => (
-                          <Badge key={skill} variant="secondary" className="bg-secondary-100 text-secondary-700 hover:bg-secondary-200">
-                            {skill}
-                          </Badge>
-                        ))}
+          {loadingJobs ? (
+            <div className="text-center text-muted-foreground">Đang tải công việc...</div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center text-muted-foreground">Không có công việc nào để hiển thị.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {jobs.map((job, index) => (
+                <FadeInWhenVisible key={job.id} delay={index * 0.1}>
+                  <Card
+                    className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background"
+                    style={{ height: '100%' }}
+                  >
+                    <div className="flex items-start gap-4">
+                      {/* Icon dựa trên category */}
+                      {job.categoryName.includes('Lập trình') ? (
+                        <Code className="w-8 h-8 text-primary-600" />
+                      ) : job.categoryName.includes('Thiết kế') ? (
+                        <Paintbrush className="w-8 h-8 text-primary-600" />
+                      ) : job.categoryName.includes('Viết lách') ? (
+                        <PenTool className="w-8 h-8 text-primary-600" />
+                      ) : job.categoryName.includes('Marketing') ? (
+                        <TrendingUp className="w-8 h-8 text-primary-600" />
+                      ) : (
+                        <Briefcase className="w-8 h-8 text-primary-600" />
+                      )}
+                      <div>
+                        {/* <h3 className="font-semibold mb-2 text-primary-700">{job.title}</h3> */}
+                        <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
+
+                        {/* <p className="text-sm text-muted-foreground mb-2">{job.companyName}</p> */}
+                        <p className="text-sm text-muted-foreground mb-2">
+                          <span className="font-medium">Khoảng giá:</span>{' '}
+                          {job.fromPrice !== undefined && job.toPrice !== undefined
+                            ? `${job.fromPrice} - ${job.toPrice}`
+                            : 'Không xác định'}
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-4">{job.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {job.skillName.length > 0 ? (
+                            job.skillName.map((skill: string) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-secondary-100 text-secondary-700 hover:bg-secondary-200"
+                              >
+                                {skill}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="secondary" className="bg-secondary-100 text-secondary-700">
+                              Không yêu cầu kỹ năng
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </FadeInWhenVisible>
-            ))}
-          </div>
+                  </Card>
+                </FadeInWhenVisible>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -272,45 +370,6 @@ const Home = () => {
     </div>
   );
 };
-
-const categories = [
-  {
-    title: 'Lập trình & Công nghệ',
-    description: 'Phát triển web, mobile app, và các giải pháp phần mềm',
-    icon: <Code className="w-8 h-8 text-primary-600" />,
-    skills: ['React', 'Node.js', 'Python', 'Mobile App'],
-  },
-  {
-    title: 'Thiết kế & Đồ họa',
-    description: 'Thiết kế web, logo, và các sản phẩm đồ họa',
-    icon: <Paintbrush className="w-8 h-8 text-primary-600" />,
-    skills: ['UI/UX', 'Branding', 'Illustration', 'Motion'],
-  },
-  {
-    title: 'Digital Marketing',
-    description: 'Quảng cáo, SEO, và chiến lược marketing online',
-    icon: <TrendingUp className="w-8 h-8 text-primary-600" />,
-    skills: ['SEO', 'Social Media', 'Google Ads', 'Content'],
-  },
-  {
-    title: 'Viết lách & Biên dịch',
-    description: 'Viết content, dịch thuật, và biên tập',
-    icon: <PenTool className="w-8 h-8 text-primary-600" />,
-    skills: ['Copywriting', 'Translation', 'Content Writing', 'Proofreading'],
-  },
-  {
-    title: 'Video & Animation',
-    description: 'Sản xuất video, motion graphics, và animation',
-    icon: <Video className="w-8 h-8 text-primary-600" />,
-    skills: ['After Effects', 'Premiere Pro', '3D Animation', 'Motion Graphics'],
-  },
-  {
-    title: 'Kinh doanh & Tư vấn',
-    description: 'Tư vấn kinh doanh, kế toán, và phân tích',
-    icon: <LineChart className="w-8 h-8 text-primary-600" />,
-    skills: ['Business Plan', 'Financial Analysis', 'Consulting', 'Research'],
-  },
-];
 
 const steps = [
   {
