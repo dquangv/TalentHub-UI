@@ -2,17 +2,26 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Video, LineChart } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
-import CustomDialogflowMessenger from '@/components/CustomDialogflowMessenger';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
-import api from "@/api/axiosConfig";
+import api from '@/api/axiosConfig';
+
+interface Banner {
+  id: number;
+  title: string;
+  image: string;
+  status: string;
+  vendor: string;
+  startTime: string;
+  endTime: string;
+}
 
 interface Job {
   id: number;
@@ -26,15 +35,15 @@ interface Job {
   categoryName: string;
 }
 
-import CustomChatbot from '@/components/CustomChatbot';
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
-    freelancers: 0,
-    clients: 0,
-    jobs: 0,
-    loading: true
+    totalAccounts: 0,
+    approvedFreelancerJobs: 0,
+    postedJobs: 0,
+    loading: true,
   });
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
 
@@ -42,21 +51,37 @@ const Home = () => {
     const fetchStatistics = async () => {
       try {
         const response = await api.get("statistics/home");
-        if (response.success) {
+        if (response.data.success) {
           setStats({
-            totalAccounts: response.totalAccounts,
-            approvedFreelancerJobs: response.approvedFreelancerJobs,
-            postedJobs: response.postedJobs,
-            loading: false
+            totalAccounts: response.data.totalAccounts || 0,
+            approvedFreelancerJobs: response.data.approvedFreelancerJobs || 0,
+            postedJobs: response.data.postedJobs || 0,
+            loading: false,
           });
         }
       } catch (error) {
         console.error('Error fetching statistics:', error);
-        setStats(prev => ({ ...prev, loading: false }));
+        setStats((prev) => ({ ...prev, loading: false }));
+      }
+    };
+
+    const fetchBanners = async () => {
+      try {
+        const response = await api.get('/v1/banners');
+        if (response.status === 200) {
+          const today = new Date().toISOString().split('T')[0];
+          const validBanners = response.data.filter(
+            (banner: Banner) => banner.endTime >= today && banner.status === 'active'
+          );
+          setBanners(validBanners);
+        }
+      } catch (error) {
+        console.error('Error fetching banners:', error);
       }
     };
 
     fetchStatistics();
+    fetchBanners();
   }, []);
 
   useEffect(() => {
@@ -65,11 +90,11 @@ const Home = () => {
         const response = await api.get('/v1/jobs');
         if (response.status === 200) {
           const jobData: Job[] = response.data;
-          const filteredJobs: any = {};
-          const categoryCount: any = {};
+          const filteredJobs: { [key: string]: Job } = {};
+          const categoryCount: { [key: string]: number } = {};
           let uniqueCategories = 0;
 
-          jobData.forEach(job => {
+          jobData.forEach((job) => {
             const category = job.categoryName;
             if (uniqueCategories < 6) {
               if (!categoryCount[category]) {
@@ -78,8 +103,10 @@ const Home = () => {
               }
               if (!filteredJobs[category] || job.toPrice > filteredJobs[category].toPrice) {
                 filteredJobs[category] = job;
-              } else if (job.toPrice === filteredJobs[category].toPrice &&
-                job.fromPrice > filteredJobs[category].fromPrice) {
+              } else if (
+                job.toPrice === filteredJobs[category].toPrice &&
+                job.fromPrice > filteredJobs[category].fromPrice
+              ) {
                 filteredJobs[category] = job;
               }
             }
@@ -97,13 +124,8 @@ const Home = () => {
     fetchJobs();
   }, []);
 
-
-
-  console.log('statisctics ', stats);
-
   return (
     <div>
-      {/* Hero Section */}
       <section className="relative py-[70px] bg-gradient-to-b from-primary-100 via-background to-background">
         <div className="absolute inset-x-0 bottom-0 w-full h-96">
           <Swiper
@@ -114,27 +136,36 @@ const Home = () => {
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             className="w-full h-full shadow-lg overflow-hidden"
           >
-            <SwiperSlide>
-              <img
-                src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
-                alt="Laptop"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img
-                src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
-                alt="Freelancer"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <img
-                src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
-                alt="Work"
-                className="w-full h-full object-cover"
-              />
-            </SwiperSlide>
+            {banners.map((banner) => (
+              <SwiperSlide key={banner.id}>
+                <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+              </SwiperSlide>
+            ))}
+            {banners.length === 0 && (
+              <>
+                <SwiperSlide>
+                  <img
+                    src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
+                    alt="Laptop"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+                <SwiperSlide>
+                  <img
+                    src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
+                    alt="Freelancer"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+                <SwiperSlide>
+                  <img
+                    src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
+                    alt="Work"
+                    className="w-full h-full object-cover"
+                  />
+                </SwiperSlide>
+              </>
+            )}
           </Swiper>
         </div>
         <div className="container mx-auto px-4">
@@ -145,16 +176,18 @@ const Home = () => {
               </h1>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
-              <p className="text-xl text-muted-foreground mb-8">
-                {t('platform')}
-              </p>
+              <p className="text-xl text-muted-foreground mb-8">{t('platform')}</p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="text-lg bg-primary hover:bg-primary-600">
                   {t('postJob')}
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary"
+                >
                   {t('postJob')}
                 </Button>
               </div>
@@ -163,7 +196,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -213,7 +245,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Jobs Section */}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -234,7 +265,6 @@ const Home = () => {
                     style={{ height: '100%' }}
                   >
                     <div className="flex items-start gap-4">
-                      {/* Icon dựa trên category */}
                       {job.categoryName.includes('Lập trình') ? (
                         <Code className="w-8 h-8 text-primary-600" />
                       ) : job.categoryName.includes('Thiết kế') ? (
@@ -247,10 +277,7 @@ const Home = () => {
                         <Briefcase className="w-8 h-8 text-primary-600" />
                       )}
                       <div>
-                        {/* <h3 className="font-semibold mb-2 text-primary-700">{job.title}</h3> */}
                         <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
-
-                        {/* <p className="text-sm text-muted-foreground mb-2">{job.companyName}</p> */}
                         <p className="text-sm text-muted-foreground mb-2">
                           <span className="font-medium">Khoảng giá:</span>{' '}
                           {job.fromPrice !== undefined && job.toPrice !== undefined
@@ -260,7 +287,7 @@ const Home = () => {
                         <p className="text-sm text-muted-foreground mb-4">{job.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {job.skillName.length > 0 ? (
-                            job.skillName.map((skill: string) => (
+                            job.skillName.map((skill) => (
                               <Badge
                                 key={skill}
                                 variant="secondary"
@@ -285,7 +312,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Steps Section */}
       <section className="py-16">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -307,7 +333,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
         <div className="container relative mx-auto px-4">

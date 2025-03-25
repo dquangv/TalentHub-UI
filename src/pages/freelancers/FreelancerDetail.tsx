@@ -17,6 +17,8 @@ import {
   GraduationCap,
   MessageCircle,
   Calendar,
+  Clock,
+  Clock1,
 } from 'lucide-react';
 import api from '@/api/axiosConfig';
 import GoogleMapComponent from '@/components/MapComponent';
@@ -26,7 +28,7 @@ const FreelancerDetail = () => {
   const { id } = useParams();
   const [freelancer, setFreelancer] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const fetchFreelancerDetail = async () => {
       try {
@@ -34,6 +36,10 @@ const FreelancerDetail = () => {
         console.log(response.data);
 
         setFreelancer(response.data);
+        api.get(`/v1/jobs/freelancer-job/details/${id}`)
+        const jobsResponse = await api.get(`/v1/jobs/freelancer-job/details/${id}`);
+        console.log('jobResponse', jobsResponse)
+        setJobs(jobsResponse.data || []);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching freelancer detail: ", error);
@@ -133,6 +139,8 @@ const FreelancerDetail = () => {
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
                 <TabsTrigger value="projects">Dự án</TabsTrigger>
+                <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
+
               </TabsList>
 
               <TabsContent value="overview">
@@ -270,6 +278,61 @@ const FreelancerDetail = () => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </Card>
+              </TabsContent>
+              <TabsContent value="reviews">
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  <div className="space-y-6">
+                    {jobs.map((job, index) => (
+                      <div key={index} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-900">{job.projectName}</h3>
+                            <p className="text-gray-600 mt-1">{job.scope}</p>
+                          </div>
+                          {job.rating && (
+                            <div className="flex items-center">
+                              <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                              <span className="ml-1 font-semibold">{job.rating}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                          <div className="flex items-center text-gray-600">
+                            <Clock1 className="w-4 h-4 mr-2 text-gray-400" />
+                            <span>Số giờ làm: {job.hourWork} giờ</span>
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                            <span>Bắt đầu: {formatDate(job.startDate)}</span>
+                          </div>
+                          {job.endDate && (
+                            <div className="flex items-center text-gray-600">
+                              <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                              <span>Kết thúc: {formatDate(job.endDate)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center text-gray-600">
+                            <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
+                            <span>Khách hàng: {job.clientName}</span>
+                          </div>
+                        </div>
+                        
+                        {job.note && (
+                          <div className="mt-4">
+                            <p className="text-gray-600 italic">{job.note}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {jobs.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        Chưa có đánh giá nào
+                      </div>
+                    )}
                   </div>
                 </Card>
               </TabsContent>
