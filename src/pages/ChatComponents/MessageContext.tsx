@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { v4 as uuidv4 } from 'uuid';
 import websocketService, { WebSocketCallbacks } from './websocketService';
 import chatApiService from './chatApiService';
+import userService from '@/api/userService';
 
 export interface Message {
     id: string;
@@ -36,19 +37,21 @@ interface MessageContextType {
     sendMessage: (content: string) => void;
     createNewConversation: (name: string) => string;
     markAsRead: (conversationId: string) => void;
+    checkAndCreateConversation: (contactId: string) => Promise<void>;
 }
 
 const MessageContext = createContext<MessageContextType>({} as MessageContextType);
 
 interface MessageProviderProps {
     children: ReactNode;
+    initialContactId?: string;
 }
 
-export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) => {
+export const MessageProvider: React.FC<MessageProviderProps> = ({ children, initialContactId = '' }) => {
     const [conversations, setConversations] = useState<Conversation[]>([]);
-    const [activeConversationId, setActiveConversationId] = useState<string>('');
+    const [activeConversationId, setActiveConversationId] = useState<string>(initialContactId);
     const [allMessages, setAllMessages] = useState<Record<string, Message[]>>({});
-    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [isConnected, setIsConnected] = useState<boolean>(true);
     const [reconnecting, setReconnecting] = useState<boolean>(false);
     const [userId, setUserId] = useState<string>('');
 
@@ -61,7 +64,76 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
             setUserId(storedUserId);
         }
     }, []);
+    const createNewConversation = useCallback((name: string, specificId?: string): string => {
+        const newId = specificId || uuidv4();
+        const newConversation: Conversation = {
+            id: newId,
+            name,
+            lastMessage: 'Chưa có tin nhắn nào',
+            timestamp: new Date(),
+            unread: 0,
+            isOnline: Math.random() > 0.5,
+            avatar: `https://i.pravatar.cc/150?u=${newId}`,
+        };
 
+        setConversations(prev => [newConversation, ...prev]);
+        setAllMessages(prev => ({
+            ...prev,
+            [newId]: [],
+        }));
+
+        return newId;
+    }, []);
+    const checkAndCreateConversation = useCallback(async (contactId: string) => {
+        if (!userId || !contactId) return;
+        const existingConversation = conversations.find(conv =>
+            String(conv.id) === String(contactId)
+        );
+        if (existingConversation) {
+            console.log("Found existing conversation, activating:", existingConversation);
+            setActiveConversationId(contactId);
+        } else {
+            console.log("No existing conversation found, creating new one");
+            try {
+                const userResponse = await userService.getUserById(Number(contactId));
+
+                if (userResponse && userResponse.data) {
+                    const userData = userResponse.data;
+
+                    // Tạo tên hiển thị từ dữ liệu người dùng
+                    const displayName = userData.firstName && userData.lastName
+                        ? `${userData.firstName} ${userData.lastName}`
+                        : userData.title || `User ${contactId}`;
+
+                    // Lấy avatar nếu có
+                    const avatar = userData.image || `https://i.pravatar.cc/150?u=${contactId}`;
+
+                    console.log("Creating conversation with name:", displayName);
+                    // Quan trọng: Truyền contactId làm specificId để đảm bảo ID đúng
+                    const newId = createNewConversation(displayName, contactId);
+
+                    // Cập nhật avatar
+                    setConversations(prev =>
+                        prev.map(conv =>
+                            conv.id === contactId
+                                ? { ...conv, avatar }
+                                : conv
+                        )
+                    );
+
+                    setActiveConversationId(newId);
+                } else {
+                    console.log("User data not found, creating with default info");
+                    const newId = createNewConversation(`User ${contactId}`, contactId);
+                    setActiveConversationId(newId);
+                }
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+                const newId = createNewConversation(`User ${contactId}`, contactId);
+                setActiveConversationId(newId);
+            }
+        }
+    }, [userId, conversations, createNewConversation]);
     // Mark messages as read
     const markAsRead = useCallback((conversationId: string) => {
         if (!userId || !conversationId) return;
@@ -257,7 +329,6 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
                 onConnectionEstablished: () => {
                     setIsConnected(true);
                     setReconnecting(false);
-                    // Reload conversation list when reconnected
                     loadConversations();
                 },
                 onConnectionLost: () => {
@@ -265,7 +336,6 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
                     setReconnecting(true);
                 }
             };
-
             websocketService.connect(userId, callbacks);
         } else {
             console.log('WebSocket already connected, updating callbacks');
@@ -387,27 +457,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         websocketService.sendMessage(activeConversationId, content);
     }, [activeConversationId, isConnected, userId]);
 
-    // Create a new conversation
-    const createNewConversation = useCallback((name: string): string => {
-        const newId = uuidv4();
-        const newConversation: Conversation = {
-            id: newId,
-            name,
-            lastMessage: 'Chưa có tin nhắn nào',
-            timestamp: new Date(),
-            unread: 0,
-            isOnline: Math.random() > 0.5,
-            avatar: `https://i.pravatar.cc/150?u=${newId}`,
-        };
 
-        setConversations(prev => [newConversation, ...prev]);
-        setAllMessages(prev => ({
-            ...prev,
-            [newId]: [],
-        }));
-
-        return newId;
-    }, []);
 
     // Mark messages as read when active conversation changes
     useEffect(() => {
@@ -426,6 +476,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children }) =>
         sendMessage,
         createNewConversation,
         markAsRead,
+        checkAndCreateConversation,
     };
 
     return <MessageContext.Provider value={value}> {children} </MessageContext.Provider>;
