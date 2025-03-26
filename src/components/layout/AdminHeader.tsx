@@ -15,7 +15,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ onToggleSidebar }) => {
     return (
         <header className="border-b bg-background px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={onToggleSidebar}>
+                <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={onToggleSidebar} asChild>
                     <Menu className="h-5 w-5" />
                 </Button>
                 <h1 className="text-lg font-semibold">TalentHub Admin</h1>
