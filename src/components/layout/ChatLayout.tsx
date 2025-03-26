@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import ScrollToTop from '@/components/layout/ScrollToTop';
 
 interface ChatLayoutProps {
     children: ReactNode;
@@ -7,10 +6,7 @@ interface ChatLayoutProps {
 
 const ChatLayout = ({ children }: ChatLayoutProps): JSX.Element => {
     return (
-        <div className="min-h-screen bg-background">
-            <main className="h-screen">{children}</main>
-            <ScrollToTop />
-        </div>
+        <main className="min-h-screen w-full flex flex-col overflow-hidden">{children}</main>
     );
 };
 
