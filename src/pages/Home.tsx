@@ -46,16 +46,16 @@ const Home = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-
+console.log(stats)
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         const response = await api.get("statistics/home");
-        if (response.data.success) {
+        if (response.success) {
           setStats({
-            totalAccounts: response.data.totalAccounts || 0,
-            approvedFreelancerJobs: response.data.approvedFreelancerJobs || 0,
-            postedJobs: response.data.postedJobs || 0,
+            totalAccounts: response.totalAccounts || 0,
+            approvedFreelancerJobs: response.approvedFreelancerJobs || 0,
+            postedJobs: response.postedJobs || 0,
             loading: false,
           });
         }
