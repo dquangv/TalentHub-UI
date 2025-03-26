@@ -67,12 +67,14 @@ const Register = () => {
     setError("");
     setLoading(true);
 
+    const status = formData.role === "FREELANCER" ? "Xác thực" : "Chưa xác thực";
+
     try {
       const response = await api.post("/v1/account/register", {
         ...formData,
         lat: location.lat,
         lng: location.lng,
-        status: true,
+        status,
       });
       navigate("/login");
     } catch (err: any) {
