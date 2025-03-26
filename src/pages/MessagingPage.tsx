@@ -187,7 +187,6 @@ const MessagingContent = ({ contactId }) => {
         }
     };
 
-    // Handle sending messages, with connection check
     const handleSendMessage = (content) => {
         if (!isConnected) {
             alert('Không thể gửi tin nhắn. Vui lòng kiểm tra kết nối mạng của bạn.');
@@ -207,13 +206,9 @@ const MessagingContent = ({ contactId }) => {
     }, [activeConversationId, markAsRead]);
 
     return (
-        <div className="h-[calc(100vh-4rem)] py-2 sm:py-4 md:py-6">
-            <div className="container h-full px-2 mx-auto md:px-4">
-                <div className="flex items-center justify-between mb-3 sm:mb-4 md:mb-6">
-                    <FadeInWhenVisible>
-                        <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">Tin nhắn</h1>
-                    </FadeInWhenVisible>
-
+        <div className="h-screen w-full flex flex-col overflow-hidden">
+            <div>
+                <div className="flex items-center justify-between">
                     {/* Mobile buttons */}
                     <div className="flex md:hidden space-x-2">
                         {/* Info button - only show when a conversation is active */}
@@ -239,7 +234,7 @@ const MessagingContent = ({ contactId }) => {
                 </div>
 
                 <FadeInWhenVisible delay={0.1}>
-                    <Card className="flex flex-col h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-hidden lg:flex-row">
+                    <Card className="flex flex-col h-[calc(100vh)] max-h-[calc(100vh)] overflow-hidden lg:flex-row">
                         {!isMobile && (
                             <div className="w-full md:w-80 lg:w-72 xl:w-80 md:flex-shrink-0 md:border-r h-auto">
                                 <ConversationList
