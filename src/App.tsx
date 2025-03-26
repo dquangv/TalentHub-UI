@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import MainLayout from '@/components/layout/MainLayout';
-import { adminRoutes, mainRoutes } from '@/routes';
+import { adminRoutes, mainRoutes, chatLayoutPaths } from '@/routes';
 import AdminLayout from './components/layout/AdminLayout';
 import ChatLayout from './components/layout/ChatLayout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -13,15 +13,13 @@ const AuthenticatedNotifications = () => {
   return isLoggedIn ? <ChatNotificationManager /> : null;
 };
 
-const chatLayoutPaths = ['/messaging'];
-
 const AppRoutes = () => {
   const location = useLocation();
   const adminRole = JSON.parse(localStorage.getItem('adminRole') || "false");
 
   const usesChatLayout = chatLayoutPaths.some(path => location.pathname === path);
 
-  if (adminRole) {
+  if (adminRole && !usesChatLayout) {
     return (
       <Routes>
         {adminRoutes.map(route => (
@@ -48,6 +46,12 @@ const AppRoutes = () => {
           />
         );
       })}
+      {adminRole && usesChatLayout && (
+        <Route
+          path="/messaging"
+          element={<ChatLayout>{adminRoutes.find(route => route.path === '/messaging')?.element}</ChatLayout>}
+        />
+      )}
     </Routes>
   );
 };
