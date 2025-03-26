@@ -229,6 +229,10 @@ export const adminRoutes: RouteObject[] = [
     element: <SkillsPage />
   },
   {
+    path: '/messaging',
+    element: <MessagingPage />
+  },
+  {
     path: '*',
     element: <div className='w-1/2 mx-auto'><NotFound /></div>
   }
