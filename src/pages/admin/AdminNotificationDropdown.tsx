@@ -33,7 +33,6 @@ const AdminNotificationDropdown: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Lấy userId từ localStorage
         const userInfoStr = localStorage.getItem('userInfo');
         if (!userInfoStr) return;
 
@@ -44,20 +43,16 @@ const AdminNotificationDropdown: React.FC = () => {
 
         setUserId(currentUserId);
 
-        // Lấy danh sách cuộc trò chuyện gần đây
         fetchRecentConversations(currentUserId);
 
-        // Kết nối WebSocket nếu chưa kết nối
         if (!websocketService.isConnected()) {
             const callbacks: WebSocketCallbacks = {
                 onMessageReceived: (message: MessageResponse) => {
                     handleNewMessage(message);
                 },
                 onReadReceiptReceived: () => {
-                    // Không cần xử lý trong dropdown này
                 },
                 onStatusReceived: () => {
-                    // Không cần xử lý trong dropdown này
                 },
                 onConnectionEstablished: () => {
                     console.log('Admin notification: WebSocket connected');
@@ -69,7 +64,6 @@ const AdminNotificationDropdown: React.FC = () => {
 
             websocketService.connect(currentUserId, callbacks);
         } else {
-            // Cập nhật callbacks nếu đã kết nối
             websocketService.updateCallbacks({
                 onMessageReceived: (message: MessageResponse) => {
                     handleNewMessage(message);
@@ -81,7 +75,6 @@ const AdminNotificationDropdown: React.FC = () => {
             });
         }
 
-        // Lắng nghe sự kiện tùy chỉnh từ window cho tin nhắn mới
         const handleNewMessageEvent = (event: Event) => {
             const customEvent = event as CustomEvent;
             if (customEvent.detail) {
@@ -96,30 +89,22 @@ const AdminNotificationDropdown: React.FC = () => {
         };
     }, []);
 
-    // Fetch danh sách cuộc trò chuyện và thêm tin nhắn gần đây nhất vào danh sách thông báo
     const fetchRecentConversations = async (currentUserId: string) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Lấy danh sách các cuộc trò chuyện
             const conversations = await chatApiService.getConversations(currentUserId);
 
-            // Lấy tin nhắn gần đây nhất từ mỗi cuộc trò chuyện và gắn vào thông báo
             const recentMessages: NotificationItem[] = [];
 
-            // Hiển thị trực tiếp các cuộc trò chuyện từ response
             console.log("Conversations loaded:", conversations);
 
-            // Limit số lượng cuộc trò chuyện để tránh quá nhiều yêu cầu API
             const limitedConversations = conversations.slice(0, 5);
 
-            // Thêm trực tiếp từ thông tin cuộc trò chuyện
             for (const conversation of limitedConversations) {
                 try {
-                    // Tạo thông báo từ thông tin cuộc trò chuyện mà không cần kiểm tra unreadCount
                     if (conversation.lastMessage) {
-                        // Đối với isOnline, chúng ta kiểm tra cả trường online và isOnline
                         const isOnline = conversation.online !== undefined ? conversation.online :
                             conversation.isOnline !== undefined ? conversation.isOnline : false;
 
@@ -132,17 +117,13 @@ const AdminNotificationDropdown: React.FC = () => {
                             senderAvatar: conversation.avatar,
                             content: conversation.lastMessage,
                             timestamp: new Date(conversation.timestamp),
-                            // Đánh dấu đã đọc nếu unreadCount là 0
                             read: conversation.unreadCount === 0
                         });
                     }
 
-                    // Nếu cần thêm chi tiết, ta vẫn có thể truy vấn tin nhắn
                     if (conversation.unreadCount > 0) {
-                        // Lấy tin nhắn gần đây nhất của cuộc trò chuyện
                         const messages = await chatApiService.getMessages(currentUserId, conversation.userId.toString());
 
-                        // Lấy tin nhắn chưa đọc gần đây nhất
                         const unreadMessages = messages
                             .filter(msg => !msg.isRead && msg.senderId === conversation.userId.toString())
                             .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -150,10 +131,8 @@ const AdminNotificationDropdown: React.FC = () => {
                         if (unreadMessages.length > 0) {
                             const latestMessage = unreadMessages[0];
 
-                            // Kiểm tra xem đã có thông báo cho cuộc trò chuyện này chưa
                             const existingIndex = recentMessages.findIndex(msg => msg.senderId === conversation.userId.toString());
 
-                            // Nếu chưa có, thêm mới
                             if (existingIndex === -1) {
                                 recentMessages.push({
                                     id: latestMessage.id,
@@ -172,10 +151,8 @@ const AdminNotificationDropdown: React.FC = () => {
                 }
             }
 
-            // Sắp xếp tin nhắn theo thời gian gần đây nhất
             recentMessages.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-            // Cập nhật danh sách thông báo
             setNotifications(recentMessages);
         } catch (err) {
             console.error('Error fetching conversations:', err);
@@ -198,28 +175,23 @@ const AdminNotificationDropdown: React.FC = () => {
         };
 
         setNotifications(prev => {
-            // Kiểm tra xem thông báo đã tồn tại chưa
             const exists = prev.some(item => item.id === newNotification.id);
             if (exists) return prev;
 
-            // Thêm vào đầu danh sách và giới hạn số lượng hiển thị
             return [newNotification, ...prev].slice(0, 10);
         });
     };
 
     const handleNotificationClick = (notification: NotificationItem) => {
-        // Đánh dấu thông báo đã đọc
         setNotifications(prev =>
             prev.map(item =>
                 item.id === notification.id ? { ...item, read: true } : item
             )
         );
 
-        // Chuyển hướng đến trang nhắn tin với người gửi
-        navigate(`/messaging?contactId=${notification.senderId}`);
+        window.open(`/messaging`, '_blank');
         setIsOpen(false);
 
-        // Đánh dấu đã đọc trên server
         if (userId) {
             chatApiService.markMessagesAsRead({
                 receiverId: userId,
@@ -228,42 +200,14 @@ const AdminNotificationDropdown: React.FC = () => {
         }
     };
 
-    const markAllAsRead = () => {
-        // Đánh dấu tất cả thông báo đã đọc trong state
-        setNotifications(prev => prev.map(item => ({ ...item, read: true })));
-
-        // Đánh dấu đã đọc trên server
-        if (userId) {
-            notifications.forEach(notification => {
-                if (!notification.read) {
-                    chatApiService.markMessagesAsRead({
-                        receiverId: userId,
-                        senderId: notification.senderId
-                    });
-                }
-            });
-        }
-    };
-
-    // Đếm số lượng thông báo chưa đọc
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    // Log cho mục đích debug
-    useEffect(() => {
-        console.log("Current notifications:", notifications);
-        console.log("Unread count:", unreadCount);
-    }, [notifications, unreadCount]);
 
-    const handleRefresh = () => {
-        if (userId) {
-            fetchRecentConversations(userId);
-        }
-    };
+
 
     return (
         <DropdownMenu open={isOpen} onOpenChange={(open) => {
             setIsOpen(open);
-            // Tải lại danh sách khi mở dropdown
             if (open && userId) {
                 fetchRecentConversations(userId);
             }
@@ -284,27 +228,6 @@ const AdminNotificationDropdown: React.FC = () => {
             <DropdownMenuContent align="end" className="w-80">
                 <div className="flex items-center justify-between p-3 border-b">
                     <span className="font-semibold">Thông báo tin nhắn</span>
-                    <div className="flex items-center gap-2">
-                        {unreadCount > 0 && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-xs h-7"
-                                onClick={markAllAsRead}
-                            >
-                                Đánh dấu đã đọc
-                            </Button>
-                        )}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs h-7 px-2"
-                            onClick={handleRefresh}
-                            disabled={loading}
-                        >
-                            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Làm mới"}
-                        </Button>
-                    </div>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                     {loading && notifications.length === 0 ? (
@@ -355,7 +278,7 @@ const AdminNotificationDropdown: React.FC = () => {
                             size="sm"
                             className="w-full text-center text-sm"
                             onClick={() => {
-                                navigate('/messaging');
+                                window.open('/messaging', '_blank');
                                 setIsOpen(false);
                             }}
                         >
