@@ -46,11 +46,13 @@ const MessagingContent = ({ contactId }) => {
         remoteStream,
         isMuted,
         isVideoOff,
+        isScreenSharing,
         acceptCall,
         rejectCall,
         endCall,
         toggleMute,
-        toggleVideo
+        toggleVideo,
+        toggleScreenShare
     } = useCall();
 
     const [showInfoPanel, setShowInfoPanel] = useState(false);
@@ -306,11 +308,12 @@ const MessagingContent = ({ contactId }) => {
                     onReject={rejectCall}
                     onToggleMute={toggleMute}
                     onToggleVideo={toggleVideo}
+                    onToggleScreenShare={toggleScreenShare}
                     isMuted={isMuted}
                     isVideoOff={isVideoOff}
+                    isScreenSharing={isScreenSharing}
                 />
             )}
-
             <ConnectionStatus />
         </div>
     );
