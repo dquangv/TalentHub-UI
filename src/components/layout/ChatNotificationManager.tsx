@@ -66,7 +66,6 @@ const ChatNotificationManager: React.FC = () => {
     }, [navigate]);
 
     const handleNotificationClick = (notification: Notification) => {
-        // Chuyển hướng đến trang nhắn tin với người gửi
         window.open(`/messaging?contactId=${notification.senderId}`, '_blank');
         setNotifications(prev => prev.filter(n => n.id !== notification.id));
     };
