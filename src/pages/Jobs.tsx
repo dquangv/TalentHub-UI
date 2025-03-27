@@ -26,6 +26,7 @@ interface Job {
   hourWork: number;
   fromPrice: number;
   toPrice: number;
+  seen: boolean
 }
 
 interface FilterState {
@@ -43,6 +44,8 @@ const Jobs = () => {
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { t } = useLanguage();
+  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+
 
   const [filters, setFilters] = useState<FilterState>({
     selectedSkills: [],
@@ -99,7 +102,7 @@ const Jobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get("/v1/jobs");
+        const response = await api.get("/v1/jobs", {params: {freelancerId}});
         if (response.status === 200) {
           setJobs(response.data);
           setFilteredJobs(response.data);
@@ -111,7 +114,7 @@ const Jobs = () => {
       }
     };
     fetchJobs();
-  }, []);
+  }, [freelancerId]);
 
   const toggleSkill = (skill: string) => {
     setFilters(prev => ({
@@ -374,7 +377,7 @@ const Jobs = () => {
                     <Button>
                       <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
                     </Button>
-                    <div className="flex justify-center">Đã xem</div>
+                    <div className="flex justify-center">{job.seen ? "Đã xem" : "Chưa xem"}</div>
                   </div>
                 </div>
               </Card>

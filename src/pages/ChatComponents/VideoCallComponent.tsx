@@ -39,9 +39,10 @@ const VideoCallComponent: React.FC = () => {
         console.log('Call status changed:', {
             isInCall,
             callStatus,
-            callerInfo: callerInfo ? `${callerInfo.id}:${callerInfo.name}` : 'none'
+            callerInfo: callerInfo ? `${callerInfo.id}:${callerInfo.name}` : 'none',
+            isScreenSharing
         });
-    }, [isInCall, callStatus, callerInfo]);
+    }, [isInCall, callStatus, callerInfo, isScreenSharing]);
 
     if (!isInCall || !callerInfo) {
         console.log('No active call to display');
@@ -63,6 +64,15 @@ const VideoCallComponent: React.FC = () => {
         endCall();
     };
 
+    const handleToggleScreenShare = async () => {
+        console.log('Toggling screen share in VideoCallComponent');
+        try {
+            await toggleScreenShare();
+        } catch (error) {
+            console.error('Error toggling screen share:', error);
+        }
+    };
+
     return (
         <VideoCallDialog
             open={isInCall}
@@ -77,7 +87,7 @@ const VideoCallComponent: React.FC = () => {
             onReject={handleRejectCall}
             onToggleMute={toggleMute}
             onToggleVideo={toggleVideo}
-            onToggleScreenShare={toggleScreenShare}
+            onToggleScreenShare={handleToggleScreenShare}
             isMuted={isMuted}
             isVideoOff={isVideoOff}
             isScreenSharing={isScreenSharing}

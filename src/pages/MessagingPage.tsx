@@ -17,52 +17,7 @@ import ConnectionStatus from './ChatComponents/ConnectionStatus';
 import MobileDrawer from './ChatComponents/MobileDrawer';
 import VideoCallDialog from './ChatComponents/VideoCallDialog';
 import { useSearchParams } from 'react-router-dom';
-const NewConversationDialog = ({ open, onClose, onCreateConversation }) => {
-    const [name, setName] = useState('');
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (name.trim()) {
-            onCreateConversation(name);
-            setName('');
-            onClose();
-        }
-    };
-
-    const handleClose = () => {
-        setName('');
-        onClose();
-    };
-
-    return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="max-w-md mx-auto sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Tạo cuộc trò chuyện mới</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit}>
-                    <div className="py-4">
-                        <Input
-                            placeholder="Tên người nhận"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="mb-4"
-                            autoFocus
-                        />
-                    </div>
-                    <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 sm:justify-end">
-                        <Button type="button" variant="outline" onClick={handleClose} className="w-full sm:w-auto">
-                            Hủy
-                        </Button>
-                        <Button type="submit" disabled={!name.trim()} className="w-full sm:w-auto">
-                            Tạo
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    );
-};
 
 const MessagingContent = ({ contactId }) => {
     const {
@@ -91,14 +46,15 @@ const MessagingContent = ({ contactId }) => {
         remoteStream,
         isMuted,
         isVideoOff,
+        isScreenSharing,
         acceptCall,
         rejectCall,
         endCall,
         toggleMute,
-        toggleVideo
+        toggleVideo,
+        toggleScreenShare
     } = useCall();
 
-    const [isNewConversationDialogOpen, setIsNewConversationDialogOpen] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
@@ -187,7 +143,6 @@ const MessagingContent = ({ contactId }) => {
         }
     };
 
-    // Handle sending messages, with connection check
     const handleSendMessage = (content) => {
         if (!isConnected) {
             alert('Không thể gửi tin nhắn. Vui lòng kiểm tra kết nối mạng của bạn.');
@@ -207,13 +162,9 @@ const MessagingContent = ({ contactId }) => {
     }, [activeConversationId, markAsRead]);
 
     return (
-        <div className="h-[calc(100vh-4rem)] py-2 sm:py-4 md:py-6">
-            <div className="container h-full px-2 mx-auto md:px-4">
-                <div className="flex items-center justify-between mb-3 sm:mb-4 md:mb-6">
-                    <FadeInWhenVisible>
-                        <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">Tin nhắn</h1>
-                    </FadeInWhenVisible>
-
+        <div className="h-screen w-full flex flex-col overflow-hidden">
+            <div>
+                <div className="flex items-center justify-between">
                     {/* Mobile buttons */}
                     <div className="flex md:hidden space-x-2">
                         {/* Info button - only show when a conversation is active */}
@@ -239,14 +190,13 @@ const MessagingContent = ({ contactId }) => {
                 </div>
 
                 <FadeInWhenVisible delay={0.1}>
-                    <Card className="flex flex-col h-[calc(100vh-8rem)] max-h-[calc(100vh-8rem)] overflow-hidden lg:flex-row">
+                    <Card className="flex flex-col h-[calc(100vh)] max-h-[calc(100vh)] overflow-hidden lg:flex-row">
                         {!isMobile && (
                             <div className="w-full md:w-80 lg:w-72 xl:w-80 md:flex-shrink-0 md:border-r h-auto">
                                 <ConversationList
                                     conversations={conversations}
                                     activeConversationId={activeConversationId}
                                     onSelectConversation={handleSelectConversation}
-                                    onNewConversation={() => setIsNewConversationDialogOpen(true)}
                                 />
                             </div>
                         )}
@@ -283,8 +233,7 @@ const MessagingContent = ({ contactId }) => {
                                     title="Chọn cuộc trò chuyện"
                                     description="Chọn một cuộc trò chuyện từ danh sách hoặc tạo cuộc trò chuyện mới."
                                     icon={<MessageSquare className="w-10 h-10 md:h-12 md:w-12 text-primary" />}
-                                    actionLabel="Tạo cuộc trò chuyện mới"
-                                    onAction={() => setIsNewConversationDialogOpen(true)}
+
                                 />
                             )}
                         </div>
@@ -319,7 +268,6 @@ const MessagingContent = ({ contactId }) => {
                         activeConversationId={activeConversationId}
                         onSelectConversation={handleSelectConversation}
                         onNewConversation={() => {
-                            setIsNewConversationDialogOpen(true);
                             setShowConversationDrawer(false);
                         }}
                     />
@@ -360,29 +308,13 @@ const MessagingContent = ({ contactId }) => {
                     onReject={rejectCall}
                     onToggleMute={toggleMute}
                     onToggleVideo={toggleVideo}
+                    onToggleScreenShare={toggleScreenShare}
                     isMuted={isMuted}
                     isVideoOff={isVideoOff}
+                    isScreenSharing={isScreenSharing}
                 />
             )}
-
-            {isMobile && !showConversationDrawer && !showInfoDrawer && (
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="fixed bottom-4 right-4 h-12 w-12 rounded-full shadow-lg md:hidden z-30 bg-primary text-primary-foreground"
-                    onClick={() => setIsNewConversationDialogOpen(true)}
-                >
-                    <MessageSquare className="h-5 w-5" />
-                </Button>
-            )}
-
             <ConnectionStatus />
-
-            <NewConversationDialog
-                open={isNewConversationDialogOpen}
-                onClose={() => setIsNewConversationDialogOpen(false)}
-                onCreateConversation={handleCreateNewConversation}
-            />
         </div>
     );
 };

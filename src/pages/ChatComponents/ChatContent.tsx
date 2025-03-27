@@ -1,5 +1,5 @@
-// ChatContent.tsx - Fixed scrolling issue
-import React, { useRef, useEffect } from 'react';
+// Updated ChatContent.tsx with improved mobile support
+import React, { useRef, useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import { Message } from './MessageContext';
@@ -14,8 +14,31 @@ const ChatContent: React.FC<ChatContentProps> = ({
     messages,
 }) => {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
-    // Scroll to bottom whenever messages change
+    // Handle viewport height changes (especially important on mobile)
+    useEffect(() => {
+        const handleResize = () => {
+            // Use a slight delay to ensure we get the final height after UI adjustments
+            setTimeout(() => {
+                setViewportHeight(window.innerHeight);
+            }, 100);
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', handleResize);
+
+        // Also handle when virtual keyboard appears/disappears
+        window.visualViewport?.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('orientationchange', handleResize);
+            window.visualViewport?.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
+    // Scroll to bottom whenever messages change or viewport height changes
     useEffect(() => {
         if (scrollAreaRef.current) {
             const scrollableArea = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -23,7 +46,7 @@ const ChatContent: React.FC<ChatContentProps> = ({
                 scrollableArea.scrollTop = scrollableArea.scrollHeight;
             }
         }
-    }, [messages]);
+    }, [messages, viewportHeight]);
 
     // Handle case with no messages
     if (messages.length === 0) {
@@ -68,9 +91,9 @@ const ChatContent: React.FC<ChatContentProps> = ({
     };
 
     return (
-        <div className="h-full w-full" ref={scrollAreaRef}>
-            <ScrollArea className="h-full w-full p-2 md:p-4">
-                <div className="pb-1">
+        <div className="h-full w-full relative" ref={scrollAreaRef}>
+            <ScrollArea className="h-full w-full p-2 md:p-4 mobile-chat-scroll">
+                <div className="pb-1 mb-2">
                     {Object.keys(groupedMessages).map((date, index) => (
                         <div key={date}>
                             <div className="flex justify-center my-2 md:my-4">

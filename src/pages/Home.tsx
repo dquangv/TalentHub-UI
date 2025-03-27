@@ -208,7 +208,7 @@ const Home = () => {
                   ) : (
                     <AnimatedNumber start={0} end={stats.totalAccounts} />
                   )}
-                  +
+                  
                 </h3>
                 Tổng số freelancer
               </Card>
@@ -222,7 +222,7 @@ const Home = () => {
                   ) : (
                     <AnimatedNumber start={0} end={stats.postedJobs} />
                   )}
-                  +
+                  
                 </h3>
                 Dự án đã đăng
               </Card>
@@ -236,7 +236,7 @@ const Home = () => {
                   ) : (
                     <AnimatedNumber start={0} end={stats.approvedFreelancerJobs} />
                   )}
-                  +
+                  
                 </h3>
                 Freelancer được chấp thuận
               </Card>
@@ -279,12 +279,12 @@ const Home = () => {
                       <div>
                         <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
                         <p className="text-sm text-muted-foreground mb-2">
-                          <span className="font-medium">Khoảng giá:</span>{' '}
+                          <span className="font-medium">Ngân sách:</span>{' '}
                           {job.fromPrice !== undefined && job.toPrice !== undefined
                             ? `${job.fromPrice} - ${job.toPrice}`
                             : 'Không xác định'}
                         </p>
-                        <p className="text-sm text-muted-foreground mb-4">{job.description}</p>
+                        <p className="text-sm text-muted-foreground mb-4">Yêu cầu: {job.description}</p>
                         <div className="flex flex-wrap gap-2">
                           {job.skillName.length > 0 ? (
                             job.skillName.map((skill) => (

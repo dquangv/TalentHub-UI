@@ -24,8 +24,8 @@ import api from '@/api/axiosConfig';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 enum TypePayment {
-    CASH = 'CASH',
-    BANK = 'BANK'
+    HOURLY = 'HOURLY',
+    FULL = 'FULL'
 }
 
 enum StatusJob {
@@ -62,7 +62,7 @@ const PostJob = () => {
         fromPrice: 0,
         toPrice: 0,
         typePrice: 'USD',
-        typePayment: TypePayment.CASH,
+        typePayment: TypePayment.HOURLY,
         statusJob: StatusJob.OPEN,
         clientId: 1,
         categoryId: 0,
@@ -455,7 +455,7 @@ console.log('dataaaaaaaaaa ', data)
                                                 role="combobox"
                                                 className="w-full justify-between"
                                             >
-                                                {jobData.typePayment === TypePayment.CASH ? 'CASH' : 'BANK'}
+                                                {jobData.typePayment === TypePayment.HOURLY ? 'HOURLY' : 'FULL'}
                                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                             </Button>
                                         </PopoverTrigger>
@@ -463,24 +463,24 @@ console.log('dataaaaaaaaaa ', data)
                                             <Command>
                                                 <CommandList>
                                                     <CommandItem
-                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.CASH })}
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.HOURLY })}
                                                     >
                                                         <Check
                                                             className={`mr-2 h-4 w-4 ${
-                                                                jobData.typePayment === TypePayment.CASH ? "opacity-100" : "opacity-0"
+                                                                jobData.typePayment === TypePayment.HOURLY ? "opacity-100" : "opacity-0"
                                                             }`}
                                                         />
-                                                        CASH
+                                                        HOURLY
                                                     </CommandItem>
                                                     <CommandItem
-                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.BANK })}
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.FULL })}
                                                     >
                                                         <Check
                                                             className={`mr-2 h-4 w-4 ${
-                                                                jobData.typePayment === TypePayment.BANK ? "opacity-100" : "opacity-0"
+                                                                jobData.typePayment === TypePayment.FULL ? "opacity-100" : "opacity-0"
                                                             }`}
                                                         />
-                                                        BANK
+                                                        FULL
                                                     </CommandItem>
                                                 </CommandList>
                                             </Command>
