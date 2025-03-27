@@ -86,8 +86,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => onSelectConversation(conversation.id)}
                                 className={`flex items-center p-2 rounded-lg cursor-pointer mb-1 ${activeConversationId === conversation.id
-                                        ? 'bg-primary/10'
-                                        : 'hover:bg-muted'
+                                    ? 'bg-primary/10'
+                                    : 'hover:bg-muted'
                                     }`}
                             >
                                 <div className="relative">
