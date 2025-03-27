@@ -66,7 +66,7 @@ const ChatNotificationManager: React.FC = () => {
     }, [navigate]);
 
     const handleNotificationClick = (notification: Notification) => {
-        window.open(`/messaging?contactId=${notification.senderId}`, '_blank');
+        window.open(`/messaging`, '_blank');
         setNotifications(prev => prev.filter(n => n.id !== notification.id));
     };
 
