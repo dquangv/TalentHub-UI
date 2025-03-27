@@ -210,7 +210,7 @@ const Home = () => {
                   )}
                   
                 </h3>
-                Tổng số freelancer
+                Số lượng ứng viên
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
@@ -224,7 +224,7 @@ const Home = () => {
                   )}
                   
                 </h3>
-                Dự án đã đăng
+                Số lượng dự án
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -238,7 +238,7 @@ const Home = () => {
                   )}
                   
                 </h3>
-                Freelancer được chấp thuận
+                Số lượng cộng tác
               </Card>
             </FadeInWhenVisible>
           </div>
