@@ -46,7 +46,7 @@ const Home = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-console.log(stats)
+  console.log(stats)
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -210,7 +210,7 @@ console.log(stats)
                   )}
                   +
                 </h3>
-                Tổng số tài khoản
+                Tổng số freelancer
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
