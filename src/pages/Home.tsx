@@ -87,7 +87,7 @@ console.log(stats)
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get('/v1/jobs');
+        const response = await api.get(`/v1/jobs?freelancerId=${0}`);
         if (response.status === 200) {
           const jobData: Job[] = response.data;
           const filteredJobs: { [key: string]: Job } = {};
