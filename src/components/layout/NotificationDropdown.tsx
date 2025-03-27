@@ -7,47 +7,67 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import { useState, useEffect, useRef } from 'react';
+import SockJS from 'sockjs-client/dist/sockjs';
+import * as Stomp from '@stomp/stompjs';
 import { Empty } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { serverURL } from '@/pages/ChatComponents/websocketService';
 
 const NotificationDropdown = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
-  const BASE_URL = 'http://localhost:8080';
-  let stompClient = null;
+  const userInfoStr = localStorage.getItem("userInfo");
+  const userId = userInfoStr ? JSON.parse(userInfoStr).userId : null;
+  const navigate = useNavigate();
+
+  const stompClientRef = useRef(null);
+
   useEffect(() => {
+    if (!userId) return;
+
     fetchNotifications();
     fetchUnreadCount();
     connectWebSocket();
+
     return () => {
-      if (stompClient) {
-        stompClient.disconnect();
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
       }
     };
-  }, []);
+  }, [userId]);
 
   const connectWebSocket = () => {
-    const socket = new SockJS(`${BASE_URL}/ws`);
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, () => {
-      console.log('user id ', userId)
-      stompClient.subscribe(`/user/${userId}/queue/notifications`, (message) => {
+    const socket = new SockJS(`${serverURL}/ws`);
+
+    const client = new Stomp.Client({
+      webSocketFactory: () => socket,
+      connectHeaders: {},
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    client.onConnect = () => {
+      console.log('Connected to notification websocket');
+      client.subscribe(`/user/${userId}/queue/notifications`, (message) => {
         const newNotification = JSON.parse(message.body);
         setNotifications((prev) => [newNotification, ...prev]);
         fetchUnreadCount();
       });
-    }, (error) => {
-      console.error('WebSocket connection error:', error);
-    });
+    };
+
+    client.onStompError = (error) => {
+      console.error('Notification WebSocket STOMP error:', error);
+    };
+
+    client.activate();
+    stompClientRef.current = client;
   };
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/notifications/${userId}`);
+      const response = await fetch(`${serverURL}/api/notifications/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch notifications');
       const data = await response.json();
       setNotifications(data);
@@ -58,7 +78,7 @@ const NotificationDropdown = () => {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/notifications/unread-count/${userId}`);
+      const response = await fetch(`${serverURL}/api/notifications/unread-count/${userId}`);
       if (!response.ok) throw new Error('Failed to fetch unread count');
       const count = await response.json();
       setUnreadCount(count);
@@ -69,22 +89,29 @@ const NotificationDropdown = () => {
 
   const markAsRead = async (notificationId) => {
     try {
-      const response = await fetch(`${BASE_URL}/api/notifications/read/${notificationId}`, {
+      const response = await fetch(`${serverURL}/api/notifications/read/${notificationId}`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error('Failed to mark as read');
-      fetchNotifications();
       fetchUnreadCount();
+
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
   };
-  const navigate = useNavigate()
-  const handleNotificationClick = (read: boolean, notificationId: number, url: string) => {
+
+  const handleNotificationClick = (read, notificationId, url) => {
     if (!read) {
       markAsRead(notificationId);
     }
-    window.location.href = `${window.location.origin}/${url}`; 
+    navigate(url);
   };
 
   return (
