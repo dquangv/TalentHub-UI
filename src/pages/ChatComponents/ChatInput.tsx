@@ -1,3 +1,4 @@
+// Updated ChatInput.tsx with mobile viewport fixes
 import React, { useState, useRef, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -12,14 +13,34 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     const [message, setMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
 
     // Auto resize textarea based on content
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+            const newHeight = Math.min(textareaRef.current.scrollHeight, 150); // Cap max height
+            textareaRef.current.style.height = `${newHeight}px`;
         }
     }, [message]);
+
+    // Monitor viewport height changes to detect mobile keyboard
+    useEffect(() => {
+        const checkKeyboard = () => {
+            if (window.visualViewport) {
+                const keyboardOpen = window.innerHeight - window.visualViewport.height > 150;
+                setIsMobileKeyboardOpen(keyboardOpen);
+            }
+        };
+
+        window.visualViewport?.addEventListener('resize', checkKeyboard);
+        window.addEventListener('resize', checkKeyboard);
+
+        return () => {
+            window.visualViewport?.removeEventListener('resize', checkKeyboard);
+            window.removeEventListener('resize', checkKeyboard);
+        };
+    }, []);
 
     const handleSendMessage = async () => {
         if (message.trim()) {
@@ -46,7 +67,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     };
 
     return (
-        <div className="border-t px-2 sm:px-4 py-2 sm:py-3">
+        <div className={`border-t px-2 sm:px-4 py-2 sm:py-3 chat-input-container ${isMobileKeyboardOpen ? 'keyboard-open' : ''}`}>
             <div className="flex items-end space-x-2">
                 <div className="flex-1 rounded-lg border bg-background">
                     <div className="flex space-x-1 sm:space-x-2 px-2 sm:px-3 py-1 sm:py-2">
@@ -74,7 +95,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                         placeholder='Nhập tin nhắn...'
                         className="min-h-10 border-0 focus-visible:ring-0 resize-none px-2 py-1 text-sm sm:text-base"
                         rows={1}
-                        style={{ overflow: 'auto' }}
+                        style={{
+                            overflow: 'auto',
+                            maxHeight: '150px' // Cap the max height
+                        }}
                     />
                 </div>
 

@@ -24,11 +24,11 @@ export interface VideoCallDialogProps {
     onReject?: () => void;
     onToggleMute: () => void;
     onToggleVideo: () => void;
-    onToggleScreenShare?: () => Promise<boolean>; // Thêm chức năng chia sẻ màn hình
+    onToggleScreenShare: () => Promise<boolean>;
     isMuted: boolean;
     isVideoOff: boolean;
-    isScreenSharing?: boolean; // Thêm trạng thái chia sẻ màn hình
-    callQuality?: any; // Thêm thông tin về chất lượng cuộc gọi
+    isScreenSharing: boolean;
+    callQuality?: any;
 }
 
 const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
@@ -477,9 +477,9 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
 
                 {/* Screen sharing indicator */}
                 {isScreenSharing && (
-                    <div className="absolute bottom-4 right-4 bg-primary/80 text-primary-foreground px-3 py-1 rounded-full text-xs flex items-center">
-                        <Monitor className="h-3 w-3 mr-1" />
-                        Đang chia sẻ màn hình
+                    <div className="absolute bottom-20 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-sm flex items-center space-x-2 animate-pulse">
+                        <Monitor className="h-4 w-4" />
+                        <span>Đang chia sẻ màn hình</span>
                     </div>
                 )}
 
@@ -561,7 +561,10 @@ const VideoCallDialog: React.FC<VideoCallDialogProps> = ({
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className={`rounded-full h-10 w-10 sm:h-12 sm:w-12 ${isScreenSharing ? 'bg-primary text-primary-foreground' : 'bg-gray-800 hover:bg-gray-700 text-white'}`}
+                                                className={`rounded-full h-10 w-10 sm:h-12 sm:w-12 
+                                                                            ${isScreenSharing
+                                                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                                        : 'bg-gray-800 hover:bg-gray-700 text-white'}`}
                                                 onClick={onToggleScreenShare}
                                             >
                                                 <Share2 className="h-5 w-5 sm:h-6 sm:w-6" />
