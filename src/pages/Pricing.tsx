@@ -19,7 +19,7 @@ import {
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
-  "Hiển thị hồ sơ ưu tiên", 
+  "Hiển thị hồ sơ ưu tiên",
   "Tìm kiếm nâng cao",
   "Lọc ứng viên theo kỹ năng",
   "Hỗ trợ cơ bản",
@@ -107,7 +107,7 @@ const Pricing = () => {
   const [selectedPlan, setSelectedPlan] = useState<VoucherPackage | null>(null);
 
   useEffect(() => {
-    const userInfoStr = localStorage.getItem('userInfo');
+    const userInfoStr = localStorage.getItem("userInfo");
     if (!userInfoStr) {
       fetchVoucherPackageList();
       return;
@@ -131,7 +131,10 @@ const Pricing = () => {
 
   const fetchVoucherPackageListByClientId = async (clientId: boolean) => {
     try {
-      const response = await api.get("/v1/voucher-packages/all-voucher/client", { params: { clientId } });
+      const response = await api.get(
+        "/v1/voucher-packages/all-voucher/client",
+        { params: { clientId } }
+      );
       setPlans(response.data);
     } catch (err) {
       console.error("Error fetching voucher package list:", err);
@@ -147,23 +150,26 @@ const Pricing = () => {
 
   const confirmSubscribe = async () => {
     if (!selectedPlan) return;
-    
+
     try {
-      const userInfoStr = localStorage.getItem('userInfo');
+      const userInfoStr = localStorage.getItem("userInfo");
       if (!userInfoStr) {
         return;
       }
       const userInfo = JSON.parse(userInfoStr);
-      
+
       const subscribeData = {
         price: selectedPlan.price,
         status: true,
         typePackage: selectedPlan.typePackage,
-        clientId: userInfo.clientId
+        clientId: userInfo.clientId,
       };
 
-      const response = await api.post("/v1/clients/soldpackages", subscribeData);
-      
+      const response = await api.post(
+        "/v1/clients/soldpackages",
+        subscribeData
+      );
+
       if (response.status === 201) {
         fetchVoucherPackageListByClientId(userInfo.clientId);
       }
@@ -221,14 +227,20 @@ const Pricing = () => {
                           <Zap className="w-6 h-6 text-primary" />
                         )}
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">
-                        {plan.name}
-                      </h3>
+                      <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                       <div className="text-3xl font-bold mb-2">
-                        {plan.price.toLocaleString()}đ
-                        <span className="text-base font-normal text-muted-foreground">
-                          {plan.typePackage === "Dùng thử" ? " / 7 ngày" : " / tháng"}
-                        </span>
+                        {plan.typePackage === "NORMAL" ? (
+                          <span className="text-base font-normal text-muted-foreground">
+                            Miễn phí
+                          </span>
+                        ) : (
+                          <>
+                            {plan.price.toLocaleString()}đ
+                            <span className="text-base font-normal text-muted-foreground">
+                              / 30 ngày
+                            </span>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-4 mb-8">
@@ -238,30 +250,39 @@ const Pricing = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <Check className="w-5 h-5 text-primary" />
-                        <span>Thời hạn tồn tại của mỗi bài: {plan.duration} ngày</span>
+                        <span>
+                          Thời hạn tồn tại của mỗi bài: {plan.duration} ngày
+                        </span>
                       </div>
-                      {(plan.typePackage === "GOLD" || plan.typePackage === "DIAMOND") && (
+                      {(plan.typePackage === "GOLD" ||
+                        plan.typePackage === "DIAMOND") && (
                         <div className="flex items-center gap-3">
                           <Check className="w-5 h-5 text-primary" />
-                          <span>Có thể sử dụng chat và video call với ứng viên</span>
+                          <span>
+                            Có thể sử dụng chat và video call với ứng viên
+                          </span>
                         </div>
                       )}
-                      {(plan.typePackage === "DIAMOND") && (
+                      {plan.typePackage === "DIAMOND" && (
                         <div className="flex items-center gap-3">
                           <Check className="w-5 h-5 text-primary" />
-                          <span>Nhận thông báo gợi ý những ứng viên phù hợp</span>
+                          <span>
+                            Nhận thông báo gợi ý những ứng viên phù hợp
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
-                  <Button 
-                    className="w-full"
-                    variant={plan.status ? "default" : "outline"}
-                    disabled={plan.myPackage}
-                    onClick={() => handleSubscribe(plan)}
-                  >
-                    {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                  </Button>
+                  {(plan.typePackage !== "NORMAL" || plan.myPackage) && (
+                    <Button
+                      className="w-full"
+                      variant={plan.status ? "default" : "outline"}
+                      disabled={plan.myPackage}
+                      onClick={() => handleSubscribe(plan)}
+                    >
+                      {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                    </Button>
+                  )}
                 </Card>
               </FadeInWhenVisible>
             ))}
@@ -317,7 +338,8 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedPlan?.name} bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?
+              {selectedPlan?.name} bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn
+              đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
