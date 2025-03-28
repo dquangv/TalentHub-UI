@@ -9,7 +9,7 @@ import api from "@/api/axiosConfig";
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
-  "Hiển thị hồ sơ ưu tiên",
+  "Hiển thị hồ sơ ưu tiên", 
   "Tìm kiếm nâng cao",
   "Lọc ứng viên theo kỹ năng",
   "Hỗ trợ cơ bản",
@@ -87,6 +87,7 @@ interface VoucherPackage {
   typePackage: string;
   numberPost?: number;
   status: boolean;
+  myPackage?: boolean;
 }
 
 const Pricing = () => {
@@ -94,12 +95,18 @@ const Pricing = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchVoucherPackageList();
+    const userInfoStr = localStorage.getItem('userInfo');
+    if (!userInfoStr) return;
+
+    const userInfo = JSON.parse(userInfoStr);
+    const clientId = userInfo?.clientId;
+
+    fetchVoucherPackageList(clientId);
   }, []);
 
-  const fetchVoucherPackageList = async () => {
+  const fetchVoucherPackageList = async (clientId : boolean) => {
     try {
-      const response = await api.get("/v1/voucher-packages/all-voucher");
+      const response = await api.get("/v1/voucher-packages/all-voucher/client", { params : {clientId}});
       setPlans(response.data);
     } catch (err) {
       console.error("Error fetching voucher package list:", err);
@@ -190,8 +197,9 @@ const Pricing = () => {
                   <Button 
                     className="w-full"
                     variant={plan.status ? "default" : "outline"}
+                    disabled={plan.myPackage}
                   >
-                    Đăng ký ngay
+                    {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
                   </Button>
                 </Card>
               </FadeInWhenVisible>
