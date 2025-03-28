@@ -38,11 +38,11 @@ const Login = () => {
       },
       (err) => {
         console.error("Error getting location: ", err);
-        notification.error({
-          message: "Location Access Denied",
-          description:
-            "Please allow location access to proceed with registration.",
-        });
+        // notification.error({
+        //   message: "Location Access Denied",
+        //   description:
+        //     "Please allow location access to proceed with registration.",
+        // });
       }
     );
   }, []);
@@ -78,7 +78,7 @@ const Login = () => {
       navigate("/");
     } catch (err: any) {
       console.error("Error during login:", err);
-      setError("Đăng nhập không thành công, vui lòng thử lại.");
+      // setError("Đăng nhập không thành công, vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
