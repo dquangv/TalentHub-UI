@@ -46,20 +46,20 @@ const ChooseRole = () => {
       },
       (err) => {
         console.error("Error getting location: ", err);
-        notification.error({
-          message: "Location Access Denied",
-          description: "Please allow location access to proceed with registration.",
-        });
+        // notification.error({
+        //   message: "Location Access Denied",
+        //   description: "Please allow location access to proceed with registration.",
+        // });
       }
     );
   }, [locationHook.search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!location.lat || !location.lng) {
-      setError("Vui lòng cho phép địa chỉ của bạn");
-      return;
-    }
+    // if (!location.lat || !location.lng) {
+    //   setError("Vui lòng cho phép địa chỉ của bạn");
+    //   return;
+    // }
 
     setError("");
     setLoading(true);
