@@ -96,17 +96,30 @@ const Pricing = () => {
 
   useEffect(() => {
     const userInfoStr = localStorage.getItem('userInfo');
-    if (!userInfoStr) return;
+    if (!userInfoStr) {
+      fetchVoucherPackageList();
+      return;
+    }
 
     const userInfo = JSON.parse(userInfoStr);
     const clientId = userInfo?.clientId;
-
-    fetchVoucherPackageList(clientId);
+    fetchVoucherPackageListByClientId(clientId);
   }, []);
 
-  const fetchVoucherPackageList = async (clientId : boolean) => {
+  const fetchVoucherPackageList = async () => {
     try {
-      const response = await api.get("/v1/voucher-packages/all-voucher/client", { params : {clientId}});
+      const response = await api.get("/v1/voucher-packages/all-voucher");
+      setPlans(response.data);
+    } catch (err) {
+      console.error("Error fetching voucher package list:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchVoucherPackageListByClientId = async (clientId: boolean) => {
+    try {
+      const response = await api.get("/v1/voucher-packages/all-voucher/client", { params: { clientId } });
       setPlans(response.data);
     } catch (err) {
       console.error("Error fetching voucher package list:", err);
