@@ -38,10 +38,10 @@ const Register = () => {
       },
       (err) => {
         console.error("Error getting location: ", err);
-        notification.error({
-          message: "Location Access Denied",
-          description: "Please allow location access to proceed with registration.",
-        });
+        // notification.error({
+        //   message: "Location Access Denied",
+        //   description: "Please allow location access to proceed with registration.",
+        // });
       }
     );
   }, []);
@@ -59,10 +59,10 @@ const Register = () => {
       return;
     }
 
-    if (!location.lat || !location.lng) {
-      setError("Vui lòng cho phép địa chỉ của bạn");
-      return;
-    }
+    // if (!location.lat || !location.lng) {
+    //   setError("Vui lòng cho phép địa chỉ của bạn");
+    //   return;
+    // }
 
     setError("");
     setLoading(true);
