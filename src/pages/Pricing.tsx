@@ -6,6 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Loader2 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
@@ -93,6 +103,8 @@ interface VoucherPackage {
 const Pricing = () => {
   const [plans, setPlans] = useState<VoucherPackage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<VoucherPackage | null>(null);
 
   useEffect(() => {
     const userInfoStr = localStorage.getItem('userInfo');
@@ -125,6 +137,41 @@ const Pricing = () => {
       console.error("Error fetching voucher package list:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSubscribe = async (plan: VoucherPackage) => {
+    setSelectedPlan(plan);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmSubscribe = async () => {
+    if (!selectedPlan) return;
+    
+    try {
+      const userInfoStr = localStorage.getItem('userInfo');
+      if (!userInfoStr) {
+        return;
+      }
+      const userInfo = JSON.parse(userInfoStr);
+      
+      const subscribeData = {
+        price: selectedPlan.price,
+        status: true,
+        typePackage: selectedPlan.typePackage,
+        clientId: userInfo.clientId
+      };
+
+      const response = await api.post("/v1/clients/soldpackages", subscribeData);
+      
+      if (response.status === 201) {
+        fetchVoucherPackageListByClientId(userInfo.clientId);
+      }
+    } catch (err) {
+      console.error("Error subscribing to package:", err);
+    } finally {
+      setShowConfirmDialog(false);
+      setSelectedPlan(null);
     }
   };
 
@@ -211,6 +258,7 @@ const Pricing = () => {
                     className="w-full"
                     variant={plan.status ? "default" : "outline"}
                     disabled={plan.myPackage}
+                    onClick={() => handleSubscribe(plan)}
                   >
                     {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
                   </Button>
@@ -263,6 +311,23 @@ const Pricing = () => {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedPlan?.name} bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Trở lại</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSubscribe}>
+              Chắc chắn
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
