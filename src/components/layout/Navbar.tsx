@@ -280,6 +280,7 @@ const Navbar = () => {
                 <NavLinkDropdown menuItems={clientMenuItems}>
                   Quản lý công việc
                 </NavLinkDropdown>
+                <NavLink to="/pricing">{t("pricing")}</NavLink>
               </>
             ) : role === "FREELANCER" ? (
               <>
@@ -289,10 +290,9 @@ const Navbar = () => {
                 <NavLink to="/reports-freelancer">Báo cáo</NavLink>
               </>
             ) : null}
-
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
-            <NavLink to="/pricing">{t("pricing")}</NavLink>
+            
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
