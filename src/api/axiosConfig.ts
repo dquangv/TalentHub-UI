@@ -7,7 +7,7 @@ const ENV = {
         TIMEOUT: 30000,
     },
     production: {
-        API_URL: 'https://grows-occur-picture-therefore.trycloudflare.com/api',
+        API_URL: 'https://developments-bride-tactics-bids.trycloudflare.com/api',
         TIMEOUT: 30000,
     }
 };
