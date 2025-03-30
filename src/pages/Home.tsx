@@ -344,6 +344,13 @@ const Home = () => {
               className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 overflow-hidden group"
               style={{ height: '100%' }}
             >
+              <div className="absolute top-3 right-3">
+                    <Badge
+                      className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-red-600 hover:to-orange-600 transition-all duration-300"
+                    >
+                      Hot
+                    </Badge>
+                  </div>
               <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-start gap-4 flex-grow">
                 {job.categoryName.includes('Quản lý dự án') ? (
