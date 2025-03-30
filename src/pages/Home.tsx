@@ -12,6 +12,8 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
+import { formatCurrency } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface Banner {
   id: number;
@@ -46,6 +48,7 @@ const Home = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [jobsPremium, setJobPremium] = useState<any[]>()
   console.log(stats)
   useEffect(() => {
     const fetchStatistics = async () => {
@@ -79,7 +82,17 @@ const Home = () => {
         console.error('Error fetching banners:', error);
       }
     };
-
+    const fetchJobsPremium = async () => {
+      try {
+        const response = await api.get('/v1/jobs/top-6');
+        if (response.status === 200) {
+          setJobPremium(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+      }
+    };
+    fetchJobsPremium()
     fetchStatistics();
     fetchBanners();
   }, []);
@@ -136,12 +149,12 @@ const Home = () => {
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             className="w-full h-full shadow-lg overflow-hidden"
           >
-            {banners.map((banner) => (
+            {banners?.map((banner) => (
               <SwiperSlide key={banner.id}>
                 <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
               </SwiperSlide>
             ))}
-            {banners.length === 0 && (
+            {banners?.length === 0 && (
               <>
                 <SwiperSlide>
                   <img
@@ -258,7 +271,7 @@ const Home = () => {
             <div className="text-center text-muted-foreground">Không có công việc nào để hiển thị.</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {jobs.map((job, index) => (
+              {jobs?.map((job, index) => (
                 <FadeInWhenVisible key={job.id} delay={index * 0.1}>
                   <Card
                     className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background"
@@ -286,8 +299,8 @@ const Home = () => {
                         </p>
                         <p className="text-sm text-muted-foreground mb-4">Yêu cầu: {job.description}</p>
                         <div className="flex flex-wrap gap-2">
-                          {job.skillName.length > 0 ? (
-                            job.skillName.map((skill) => (
+                          {job.skillName?.length > 0 ? (
+                            job.skillName?.map((skill) => (
                               <Badge
                                 key={skill}
                                 variant="secondary"
@@ -311,6 +324,76 @@ const Home = () => {
           )}
         </div>
       </section>
+      {/* Jobs Premium */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50">
+      <div className="container mx-auto px-6">
+        <FadeInWhenVisible>
+          <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            Top Công Việc Nổi Bật
+          </h2>
+        </FadeInWhenVisible>
+        {loadingJobs ? (
+          <div className="text-center text-gray-500 text-lg">Đang tải công việc...</div>
+        ) : jobsPremium?.length === 0 ? (
+          <div className="text-center text-gray-500 text-lg">Không có công việc nào để hiển thị.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {jobsPremium?.map((job, index) => (
+            <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+            <Card
+              className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 overflow-hidden group"
+              style={{ height: '100%' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex items-start gap-4 flex-grow">
+                {job.categoryName.includes('Quản lý dự án') ? (
+                  <Briefcase className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                ) : job.categoryName.includes('Thiết kế') ? (
+                  <Paintbrush className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                ) : (
+                  <Code className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                )}
+                <div className="flex flex-col flex-grow">
+                  <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-700 transition-colors">
+                    {job.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold text-gray-700">Đăng bởi:</span>{' '}
+                    <span className="text-gray-800">{job.companyName || 'Ẩn danh'}</span>
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold text-gray-700">Ngân sách:</span>{' '}
+                    <span className="text-primary-600 font-medium">
+                      {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                    <span className="text-gray-800">{job.hourWork} giờ</span>
+                  </p>
+                  <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {job.skillName.map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="secondary"
+                        className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 transition-colors"
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                 
+                </div>
+              </div>
+           
+            </Card>
+          </FadeInWhenVisible>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
 
       <section className="py-16">
         <div className="container mx-auto px-4">
@@ -318,7 +401,7 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Howitworks')}</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step, index) => (
+            {steps?.map((step, index) => (
               <FadeInWhenVisible key={step.title} delay={index * 0.2}>
                 <div className="text-center group">
                   <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
