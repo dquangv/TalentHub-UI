@@ -46,7 +46,7 @@ const Home = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
-console.log(stats)
+  console.log(stats)
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -87,7 +87,7 @@ console.log(stats)
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get('/v1/jobs');
+        const response = await api.get(`/v1/jobs?freelancerId=${0}`);
         if (response.status === 200) {
           const jobData: Job[] = response.data;
           const filteredJobs: { [key: string]: Job } = {};
@@ -224,7 +224,7 @@ console.log(stats)
                   )}
                   
                 </h3>
-                Dự án đã đăng
+                Số lượng dự án
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -238,7 +238,7 @@ console.log(stats)
                   )}
                   
                 </h3>
-                Freelancer được chấp thuận
+                Số lượng cộng tác
               </Card>
             </FadeInWhenVisible>
           </div>

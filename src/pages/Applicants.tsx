@@ -493,7 +493,7 @@ const Applicants = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={applicant.status !== "Completed"}
+                                disabled={applicant.status !== "Approved"}
                                 onClick={() => {
                                   setSelectedFreelancerId(applicant.id);
                                   setReviewDialogOpen(true);

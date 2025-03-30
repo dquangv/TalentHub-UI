@@ -1,10 +1,9 @@
-// webRTCService.ts
 import websocketService from './websocketService';
 
 export interface SignalRequest {
     senderId: string;
     receiverId: string;
-    type: string; // 'offer', 'answer', 'candidate', 'end-call'
+    type: string;
     sdp?: string;
     candidate?: RTCIceCandidate;
 }
@@ -756,10 +755,10 @@ class WebRTCService {
         }
     }
 
-    // Kiểm tra trạng thái chia sẻ màn hình
     isSharing(): boolean {
         return this.isScreenSharing;
     }
+    // Các thay đổi cho startScreenSharing và stopScreenSharing trong webRTCService.ts
 
     // Bắt đầu chia sẻ màn hình
     async startScreenSharing(): Promise<boolean> {
@@ -776,17 +775,22 @@ class WebRTCService {
             console.log('Starting screen sharing');
 
             // Cấu hình chia sẻ màn hình phù hợp với nhiều trình duyệt
+            const displayMediaOptions = {
+                video: {
+                    cursor: 'always',
+                    width: { ideal: 1920, max: 1920 },
+                    height: { ideal: 1080, max: 1080 },
+                    frameRate: { ideal: 30, max: 30 }
+                },
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            };
+
             try {
-                this.screenShareStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: {
-                        cursor: 'always',
-                        displaySurface: 'monitor'
-                    },
-                    audio: {
-                        echoCancellation: true,
-                        noiseSuppression: true
-                    }
-                });
+                this.screenShareStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
             } catch (err) {
                 // Thử lại với cấu hình đơn giản hơn nếu thất bại
                 console.log('Failed with advanced options, trying simpler configuration');
@@ -801,7 +805,6 @@ class WebRTCService {
 
             // Thêm track từ screenShareStream vào peerConnection
             if (this.peerConnection && this.screenShareStream) {
-                // Phương pháp 1: Thay thế track hiện tại
                 const videoTrack = this.screenShareStream.getVideoTracks()[0];
                 if (videoTrack) {
                     console.log('Adding screen share video track to peer connection');
@@ -813,8 +816,33 @@ class WebRTCService {
                     );
 
                     if (videoSender) {
-                        console.log('Replacing existing video track with screen share');
-                        await videoSender.replaceTrack(videoTrack);
+                        // Lưu lại track gốc trước khi thay thế
+                        const originalVideoTrack = videoSender.track;
+                        if (originalVideoTrack && this.localStream) {
+                            // Store original track for later restoration
+                            const localVideoTracks = this.localStream.getVideoTracks();
+                            if (localVideoTracks.length > 0) {
+                                // Ensure we're comparing the correct track
+                                const localVideoTrack = localVideoTracks[0];
+                                if (localVideoTrack.id === originalVideoTrack.id) {
+                                    // The tracks match, so we can proceed with replacement
+                                    console.log('Replacing existing video track with screen share');
+                                    await videoSender.replaceTrack(videoTrack);
+                                } else {
+                                    // Tracks don't match, add as a new track
+                                    console.log('Adding screen share as a new track (existing track mismatch)');
+                                    this.peerConnection.addTrack(videoTrack, this.screenShareStream);
+                                }
+                            } else {
+                                // No local video tracks, just replace
+                                console.log('Replacing video track with screen share (no local video tracks)');
+                                await videoSender.replaceTrack(videoTrack);
+                            }
+                        } else {
+                            // No original track, just replace
+                            console.log('Replacing null track with screen share');
+                            await videoSender.replaceTrack(videoTrack);
+                        }
                     } else {
                         console.log('Adding new screen share track');
                         this.peerConnection.addTrack(videoTrack, this.screenShareStream);
@@ -822,12 +850,29 @@ class WebRTCService {
 
                     // Thêm listener khi người dùng dừng chia sẻ màn hình
                     videoTrack.addEventListener('ended', () => {
-                        console.log('Screen share video track ended');
+                        console.log('Screen share video track ended by user');
                         if (this.callbacks?.onScreenShareEnded) {
                             this.callbacks.onScreenShareEnded();
                         }
                         this.stopScreenSharing();
                     });
+                }
+
+                // Xử lý audio track nếu có
+                const audioTrack = this.screenShareStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    console.log('Adding screen share audio track');
+                    const audioSenders = this.peerConnection.getSenders().filter(
+                        sender => sender.track && sender.track.kind === 'audio'
+                    );
+
+                    if (audioSenders.length > 0) {
+                        console.log('Replacing existing audio track with screen share audio');
+                        await audioSenders[0].replaceTrack(audioTrack);
+                    } else {
+                        console.log('Adding new screen share audio track');
+                        this.peerConnection.addTrack(audioTrack, this.screenShareStream);
+                    }
                 }
 
                 // Cập nhật offer và gửi đi
@@ -886,6 +931,9 @@ class WebRTCService {
                         if (videoSender) {
                             console.log('Restoring original video track');
                             await videoSender.replaceTrack(videoTrack);
+                        } else {
+                            console.log('Adding original video track (no existing sender)');
+                            this.peerConnection.addTrack(videoTrack, this.localStream);
                         }
                     }
 
@@ -914,14 +962,16 @@ class WebRTCService {
         }
     }
 
-
     // Cập nhật lại offer sau khi thay đổi trạng thái chia sẻ màn hình
     private async updateOfferAfterScreenShareChange(): Promise<void> {
         if (!this.peerConnection || !this.peerId) return;
 
         try {
             console.log('Updating offer after screen share change');
-            const offer = await this.peerConnection.createOffer();
+            const offer = await this.peerConnection.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            });
             await this.peerConnection.setLocalDescription(offer);
 
             // Gửi offer mới tới peer
@@ -936,6 +986,7 @@ class WebRTCService {
         }
     }
 
+    // Toggle screen sharing 
     async toggleScreenSharing(): Promise<boolean> {
         console.log('Toggle screen sharing, current state:', this.isScreenSharing);
         if (this.isScreenSharing) {
