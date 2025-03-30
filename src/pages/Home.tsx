@@ -386,7 +386,14 @@ const Home = () => {
                  
                 </div>
               </div>
-           
+              <div className="mt-6">
+                <Badge
+                  variant="outline"
+                  className="w-full text-center py-1.5 text-sm font-semibold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-none rounded-lg shadow-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300"
+                >
+                  {job.typePackage}
+                </Badge>
+              </div>
             </Card>
           </FadeInWhenVisible>
             ))}
