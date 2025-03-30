@@ -383,7 +383,14 @@ const Home = () => {
                       </Badge>
                     ))}
                   </div>
-                 
+                  <Link to={`/jobs/${job.id}`}>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-primary-600 text-white hover:bg-primary-700 border-none rounded-lg shadow-sm transition-all duration-300"
+                    >
+                      Xem chi tiết
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <div className="mt-6">
