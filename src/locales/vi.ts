@@ -57,7 +57,7 @@ export const vi: TranslationType = {
   "Seemorejobs": "Xem thêm việc làm",
   "JobSearch...": "Tìm kiếm việc làm...",
   "AboutTalentHub": "Về TalentHub",
-  "WearetheleadingfreelancerandbusinessconnectionplatforminVietnambringsemploymentandcareerdevelopmentopportunitiestothefreelancercommunity": "Chúng tôi là nền tảng kết nối freelancer và doanh nghiệp hàng đầu tại Việt Nam,\r\n              mang đến cơ hội việc làm và phát triển sự nghiệp cho cộng đồng freelancer.",
+  "WearetheleadingfreelancerandbusinessconnectionplatforminVietnambringsemploymentandcareerdevelopmentopportunitiestothefreelancercommunity": "TalentHub là nền tảng kết nối freelancer và doanh nghiệp hàng đầu tại Việt Nam,\r\n              mang đến cơ hội việc làm và phát triển sự nghiệp cho cộng đồng freelancer.",
   "Ourmission": "Sứ mệnh của chúng tôi",
   "WebelievethateveryonehastherighttoworkflexiblyandindependentlyOurmissionistocreateafairandeffectiveworkingenvironmentwherefreelancerscandeveloptheircareersandbusinessesfindpartnerssuitablefortheirprojects": "Chúng tôi tin rằng mọi người đều có quyền làm việc một cách linh hoạt và độc lập.\r\n              Sứ mệnh của chúng tôi là tạo ra một môi trường làm việc công bằng và hiệu quả,\r\n              nơi các freelancer có thể phát triển sự nghiệp và doanh nghiệp tìm được đối tác\r\n              phù hợp cho các dự án của họ.",
   "Ourteam": "Đội ngũ của chúng tôi",
