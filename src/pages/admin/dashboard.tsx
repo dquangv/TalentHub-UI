@@ -17,6 +17,13 @@ export default function DashboardPage() {
     totalClients: 0
   });
 
+  const [growthRates, setGrowthRates] = useState({
+    freelancerGrowth: 0,
+    clientGrowth: 0,
+    jobGrowth: 0,
+    approvedJobGrowth: 0
+  });
+
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -37,7 +44,24 @@ export default function DashboardPage() {
       }
     };
 
+    const fetchGrowthRates = async () => {
+      try {
+        const response = await api.get("v1/revenues/growth-rate");
+        if (response.success) {
+          setGrowthRates({
+            freelancerGrowth: response.freelancerGrowth || 0,
+            clientGrowth: response.clientGrowth || 0,
+            jobGrowth: response.jobGrowth || 0,
+            approvedJobGrowth : response.approvedJobGrowth || 0
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching growth rates:', error);
+      }
+    };
+
     fetchStatistics();
+    fetchGrowthRates();
   }, []);
 
   return (
@@ -47,25 +71,25 @@ export default function DashboardPage() {
           title="Số lượng ứng viên"
           value={stats.loading ? "..." : stats.totalFreelancers.toString()}
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
-          description="+20% so với tháng trước"
+          description={`${growthRates.freelancerGrowth > 0 ? '+' : ''}${growthRates.freelancerGrowth.toFixed(1)}% so với tháng trước`}
         />
         <StatsCard
           title="Số lượng nhà tuyển dụng"
           value={stats.loading ? "..." : stats.totalClients.toString()}
           icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
-          description="+15% so với tháng trước"
+          description={`${growthRates.clientGrowth > 0 ? '+' : ''}${growthRates.clientGrowth.toFixed(1)}% so với tháng trước`}
         />
         <StatsCard
           title="Số lượng dự án"
           value={stats.loading ? "..." : stats.postedJobs.toString()}
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-          description="+25% so với tháng trước"
+          description={`${growthRates.jobGrowth > 0 ? '+' : ''}${growthRates.jobGrowth.toFixed(1)}% so với tháng trước`}
         />
         <StatsCard
           title="Số lượng cộng tác"
           value={stats.loading ? "..." : stats.approvedFreelancerJobs.toString()}
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-          description="Trong tháng này"
+          description={`${growthRates.approvedJobGrowth > 0 ? '+' : ''}${growthRates.approvedJobGrowth.toFixed(1)}% so với tháng trước`}
         />
       </div>
 
