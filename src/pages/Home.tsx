@@ -40,7 +40,7 @@ interface Job {
 const Home = () => {
   const { t } = useLanguage();
   const [stats, setStats] = useState({
-    totalAccounts: 0,
+    totalFreelancers: 0,
     approvedFreelancerJobs: 0,
     postedJobs: 0,
     loading: true,
@@ -56,7 +56,7 @@ const Home = () => {
         const response = await api.get("statistics/home");
         if (response.success) {
           setStats({
-            totalAccounts: response.totalAccounts || 0,
+            totalFreelancers: response.totalFreelancers || 0,
             approvedFreelancerJobs: response.approvedFreelancerJobs || 0,
             postedJobs: response.postedJobs || 0,
             loading: false,
@@ -219,7 +219,7 @@ const Home = () => {
                   {stats.loading ? (
                     <AnimatedNumber start={0} end={50000} />
                   ) : (
-                    <AnimatedNumber start={0} end={stats.totalAccounts} />
+                    <AnimatedNumber start={0} end={stats.totalFreelancers} />
                   )}
 
                 </h3>
