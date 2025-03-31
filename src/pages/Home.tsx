@@ -257,75 +257,8 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <section className="py-16 bg-secondary-50">
-        <div className="container mx-auto px-4">
-          <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
-              Khám Phá Các Dự Án Hấp Dẫn
-            </h2>
-          </FadeInWhenVisible>
-          {loadingJobs ? (
-            <div className="text-center text-muted-foreground">Đang tải công việc...</div>
-          ) : jobs.length === 0 ? (
-            <div className="text-center text-muted-foreground">Không có công việc nào để hiển thị.</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {jobs?.map((job, index) => (
-                <FadeInWhenVisible key={job.id} delay={index * 0.1}>
-                  <Card
-                    className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background"
-                    style={{ height: '100%' }}
-                  >
-                    <div className="flex items-start gap-4">
-                      {job.categoryName.includes('Lập trình') ? (
-                        <Code className="w-8 h-8 text-primary-600" />
-                      ) : job.categoryName.includes('Thiết kế') ? (
-                        <Paintbrush className="w-8 h-8 text-primary-600" />
-                      ) : job.categoryName.includes('Viết lách') ? (
-                        <PenTool className="w-8 h-8 text-primary-600" />
-                      ) : job.categoryName.includes('Marketing') ? (
-                        <TrendingUp className="w-8 h-8 text-primary-600" />
-                      ) : (
-                        <Briefcase className="w-8 h-8 text-primary-600" />
-                      )}
-                      <div>
-                        <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          <span className="font-medium">Ngân sách:</span>{' '}
-                          {job.fromPrice !== undefined && job.toPrice !== undefined
-                            ? `${job.fromPrice} - ${job.toPrice}`
-                            : 'Không xác định'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mb-4">Yêu cầu: {job.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          {job.skillName?.length > 0 ? (
-                            job.skillName?.map((skill) => (
-                              <Badge
-                                key={skill}
-                                variant="secondary"
-                                className="bg-secondary-100 text-secondary-700 hover:bg-secondary-200"
-                              >
-                                {skill}
-                              </Badge>
-                            ))
-                          ) : (
-                            <Badge variant="secondary" className="bg-secondary-100 text-secondary-700">
-                              Không yêu cầu kỹ năng
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                </FadeInWhenVisible>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-      {/* Jobs Premium */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50">
+  {/* Jobs Premium */}
+  <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50">
         <div className="container mx-auto px-6">
           <FadeInWhenVisible>
             <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
@@ -417,6 +350,146 @@ const Home = () => {
           )}
         </div>
       </section>
+      <section className="py-16 bg-secondary-50">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
+              Khám Phá Các Dự Án Hấp Dẫn
+            </h2>
+          </FadeInWhenVisible>
+          {loadingJobs ? (
+            <div className="text-center text-muted-foreground">Đang tải công việc...</div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center text-muted-foreground">Không có công việc nào để hiển thị.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {jobs?.map((job, index) => (
+                // <FadeInWhenVisible key={job.id} delay={index * 0.1}>
+                //   <Card
+                //     className="p-6 hover:shadow-lg transition-all duration-300 hover:border-primary/30 bg-background"
+                //     style={{ height: '100%' }}
+                //   >
+                //     <div className="flex items-start gap-4">
+                //       {job.categoryName.includes('Lập trình') ? (
+                //         <Code className="w-8 h-8 text-primary-600" />
+                //       ) : job.categoryName.includes('Thiết kế') ? (
+                //         <Paintbrush className="w-8 h-8 text-primary-600" />
+                //       ) : job.categoryName.includes('Viết lách') ? (
+                //         <PenTool className="w-8 h-8 text-primary-600" />
+                //       ) : job.categoryName.includes('Marketing') ? (
+                //         <TrendingUp className="w-8 h-8 text-primary-600" />
+                //       ) : (
+                //         <Briefcase className="w-8 h-8 text-primary-600" />
+                //       )}
+                //       <div>
+                //         <h3 className="font-semibold mb-2 text-primary-700">{job.categoryName}</h3>
+                //         <p className="text-sm text-muted-foreground mb-2">
+                //           <span className="font-medium">Ngân sách:</span>{' '}
+                //           {job.fromPrice !== undefined && job.toPrice !== undefined
+                //             ? `${job.fromPrice} - ${job.toPrice}`
+                //             : 'Không xác định'}
+                //         </p>
+                //         <p className="text-sm text-muted-foreground mb-4">Yêu cầu: {job.description}</p>
+                //         <div className="flex flex-wrap gap-2">
+                //           {job.skillName?.length > 0 ? (
+                //             job.skillName?.map((skill) => (
+                //               <Badge
+                //                 key={skill}
+                //                 variant="secondary"
+                //                 className="bg-secondary-100 text-secondary-700 hover:bg-secondary-200"
+                //               >
+                //                 {skill}
+                //               </Badge>
+                //             ))
+                //           ) : (
+                //             <Badge variant="secondary" className="bg-secondary-100 text-secondary-700">
+                //               Không yêu cầu kỹ năng
+                //             </Badge>
+                //           )}
+                //         </div>
+                //       </div>
+                //     </div>
+                //   </Card>
+                // </FadeInWhenVisible>
+                <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+                <Card
+                  className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 overflow-hidden group h-full"
+                  style={{ height: '100%' }}
+                >
+                  {/* <div className="absolute top-3 right-3">
+                    <Badge
+                      className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-red-600 hover:to-orange-600 transition-all duration-300"
+                    >
+                      Hot
+                    </Badge>
+                  </div> */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative flex items-start gap-4 flex-grow h-full">
+                    {job.categoryName.includes('Quản lý dự án') ? (
+                      <Briefcase className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                    ) : job.categoryName.includes('Thiết kế') ? (
+                      <Paintbrush className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                    ) : (
+                      <Code className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                    )}
+                    <div className="flex flex-col flex-grow h-full">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-700 transition-colors">
+                        {job.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        <span className="font-semibold text-gray-700">Đăng bởi:</span>{' '}
+                        <span className="text-gray-800">{job.companyName || 'Ẩn danh'}</span>
+                      </p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        <span className="font-semibold text-gray-700">Ngân sách:</span>{' '}
+                        <span className="text-primary-600 font-medium">
+                          {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
+                        </span>
+                      </p>
+                      <p className="text-sm text-gray-600 mb-2">
+                        <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                        <span className="text-gray-800">{job.hourWork} giờ</span>
+                      </p>
+                      <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {job.skillName.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                            className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 transition-colors"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className='flex-1'></div>
+                      <Link to={`/jobs/${job.id}`}>
+
+                        <Button
+                          variant="outline"
+                          className="w-full bg-primary-600 text-white hover:bg-primary-700 border-none rounded-lg shadow-sm transition-all duration-300"
+                        >
+                          Xem chi tiết
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                  {/* <div className="mt-6">
+              <Badge
+                variant="outline"
+                className="w-full text-center py-1.5 text-sm font-semibold bg-gradient-to-r from-yellow-400 to-yellow-600 text-white border-none rounded-lg shadow-sm hover:from-yellow-500 hover:to-yellow-700 transition-all duration-300"
+              >
+                {job.typePackage}
+              </Badge>
+            </div> */}
+                </Card>
+              </FadeInWhenVisible>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    
 
       <section className="py-16">
         <div className="container mx-auto px-4">
