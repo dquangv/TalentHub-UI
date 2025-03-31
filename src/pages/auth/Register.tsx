@@ -14,6 +14,7 @@ import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Mail, Lock, BriefcaseIcon } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -45,7 +46,7 @@ const Register = () => {
       }
     );
   }, []);
-
+ const { login } = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -76,7 +77,18 @@ const Register = () => {
         lng: location.lng,
         status,
       });
-      navigate("/login");
+      const data = response.data
+      login({
+        accessToken: data?.accessToken,
+        userId: data?.userId,
+        role: data?.role,
+        freelancerId: data?.freelancerId,
+        clientId: data?.clientId,
+        email: data?.email,
+        lat: data?.lat,
+        lng: data?.lng,
+      });
+      navigate("/");
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {

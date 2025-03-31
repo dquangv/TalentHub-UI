@@ -144,17 +144,25 @@ export function BannersPage() {
   };
 
   const handleEdit = (banner: any) => {
+    // Format the dates to YYYY-MM-DD
+    const formatDate = (dateString: string) => {
+      return dateString.split("T")[0]; 
+    };
+  
+    console.log(banner.startTime); 
+    console.log(banner.endTime);  
+  
     setEditingBanner(banner);
     setFormData({
       title: banner.title,
       vendor: banner.vendor,
-      status: banner.status,
+      status: String(banner.status),
       image: null,
-      startTime: banner.startTime,
-      endTime: banner.endTime,
+      startTime: formatDate(banner.startTime),
+      endTime: formatDate(banner.endTime),     
     });
     setImagePreview(banner.image);
-    setDialogOpen(true); 
+    setDialogOpen(true);
   };
 
   const handleDelete = async (bannerId: string) => {
@@ -302,8 +310,8 @@ export function BannersPage() {
                     <SelectValue placeholder="Chọn trạng thái" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Đang hiển thị</SelectItem>
-                    <SelectItem value="inactive">Đã ẩn</SelectItem>
+                    <SelectItem value="true">Đang hiển thị</SelectItem>
+                    <SelectItem value="false">Đã ẩn</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

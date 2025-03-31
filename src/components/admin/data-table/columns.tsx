@@ -245,6 +245,10 @@ export const bannerColumns: ColumnDef<any>[] = [
     accessorKey: "title",
     header: "Tiêu đề",
   },
+  {
+    accessorKey: "status",
+    header: "Trạng thái",
+  },
 
   {
     accessorKey: "image",
