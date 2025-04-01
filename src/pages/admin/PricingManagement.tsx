@@ -130,13 +130,13 @@ export default function PricingManagement() {
               Quản lý các gói dịch vụ và theo dõi hiệu quả
             </p>
           </div>
-          <Button
+          {/* <Button
             className="gap-2 w-full sm:w-auto"
             onClick={() => setIsCreating(true)}
           >
             <Plus className="h-4 w-4" />
             Thêm gói mới
-          </Button>
+          </Button> */}
         </div>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -197,14 +197,14 @@ export default function PricingManagement() {
                           <Pencil className="w-4 h-4 mr-1" />
                           Sửa
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDelete(pkg.id)}
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
                           Xóa
-                        </Button>
+                        </Button> */}
                       </div>
                     </td>
                   </tr>
