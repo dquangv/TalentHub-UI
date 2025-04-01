@@ -123,7 +123,9 @@ const Navbar = () => {
     }
   }, [isLoggedIn]);
 
+
   const handleLogout = () => {
+    window.location.href = '/login';
     logout();
   };
 
