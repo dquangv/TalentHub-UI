@@ -28,15 +28,16 @@ import {
   Trash2,
   Eye,
   Users,
-  Clock,
   CheckCircle,
-  XCircle,
   Download,
   Calendar,
   Briefcase,
   User,
   AlertCircle,
   Ban,
+  ArrowUp,
+  ArrowDown,
+  Clock,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
@@ -46,6 +47,10 @@ const PostedJobs = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({
+    key: "postedDate",
+    direction: "desc",
+  });
   const [stats, setStats] = useState({
     total: 0,
     OPEN: 0,
@@ -56,6 +61,7 @@ const PostedJobs = () => {
     DRAFT: 0,
   });
   const clientId = JSON.parse(localStorage.getItem("userInfo") || "{}").clientId;
+
   const fetchJobs = async () => {
     try {
       const response = await api.get(`/v1/jobs/PostedJobs/${clientId}`);
@@ -80,8 +86,6 @@ const PostedJobs = () => {
   };
 
   useEffect(() => {
-
-
     fetchJobs();
   }, []);
 
@@ -123,6 +127,50 @@ const PostedJobs = () => {
     }
   };
 
+  // Hàm sắp xếp
+  const sortData = (data, key, direction) => {
+    return [...data].sort((a, b) => {
+      if (a[key] === null) return 1;
+      if (b[key] === null) return -1;
+
+      if (key === 'applicants' || key === 'remainingTimeInHours') {
+        return direction === 'asc'
+          ? a[key] - b[key]
+          : b[key] - a[key];
+      }
+
+      if (key === 'postedDate' || key === 'endDate') {
+        return direction === 'asc'
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      }
+
+      return direction === 'asc'
+        ? a[key].localeCompare(b[key])
+        : b[key].localeCompare(a[key]);
+    });
+  };
+
+  // Hàm xử lý sắp xếp khi click vào header
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Hàm hiển thị icon sắp xếp
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) {
+      return null;
+    }
+
+    return sortConfig.direction === 'asc'
+      ? <ArrowUp className="ml-1 w-4 h-4" />
+      : <ArrowDown className="ml-1 w-4 h-4" />;
+  };
+
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
       job.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -133,6 +181,9 @@ const PostedJobs = () => {
 
     return matchesSearch && matchesStatus;
   });
+
+  // Áp dụng sắp xếp vào dữ liệu đã lọc
+  const sortedJobs = sortData(filteredJobs, sortConfig.key, sortConfig.direction);
 
   const handleDelete = async (id) => {
     try {
@@ -265,15 +316,56 @@ const PostedJobs = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Công việc</TableHead>
-                  <TableHead>Ứng viên</TableHead>
-                  <TableHead>Ngày đăng</TableHead>
-                  <TableHead>Trạng thái</TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => requestSort('title')}
+                  >
+                    <div className="flex items-center">
+                      Công việc
+                      {getSortIcon('title')}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => requestSort('applicants')}
+                  >
+                    <div className="flex items-center">
+                      Ứng viên
+                      {getSortIcon('applicants')}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => requestSort('postedDate')}
+                  >
+                    <div className="flex items-center">
+                      Ngày đăng
+                      {getSortIcon('postedDate')}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => requestSort('remainingTimeInHours')}
+                  >
+                    <div className="flex items-center">
+                      Thời gian còn lại
+                      {getSortIcon('remainingTimeInHours')}
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => requestSort('status')}
+                  >
+                    <div className="flex items-center">
+                      Trạng thái
+                      {getSortIcon('status')}
+                    </div>
+                  </TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredJobs.map((job) => (
+                {sortedJobs.map((job) => (
                   <TableRow key={job.id}>
                     <TableCell>
                       <div>
@@ -293,7 +385,13 @@ const PostedJobs = () => {
                     <TableCell>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                        {job.postedDate}
+                        {new Date(job.postedDate).toLocaleDateString('vi-VN')}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
+                        {job.remainingTimeFormatted}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -303,8 +401,8 @@ const PostedJobs = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                            
-                      <Button
+
+                        <Button
                           size="sm"
                           variant="outline"
                           className="text-green-600"
@@ -350,7 +448,7 @@ const PostedJobs = () => {
         </FadeInWhenVisible>
 
         {/* Empty State */}
-        {filteredJobs.length === 0 && !loading && (
+        {sortedJobs.length === 0 && !loading && (
           <FadeInWhenVisible>
             <Card className="p-12 text-center">
               <Briefcase className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
