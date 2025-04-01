@@ -293,6 +293,29 @@ const Pricing = () => {
     );
   }
 
+  // Function to get the appropriate icon for each package type
+  const getPackageIcon = (typePackage) => {
+    switch (typePackage) {
+      case "Dùng thử":
+        return <Sparkles className="w-8 h-8 text-primary" />;
+      case "NORMAL":
+        return <Check className="w-8 h-8 text-primary" />;
+      case "SILVER":
+        return <Star className="w-8 h-8 text-primary" />;
+      case "GOLD":
+        return <Rocket className="w-8 h-8 text-primary" />;
+      case "DIAMOND":
+        return <Zap className="w-8 h-8 text-primary" />;
+      default:
+        return <Package className="w-8 h-8 text-primary" />;
+    }
+  };
+
+  // Function to determine if a plan should show the "popular" badge
+  const isPopularPlan = (plan) => {
+    return plan.status && plan.typePackage !== "NORMAL" && !plan.myPackage;
+  };
+
   return (
     <>
       <div className="py-20 bg-gradient-to-b from-primary/5 via-background to-background">
@@ -321,32 +344,17 @@ const Pricing = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
             {plans.map((plan, index) => (
               <FadeInWhenVisible key={index} delay={0.2 + index * 0.1}>
-                <div className="relative pt-5">
-                  {plan.status && (
+                <div className="relative h-full pt-5">
+                  {isPopularPlan(plan) && (
                     <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
                       Phổ biến
                     </Badge>
                   )}
-                  <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col justify-between h-full relative overflow-hidden">
-                    {plan.myPackage && (
-                      <div className="absolute top-0 right-0">
-                        <div className="bg-primary text-white text-xs py-1 px-3 rotate-45 translate-x-6 translate-y-2 shadow-md">
-                          Đang dùng
-                        </div>
-                      </div>
-                    )}
-                    <div>
+                  <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col h-full relative overflow-hidden">
+                    <div className="flex flex-col flex-grow">
                       <div className="text-center mb-6">
                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                          {plan.typePackage === "Dùng thử" ? (
-                            <Sparkles className="w-8 h-8 text-primary" />
-                          ) : plan.typePackage === "SILVER" ? (
-                            <Star className="w-8 h-8 text-primary" />
-                          ) : plan.typePackage === "GOLD" ? (
-                            <Rocket className="w-8 h-8 text-primary" />
-                          ) : (
-                            <Zap className="w-8 h-8 text-primary" />
-                          )}
+                          {getPackageIcon(plan.typePackage)}
                         </div>
                         <h3 className="text-xl md:text-2xl font-bold mb-2">{plan.name}</h3>
                         <div className="text-2xl md:text-3xl font-bold mb-2">
@@ -357,14 +365,14 @@ const Pricing = () => {
                           ) : (
                             <>
                               {plan.price.toLocaleString()}đ
-                              <span className="text-base font-normal text-muted-foreground">
+                              <span className="text-base font-normal text-muted-foreground ml-1">
                                 / 30 ngày
                               </span>
                             </>
                           )}
                         </div>
                       </div>
-                      <div className="space-y-4 mb-8">
+                      <div className="space-y-4 mb-8 flex-grow">
                         <div className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                           <span>Có thể đăng <span className="font-medium">{plan.numberPost}</span> bài/tháng</span>
@@ -394,16 +402,18 @@ const Pricing = () => {
                         )}
                       </div>
                     </div>
-                    {(plan.typePackage !== "NORMAL" || plan.myPackage) && (
-                      <Button
-                        className="w-full"
-                        variant={plan.status ? "default" : "outline"}
-                        disabled={plan.myPackage}
-                        onClick={() => handleSubscribe(plan)}
-                      >
-                        {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                      </Button>
-                    )}
+                    <div className="mt-auto">
+                      {(plan.typePackage !== "NORMAL" || plan.myPackage) && (
+                        <Button
+                          className="w-full"
+                          variant={plan.status && !plan.myPackage ? "default" : "outline"}
+                          disabled={plan.myPackage}
+                          onClick={() => handleSubscribe(plan)}
+                        >
+                          {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                        </Button>
+                      )}
+                    </div>
                   </Card>
                 </div>
               </FadeInWhenVisible>
@@ -420,12 +430,12 @@ const Pricing = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {priorityBenefits.map((benefit, index) => (
                 <FadeInWhenVisible key={index} delay={index * 0.1}>
-                  <Card className="p-6 hover:shadow-md transition-all h-full">
+                  <Card className="p-6 hover:shadow-md transition-all h-full flex flex-col">
                     <div className="flex items-center gap-4 mb-4">
                       {benefit.icon}
                       <h3 className="font-semibold text-lg">{benefit.title}</h3>
                     </div>
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground flex-grow">
                       {benefit.description}
                     </p>
                   </Card>
@@ -444,9 +454,9 @@ const Pricing = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 max-w-4xl mx-auto">
               {faqs.map((faq, index) => (
                 <FadeInWhenVisible key={index} delay={index * 0.1}>
-                  <Card className="p-6 hover:shadow-md transition-all h-full">
+                  <Card className="p-6 hover:shadow-md transition-all h-full flex flex-col">
                     <h3 className="font-semibold mb-3 text-lg">{faq.question}</h3>
-                    <p className="text-muted-foreground">{faq.answer}</p>
+                    <p className="text-muted-foreground flex-grow">{faq.answer}</p>
                   </Card>
                 </FadeInWhenVisible>
               ))}
