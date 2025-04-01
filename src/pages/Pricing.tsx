@@ -38,6 +38,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
@@ -243,8 +245,13 @@ const Pricing = () => {
       setIsLoading(false);
     }
   };
-
+  const navigate = useNavigate()
   const handleSubscribe = async (plan: VoucherPackage) => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}" )
+    if (!userInfo?.userId) {
+      navigate("/login")
+      return;
+    }
     setSelectedPlan(plan);
     setShowConfirmDialog(true);
   };
