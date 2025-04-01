@@ -34,6 +34,10 @@ export const freelancerColumns = [
     },
   },
   {
+    accessorKey: "email",
+    header: "Gmail",
+  },
+  {
     accessorKey: "categoryName",
     header: "Danh mục công việc",
   },
@@ -235,7 +239,6 @@ export const accountColumns = [
 
 ];
 
-
 export const bannerColumns: ColumnDef<any>[] = [
   {
     accessorKey: "id",
@@ -246,10 +249,28 @@ export const bannerColumns: ColumnDef<any>[] = [
     header: "Tiêu đề",
   },
   {
+    accessorKey: "vendor",
+    header: "Nhà cung cấp",
+  },
+  {
+    accessorKey: "price",
+    header: "Giá",
+    cell: ({ row }) => {
+      const price = parseFloat(row.getValue("price"));
+      return price.toLocaleString("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      });
+    },
+  },
+  {
     accessorKey: "status",
     header: "Trạng thái",
+    cell: ({ row }) => {
+      const status = row.getValue("status");
+      return status ? "Đang hiển thị" : "Đã ẩn";
+    },
   },
-
   {
     accessorKey: "image",
     header: "Hình ảnh",
@@ -266,15 +287,37 @@ export const bannerColumns: ColumnDef<any>[] = [
     },
   },
   {
+    accessorKey: "logo",
+    header: "Logo",
+    cell: ({ row }) => {
+      return (
+        <div className="relative h-16 w-16">
+          <img
+            src={row.original.logo}
+            alt={`${row.original.title} logo`}
+            className="absolute inset-0 h-full w-full object-contain rounded-md"
+          />
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "startTime",
     header: "Ngày bắt đầu",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("startTime"));
+      return date.toLocaleDateString("vi-VN");
+    },
   },
   {
     accessorKey: "endTime",
     header: "Ngày kết thúc",
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("endTime"));
+      return date.toLocaleDateString("vi-VN");
+    },
   },
 ];
-
 
 export const reportColumns: ColumnDef<any>[] = [
   {

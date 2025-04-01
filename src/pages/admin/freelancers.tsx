@@ -30,7 +30,7 @@ export default function FreelancersPage() {
     async function fetchFreelancers() {
       setLoading(true);
       try {
-        const response = await api.get("/v1/freelancers");
+        const response = await api.get("/v1/freelancers/admin");
         if (response.status === 200) {
           setFreelancers(response.data || []);
         }
