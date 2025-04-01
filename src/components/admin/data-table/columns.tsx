@@ -34,6 +34,10 @@ export const freelancerColumns = [
     },
   },
   {
+    accessorKey: "email",
+    header: "Gmail",
+  },
+  {
     accessorKey: "categoryName",
     header: "Danh mục công việc",
   },
