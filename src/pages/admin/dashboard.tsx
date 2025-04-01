@@ -14,14 +14,17 @@ export default function DashboardPage() {
     postedJobs: 0,
     loading: true,
     totalFreelancers: 0,
-    totalClients: 0
+    totalClients: 0,
+    totalRevenue: 0
   });
 
   const [growthRates, setGrowthRates] = useState({
     freelancerGrowth: 0,
     clientGrowth: 0,
     jobGrowth: 0,
-    approvedJobGrowth: 0
+    approvedJobGrowth: 0,
+    accountGrowth: 0,
+    revenuesGrowth: 0
   });
 
   useEffect(() => {
@@ -35,7 +38,8 @@ export default function DashboardPage() {
             postedJobs: response.postedJobs || 0,
             loading: false,
             totalFreelancers: response.totalFreelancers || 0,
-            totalClients: response.totalClients || 0
+            totalClients: response.totalClients || 0,
+            totalRevenue: response.totalRevenue || 0
           });
         }
       } catch (error) {
@@ -52,7 +56,9 @@ export default function DashboardPage() {
             freelancerGrowth: response.freelancerGrowth || 0,
             clientGrowth: response.clientGrowth || 0,
             jobGrowth: response.jobGrowth || 0,
-            approvedJobGrowth : response.approvedJobGrowth || 0
+            approvedJobGrowth : response.approvedJobGrowth || 0,
+            accountGrowth: response.accountGrowth || 0,
+            revenuesGrowth: response.revenuesGrowth || 0
           });
         }
       } catch (error) {
@@ -93,7 +99,12 @@ export default function DashboardPage() {
         />
       </div>
 
-      <TotalStats />
+      <TotalStats 
+        totalAccounts={stats.totalAccounts}
+        totalRevenue={stats.totalRevenue}
+        accountGrowth={growthRates.accountGrowth}
+        revenuesGrowth={growthRates.revenuesGrowth}
+      />
       
       <div className="space-y-8">
         <h2 className="text-2xl font-bold">Thống Kê Người Dùng</h2>
