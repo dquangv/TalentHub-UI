@@ -32,11 +32,14 @@ import { bannerColumns } from "@/components/admin/data-table/columns";
 export function BannersPage() {
   const [data, setData] = useState<any[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     vendor: "",
-    status: "active",
-    image: null,
+    price: "",
+    status: "true",
+    image: null as File | null,
+    logo: null as File | null,
     startTime: "",
     endTime: "",
   });
@@ -70,11 +73,23 @@ export function BannersPage() {
     }
   };
 
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+        setFormData((prevData) => ({ ...prevData, logo: file }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { title, vendor, status, image, startTime, endTime } = formData;
+    const { title, vendor, price, status, image, logo, startTime, endTime } = formData;
 
-    if (!title || !vendor || !startTime || !endTime) {
+    if (!title || !vendor || !price || !startTime || !endTime) {
       notification.error({
         message: "Lỗi",
         description: "Vui lòng nhập đủ thông tin!",
@@ -90,12 +105,22 @@ export function BannersPage() {
       return;
     }
 
+    if (parseFloat(price) <= 0) {
+      notification.error({
+        message: "Lỗi",
+        description: "Giá phải lớn hơn 0!",
+      });
+      return;
+    }
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("title", title);
       formDataToSend.append("vendor", vendor);
+      formDataToSend.append("price", price);
       formDataToSend.append("status", status);
-      formDataToSend.append("image", image);
+      if (image) formDataToSend.append("image", image);
+      if (logo) formDataToSend.append("logo", logo);
       formDataToSend.append("startTime", startTime);
       formDataToSend.append("endTime", endTime);
 
@@ -115,7 +140,7 @@ export function BannersPage() {
       } else {
         response = await api.post("/v1/banners", formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
-        });
+          });
         notification.success({
           message: "Thêm Banner thành công",
           description: "Banner đã được thêm thành công",
@@ -132,7 +157,7 @@ export function BannersPage() {
         }
       });
 
-      setDialogOpen(false); 
+      setDialogOpen(false);
       setEditingBanner(null);
       clearFormData();
     } catch (error) {
@@ -144,24 +169,23 @@ export function BannersPage() {
   };
 
   const handleEdit = (banner: any) => {
-    // Format the dates to YYYY-MM-DD
     const formatDate = (dateString: string) => {
-      return dateString.split("T")[0]; 
+      return dateString.split("T")[0];
     };
-  
-    console.log(banner.startTime); 
-    console.log(banner.endTime);  
-  
+
     setEditingBanner(banner);
     setFormData({
       title: banner.title,
       vendor: banner.vendor,
+      price: banner.price.toString(),
       status: String(banner.status),
       image: null,
+      logo: null,
       startTime: formatDate(banner.startTime),
-      endTime: formatDate(banner.endTime),     
+      endTime: formatDate(banner.endTime),
     });
     setImagePreview(banner.image);
+    setLogoPreview(banner.logo);
     setDialogOpen(true);
   };
 
@@ -187,12 +211,15 @@ export function BannersPage() {
     setFormData({
       title: "",
       vendor: "",
-      status: "active",
+      price: "",
+      status: "true",
       image: null,
+      logo: null,
       startTime: "",
       endTime: "",
     });
     setImagePreview(null);
+    setLogoPreview(null);
     setEditingBanner(null);
   };
 
@@ -201,8 +228,8 @@ export function BannersPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Quản lý Banner</h2>
         <Dialog open={dialogOpen} onOpenChange={(open) => {
-           setDialogOpen(open); 
-           if (!open) clearFormData();
+          setDialogOpen(open);
+          if (!open) clearFormData();
         }}>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
@@ -237,6 +264,19 @@ export function BannersPage() {
                   value={formData.vendor}
                   onChange={(e) =>
                     setFormData({ ...formData, vendor: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="price">Giá</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  placeholder="Nhập giá banner"
+                  value={formData.price}
+                  onChange={(e) =>
+                    setFormData({ ...formData, price: e.target.value })
                   }
                 />
               </div>
@@ -290,7 +330,40 @@ export function BannersPage() {
                     <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                       <img
                         src={imagePreview}
-                        alt="Preview"
+                        alt="Image Preview"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="logo">Logo</Label>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleLogoChange}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => document.getElementById("logo")?.click()}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Tải logo lên
+                    </Button>
+                  </div>
+                  {logoPreview && (
+                    <div className="relative aspect-square w-24 overflow-hidden rounded-lg border">
+                      <img
+                        src={logoPreview}
+                        alt="Logo Preview"
                         className="object-cover"
                       />
                     </div>
@@ -343,14 +416,14 @@ export function BannersPage() {
               return (
                 <div className="flex space-x-2">
                   <Button
-                    onClick={() => handleEdit(row.original)} 
+                    onClick={() => handleEdit(row.original)}
                     variant="outline"
                     className="text-blue-600"
                   >
                     Chỉnh sửa
                   </Button>
                   <Button
-                    onClick={() => handleDelete(id)} 
+                    onClick={() => handleDelete(id)}
                     variant="outline"
                     className="text-red-600"
                   >
