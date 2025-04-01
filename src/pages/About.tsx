@@ -34,7 +34,7 @@ const About = () => {
       name: "Võ Thanh Tùng",
       position: "Leader",
       image: "/public/img/team/Tung.jpg",
-      description: "Có kinh nghiệm làm leader, chỉ giao việc cho team làm",
+      description: "Có kinh nghiệm giao việc, chỉ giao việc cho team làm",
     },
     {
       name: "Vũ Đăng Quang",
