@@ -38,6 +38,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
@@ -161,15 +163,21 @@ const Pricing = () => {
   const [packageHistory, setPackageHistory] = useState<PackageHistory[]>([]);
   const [currentPackage, setCurrentPackage] = useState<CurrentPackage | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [isLogin, setIsLogin] = useState(false)
 
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
+   
     if (!userInfoStr) {
       fetchVoucherPackageList();
       return;
     }
 
     const userInfo = JSON.parse(userInfoStr);
+    if (userInfo?.userId) {
+      setIsLogin(true)
+
+    }
     const clientId = userInfo?.clientId;
     fetchVoucherPackageListByClientId(clientId);
   }, []);
@@ -243,8 +251,12 @@ const Pricing = () => {
       setIsLoading(false);
     }
   };
-
+  const navigate = useNavigate()
   const handleSubscribe = async (plan: VoucherPackage) => {
+    if (!isLogin) {
+      navigate("/login")
+      return;
+    }
     setSelectedPlan(plan);
     setShowConfirmDialog(true);
   };
@@ -327,7 +339,9 @@ const Pricing = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Tăng khả năng tiếp cận và nổi bật hơn với gói ưu tiên
               </p>
-              <div className="flex justify-center">
+              {
+                isLogin &&
+                <div className="flex justify-center">
                 <Button
                   variant="outline"
                   className="flex items-center gap-2"
@@ -337,6 +351,8 @@ const Pricing = () => {
                   <span>Xem thông tin gói đang sử dụng</span>
                 </Button>
               </div>
+              }
+            
             </FadeInWhenVisible>
           </div>
 

@@ -36,12 +36,16 @@ enum StatusJob {
     BANNED = 'Bị cấm',
     DRAFT = 'Bản nháp'
 }
-
+enum ScopeJob {
+    SMALL = 'SMALL',
+    MEDIUM = 'MEDIUM',
+    LARGE = 'LARGE'
+}
 const PostJob = () => {
     const [searchParams] = useSearchParams();
     const jobId = searchParams.get('id');
     const isEditMode = !!jobId;
-
+    const [scopeOpen, setScopeOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
     const [skills, setSkills] = useState<any[]>([]);
@@ -55,7 +59,7 @@ const PostJob = () => {
     const [jobData, setJobData] = useState<any>({
         title: '',
         description: '',
-        scope: '',
+        scope: ScopeJob.SMALL,
         hourWork: 40,
         duration: 30,
         jobOpportunity: false,
@@ -232,7 +236,6 @@ const PostJob = () => {
 console.log('dataaaaaaaaaa ', data)
         const submitData = {
             ...data,
-            description: jobData.scope,
             skillId: selectedSkills,
             clientId: userInfo.clientId
         };
@@ -413,18 +416,58 @@ console.log('dataaaaaaaaaa ', data)
                                     </PopoverContent>
                                 </Popover>
                             </div>
-
+                            <div>
+                                <label className="block text-sm font-medium mb-2">
+                                    Mô tả
+                                </label>
+                                <Textarea
+                                    placeholder="Mô tả chi tiết yêu cầu công việc"
+                                    value={jobData.description}
+                                    onChange={(e) => setJobData({ ...jobData, description: e.target.value })}
+                                    required
+                                    className="min-h-[150px]"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium mb-2">
                                     Phạm vi công việc *
                                 </label>
-                                <Textarea
-                                    placeholder="Mô tả chi tiết yêu cầu công việc"
-                                    value={jobData.scope}
-                                    onChange={(e) => setJobData({ ...jobData, scope: e.target.value })}
-                                    required
-                                    className="min-h-[150px]"
-                                />
+                                <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={scopeOpen}
+                                            className="w-full justify-between"
+                                        >
+                                            {jobData.scope || "Chọn phạm vi"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0">
+                                        <Command>
+                                            <CommandList>
+                                                {Object.values(ScopeJob).map((scope) => (
+                                                    <CommandItem
+                                                        key={scope}
+                                                        value={scope}
+                                                        onSelect={() => {
+                                                            setJobData({ ...jobData, scope });
+                                                            setScopeOpen(false);
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={`mr-2 h-4 w-4 ${
+                                                                jobData.scope === scope ? "opacity-100" : "opacity-0"
+                                                            }`}
+                                                        />
+                                                        {scope === ScopeJob.SMALL ? "Nhỏ" : scope === ScopeJob.MEDIUM ? "Vừa" : "Lớn"}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
