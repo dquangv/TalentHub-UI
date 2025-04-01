@@ -148,9 +148,9 @@ export default function PricingManagement() {
                   <th className="px-4 py-3 text-left font-medium">Giá</th>
                   <th className="px-4 py-3 text-left font-medium">Thời hạn</th>
                   <th className="px-4 py-3 text-left font-medium">Số bài đăng</th>
-                  <th className="px-4 py-3 text-left font-medium">
+                  {/* <th className="px-4 py-3 text-left font-medium">
                     Trạng thái
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 text-left font-medium">Thao tác</th>
                 </tr>
               </thead>
@@ -168,7 +168,7 @@ export default function PricingManagement() {
                     </td>
                     <td className="px-4 py-3">{pkg?.duration} ngày</td>
                     <td className="px-4 py-3">{pkg?.numberPost} bài</td>
-                    <td className="px-4 py-3">
+                    {/* <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           pkg?.status
@@ -183,7 +183,7 @@ export default function PricingManagement() {
                         )}
                         {pkg?.status ? "Đang hoạt động" : "Tạm dừng"}
                       </span>
-                    </td>
+                    </td> */}
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Button
