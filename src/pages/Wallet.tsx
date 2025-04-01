@@ -27,13 +27,8 @@ import {
   ArrowDownLeft,
   CreditCard,
   QrCode,
-  Clock,
   CheckCircle,
-  XCircle,
-  Filter,
   Download,
-  Search,
-  Calendar,
   DollarSign,
   Copy,
   RefreshCw,
@@ -42,6 +37,14 @@ import {
   Banknote,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+
+interface Payments {
+  balance: number;
+  latestDeposit: number;
+  latestDepositDate: string;
+  todaySpending: number;
+  latestSpendingDate: string;
+}
 
 const Wallet = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -52,7 +55,13 @@ const Wallet = () => {
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [payments, setPayments] = useState([]);
+  const [payments, setPayments] = useState<Payments>({
+    balance: 0,
+    latestDeposit: 0,
+    latestDepositDate: "",
+    todaySpending: 0,
+    latestSpendingDate: "",
+  });
   const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
 
   const handleDeposit = () => {
@@ -148,14 +157,16 @@ const Wallet = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Cập nhật:{" "}
-                  {new Intl.DateTimeFormat("vi-VN", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  }).format(new Date(payments.latestDepositDate))}
+                                   {payments.latestDepositDate
+                    ? new Intl.DateTimeFormat("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      }).format(new Date(payments.latestDepositDate))
+                    : "Không có dữ liệu"}
                 </p>
               </Card>
 
@@ -176,14 +187,17 @@ const Wallet = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Cập nhật:{" "}
-                  {new Intl.DateTimeFormat("vi-VN", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    second: "2-digit",
-                  }).format(new Date(payments.latestSpendingDate))}
+                  {payments.latestSpendingDate
+                    ? new Intl.DateTimeFormat("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      }).format(new Date(payments.latestSpendingDate))
+                    : "Không có dữ liệu"}
+              
                 </p>
               </Card>
             </div>
