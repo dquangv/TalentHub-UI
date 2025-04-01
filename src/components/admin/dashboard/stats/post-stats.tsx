@@ -1,53 +1,92 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { useEffect, useState } from "react";
+import api from "@/api/axiosConfig";
 
-const weeklyData = [
-  { name: "T2", posts: 15 },
-  { name: "T3", posts: 20 },
-  { name: "T4", posts: 25 },
-  { name: "T5", posts: 30 },
-  { name: "T6", posts: 35 },
-  { name: "T7", posts: 40 },
-  { name: "CN", posts: 45 },
-];
-
-const monthlyData = [
-  { name: "Tuần 1", posts: 100 },
-  { name: "Tuần 2", posts: 120 },
-  { name: "Tuần 3", posts: 140 },
-  { name: "Tuần 4", posts: 160 },
-];
-
-const yearlyData = [
-  { name: "T1", posts: 200 },
-  { name: "T2", posts: 250 },
-  { name: "T3", posts: 300 },
-  { name: "T4", posts: 350 },
-  { name: "T5", posts: 400 },
-  { name: "T6", posts: 450 },
-  { name: "T7", posts: 500 },
-  { name: "T8", posts: 550 },
-  { name: "T9", posts: 600 },
-  { name: "T10", posts: 650 },
-  { name: "T11", posts: 700 },
-  { name: "T12", posts: 750 },
-];
+interface RevenueDTOResponse {
+  time: number;
+  revenue: number;
+}
 
 export function PostStats() {
+  const [weeklyData, setWeeklyData] = useState<RevenueDTOResponse[]>([]);
+  const [monthlyData, setMonthlyData] = useState<RevenueDTOResponse[]>([]);
+  const [quarterlyData, setQuarterlyData] = useState<RevenueDTOResponse[]>([]);
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [weeklyRes, monthlyRes, quarterlyRes] = await Promise.all([
+          api.get(`/v1/revenues/banner/week`, {
+            params: {
+              year: currentYear,
+              month: currentMonth
+            }
+          }),
+          api.get(`/v1/revenues/banner/month/${currentYear}`),
+          api.get(`/v1/revenues/banner/quarter/${currentYear}`),
+        ]);
+
+        setWeeklyData(weeklyRes.data);
+        setMonthlyData(monthlyRes.data);
+        setQuarterlyData(quarterlyRes.data);
+        
+      } catch (error) {
+        console.error("Error fetching revenue data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    });
+  };
+
+  const formatYAxis = (value: number) => {
+    if (value >= 1000000000) {
+      return `${(value / 1000000000).toFixed(1)}B`;
+    }
+    if (value >= 1000000) {
+      return `${(value / 1000000).toFixed(1)}M`;
+    }
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(1)}K`;
+    }
+    return value;
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
-          <CardTitle>Bài Viết Trong Tuần</CardTitle>
+          <CardTitle>Theo tuần (Tháng {currentMonth}/{currentYear})</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={weeklyData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="posts" fill="hsl(var(--primary))" />
+              <XAxis dataKey="time" tickFormatter={(value) => `Tuần ${value}`} />
+              <YAxis tickFormatter={formatYAxis} />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label) => `Tuần ${label}`}
+              />
+              <Bar dataKey="revenue" fill="hsl(var(--primary))" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -55,16 +94,19 @@ export function PostStats() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Bài Viết Trong Tháng</CardTitle>
+          <CardTitle>Theo Tháng (Năm {currentYear})</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="posts" fill="hsl(var(--primary))" />
+              <XAxis dataKey="time" tickFormatter={(value) => `T${value}`} />
+              <YAxis tickFormatter={formatYAxis} />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label) => `Tháng ${label}`}
+              />
+              <Bar dataKey="revenue" fill="hsl(var(--primary))" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -72,16 +114,19 @@ export function PostStats() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Bài Viết Trong Năm</CardTitle>
+          <CardTitle>Theo quý (Năm {currentYear})</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={yearlyData}>
+            <BarChart data={quarterlyData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="posts" fill="hsl(var(--primary))" />
+              <XAxis dataKey="time" tickFormatter={(value) => `Q${value}`} />
+              <YAxis tickFormatter={formatYAxis} />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label) => `Quý ${label}`}
+              />
+              <Bar dataKey="revenue" fill="hsl(var(--primary))" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
