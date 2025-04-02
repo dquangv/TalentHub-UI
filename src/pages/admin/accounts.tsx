@@ -5,6 +5,16 @@ import api from "@/api/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Account {
   id: number;
@@ -18,6 +28,11 @@ interface Account {
 export default function AccountsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<{
+    type: "ban" | "unban";
+    email: string;
+  } | null>(null);
   const [filters, setFilters] = useState({
     email: "",
     role: "all",
@@ -65,6 +80,18 @@ export default function AccountsPage() {
         );
       } 
     } catch (err) {}
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedAction) return;
+
+    if (selectedAction.type === "ban") {
+      await handleBan(selectedAction.email);
+    } else {
+      await handleUnban(selectedAction.email);
+    }
+    setShowConfirmDialog(false);
+    setSelectedAction(null);
   };
 
   const filteredAccounts = accounts.filter(account => {
@@ -121,6 +148,25 @@ export default function AccountsPage() {
         </Select>
       </div>
 
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedAction?.type === "ban"
+                ? "Bạn có chắc chắn muốn khóa tài khoản này?"
+                : "Bạn có chắc chắn muốn mở khóa tài khoản này?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm}>
+              {selectedAction?.type === "ban" ? "Khóa" : "Mở khóa"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {loading ? (
         <div className="text-center">Loading...</div>
       ) : (
@@ -137,7 +183,10 @@ export default function AccountsPage() {
                   <div className="flex space-x-2">
                     {isBanned ? (
                       <Button
-                        onClick={() => handleUnban(email)}
+                        onClick={() => {
+                          setSelectedAction({ type: "unban", email: email as string });
+                          setShowConfirmDialog(true);
+                        }}
                         variant="outline"
                         className="text-green-600"
                       >
@@ -145,7 +194,10 @@ export default function AccountsPage() {
                       </Button>
                     ) : (
                       <Button
-                        onClick={() => handleBan(email)}
+                        onClick={() => {
+                          setSelectedAction({ type: "ban", email: email as string });
+                          setShowConfirmDialog(true);
+                        }}
                         variant="outline"
                         className="text-red-600"
                       >
