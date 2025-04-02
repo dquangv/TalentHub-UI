@@ -1,7 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText } from "lucide-react";
 
-export function TotalStats() {
+interface TotalStatsProps {
+  totalAccounts: number;
+  totalRevenue: number;
+  accountGrowth: number;
+  revenuesGrowth: number;
+}
+
+export function TotalStats({ totalAccounts, totalRevenue, accountGrowth, revenuesGrowth }: TotalStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
@@ -10,9 +17,9 @@ export function TotalStats() {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">3,247</div>
+          <div className="text-2xl font-bold">{totalAccounts}</div>
           <p className="text-xs text-muted-foreground">
-            Từ khi thành lập đến nay
+            {`${accountGrowth > 0 ? '+' : ''}${accountGrowth.toFixed(1)}% so với tháng trước`}
           </p>
         </CardContent>
       </Card>
@@ -23,9 +30,14 @@ export function TotalStats() {
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">892</div>
+          <div className="text-2xl font-bold">
+            {totalRevenue.toLocaleString('vi-VN', { 
+              style: 'currency', 
+              currency: 'VND' 
+            })}
+          </div>
           <p className="text-xs text-muted-foreground">
-            Từ khi thành lập đến nay
+            {`${revenuesGrowth > 0 ? '+' : ''}${revenuesGrowth.toFixed(1)}% so với tháng trước`}
           </p>
         </CardContent>
       </Card>

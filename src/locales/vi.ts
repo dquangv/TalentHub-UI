@@ -20,7 +20,7 @@ export const vi: TranslationType = {
   "projectDones": "Dự án đã hoàn thành",
   "CompanyTrust": "Doanh nghiệp tin tưởng",
   "Featuredareas": "Lĩnh vực nổi bật",
-  "Howitworks": "Cách thức hoạt động",
+  "Howitworks": "Đối tác",
   "Startlookingforafreelancertoday": "Bắt đầu tìm kiếm freelancer ngay hôm nay",
   "Signupforfreeandstartconnectingwithatalentedfreelancercommunity": "Đăng ký miễn phí và bắt đầu kết nối với cộng đồng freelancer tài năng",
   "Registernow": "Đăng ký ngay",

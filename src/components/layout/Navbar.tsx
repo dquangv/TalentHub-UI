@@ -282,7 +282,6 @@ const Navbar = () => {
                 <NavLinkDropdown menuItems={clientMenuItems}>
                   Quản lý công việc
                 </NavLinkDropdown>
-                <NavLink to="/pricing">{t("pricing")}</NavLink>
               </>
             ) : role === "FREELANCER" ? (
               <>
@@ -294,6 +293,7 @@ const Navbar = () => {
             ) : null}
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
+            <NavLink to="/pricing">{t("pricing")}</NavLink>
             
           </div>
 
@@ -311,7 +311,7 @@ const Navbar = () => {
                 <Button
                   variant="outline"
                   asChild
-                  className="border-primary-200 text-primary-700 hover:bg-primary-50"
+                  className="border-primary-200 text-primary-700 hover:bg-primary-50 hover:text-black"
                 >
                   <Link to="/login">{t("login")}</Link>
                 </Button>
