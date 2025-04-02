@@ -222,7 +222,7 @@ export const accountColumns = [
     id: "status",
     accessorKey: "status",
     header: "Trạng thái",
-    cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
+    cell: ({ row }) => (row.getValue("status") ? "Đang hoạt động" : "Đã khóa"),
   },
   {
     id: "createdAt",
