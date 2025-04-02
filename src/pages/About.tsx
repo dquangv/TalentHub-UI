@@ -3,14 +3,34 @@ import { Card } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Users, Shield, Award, Heart } from "lucide-react";
 
+const splitIntoClusters = (description, clusters) => {
+  let result = [];
+  let remainingText = description;
+
+  clusters.forEach((cluster) => {
+    const index = remainingText.indexOf(cluster);
+    if (index !== -1) {
+      if (index > 0) {
+        result.push(remainingText.substring(0, index));
+      }
+      result.push(cluster);
+      remainingText = remainingText.substring(index + cluster.length);
+    }
+  });
+
+  if (remainingText) {
+    result.push(remainingText);
+  }
+
+  return result;
+};
+
 const About = () => {
   const { t } = useLanguage();
   const values = [
     {
       title: t("Quality"),
-      description: t(
-        "Committedtoprovidingqualityserviceandensuringsatisfaction"
-      ),
+      description: t("Committedtoprovidingqualityserviceandensuringsatisfaction"),
       icon: <Award className="w-6 h-6 text-primary" />,
     },
     {
@@ -29,41 +49,47 @@ const About = () => {
       icon: <Heart className="w-6 h-6 text-primary" />,
     },
   ];
+
   const team = [
     {
       name: "Võ Thanh Tùng",
       position: "Leader",
       image: "/public/img/team/Tung.jpg",
-      description: "Có kinh nghiệm giao việc, chỉ giao việc cho team làm",
+      description: "Lãnh đạo giàu kinh nghiệm, luôn tin tưởng giao nhiệm vụ cho team",
+      clusters: ["nhiệm vụ cho team"],
     },
     {
       name: "Vũ Đăng Quang",
       position: "Fullstack",
       image: "/public/img/team/QuangV.jpg",
       description: "Chuyên gia fullstack với kỹ năng phát triển cả frontend và backend",
+      clusters: ["cả frontend và backend"],
     },
     {
       name: "Bùi Minh Quang",
       position: "Fullstack",
       image: "/public/img/team/QuangB.jpg",
       description: "Fullstack developer với kinh nghiệm xây dựng ứng dụng toàn diện",
+      clusters: ["xây dựng ứng dụng toàn diện"],
     },
     {
       name: "Đinh Quốc Tiến",
       position: "Fullstack",
       image: "/public/img/team/Tien.jpg",
       description: "Lập trình viên fullstack đam mê phát triển hệ thống",
+      clusters: ["phát triển hệ thống"],
     },
     {
       name: "Đinh Quốc Huy",
       position: "Fullstack",
       image: "/public/img/team/Huy.jpg",
       description: "Fullstack với kinh nghiệm phát triển phần mềm",
+      clusters: ["phát triển phần mềm"],
     },
   ];
 
-  const topRow = team.slice(0, 2); 
-  const bottomRow = team.slice(2); 
+  const topRow = team.slice(0, 2);
+  const bottomRow = team.slice(2);
 
   return (
     <div className="py-12">
@@ -122,11 +148,22 @@ const About = () => {
                     className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                   />
                   <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
-                  <p className="text-muted-foreground mb-2">
-                    {member.position}
-                  </p>
+                  <p className="text-muted-foreground mb-2">{member.position}</p>
                   <p className="text-sm text-muted-foreground">
-                    {member.description}
+                    {member.clusters && member.clusters.length > 0 ? (
+                      splitIntoClusters(member.description, member.clusters).map(
+                        (cluster, clusterIndex) => (
+                          <FadeInWhenVisible
+                            key={clusterIndex}
+                            delay={clusterIndex * 0.3}
+                          >
+                            <span className="inline-block">{cluster}</span>
+                          </FadeInWhenVisible>
+                        )
+                      )
+                    ) : (
+                      member.description
+                    )}
                   </p>
                 </div>
               </FadeInWhenVisible>
@@ -142,11 +179,22 @@ const About = () => {
                     className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
                   />
                   <h3 className="text-xl font-semibold mb-2">{member.name}</h3>
-                  <p className="text-muted-foreground mb-2">
-                    {member.position}
-                  </p>
+                  <p className="text-muted-foreground mb-2">{member.position}</p>
                   <p className="text-sm text-muted-foreground">
-                    {member.description}
+                    {member.clusters && member.clusters.length > 0 ? (
+                      splitIntoClusters(member.description, member.clusters).map(
+                        (cluster, clusterIndex) => (
+                          <FadeInWhenVisible
+                            key={clusterIndex}
+                            delay={clusterIndex * 0.3}
+                          >
+                            <span className="inline-block">{cluster}</span>
+                          </FadeInWhenVisible>
+                        )
+                      )
+                    ) : (
+                      member.description
+                    )}
                   </p>
                 </div>
               </FadeInWhenVisible>
