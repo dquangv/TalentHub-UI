@@ -13,7 +13,7 @@ import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
 import { formatCurrency } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Banner {
   id: number;
@@ -35,6 +35,10 @@ interface Job {
   description: string;
   skillName: string[];
   categoryName: string;
+  applied?: boolean;
+  seen?: boolean;
+  remainingTimeFormatted?: string;
+  createdTimeFormatted?: string;
 }
 
 const Home = () => {
@@ -49,7 +53,42 @@ const Home = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [jobsPremium, setJobPremium] = useState<any[]>()
-  console.log(stats)
+  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
+  const [loadingRecommendedJobs, setLoadingRecommendedJobs] = useState(true);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const userInfoStr = localStorage.getItem('userInfo');
+    if (userInfoStr) {
+      try {
+        const parsedUserInfo = JSON.parse(userInfoStr);
+        setUserInfo(parsedUserInfo);
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    const fetchRecommendedJobs = async () => {
+      if (userInfo && userInfo.freelancerId) {
+        try {
+          setLoadingRecommendedJobs(true);
+          const response = await api.get(`/v1/jobs/recommended/${userInfo.freelancerId}`);
+          if (response.status === 200) {
+            setRecommendedJobs(response.data);
+          }
+          setLoadingRecommendedJobs(false);
+        } catch (error) {
+          console.error('Error fetching recommended jobs:', error);
+          setLoadingRecommendedJobs(false);
+        }
+      } else {
+        setLoadingRecommendedJobs(false);
+      }
+    };
+
+    fetchRecommendedJobs();
+  }, [userInfo]);
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -354,6 +393,121 @@ const Home = () => {
           )}
         </div>
       </section>
+
+      {userInfo && userInfo.freelancerId && (
+        <section className="py-20 bg-gradient-to-br from-primary-50 via-white to-gray-50">
+          <div className="container mx-auto px-6">
+            <FadeInWhenVisible>
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                Công Việc Phù Hợp Với Bạn
+              </h2>
+            </FadeInWhenVisible>
+            {loadingRecommendedJobs ? (
+              <div className="text-center text-gray-500 text-lg">Đang tải công việc phù hợp...</div>
+            ) : recommendedJobs.length === 0 ? (
+              <div className="text-center text-gray-500 text-lg">Không tìm thấy công việc phù hợp với kỹ năng của bạn.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {recommendedJobs.map((job, index) => (
+                  <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+                    <Card
+                      className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 overflow-hidden group h-full"
+                      style={{ height: '100%' }}
+                    >
+                      {!job.seen && (
+                        <div className="absolute top-3 right-3">
+                          <Badge
+                            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-300"
+                          >
+                            Mới
+                          </Badge>
+                        </div>
+                      )}
+                      {job.applied && (
+                        <div className="absolute top-3 right-16">
+                          <Badge
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-green-600 hover:to-emerald-600 transition-all duration-300"
+                          >
+                            Đã ứng tuyển
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-start gap-4 flex-grow h-full">
+                        {job.categoryName.includes('Quản lý dự án') ? (
+                          <Briefcase className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        ) : job.categoryName.includes('Thiết kế') ? (
+                          <Paintbrush className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        ) : (
+                          <Code className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        )}
+                        <div className="flex flex-col flex-grow h-full">
+                          <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-700 transition-colors">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Đăng bởi:</span>{' '}
+                            <span className="text-gray-800">{job.companyName || 'Ẩn danh'}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Ngân sách:</span>{' '}
+                            <span className="text-primary-600 font-medium">
+                              {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                            <span className="text-gray-800">{job.hourWork} giờ</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Hạn ứng tuyển:</span>{' '}
+                            <span className="text-primary-600 font-medium">Còn {job.remainingTimeFormatted}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Đăng:</span>{' '}
+                            <span className="text-gray-800">{job.createdTimeFormatted}</span>
+                          </p>
+                          <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {job.skillName.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 transition-colors"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className='flex-1'></div>
+                          <Link to={`/jobs/${job.id}`}>
+                            <Button
+                              variant="outline"
+                              className="w-full bg-primary-600 text-white hover:bg-primary-700 border-none rounded-lg shadow-sm transition-all duration-300"
+                            >
+                              {job.applied ? 'Xem chi tiết' : 'Ứng tuyển ngay'}
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </FadeInWhenVisible>
+                ))}
+              </div>
+            )}
+            {!loadingRecommendedJobs && recommendedJobs.length > 0 && (
+              <div className="text-center mt-10">
+                <Button
+                  onClick={() => navigate('/jobs')}
+                  size="lg"
+                  className="bg-primary hover:bg-primary-600 text-white">
+                  Xem tất cả công việc
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
