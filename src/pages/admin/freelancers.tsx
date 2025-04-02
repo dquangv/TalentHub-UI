@@ -92,7 +92,7 @@ export default function FreelancersPage() {
             <SelectValue placeholder="Lọc theo danh mục" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả danh mục</SelectItem>
+            <SelectItem value="all">Tất cả lĩnh vực</SelectItem>
             {uniqueCategories.map(category => (
               <SelectItem key={category} value={category}>{category}</SelectItem>
             ))}

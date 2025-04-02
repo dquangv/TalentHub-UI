@@ -39,26 +39,26 @@ export const freelancerColumns = [
   },
   {
     accessorKey: "categoryName",
-    header: "Danh mục công việc",
+    header: "Lĩnh vực",
   },
-  {
-    accessorKey: "hourlyRate",
-    header: "Giá theo giờ",
-    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
-  },
+  // {
+  //   accessorKey: "hourlyRate",
+  //   header: "Giá theo giờ",
+  //   cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
+  // },
   {
     accessorKey: "rating",
     header: "Đánh giá",
     cell: ({ row }) => row.getValue("rating") ? row.getValue("rating").toFixed(1) : "Chưa có",
   },
-  {
-    accessorKey: "skills",
-    header: "Kỹ năng",
-    cell: ({ row }) => {
-      const skills = row.getValue("skills");
-      return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
-    },
-  },
+  // {
+  //   accessorKey: "skills",
+  //   header: "Kỹ năng",
+  //   cell: ({ row }) => {
+  //     const skills = row.getValue("skills");
+  //     return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
+  //   },
+  // },
   {
     accessorKey: "description",
     header: "Mô tả",
