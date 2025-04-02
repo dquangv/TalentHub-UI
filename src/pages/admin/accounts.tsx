@@ -175,7 +175,7 @@ export default function AccountsPage() {
             ...accountColumns,
             {
               id: "actions",
-              header: "Actions",
+              header: "Thao tác",
               cell: ({ row }) => {
                 const email = row.getValue("email");
                 const isBanned = !row.getValue("status");
@@ -190,7 +190,7 @@ export default function AccountsPage() {
                         variant="outline"
                         className="text-green-600"
                       >
-                        Unban
+                        Mở khóa
                       </Button>
                     ) : (
                       <Button
@@ -201,7 +201,7 @@ export default function AccountsPage() {
                         variant="outline"
                         className="text-red-600"
                       >
-                        Ban
+                        Khóa
                       </Button>
                     )}
                   </div>
