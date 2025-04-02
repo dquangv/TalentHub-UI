@@ -116,7 +116,7 @@ export default function DashboardPage() {
         <PostStats />
       </div>
 
-      <RecentActivities />
+      {/* <RecentActivities /> */}
     </div>
   );
 }
