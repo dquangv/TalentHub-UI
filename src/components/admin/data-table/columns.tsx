@@ -66,6 +66,7 @@ export const freelancerColumns = [
   },
   {
     id: "actions",
+    header: "Thao tác",
     cell: () => {
       return (
         <DropdownMenu>
