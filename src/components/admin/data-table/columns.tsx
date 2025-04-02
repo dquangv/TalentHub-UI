@@ -337,9 +337,9 @@ export const reportColumns: ColumnDef<any>[] = [
       return (
         <div className="space-y-1">
           <div className="font-medium">{job.title}</div>
-          <div className="text-sm text-muted-foreground">
+          {/* <div className="text-sm text-muted-foreground">
             {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
-          </div>
+          </div> */}
         </div>
       );
     },
@@ -401,6 +401,7 @@ export const reportColumns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
+    header: "Thao tác",
     cell: ({ row, table }) => {
       return (
         <Button
