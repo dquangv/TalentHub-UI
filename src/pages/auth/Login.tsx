@@ -75,7 +75,8 @@ const Login = () => {
         lng: data?.lng,
       });
 
-      navigate("/");
+      navigate("/", { replace: true });
+      window.location.reload();
     } catch (err: any) {
       console.error("Error during login:", err);
       // setError("Đăng nhập không thành công, vui lòng thử lại.");
