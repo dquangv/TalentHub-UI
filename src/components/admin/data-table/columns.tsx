@@ -186,10 +186,10 @@ export const postColumns: ColumnDef<any>[] = [
     accessorKey: "clientEmail",
     header: "Email khách hàng",
   },
-  {
-    accessorKey: "quantity",
-    header: "Số lượng",
-  },
+  // {
+  //   accessorKey: "quantity",
+  //   header: "Số lượng",
+  // },
   {
     accessorKey: "appliedQuantity",
     header: "Đã ứng tuyển",
@@ -198,10 +198,10 @@ export const postColumns: ColumnDef<any>[] = [
     accessorKey: "cancelledQuantity",
     header: "Đã hủy",
   },
-  {
-    accessorKey: "inProgressQuantity",
-    header: "Đang tiến hành",
-  },
+  // {
+  //   accessorKey: "inProgressQuantity",
+  //   header: "Đang tiến hành",
+  // },
   {
     accessorKey: "viewedQuantity",
     header: "Đã xem",
