@@ -74,7 +74,7 @@ const Home = () => {
         if (response.status === 200) {
           const today = new Date().toISOString().split('T')[0];
           const validBanners = response.data.filter(
-            (banner: Banner) => banner.endTime >= today && banner.status === 'active'
+            (banner: Banner) => banner.endTime >= today && banner.status
           );
           setBanners(validBanners);
         }
@@ -491,26 +491,7 @@ const Home = () => {
       </section>
     
 
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Howitworks')}</h2>
-          </FadeInWhenVisible>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps?.map((step, index) => (
-              <FadeInWhenVisible key={step.title} delay={index * 0.2}>
-                <div className="text-center group">
-                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                    {step.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-4 text-primary-700">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
-                </div>
-              </FadeInWhenVisible>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
@@ -534,6 +515,26 @@ const Home = () => {
                 {t('Registernow')}
               </Button>
             </FadeInWhenVisible>
+          </div>
+        </div>
+      </section>
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Howitworks')}</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps?.map((step, index) => (
+              <FadeInWhenVisible key={step.title} delay={index * 0.2}>
+                <div className="text-center group">
+                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 text-primary-700">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </div>
+              </FadeInWhenVisible>
+            ))}
           </div>
         </div>
       </section>
