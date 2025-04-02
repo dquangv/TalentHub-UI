@@ -94,7 +94,7 @@ export function PostStats() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Theo Tháng (Năm {currentYear})</CardTitle>
+          <CardTitle>Theo tháng (Năm {currentYear})</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
