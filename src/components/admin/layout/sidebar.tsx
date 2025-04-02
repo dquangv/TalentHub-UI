@@ -70,22 +70,22 @@ const menuItems = [
     icon: Settings,
     subItems: [
       {
-        title: "Quản lý Trường",
+        title: "Quản lý Trường học",
         href: "/schools",
         icon: GraduationCap,
       },
       {
-        title: "Quản lý bằng cấp",
+        title: "Quản lý Bằng cấp",
         href: "/degrees",
         icon: GraduationCap,
       },
       {
-        title: "Quản lý ngành nghề",
+        title: "Quản lý Danh mục",
         href: "/categories",
         icon: GraduationCap,
       },
       {
-        title: "Quản lý kỹ năng",
+        title: "Quản lý Kỹ năng",
         icon: Wrench,
         href: "/skills",
       },
