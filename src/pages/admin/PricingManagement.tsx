@@ -146,7 +146,7 @@ export default function PricingManagement() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium">Tên gói</th>
                   <th className="px-4 py-3 text-left font-medium">Giá</th>
-                  <th className="px-4 py-3 text-left font-medium">Thời hạn</th>
+                  <th className="px-4 py-3 text-left font-medium">Thời hạn bài đăng</th>
                   <th className="px-4 py-3 text-left font-medium">Số bài đăng</th>
                   {/* <th className="px-4 py-3 text-left font-medium">
                     Trạng thái
