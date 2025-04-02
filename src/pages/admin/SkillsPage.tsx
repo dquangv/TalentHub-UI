@@ -197,7 +197,7 @@ export function SkillsPage() {
           ...skillColumns,
           {
             id: "actions",
-            header: "Actions",
+            header: "Thao tác",
             cell: ({ row }) => {
               const id = row.getValue("id");
               const quantityFreelancerSkill = row.getValue("quantityFreelancerSkill");

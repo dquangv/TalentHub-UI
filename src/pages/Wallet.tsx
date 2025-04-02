@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -18,43 +18,55 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { toast } from 'sonner';
+} from "@/components/ui/table";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { toast } from "sonner";
 import {
   Wallet as WalletIcon,
   ArrowUpRight,
   ArrowDownLeft,
   CreditCard,
   QrCode,
-  Clock,
   CheckCircle,
-  XCircle,
-  Filter,
   Download,
-  Search,
-  Calendar,
   DollarSign,
   Copy,
   RefreshCw,
   Plus,
   Landmark,
   Banknote,
-} from 'lucide-react';
+} from "lucide-react";
+import api from "@/api/axiosConfig";
+
+interface Payments {
+  balance: number;
+  latestDeposit: number;
+  latestDepositDate: string;
+  todaySpending: number;
+  latestSpendingDate: string;
+}
 
 const Wallet = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [depositAmount, setDepositAmount] = useState('');
-  const [depositMethod, setDepositMethod] = useState('');
+  const [activeTab, setActiveTab] = useState("overview");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [depositAmount, setDepositAmount] = useState("");
+  const [depositMethod, setDepositMethod] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [payments, setPayments] = useState<Payments>({
+    balance: 0,
+    latestDeposit: 0,
+    latestDepositDate: "",
+    todaySpending: 0,
+    latestSpendingDate: "",
+  });
+  const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
 
   const handleDeposit = () => {
     if (!depositAmount || !depositMethod) {
-      toast.error('Vui lòng nhập số tiền và chọn phương thức thanh toán');
+      toast.error("Vui lòng nhập số tiền và chọn phương thức thanh toán");
       return;
     }
 
@@ -63,18 +75,35 @@ const Wallet = () => {
     // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
-      toast.success('Yêu cầu nạp tiền đã được gửi', {
-        description: 'Chúng tôi sẽ xử lý giao dịch của bạn trong thời gian sớm nhất.',
+      toast.success("Yêu cầu nạp tiền đã được gửi", {
+        description:
+          "Chúng tôi sẽ xử lý giao dịch của bạn trong thời gian sớm nhất.",
       });
-      setDepositAmount('');
-      setDepositMethod('');
+      setDepositAmount("");
+      setDepositMethod("");
     }, 2000);
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Đã sao chép vào clipboard');
+    toast.success("Đã sao chép vào clipboard");
   };
+
+  const getBalancerClient = async () => {
+    try {
+      const response = await api.get("/v1/payments/balance", {
+        params: { userId: userId },
+      });
+      console.log(response);
+      setPayments(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getBalancerClient();
+  }, [userId]);
 
   return (
     <div className="py-12">
@@ -96,12 +125,18 @@ const Wallet = () => {
               <Card className="p-6 bg-primary text-primary-foreground">
                 <div className="flex items-center gap-4 mb-4">
                   <WalletIcon className="w-8 h-8" />
-                  <div>
-                    <p className="text-sm opacity-80">Số dư khả dụng</p>
-                    <h2 className="text-3xl font-bold">2.500.000đ</h2>
-                  </div>
+                  <h2 className="text-3xl font-bold">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(payments.balance)}
+                  </h2>
                 </div>
-                <Button variant="secondary" className="w-full" onClick={() => setActiveTab('deposit')}>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => setActiveTab("deposit")}
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Nạp tiền
                 </Button>
@@ -112,31 +147,74 @@ const Wallet = () => {
                   <ArrowUpRight className="w-8 h-8 text-green-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Tổng nạp</p>
-                    <h2 className="text-2xl font-bold">5.000.000đ</h2>
+                    <h2 className="text-3xl font-bold">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(payments.latestDeposit)}
+                    </h2>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Cập nhật: Hôm nay, 10:30</p>
+                <p className="text-sm text-muted-foreground">
+                  Cập nhật:{" "}
+                                   {payments.latestDepositDate
+                    ? new Intl.DateTimeFormat("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      }).format(new Date(payments.latestDepositDate))
+                    : "Không có dữ liệu"}
+                </p>
               </Card>
 
               <Card className="p-6">
                 <div className="flex items-center gap-4 mb-4">
                   <ArrowDownLeft className="w-8 h-8 text-amber-500" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Tổng chi tiêu</p>
-                    <h2 className="text-2xl font-bold">2.500.000đ</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Tổng chi tiêu
+                    </p>
+                    <h2 className="text-3xl font-bold">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(payments.todaySpending)}
+                    </h2>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Cập nhật: Hôm nay, 10:30</p>
+                <p className="text-sm text-muted-foreground">
+                  Cập nhật:{" "}
+                  {payments.latestSpendingDate
+                    ? new Intl.DateTimeFormat("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      }).format(new Date(payments.latestSpendingDate))
+                    : "Không có dữ liệu"}
+              
+                </p>
               </Card>
             </div>
           </FadeInWhenVisible>
 
           {/* Main Content */}
           <FadeInWhenVisible delay={0.2}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="space-y-6"
+            >
               <TabsList className="grid grid-cols-3 w-full">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                <TabsTrigger value="transactions">Lịch sử giao dịch</TabsTrigger>
+                <TabsTrigger value="transactions">
+                  Lịch sử giao dịch
+                </TabsTrigger>
                 <TabsTrigger value="deposit">Nạp tiền</TabsTrigger>
               </TabsList>
 
@@ -144,27 +222,34 @@ const Wallet = () => {
               <TabsContent value="overview">
                 <Card className="p-6">
                   <h2 className="text-xl font-semibold mb-6">Tổng quan ví</h2>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="space-y-4">
-                      <h3 className="font-medium text-muted-foreground">Thông tin ví</h3>
+                      <h3 className="font-medium text-muted-foreground">
+                        Thông tin ví
+                      </h3>
                       <div className="flex justify-between py-2 border-b">
                         <span className="text-muted-foreground">ID Ví</span>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">W123456789</span>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-6 w-6"
-                            onClick={() => copyToClipboard('W123456789')}
+                            onClick={() => copyToClipboard("W123456789")}
                           >
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
                       <div className="flex justify-between py-2 border-b">
-                        <span className="text-muted-foreground">Trạng thái</span>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                        <span className="text-muted-foreground">
+                          Trạng thái
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        >
                           Đang hoạt động
                         </Badge>
                       </div>
@@ -173,43 +258,61 @@ const Wallet = () => {
                         <span className="font-medium">15/03/2024</span>
                       </div>
                       <div className="flex justify-between py-2 border-b">
-                        <span className="text-muted-foreground">Cập nhật lần cuối</span>
+                        <span className="text-muted-foreground">
+                          Cập nhật lần cuối
+                        </span>
                         <span className="font-medium">Hôm nay, 10:30</span>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="font-medium text-muted-foreground">Giao dịch gần đây</h3>
+                      <h3 className="font-medium text-muted-foreground">
+                        Giao dịch gần đây
+                      </h3>
                       {recentTransactions.map((transaction) => (
-                        <div key={transaction.id} className="flex items-center justify-between py-2 border-b">
+                        <div
+                          key={transaction.id}
+                          className="flex items-center justify-between py-2 border-b"
+                        >
                           <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                              transaction.type === 'deposit' 
-                                ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-                                : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                            }`}>
-                              {transaction.type === 'deposit' ? (
+                            <div
+                              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                transaction.type === "deposit"
+                                  ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+                              }`}
+                            >
+                              {transaction.type === "deposit" ? (
                                 <ArrowUpRight className="w-4 h-4" />
                               ) : (
                                 <ArrowDownLeft className="w-4 h-4" />
                               )}
                             </div>
                             <div>
-                              <p className="font-medium">{transaction.description}</p>
-                              <p className="text-xs text-muted-foreground">{transaction.date}</p>
+                              <p className="font-medium">
+                                {transaction.description}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {transaction.date}
+                              </p>
                             </div>
                           </div>
-                          <span className={`font-medium ${
-                            transaction.type === 'deposit' ? 'text-green-600' : 'text-amber-600'
-                          }`}>
-                            {transaction.type === 'deposit' ? '+' : '-'}{transaction.amount}
+                          <span
+                            className={`font-medium ${
+                              transaction.type === "deposit"
+                                ? "text-green-600"
+                                : "text-amber-600"
+                            }`}
+                          >
+                            {transaction.type === "deposit" ? "+" : "-"}
+                            {transaction.amount}
                           </span>
                         </div>
                       ))}
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         className="w-full text-primary"
-                        onClick={() => setActiveTab('transactions')}
+                        onClick={() => setActiveTab("transactions")}
                       >
                         Xem tất cả giao dịch
                       </Button>
@@ -221,15 +324,24 @@ const Wallet = () => {
                     <ul className="text-sm text-muted-foreground space-y-2">
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                        <span>Số dư trong ví được sử dụng để thanh toán cho các dịch vụ trên nền tảng.</span>
+                        <span>
+                          Số dư trong ví được sử dụng để thanh toán cho các dịch
+                          vụ trên nền tảng.
+                        </span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                        <span>Giao dịch nạp tiền thường được xử lý trong vòng 24 giờ làm việc.</span>
+                        <span>
+                          Giao dịch nạp tiền thường được xử lý trong vòng 24 giờ
+                          làm việc.
+                        </span>
                       </li>
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                        <span>Liên hệ với chúng tôi nếu bạn cần hỗ trợ về các vấn đề liên quan đến ví.</span>
+                        <span>
+                          Liên hệ với chúng tôi nếu bạn cần hỗ trợ về các vấn đề
+                          liên quan đến ví.
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -286,7 +398,10 @@ const Wallet = () => {
                         <SelectItem value="refund">Hoàn tiền</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select
+                      value={statusFilter}
+                      onValueChange={setStatusFilter}
+                    >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Trạng thái" />
                       </SelectTrigger>
@@ -315,44 +430,58 @@ const Wallet = () => {
                       <TableBody>
                         {transactions.map((transaction) => (
                           <TableRow key={transaction.id}>
-                            <TableCell className="font-medium">{transaction.id}</TableCell>
+                            <TableCell className="font-medium">
+                              {transaction.id}
+                            </TableCell>
                             <TableCell>{transaction.date}</TableCell>
                             <TableCell>{transaction.description}</TableCell>
                             <TableCell>
-                              <Badge variant="outline" className={
-                                transaction.type === 'deposit' 
-                                  ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                  : transaction.type === 'refund'
-                                  ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                                  : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                              }>
-                                {transaction.type === 'deposit' 
-                                  ? 'Nạp tiền' 
-                                  : transaction.type === 'refund'
-                                  ? 'Hoàn tiền'
-                                  : 'Thanh toán'}
+                              <Badge
+                                variant="outline"
+                                className={
+                                  transaction.type === "deposit"
+                                    ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                    : transaction.type === "refund"
+                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                    : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                }
+                              >
+                                {transaction.type === "deposit"
+                                  ? "Nạp tiền"
+                                  : transaction.type === "refund"
+                                  ? "Hoàn tiền"
+                                  : "Thanh toán"}
                               </Badge>
                             </TableCell>
-                            <TableCell className={`font-medium ${
-                              transaction.type === 'deposit' || transaction.type === 'refund'
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-amber-600 dark:text-amber-400'
-                            }`}>
-                              {transaction.type === 'deposit' || transaction.type === 'refund' ? '+' : '-'}{transaction.amount}
+                            <TableCell
+                              className={`font-medium ${
+                                transaction.type === "deposit" ||
+                                transaction.type === "refund"
+                                  ? "text-green-600 dark:text-green-400"
+                                  : "text-amber-600 dark:text-amber-400"
+                              }`}
+                            >
+                              {transaction.type === "deposit" ||
+                              transaction.type === "refund"
+                                ? "+"
+                                : "-"}
+                              {transaction.amount}
                             </TableCell>
                             <TableCell>
-                              <Badge variant={
-                                transaction.status === 'completed' 
-                                  ? 'default' 
-                                  : transaction.status === 'pending'
-                                  ? 'secondary'
-                                  : 'destructive'
-                              }>
-                                {transaction.status === 'completed' 
-                                  ? 'Hoàn thành' 
-                                  : transaction.status === 'pending'
-                                  ? 'Đang xử lý'
-                                  : 'Thất bại'}
+                              <Badge
+                                variant={
+                                  transaction.status === "completed"
+                                    ? "default"
+                                    : transaction.status === "pending"
+                                    ? "secondary"
+                                    : "destructive"
+                                }
+                              >
+                                {transaction.status === "completed"
+                                  ? "Hoàn thành"
+                                  : transaction.status === "pending"
+                                  ? "Đang xử lý"
+                                  : "Thất bại"}
                               </Badge>
                             </TableCell>
                           </TableRow>
@@ -383,8 +512,10 @@ const Wallet = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-2">
                     <Card className="p-6">
-                      <h2 className="text-xl font-semibold mb-6">Nạp tiền vào ví</h2>
-                      
+                      <h2 className="text-xl font-semibold mb-6">
+                        Nạp tiền vào ví
+                      </h2>
+
                       <div className="space-y-6">
                         <div className="space-y-2">
                           <Label>Số tiền</Label>
@@ -403,108 +534,146 @@ const Wallet = () => {
                         <div className="space-y-2">
                           <Label>Phương thức thanh toán</Label>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Card 
+                            <Card
                               className={`p-4 cursor-pointer border transition-all ${
-                                depositMethod === 'bank' ? 'border-primary bg-primary/5' : ''
+                                depositMethod === "bank"
+                                  ? "border-primary bg-primary/5"
+                                  : ""
                               }`}
-                              onClick={() => setDepositMethod('bank')}
+                              onClick={() => setDepositMethod("bank")}
                             >
                               <div className="flex flex-col items-center gap-2 text-center">
                                 <Landmark className="w-8 h-8 text-primary" />
                                 <div>
                                   <p className="font-medium">Chuyển khoản</p>
-                                  <p className="text-xs text-muted-foreground">Ngân hàng</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Ngân hàng
+                                  </p>
                                 </div>
                               </div>
                             </Card>
-                            
-                            <Card 
+
+                            <Card
                               className={`p-4 cursor-pointer border transition-all ${
-                                depositMethod === 'card' ? 'border-primary bg-primary/5' : ''
+                                depositMethod === "card"
+                                  ? "border-primary bg-primary/5"
+                                  : ""
                               }`}
-                              onClick={() => setDepositMethod('card')}
+                              onClick={() => setDepositMethod("card")}
                             >
                               <div className="flex flex-col items-center gap-2 text-center">
                                 <CreditCard className="w-8 h-8 text-primary" />
                                 <div>
                                   <p className="font-medium">Thẻ tín dụng</p>
-                                  <p className="text-xs text-muted-foreground">Visa/Mastercard</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    Visa/Mastercard
+                                  </p>
                                 </div>
                               </div>
                             </Card>
-                            
-                            <Card 
+
+                            <Card
                               className={`p-4 cursor-pointer border transition-all ${
-                                depositMethod === 'ewallet' ? 'border-primary bg-primary/5' : ''
+                                depositMethod === "ewallet"
+                                  ? "border-primary bg-primary/5"
+                                  : ""
                               }`}
-                              onClick={() => setDepositMethod('ewallet')}
+                              onClick={() => setDepositMethod("ewallet")}
                             >
                               <div className="flex flex-col items-center gap-2 text-center">
                                 <Banknote className="w-8 h-8 text-primary" />
                                 <div>
                                   <p className="font-medium">Ví điện tử</p>
-                                  <p className="text-xs text-muted-foreground">MoMo/ZaloPay</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    MoMo/ZaloPay
+                                  </p>
                                 </div>
                               </div>
                             </Card>
                           </div>
                         </div>
 
-                        {depositMethod === 'bank' && (
+                        {depositMethod === "bank" && (
                           <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-                            <h3 className="font-medium">Thông tin chuyển khoản</h3>
+                            <h3 className="font-medium">
+                              Thông tin chuyển khoản
+                            </h3>
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Ngân hàng</span>
+                                <span className="text-muted-foreground">
+                                  Ngân hàng
+                                </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium">Vietcombank</span>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                  <span className="font-medium">
+                                    Vietcombank
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-6 w-6"
-                                    onClick={() => copyToClipboard('Vietcombank')}
+                                    onClick={() =>
+                                      copyToClipboard("Vietcombank")
+                                    }
                                   >
                                     <Copy className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Số tài khoản</span>
+                                <span className="text-muted-foreground">
+                                  Số tài khoản
+                                </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium">1234567890</span>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                  <span className="font-medium">
+                                    1234567890
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-6 w-6"
-                                    onClick={() => copyToClipboard('1234567890')}
+                                    onClick={() =>
+                                      copyToClipboard("1234567890")
+                                    }
                                   >
                                     <Copy className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Chủ tài khoản</span>
+                                <span className="text-muted-foreground">
+                                  Chủ tài khoản
+                                </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium">CONG TY VIET FREELANCER</span>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                  <span className="font-medium">
+                                    CONG TY VIET FREELANCER
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-6 w-6"
-                                    onClick={() => copyToClipboard('CONG TY VIET FREELANCER')}
+                                    onClick={() =>
+                                      copyToClipboard("CONG TY VIET FREELANCER")
+                                    }
                                   >
                                     <Copy className="h-3.5 w-3.5" />
                                   </Button>
                                 </div>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Nội dung</span>
+                                <span className="text-muted-foreground">
+                                  Nội dung
+                                </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium">NAP W123456789</span>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="icon" 
+                                  <span className="font-medium">
+                                    NAP W123456789
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
                                     className="h-6 w-6"
-                                    onClick={() => copyToClipboard('NAP W123456789')}
+                                    onClick={() =>
+                                      copyToClipboard("NAP W123456789")
+                                    }
                                   >
                                     <Copy className="h-3.5 w-3.5" />
                                   </Button>
@@ -512,12 +681,14 @@ const Wallet = () => {
                               </div>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              Sau khi chuyển khoản, vui lòng nhấn "Xác nhận đã chuyển khoản" để chúng tôi kiểm tra và cập nhật số dư cho bạn.
+                              Sau khi chuyển khoản, vui lòng nhấn "Xác nhận đã
+                              chuyển khoản" để chúng tôi kiểm tra và cập nhật số
+                              dư cho bạn.
                             </p>
                           </div>
                         )}
 
-                        {depositMethod === 'ewallet' && (
+                        {depositMethod === "ewallet" && (
                           <div className="flex flex-col items-center p-6 border rounded-lg">
                             <QrCode className="w-32 h-32 text-primary mb-4" />
                             <p className="text-sm text-muted-foreground mb-2">
@@ -527,12 +698,14 @@ const Wallet = () => {
                           </div>
                         )}
 
-                        <Button 
-                          className="w-full" 
-                          disabled={!depositAmount || !depositMethod || isProcessing}
+                        <Button
+                          className="w-full"
+                          disabled={
+                            !depositAmount || !depositMethod || isProcessing
+                          }
                           onClick={handleDeposit}
                         >
-                          {isProcessing ? 'Đang xử lý...' : 'Xác nhận nạp tiền'}
+                          {isProcessing ? "Đang xử lý..." : "Xác nhận nạp tiền"}
                         </Button>
                       </div>
                     </Card>
@@ -581,15 +754,23 @@ const Wallet = () => {
                         <ul className="space-y-2 text-sm text-muted-foreground">
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                            <span>Giao dịch nạp tiền thường được xử lý trong vòng 24 giờ làm việc.</span>
+                            <span>
+                              Giao dịch nạp tiền thường được xử lý trong vòng 24
+                              giờ làm việc.
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                            <span>Số tiền tối thiểu cho mỗi lần nạp là 100.000đ.</span>
+                            <span>
+                              Số tiền tối thiểu cho mỗi lần nạp là 100.000đ.
+                            </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                            <span>Vui lòng kiểm tra kỹ thông tin trước khi thực hiện giao dịch.</span>
+                            <span>
+                              Vui lòng kiểm tra kỹ thông tin trước khi thực hiện
+                              giao dịch.
+                            </span>
                           </li>
                         </ul>
                       </div>
@@ -608,116 +789,122 @@ const Wallet = () => {
 // Sample data
 const recentTransactions = [
   {
-    id: 'TX123456',
-    date: '15/03/2024, 10:30',
-    description: 'Nạp tiền qua ngân hàng',
-    type: 'deposit',
-    amount: '1.000.000đ',
-    status: 'completed',
+    id: "TX123456",
+    date: "15/03/2024, 10:30",
+    description: "Nạp tiền qua ngân hàng",
+    type: "deposit",
+    amount: "1.000.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123455',
-    date: '14/03/2024, 15:45',
-    description: 'Thanh toán dịch vụ Premium',
-    type: 'payment',
-    amount: '500.000đ',
-    status: 'completed',
+    id: "TX123455",
+    date: "14/03/2024, 15:45",
+    description: "Thanh toán dịch vụ Premium",
+    type: "payment",
+    amount: "500.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123454',
-    date: '12/03/2024, 09:15',
-    description: 'Nạp tiền qua MoMo',
-    type: 'deposit',
-    amount: '500.000đ',
-    status: 'completed',
+    id: "TX123454",
+    date: "12/03/2024, 09:15",
+    description: "Nạp tiền qua MoMo",
+    type: "deposit",
+    amount: "500.000đ",
+    status: "completed",
   },
 ];
 
 const transactions = [
   {
-    id: 'TX123456',
-    date: '15/03/2024, 10:30',
-    description: 'Nạp tiền qua ngân hàng',
-    type: 'deposit',
-    amount: '1.000.000đ',
-    status: 'completed',
+    id: "TX123456",
+    date: "15/03/2024, 10:30",
+    description: "Nạp tiền qua ngân hàng",
+    type: "deposit",
+    amount: "1.000.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123455',
-    date: '14/03/2024, 15:45',
-    description: 'Thanh toán dịch vụ Premium',
-    type: 'payment',
-    amount: '500.000đ',
-    status: 'completed',
+    id: "TX123455",
+    date: "14/03/2024, 15:45",
+    description: "Thanh toán dịch vụ Premium",
+    type: "payment",
+    amount: "500.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123454',
-    date: '12/03/2024, 09:15',
-    description: 'Nạp tiền qua MoMo',
-    type: 'deposit',
-    amount: '500.000đ',
-    status: 'completed',
+    id: "TX123454",
+    date: "12/03/2024, 09:15",
+    description: "Nạp tiền qua MoMo",
+    type: "deposit",
+    amount: "500.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123453',
-    date: '10/03/2024, 14:20',
-    description: 'Thanh toán dịch vụ đăng tin',
-    type: 'payment',
-    amount: '200.000đ',
-    status: 'completed',
+    id: "TX123453",
+    date: "10/03/2024, 14:20",
+    description: "Thanh toán dịch vụ đăng tin",
+    type: "payment",
+    amount: "200.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123452',
-    date: '08/03/2024, 11:05',
-    description: 'Hoàn tiền dịch vụ',
-    type: 'refund',
-    amount: '100.000đ',
-    status: 'completed',
+    id: "TX123452",
+    date: "08/03/2024, 11:05",
+    description: "Hoàn tiền dịch vụ",
+    type: "refund",
+    amount: "100.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123451',
-    date: '05/03/2024, 16:30',
-    description: 'Nạp tiền qua thẻ tín dụng',
-    type: 'deposit',
-    amount: '2.000.000đ',
-    status: 'completed',
+    id: "TX123451",
+    date: "05/03/2024, 16:30",
+    description: "Nạp tiền qua thẻ tín dụng",
+    type: "deposit",
+    amount: "2.000.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123450',
-    date: '01/03/2024, 09:45',
-    description: 'Thanh toán dịch vụ đăng tin',
-    type: 'payment',
-    amount: '300.000đ',
-    status: 'completed',
+    id: "TX123450",
+    date: "01/03/2024, 09:45",
+    description: "Thanh toán dịch vụ đăng tin",
+    type: "payment",
+    amount: "300.000đ",
+    status: "completed",
   },
   {
-    id: 'TX123449',
-    date: '28/02/2024, 13:15',
-    description: 'Nạp tiền qua ZaloPay',
-    type: 'deposit',
-    amount: '500.000đ',
-    status: 'pending',
+    id: "TX123449",
+    date: "28/02/2024, 13:15",
+    description: "Nạp tiền qua ZaloPay",
+    type: "deposit",
+    amount: "500.000đ",
+    status: "pending",
   },
   {
-    id: 'TX123448',
-    date: '25/02/2024, 10:10',
-    description: 'Thanh toán dịch vụ đăng tin',
-    type: 'payment',
-    amount: '200.000đ',
-    status: 'failed',
+    id: "TX123448",
+    date: "25/02/2024, 10:10",
+    description: "Thanh toán dịch vụ đăng tin",
+    type: "payment",
+    amount: "200.000đ",
+    status: "failed",
   },
   {
-    id: 'TX123447',
-    date: '20/02/2024, 14:50',
-    description: 'Nạp tiền qua ngân hàng',
-    type: 'deposit',
-    amount: '1.000.000đ',
-    status: 'completed',
+    id: "TX123447",
+    date: "20/02/2024, 14:50",
+    description: "Nạp tiền qua ngân hàng",
+    type: "deposit",
+    amount: "1.000.000đ",
+    status: "completed",
   },
 ];
 
 // Add Label component if not already defined
-const Label = ({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) => (
+const Label = ({
+  children,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  htmlFor?: string;
+}) => (
   <label
     htmlFor={htmlFor}
     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

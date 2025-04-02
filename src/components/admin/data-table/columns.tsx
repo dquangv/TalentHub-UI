@@ -39,26 +39,26 @@ export const freelancerColumns = [
   },
   {
     accessorKey: "categoryName",
-    header: "Danh mục công việc",
+    header: "Lĩnh vực",
   },
-  {
-    accessorKey: "hourlyRate",
-    header: "Giá theo giờ",
-    cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
-  },
+  // {
+  //   accessorKey: "hourlyRate",
+  //   header: "Giá theo giờ",
+  //   cell: ({ row }) => row.getValue("hourlyRate") ? `${row.getValue("hourlyRate").toLocaleString()} USD` : "Chưa có",
+  // },
   {
     accessorKey: "rating",
     header: "Đánh giá",
     cell: ({ row }) => row.getValue("rating") ? row.getValue("rating").toFixed(1) : "Chưa có",
   },
-  {
-    accessorKey: "skills",
-    header: "Kỹ năng",
-    cell: ({ row }) => {
-      const skills = row.getValue("skills");
-      return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
-    },
-  },
+  // {
+  //   accessorKey: "skills",
+  //   header: "Kỹ năng",
+  //   cell: ({ row }) => {
+  //     const skills = row.getValue("skills");
+  //     return Array.isArray(skills) && skills.length > 0 ? skills.join(", ") : "Chưa có";
+  //   },
+  // },
   {
     accessorKey: "description",
     header: "Mô tả",
@@ -66,6 +66,7 @@ export const freelancerColumns = [
   },
   {
     id: "actions",
+    header: "Thao tác",
     cell: () => {
       return (
         <DropdownMenu>
@@ -185,10 +186,10 @@ export const postColumns: ColumnDef<any>[] = [
     accessorKey: "clientEmail",
     header: "Email khách hàng",
   },
-  {
-    accessorKey: "quantity",
-    header: "Số lượng",
-  },
+  // {
+  //   accessorKey: "quantity",
+  //   header: "Số lượng",
+  // },
   {
     accessorKey: "appliedQuantity",
     header: "Đã ứng tuyển",
@@ -197,10 +198,10 @@ export const postColumns: ColumnDef<any>[] = [
     accessorKey: "cancelledQuantity",
     header: "Đã hủy",
   },
-  {
-    accessorKey: "inProgressQuantity",
-    header: "Đang tiến hành",
-  },
+  // {
+  //   accessorKey: "inProgressQuantity",
+  //   header: "Đang tiến hành",
+  // },
   {
     accessorKey: "viewedQuantity",
     header: "Đã xem",
@@ -222,7 +223,7 @@ export const accountColumns = [
     id: "status",
     accessorKey: "status",
     header: "Trạng thái",
-    cell: ({ row }) => (row.getValue("status") ? "Active" : "Inactive"),
+    cell: ({ row }) => (row.getValue("status") ? "Đang hoạt động" : "Đã khóa"),
   },
   {
     id: "createdAt",
@@ -336,9 +337,9 @@ export const reportColumns: ColumnDef<any>[] = [
       return (
         <div className="space-y-1">
           <div className="font-medium">{job.title}</div>
-          <div className="text-sm text-muted-foreground">
+          {/* <div className="text-sm text-muted-foreground">
             {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
-          </div>
+          </div> */}
         </div>
       );
     },
@@ -400,6 +401,7 @@ export const reportColumns: ColumnDef<any>[] = [
   },
   {
     id: "actions",
+    header: "Thao tác",
     cell: ({ row, table }) => {
       return (
         <Button

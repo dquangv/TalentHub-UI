@@ -44,7 +44,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Thời hạn (ngày)</label>
+        <label className="text-sm font-medium">Thời hạn đăng bài (ngày)</label>
         <input
           type="number"
           className="w-full p-2 border rounded-md"
@@ -55,7 +55,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
         />
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="text-sm font-medium">Trạng thái</label>
         <select
           className="w-full p-2 border rounded-md"
@@ -65,7 +65,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
           <option value="true">Đang hoạt động</option>
           <option value="false">Tạm dừng</option>
         </select>
-      </div>
+      </div> */}
     </div>
 
     <DialogFooter>

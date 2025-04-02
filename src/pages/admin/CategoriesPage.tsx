@@ -183,6 +183,7 @@ export function CategoriesPage() {
 
       {/* Filter Input */}
       <div className="flex items-center py-4">
+        <Label htmlFor="filter" className="mr-2">Tìm kiếm danh mục:</Label>
         <Input
           placeholder="Tìm kiếm..."
           className="max-w-sm"
@@ -197,7 +198,7 @@ export function CategoriesPage() {
           ...categoryColumns,
           {
             id: "actions",
-            header: "Actions",
+            header: "Thao tác",
             cell: ({ row }) => {
               const id = row.getValue("id");
               const quantityFreelancer = row.getValue("quantityFreelancer");

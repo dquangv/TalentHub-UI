@@ -130,7 +130,7 @@ export function DegreesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý Bằng Cấp Học</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Quản lý Bằng cấp</h2>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
@@ -178,6 +178,7 @@ export function DegreesPage() {
       </div>
 
       <div className="flex items-center py-4">
+        <Label htmlFor="filter" className="mr-2">Tìm kiếm bằng cấp:</Label>
         <Input
           placeholder="Tìm kiếm..."
           className="max-w-sm"
@@ -191,7 +192,7 @@ export function DegreesPage() {
           ...schoolColumns,
           {
             id: "actions",
-            header: "Actions",
+            header: "Thao tác",
             cell: ({ row }) => {
               const id = row.getValue("id");
               const quantityEducation = row.getValue("quantityEducation");
