@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Star, MapPin } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
 import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Banner {
   id: number;
@@ -24,7 +25,17 @@ interface Banner {
   startTime: string;
   endTime: string;
 }
-
+interface Freelancer {
+  id: number;
+  name: string;
+  hourlyRate: number;
+  description: string;
+  categoryName: string;
+  userId: number;
+  avatar: string;
+  rating: number | null;
+  skills: string[];
+}
 interface Job {
   id: number;
   title: string;
@@ -56,6 +67,8 @@ const Home = () => {
   const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
   const [loadingRecommendedJobs, setLoadingRecommendedJobs] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
+  const [suitableFreelancers, setSuitableFreelancers] = useState<Freelancer[]>([]);
+  const [loadingFreelancers, setLoadingFreelancers] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
     const userInfoStr = localStorage.getItem('userInfo');
@@ -68,6 +81,28 @@ const Home = () => {
       }
     }
   }, []);
+  useEffect(() => {
+    const fetchSuitableFreelancers = async () => {
+      if (userInfo && userInfo.clientId) {
+        try {
+          setLoadingFreelancers(true);
+          const response = await api.get(`/v1/freelancers/clients/${userInfo.clientId}/job-category-freelancers`);
+          if (response.status === 200) {
+            setSuitableFreelancers(response.data);
+          }
+          setLoadingFreelancers(false);
+        } catch (error) {
+          console.error('Error fetching suitable freelancers:', error);
+          setLoadingFreelancers(false);
+        }
+      } else {
+        setLoadingFreelancers(false);
+      }
+    };
+
+    fetchSuitableFreelancers();
+  }, [userInfo]);
+
   useEffect(() => {
     const fetchRecommendedJobs = async () => {
       if (userInfo && userInfo.freelancerId) {
@@ -393,7 +428,96 @@ const Home = () => {
           )}
         </div>
       </section>
+      {userInfo && userInfo.clientId && (
+        <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50">
+          <div className="container mx-auto px-6">
+            <FadeInWhenVisible>
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Ứng Viên Phù Hợp Cho Dự Án Của Bạn
+              </h2>
+            </FadeInWhenVisible>
 
+            {loadingFreelancers ? (
+              <div className="text-center text-gray-500 text-lg">Đang tải danh sách ứng viên...</div>
+            ) : suitableFreelancers.length === 0 ? (
+              <div className="text-center text-gray-500 text-lg">Không tìm thấy ứng viên phù hợp.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {suitableFreelancers.map((freelancer, index) => (
+                  <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
+                    <Card className="p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-4">
+                        <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
+                          <AvatarImage
+                            src={freelancer.avatar ? `https://developments-bride-tactics-bids.trycloudflare.com/api/uploads/${freelancer.avatar}` : "/assets/default-avatar.png"}
+                            alt={freelancer.name}
+                          />
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+                            {freelancer.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold">{freelancer.name}</h3>
+                            <div className="flex items-center">
+                              {freelancer.rating ? (
+                                <>
+                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                  <span className="ml-1">{freelancer.rating.toFixed(1)}</span>
+                                </>
+                              ) : (
+                                <span className="text-sm text-gray-500 italic">Chưa có đánh giá</span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {freelancer.categoryName}
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{freelancer.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {freelancer.skills.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-blue-600">
+                              ${freelancer.hourlyRate}/giờ
+                            </span>
+                            <Link to={`/freelancers/${freelancer.id}`}>
+                              <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200">
+                                Xem hồ sơ
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </FadeInWhenVisible>
+                ))}
+              </div>
+            )}
+
+            {!loadingFreelancers && suitableFreelancers.length > 0 && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={() => navigate('/freelancers')}
+                  variant="outline"
+                  size="lg"
+                  className="hover:bg-blue-50 border-blue-200 text-blue-700"
+                >
+                  Xem tất cả ứng viên
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
       {userInfo && userInfo.freelancerId && (
         <section className="py-20 bg-gradient-to-br from-primary-50 via-white to-gray-50">
           <div className="container mx-auto px-6">
