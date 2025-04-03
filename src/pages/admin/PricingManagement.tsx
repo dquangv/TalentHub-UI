@@ -75,17 +75,28 @@ export default function PricingManagement() {
     }
   };
 
-  const handleUpdate = async (e: any) => {
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editPackage) return;
-
+  
     setIsSubmitting(true);
     try {
+      const requestData = {
+        name: editPackage.name,
+        description: editPackage.description,
+        price: editPackage.price,
+        numberPost: editPackage.numberPost,
+        status: editPackage.status,
+        duration: editPackage.duration,
+      };
+  
       const response = await api.put(
-        `/v1/voucher-packages/${editPackage.id}`,
-        editPackage
+        `v1/voucher-packages/update-by-name?name=${editPackage.name}`, 
+        requestData
       );
-
+  
+      console.log("Update successful:", response.data);
+      
       fetchVoucherPackages();
       setIsEditing(false);
     } catch (error) {
