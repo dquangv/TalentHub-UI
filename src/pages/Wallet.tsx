@@ -70,23 +70,50 @@ const Wallet = () => {
       return;
     }
 
+    if (Number(depositAmount) < 10000) {
+      toast.error("Số tiền nạp tối thiểu là 10,000 VND");
+      return;
+    }
+
     setIsProcessing(true);
 
     // Simulate API call
     setTimeout(() => {
       setIsProcessing(false);
-      toast.success("Yêu cầu nạp tiền đã được gửi", {
-        description:
-          "Chúng tôi sẽ xử lý giao dịch của bạn trong thời gian sớm nhất.",
-      });
-      setDepositAmount("");
-      setDepositMethod("");
+      // toast.success("Yêu cầu nạp tiền đã được gửi", {
+      //   description:
+      //     "Chúng tôi sẽ xử lý giao dịch của bạn trong thời gian sớm nhất.",
+      // });
+      // setDepositAmount(0);
+      // setDepositMethod("");
+      getVnpay(Number(depositAmount));
     }, 2000);
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Đã sao chép vào clipboard");
+  };
+
+  // const handleGetVnpay = () => {
+  //   if (!depositAmount) {
+  //     toast.error("Vui lòng nhập số tiền");
+  //     return;
+  //   }
+  //   getVnpay(depositAmount);
+  // };
+  const getVnpay = async (amount: number) => {
+    try {
+      const response = await api.get("/v1/payments/vnpay", {
+        params: { amount: Math.round(amount) }, // ✅ Chuyển thành số nguyên
+      });
+      console.log(response);
+      window.location.href = response.data.url;
+      setDepositAmount("");
+      setDepositMethod("");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const getBalancerClient = async () => {
@@ -157,7 +184,7 @@ const Wallet = () => {
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Cập nhật:{" "}
-                                   {payments.latestDepositDate
+                  {payments.latestDepositDate
                     ? new Intl.DateTimeFormat("vi-VN", {
                         day: "2-digit",
                         month: "2-digit",
@@ -197,7 +224,6 @@ const Wallet = () => {
                         second: "2-digit",
                       }).format(new Date(payments.latestSpendingDate))
                     : "Không có dữ liệu"}
-              
                 </p>
               </Card>
             </div>
@@ -564,9 +590,9 @@ const Wallet = () => {
                               <div className="flex flex-col items-center gap-2 text-center">
                                 <CreditCard className="w-8 h-8 text-primary" />
                                 <div>
-                                  <p className="font-medium">Thẻ tín dụng</p>
+                                  <p className="font-medium">Vnpay</p>
                                   <p className="text-xs text-muted-foreground">
-                                    Visa/Mastercard
+                                    Thanh toán Vnppay
                                   </p>
                                 </div>
                               </div>
@@ -701,7 +727,10 @@ const Wallet = () => {
                         <Button
                           className="w-full"
                           disabled={
-                            !depositAmount || !depositMethod || isProcessing
+                            !depositAmount ||
+                            !depositMethod ||
+                            isProcessing ||
+                            depositMethod !== "card"
                           }
                           onClick={handleDeposit}
                         >
