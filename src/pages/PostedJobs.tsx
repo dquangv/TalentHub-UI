@@ -57,7 +57,6 @@ const PostedJobs = () => {
     OPEN: 0,
     POSTED: 0,
     CLOSED: 0,
-    Pending: 0,
     BANNED: 0,
     DRAFT: 0,
   });
@@ -68,13 +67,12 @@ const PostedJobs = () => {
       const response = await api.get(`/v1/jobs/PostedJobs/${clientId}`);
       setJobs(response.data);
 
+      // Calculate stats, excluding DRAFT status for total count
       const newStats = {
-        total: response.data.length,
+        total: response.data.filter(job => job.status !== "DRAFT").length,
         OPEN: response.data.filter((job) => job.status === "OPEN").length,
         POSTED: response.data.filter((job) => job.status === "POSTED").length,
         CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
-        Pending: response.data.filter((job) => job.status === "Pending")
-          .length,
         BANNED: response.data.filter((job) => job.status === "BANNED").length,
         DRAFT: response.data.filter((job) => job.status === "DRAFT").length,
       };
@@ -98,8 +96,6 @@ const PostedJobs = () => {
         return "Đã đăng";
       case "CLOSED":
         return "Đóng";
-      case "Pending":
-        return "Chờ xử lý";
       case "BANNED":
         return "Bị cấm";
       case "DRAFT":
@@ -117,10 +113,8 @@ const PostedJobs = () => {
         return "success";
       case "CLOSED":
         return "secondary";
-      case "Pending":
-        return "warning";
       case "BANNED":
-        return "destructive";
+        return "destructive"; // Changed to destructive for BANNED status
       case "DRAFT":
         return "outline";
       default:
@@ -215,9 +209,9 @@ const PostedJobs = () => {
       icon: <CheckCircle className="w-8 h-8 text-green-500" />,
     },
     {
-      label: "Chờ xử lý",
-      value: stats.Pending,
-      icon: <AlertCircle className="w-8 h-8 text-yellow-500" />,
+      label: "Bản nháp",
+      value: stats.DRAFT,
+      icon: <Edit2 className="w-8 h-8 text-blue-500" />,
     },
     {
       label: "Đã đóng/Bị cấm",
@@ -294,7 +288,6 @@ const PostedJobs = () => {
                   <SelectItem value="OPEN">Mở</SelectItem>
                   <SelectItem value="POSTED">Đã đăng</SelectItem>
                   <SelectItem value="CLOSED">Đóng</SelectItem>
-                  <SelectItem value="Pending">Chờ xử lý</SelectItem>
                   <SelectItem value="BANNED">Bị cấm</SelectItem>
                   <SelectItem value="DRAFT">Bản nháp</SelectItem>
                 </SelectContent>
