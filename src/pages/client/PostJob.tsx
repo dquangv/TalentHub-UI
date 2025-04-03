@@ -430,7 +430,7 @@ const PostJob = () => {
                                                 aria-expanded={scopeOpen}
                                                 className="w-full justify-between"
                                             >
-                                                {(jobData.scope == "SMALL" ? "Nhỏ" : jobData.scope == "MEDIUM" ? "Vừa" : "Lớn" ) || "Chọn phạm vi"}
+                                                {(jobData.scope == "SMALL" ? "Nhỏ" : jobData.scope == "MEDIUM" ? "Vừa" : "Lớn") || "Chọn phạm vi"}
                                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                             </Button>
                                         </PopoverTrigger>
