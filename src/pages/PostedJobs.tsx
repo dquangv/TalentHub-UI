@@ -122,6 +122,17 @@ const PostedJobs = () => {
     }
   };
 
+  // Custom styling for badges to ensure different colors
+  const getStatusBadgeStyle = (status) => {
+    if (status === "BANNED") {
+      return { backgroundColor: "#ef4444", color: "white" }; // Red color for banned
+    }
+    if (status === "DRAFT") {
+      return { backgroundColor: "#f3f4f6", color: "#6b7280", borderColor: "#d1d5db" }; // Light gray for draft
+    }
+    return {}; // Default styles for other statuses
+  };
+
   // Hàm sắp xếp
   const sortData = (data, key, direction) => {
     return [...data].sort((a, b) => {
@@ -389,7 +400,10 @@ const PostedJobs = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadgeVariant(job.status)}>
+                      <Badge
+                        variant={getStatusBadgeVariant(job.status)}
+                        style={getStatusBadgeStyle(job.status)}
+                      >
                         {getStatusText(job.status)}
                       </Badge>
                     </TableCell>
