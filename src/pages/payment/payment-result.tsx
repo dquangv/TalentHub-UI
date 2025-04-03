@@ -16,9 +16,12 @@ export default function PaymentResult() {
   const navigate = useNavigate();
   const [paymentData, setPaymentData] = useState({
     status: "loading",
-    orderId: "",
+    userId: "",
     amount: 0,
+    errorCode: "",
   });
+  const userId =
+    JSON.parse(localStorage.getItem("userInfo") || "{}").userId || "";
   const [searchParams] = useSearchParams();
 
   const getPaymentStatus = (vnp_ResponseCode: string) => {
@@ -37,40 +40,54 @@ export default function PaymentResult() {
   useEffect(() => {
     const fetchPaymentResult = async () => {
       try {
-        const vnp_ResponseCode = searchParams.get("vnp_ResponseCode") || "";
-        const vnp_Amount =
-          Number.parseFloat(searchParams.get("vnp_Amount") || "0") / 100;
-        const vnp_OrderInfo = searchParams.get("vnp_OrderInfo") || "";
+        // Get all VNPay parameters from URL
+        const params = Object.fromEntries(searchParams.entries());
+        const vnp_ResponseCode = params.vnp_ResponseCode || "";
+        const vnp_Amount = Number.parseFloat(params.vnp_Amount || "0") / 100;
+
+        console.log("vnp_ResponseCode:", vnp_ResponseCode);
+        console.log("vnp_ResponseCode:", typeof vnp_ResponseCode);
+        console.log("vnp_Amount:", vnp_Amount);
+        console.log("userId:", userId);
 
         const initialStatus = getPaymentStatus(vnp_ResponseCode);
         setPaymentData({
           status: initialStatus,
-          orderId: vnp_OrderInfo,
+          userId: userId,
           amount: vnp_Amount,
+          errorCode: vnp_ResponseCode,
         });
 
+        // Send all VNPay parameters to the server
         const response = await api.post("/v1/payments/vnpay-callback", {
           vnp_ResponseCode,
           vnpAmount: vnp_Amount,
-          vnp_OrderInfo,
+          userId,
         });
 
         if (response.data && response.data.status) {
           setPaymentData((prev) => ({
             ...prev,
             status: response.data.status,
-            orderId: response.data.orderId || prev.orderId,
+            userId: response.data.userId || prev.userId,
             amount: response.data.amount || prev.amount,
+            errorCode: vnp_ResponseCode,
           }));
         }
       } catch (error) {
-        console.error("Lỗi xử lý thanh toán:", error);
-        setPaymentData((prev) => ({ ...prev, status: "failed" }));
+        console.error("Payment processing error:", error);
+        setPaymentData((prev) => ({
+          ...prev,
+          status: "failed",
+          errorCode: searchParams.get("vnp_ResponseCode") || "Unknown",
+        }));
       }
     };
 
-    fetchPaymentResult();
-  }, [searchParams]);
+    if (searchParams.has("vnp_ResponseCode")) {
+      fetchPaymentResult();
+    }
+  }, [searchParams, userId]);
 
   const handleRetry = () => {
     setIsLoading(true);
@@ -84,7 +101,6 @@ export default function PaymentResult() {
     navigate("/");
   };
 
-  // Xác định nội dung hiển thị dựa trên trạng thái
   const getStatusContent = () => {
     switch (paymentData.status) {
       case "loading":
@@ -110,10 +126,8 @@ export default function PaymentResult() {
           content: (
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <span>Mã đơn hàng:</span>
-                <span className="font-medium">
-                  {paymentData.orderId || "N/A"}
-                </span>
+                <span>Mã lỗi:</span>
+                <span className="font-medium">{paymentData.errorCode}</span>
               </div>
               <div className="flex justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <span>Số tiền đã thanh toán:</span>
@@ -139,8 +153,10 @@ export default function PaymentResult() {
           content: (
             <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
               <p className="text-amber-800 dark:text-amber-300">
-                Thanh toán của bạn đang được xử lý. Quá trình này có thể mất vài
-                phút. Vui lòng không làm mới trang.
+                Mã lỗi: {paymentData.errorCode}
+              </p>
+              <p className="text-amber-800 dark:text-amber-300">
+                Số tiền: {paymentData.amount.toLocaleString()} VNĐ
               </p>
             </div>
           ),
@@ -154,8 +170,10 @@ export default function PaymentResult() {
           content: (
             <div className="p-4 bg-gray-50 dark:bg-gray-800/20 rounded-lg">
               <p className="text-gray-800 dark:text-gray-300">
-                Bạn đã hủy giao dịch này. Bạn có thể thử lại hoặc chọn phương
-                thức thanh toán khác.
+                Mã lỗi: {paymentData.errorCode}
+              </p>
+              <p className="text-gray-800 dark:text-gray-300">
+                Số tiền: {paymentData.amount.toLocaleString()} VNĐ
               </p>
             </div>
           ),
@@ -171,13 +189,15 @@ export default function PaymentResult() {
           content: (
             <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
               <h3 className="font-medium text-red-800 dark:text-red-300 mb-2">
-                Nguyên nhân có thể:
+                Chi tiết lỗi:
               </h3>
               <ul className="list-disc pl-5 space-y-1 text-sm">
-                <li>Số dư không đủ</li>
-                <li>Thông tin thẻ không hợp lệ</li>
-                <li>Ngân hàng từ chối giao dịch</li>
-                <li>Sự cố kết nối mạng</li>
+                <li>Mã lỗi: {paymentData.errorCode}</li>
+                <li>Số tiền: {paymentData.amount.toLocaleString()} VNĐ</li>
+                <li>
+                  Có thể do: Số dư không đủ, thông tin thẻ không hợp lệ, hoặc
+                  lỗi mạng
+                </li>
               </ul>
             </div>
           ),
