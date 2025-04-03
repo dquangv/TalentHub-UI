@@ -325,9 +325,12 @@ const Pricing = () => {
 
   // Function to determine if a plan should show the "popular" badge
   const isPopularPlan = (plan) => {
-    return plan.status && plan.typePackage !== "NORMAL" && !plan.myPackage;
+    return plan.status && plan.typePackage == "GOLD";
   };
 
+  const isSpecialPlan = (plan) => {
+    return plan.status && plan.typePackage == "DIAMOND";
+  };
   return (
     <>
       <div className="py-20 bg-gradient-to-b from-primary/5 via-background to-background">
@@ -364,6 +367,11 @@ const Pricing = () => {
                   {isPopularPlan(plan) && (
                     <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
                       Phổ biến
+                    </Badge>
+                  )}
+                  {isSpecialPlan(plan) && (
+                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
+                      Đặc biệt
                     </Badge>
                   )}
                   <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col h-full relative overflow-hidden">
