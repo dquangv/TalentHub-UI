@@ -339,9 +339,10 @@ const Pricing = () => {
     return plan.status && plan.typePackage == "GOLD";
   };
 
-  const isSpecialPlan = (plan) => {
-    return plan.status && plan.typePackage == "DIAMOND";
-  };
+  const nonDiamondPlans = plans.filter(
+    (plan) => plan.typePackage !== "DIAMOND"
+  );
+  const diamondPlan = plans.find((plan) => plan.typePackage === "DIAMOND");
   return (
     <>
       <div className="py-20 bg-gradient-to-b from-primary/5 via-background to-background">
@@ -369,108 +370,173 @@ const Pricing = () => {
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
-              <FadeInWhenVisible key={index} delay={0.2 + index * 0.1}>
-                <div className="relative h-full pt-5">
-                  {isPopularPlan(plan) && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
-                      Phổ biến
-                    </Badge>
-                  )}
-                  {isSpecialPlan(plan) && (
-                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
-                      Đặc biệt
-                    </Badge>
-                  )}
-                  <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col h-full relative overflow-hidden">
-                    <div className="flex flex-col flex-grow">
-                      <div className="text-center mb-6">
-                        <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                          {getPackageIcon(plan.typePackage)}
-                        </div>
-                        <h3 className="text-xl md:text-2xl font-bold mb-2">
-                          {plan.name}
-                        </h3>
-                        <div className="text-2xl md:text-3xl font-bold mb-2">
-                          {plan.typePackage === "NORMAL" ? (
-                            <span className="text-base font-normal text-muted-foreground">
-                              Miễn phí
-                            </span>
-                          ) : (
-                            <>
-                              {plan.price.toLocaleString()}đ
-                              <span className="text-base font-normal text-muted-foreground ml-1">
-                                / 30 ngày
+          <div className="flex flex-col items-center gap-6 md:gap-8 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full">
+              {nonDiamondPlans.map((plan, index) => (
+                <FadeInWhenVisible key={index} delay={0.2 + index * 0.1}>
+                  <div className="relative h-full pt-5">
+                    {isPopularPlan(plan) && (
+                      <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
+                        Phổ biến
+                      </Badge>
+                    )}
+                    <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col h-full relative overflow-hidden">
+                      <div className="flex flex-col flex-grow">
+                        <div className="text-center mb-6">
+                          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            {getPackageIcon(plan.typePackage)}
+                          </div>
+                          <h3 className="text-xl md:text-2xl font-bold mb-2">
+                            {plan.name}
+                          </h3>
+                          <div className="text-2xl md:text-3xl font-bold mb-2">
+                            {plan.typePackage === "NORMAL" ? (
+                              <span className="text-base font-normal text-muted-foreground">
+                                Miễn phí
                               </span>
-                            </>
+                            ) : (
+                              <>
+                                {plan.price.toLocaleString()}đ
+                                <span className="text-base font-normal text-muted-foreground ml-1">
+                                  / 30 ngày
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="space-y-4 mb-8 flex-grow">
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span>
+                              Có thể đăng{" "}
+                              <span className="font-medium">
+                                {plan.numberPost}
+                              </span>{" "}
+                              bài/tháng
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span>
+                              Thời hạn tồn tại của mỗi bài:{" "}
+                              <span className="font-medium">
+                                {plan.duration}
+                              </span>{" "}
+                              ngày
+                            </span>
+                          </div>
+                          {plan.typePackage === "GOLD" && (
+                            <div className="flex items-start gap-3">
+                              <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                              <span>
+                                Có thể sử dụng chat và video call với ứng viên
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-auto">
+                          {(plan.typePackage !== "NORMAL" ||
+                            plan.myPackage) && (
+                            <Button
+                              className="w-full"
+                              variant={
+                                plan.status && !plan.myPackage
+                                  ? "default"
+                                  : "outline"
+                              }
+                              disabled={plan.myPackage}
+                              onClick={() => handleSubscribe(plan)}
+                            >
+                              {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                            </Button>
                           )}
                         </div>
                       </div>
-                      <div className="space-y-4 mb-8 flex-grow">
-                        <div className="flex items-start gap-3">
-                          <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          <span>
-                            Có thể đăng{" "}
-                            <span className="font-medium">
-                              {plan.numberPost}
-                            </span>{" "}
-                            bài/tháng
-                          </span>
+                    </Card>
+                  </div>
+                </FadeInWhenVisible>
+              ))}
+            </div>
+
+            {diamondPlan && (
+              <div className="w-full sm:w-[400px] mx-auto">
+                <FadeInWhenVisible delay={0.5}>
+                  <div className="relative h-full pt-5">
+                    <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white z-10 shadow-sm">
+                      Đặc biệt
+                    </Badge>
+                    <Card className="p-6 md:p-8 hover:shadow-lg transition-shadow flex flex-col h-full relative overflow-hidden">
+                      <div className="flex flex-col flex-grow">
+                        <div className="text-center mb-6">
+                          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            {getPackageIcon(diamondPlan.typePackage)}
+                          </div>
+                          <h3 className="text-xl md:text-2xl font-bold mb-2">
+                            {diamondPlan.name}
+                          </h3>
+                          <div className="text-2xl md:text-3xl font-bold mb-2">
+                            {diamondPlan.price.toLocaleString()}đ
+                            <span className="text-base font-normal text-muted-foreground ml-1">
+                              / 30 ngày
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          <span>
-                            Thời hạn tồn tại của mỗi bài:{" "}
-                            <span className="font-medium">{plan.duration}</span>{" "}
-                            ngày
-                          </span>
-                        </div>
-                        {(plan.typePackage === "GOLD" ||
-                          plan.typePackage === "DIAMOND") && (
+                        <div className="space-y-4 mb-8 flex-grow">
                           <div className="flex items-start gap-3">
                             <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                             <span>
-                              Có thể sử dụng{" "}
+                              Có thể đăng{" "}
                               <span className="font-medium">
-                                chat và video call
+                                {diamondPlan.numberPost}
                               </span>{" "}
-                              với ứng viên
+                              bài/tháng
                             </span>
                           </div>
-                        )}
-                        {plan.typePackage === "DIAMOND" && (
                           <div className="flex items-start gap-3">
                             <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                             <span>
+                              Thời hạn tồn tại của mỗi bài:{" "}
                               <span className="font-medium">
-                                Nhận thông báo gợi ý những ứng viên phù hợp
-                              </span>
+                                {diamondPlan.duration}
+                              </span>{" "}
+                              ngày
                             </span>
                           </div>
-                        )}
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span>
+                              Có thể sử dụng chat và video call với ứng viên
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span>
+                              Nhận thông báo gợi ý những ứng viên phù hợp
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mt-auto">
+                          <Button
+                            className="w-full"
+                            variant={
+                              diamondPlan.status && !diamondPlan.myPackage
+                                ? "default"
+                                : "outline"
+                            }
+                            disabled={diamondPlan.myPackage}
+                            onClick={() => handleSubscribe(diamondPlan)}
+                          >
+                            {diamondPlan.myPackage
+                              ? "Đang sử dụng"
+                              : "Đăng ký ngay"}
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="mt-auto">
-                      {(plan.typePackage !== "NORMAL" || plan.myPackage) && (
-                        <Button
-                          className="w-full"
-                          variant={
-                            plan.status && !plan.myPackage
-                              ? "default"
-                              : "outline"
-                          }
-                          disabled={plan.myPackage}
-                          onClick={() => handleSubscribe(plan)}
-                        >
-                          {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                        </Button>
-                      )}
-                    </div>
-                  </Card>
-                </div>
-              </FadeInWhenVisible>
-            ))}
+                    </Card>
+                  </div>
+                </FadeInWhenVisible>
+              </div>
+            )}
           </div>
 
           {/* Priority Features */}
