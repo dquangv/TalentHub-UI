@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -401,43 +402,118 @@ const PostedJobs = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-amber-600"
+                                disabled={!["OPEN", "POSTED", "BANNED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "BANNED"].includes(job.status) ? `/reports-job/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <AlertCircle className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Danh sách tố cáo</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <Link to={`/reports-job/${job.id}`}>
-                            <User className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <Link to={`/client/applicants/${job.id}`}>
-                            <User className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Link to={`/jobs/${job.id}`}>
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Link to={`/client/post-job?id=${job.id}`}>
-                            <Edit2 className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600"
-                          onClick={() => handleDelete(job.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {/* Applicants button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600"
+                                disabled={!["OPEN", "POSTED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED"].includes(job.status) ? `/client/applicants/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Users className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Danh sách ứng viên</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* View details button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? `/jobs/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Xem chi tiết</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Edit button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? `/client/post-job?id=${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "DRAFT"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Chỉnh sửa</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Delete button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600"
+                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
+                                onClick={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? () => handleDelete(job.id) : undefined}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Xóa</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
