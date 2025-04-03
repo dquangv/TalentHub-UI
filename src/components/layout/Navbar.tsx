@@ -227,6 +227,11 @@ const Navbar = () => {
               <span className="text-primary-700">{t("settings")}</span>
             </DropdownMenuItem>
           </Link>
+          <Link to={'wallet'} replace={true}>
+            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
+              <span className="text-primary-700">Ví của tôi</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem
             onClick={handleLogout}
             className="hover:bg-destructive-50 focus:bg-destructive-50"
