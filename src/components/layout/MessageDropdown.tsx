@@ -38,19 +38,24 @@ const MessageDropdown = () => {
             <DropdownMenuContent align="end" className="w-80">
                 <div className="flex justify-between items-center px-4 py-2 border-b">
                     <h2 className="font-semibold">Tin nhắn</h2>
-                    <Link to="/messaging" className="text-xs text-primary hover:underline">
+                    <a href="/messaging" target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
                         Xem tất cả
-                    </Link>
+                    </a>
                 </div>
 
                 <div className="max-h-[300px] overflow-y-auto">
                     {conversations.length > 0 ? (
                         conversations.slice(0, 5).map((conv) => (
                             <DropdownMenuItem key={conv.id} className="px-4 py-2 focus:bg-primary/10 cursor-pointer">
-                                <Link
-                                    to="/messaging"
+                                <a
+                                    href={`/messaging`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="flex items-start gap-2 w-full"
-                                    onClick={() => setActiveConversationId(conv.id)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        window.open(`/messaging`, '_blank');
+                                    }}
                                 >
                                     <div className="relative flex-shrink-0">
                                         <Avatar className="h-9 w-9">
@@ -77,7 +82,7 @@ const MessageDropdown = () => {
                                             {conv.unread}
                                         </Badge>
                                     )}
-                                </Link>
+                                </a>
                             </DropdownMenuItem>
                         ))
                     ) : (

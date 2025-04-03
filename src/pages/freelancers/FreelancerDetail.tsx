@@ -120,7 +120,7 @@ const FreelancerDetail = () => {
                       <Button
                         size="lg"
                         className="shadow-md hover:shadow-lg transition-shadow"
-                        onClick={() => window.open(`/messaging?contactId=${freelancer?.userId}`, '_blank')}
+                        onClick={() => window.open(`/messaging`, '_blank')}
                       >
                         <MessageCircle className="w-5 h-5 mr-2" />
                         Liên hệ ngay
@@ -298,7 +298,7 @@ const FreelancerDetail = () => {
                             </div>
                           )}
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div className="flex items-center text-gray-600">
                             <Clock1 className="w-4 h-4 mr-2 text-gray-400" />
@@ -319,7 +319,7 @@ const FreelancerDetail = () => {
                             <span>Khách hàng: {job.clientName}</span>
                           </div>
                         </div>
-                        
+
                         {job.note && (
                           <div className="mt-4">
                             <p className="text-gray-600 italic">{job.note}</p>
@@ -327,7 +327,7 @@ const FreelancerDetail = () => {
                         )}
                       </div>
                     ))}
-                    
+
                     {jobs.length === 0 && (
                       <div className="text-center py-8 text-gray-500">
                         Chưa có đánh giá nào
