@@ -255,10 +255,19 @@ const PostJob = () => {
             } else {
                 console.log('submitDta ', submitData)
                 await api.post('/v1/jobs/createJob', submitData);
-                notification.success({
-                    message: 'Thành công',
-                    description: 'Thêm công việc thành công'
-                });
+                if (data.statusJob == StatusJob.DRAFT) {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Lưu nháp thành công'
+                    });
+
+                } else {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Thêm công việc thành công'
+                    });
+                }
+
 
                 setJobData({
                     title: '',
