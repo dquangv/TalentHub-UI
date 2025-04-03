@@ -353,115 +353,113 @@ const PostJob = () => {
                                     </Popover>
                                 </div>
                             )}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-        <label className="block text-sm font-medium mb-2">
-            Danh mục *
-        </label>
-        <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={categoryOpen}
-                    className="w-full justify-between"
-                >
-                    {jobData.categoryId
-                        ? categories.find((category) => category.id === jobData.categoryId)?.categoryTitle
-                        : "Chọn danh mục"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                <Command className="w-full">
-                    <CommandInput
-                        placeholder="Tìm danh mục..."
-                        value={newCategory}
-                        onValueChange={setNewCategory}
-                        className="w-full"
-                    />
-                    <CommandList className="w-full">
-                        <CommandEmpty>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={handleCreateCategory}
-                            >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Thêm "{newCategory}"
-                            </Button>
-                        </CommandEmpty>
-                        <CommandGroup className="w-full">
-                            {categories.map((category) => (
-                                <CommandItem
-                                    key={category.id}
-                                    value={category.categoryTitle}
-                                    className="w-full"
-                                    onSelect={() => {
-                                        setJobData({ ...jobData, categoryId: category.id });
-                                        setCategoryOpen(false);
-                                    }}
-                                >
-                                    <Check
-                                        className={`mr-2 h-4 w-4 ${
-                                            jobData.categoryId === category.id
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                        }`}
-                                    />
-                                    {category.categoryTitle}
-                                </CommandItem>
-                            ))}
-                        </CommandGroup>
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover>
-    </div>
-    <div>
-        <label className="block text-sm font-medium mb-2">
-            Phạm vi công việc *
-        </label>
-        <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={scopeOpen}
-                    className="w-full justify-between"
-                >
-                    {jobData.scope || "Chọn phạm vi"}
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-                <Command className="w-full">
-                    <CommandList className="w-full">
-                        {Object.values(ScopeJob).map((scope) => (
-                            <CommandItem
-                                key={scope}
-                                value={scope}
-                                className="w-full"
-                                onSelect={() => {
-                                    setJobData({ ...jobData, scope });
-                                    setScopeOpen(false);
-                                }}
-                            >
-                                <Check
-                                    className={`mr-2 h-4 w-4 ${
-                                        jobData.scope === scope ? "opacity-100" : "opacity-0"
-                                    }`}
-                                />
-                                {scope === ScopeJob.SMALL ? "Nhỏ" : scope === ScopeJob.MEDIUM ? "Vừa" : "Lớn"}
-                            </CommandItem>
-                        ))}
-                    </CommandList>
-                </Command>
-            </PopoverContent>
-        </Popover>
-    </div>
-</div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Danh mục *
+                                    </label>
+                                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={categoryOpen}
+                                                className="w-full justify-between"
+                                            >
+                                                {jobData.categoryId
+                                                    ? categories.find((category) => category.id === jobData.categoryId)?.categoryTitle
+                                                    : "Chọn danh mục"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandInput
+                                                    placeholder="Tìm danh mục..."
+                                                    value={newCategory}
+                                                    onValueChange={setNewCategory}
+                                                    className="w-full"
+                                                />
+                                                <CommandList className="w-full">
+                                                    <CommandEmpty>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            className="w-full justify-start"
+                                                            onClick={handleCreateCategory}
+                                                        >
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            Thêm "{newCategory}"
+                                                        </Button>
+                                                    </CommandEmpty>
+                                                    <CommandGroup className="w-full">
+                                                        {categories.map((category) => (
+                                                            <CommandItem
+                                                                key={category.id}
+                                                                value={category.categoryTitle}
+                                                                className="w-full"
+                                                                onSelect={() => {
+                                                                    setJobData({ ...jobData, categoryId: category.id });
+                                                                    setCategoryOpen(false);
+                                                                }}
+                                                            >
+                                                                <Check
+                                                                    className={`mr-2 h-4 w-4 ${jobData.categoryId === category.id
+                                                                        ? "opacity-100"
+                                                                        : "opacity-0"
+                                                                        }`}
+                                                                />
+                                                                {category.categoryTitle}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Phạm vi công việc *
+                                    </label>
+                                    <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={scopeOpen}
+                                                className="w-full justify-between"
+                                            >
+                                                {(jobData.scope == "SMALL" ? "Nhỏ" : jobData.scope == "MEDIUM" ? "Vừa" : "Lớn" ) || "Chọn phạm vi"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandList className="w-full">
+                                                    {Object.values(ScopeJob).map((scope) => (
+                                                        <CommandItem
+                                                            key={scope}
+                                                            value={scope}
+                                                            className="w-full"
+                                                            onSelect={() => {
+                                                                setJobData({ ...jobData, scope });
+                                                                setScopeOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={`mr-2 h-4 w-4 ${jobData.scope === scope ? "opacity-100" : "opacity-0"
+                                                                    }`}
+                                                            />
+                                                            {scope === ScopeJob.SMALL ? "Nhỏ" : scope === ScopeJob.MEDIUM ? "Vừa" : "Lớn"}
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium mb-2">
                                     Mô tả
@@ -494,50 +492,48 @@ const PostJob = () => {
                                 </div>
 
                                 <div>
-    <label className="block text-sm font-medium mb-2">
-        Hình thức thanh toán *
-    </label>
-    <Popover>
-        <PopoverTrigger asChild>
-            <Button
-                variant="outline"
-                role="combobox"
-                className="w-full justify-between"
-            >
-                {jobData.typePayment === TypePayment.HOURLY ? 'HOURLY' : 'FULL'}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-            <Command className="w-full">
-                <CommandList className="w-full">
-                    <CommandItem
-                        className="w-full"
-                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.HOURLY })}
-                    >
-                        <Check
-                            className={`mr-2 h-4 w-4 ${
-                                jobData.typePayment === TypePayment.HOURLY ? "opacity-100" : "opacity-0"
-                            }`}
-                        />
-                        HOURLY
-                    </CommandItem>
-                    <CommandItem
-                        className="w-full"
-                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.FULL })}
-                    >
-                        <Check
-                            className={`mr-2 h-4 w-4 ${
-                                jobData.typePayment === TypePayment.FULL ? "opacity-100" : "opacity-0"
-                            }`}
-                        />
-                        FULL
-                    </CommandItem>
-                </CommandList>
-            </Command>
-        </PopoverContent>
-    </Popover>
-</div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Hình thức thanh toán *
+                                    </label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className="w-full justify-between"
+                                            >
+                                                {jobData.typePayment === TypePayment.HOURLY ? 'Theo giờ' : 'Theo dự án'}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandList className="w-full">
+                                                    <CommandItem
+                                                        className="w-full"
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.HOURLY })}
+                                                    >
+                                                        <Check
+                                                            className={`mr-2 h-4 w-4 ${jobData.typePayment === TypePayment.HOURLY ? "opacity-100" : "opacity-0"
+                                                                }`}
+                                                        />
+                                                        Theo giờ
+                                                    </CommandItem>
+                                                    <CommandItem
+                                                        className="w-full"
+                                                        onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.FULL })}
+                                                    >
+                                                        <Check
+                                                            className={`mr-2 h-4 w-4 ${jobData.typePayment === TypePayment.FULL ? "opacity-100" : "opacity-0"
+                                                                }`}
+                                                        />
+                                                        Theo dự án
+                                                    </CommandItem>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -590,7 +586,7 @@ const PostJob = () => {
                                     htmlFor="jobOpportunity"
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
-                                    Cơ hội việc làm dài hạn
+                                    Cơ hội hợp tác dài hạn
                                 </label>
                             </div>
                         </div>
