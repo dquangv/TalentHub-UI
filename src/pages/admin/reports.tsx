@@ -194,11 +194,11 @@ export function ReportsPage() {
                     </div>
                     <div>
                       <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-muted-foreground hover:text-primary"
+                        variant="default"
+                        className="font-medium text-white bg-primary hover:bg-primary/90"
                         onClick={() => openJobDetailPopup(selectedReport.jobId)}
                       >
-                        Xem chi tiết
+                        Tiến hành xử lý
                       </Button>
                     </div>
                   </div>
