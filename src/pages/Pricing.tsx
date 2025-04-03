@@ -1,4 +1,15 @@
-import { Check, Star, Rocket, Sparkles, Zap, History, Package, Loader2, Info, X } from "lucide-react";
+import {
+  Check,
+  Star,
+  Rocket,
+  Sparkles,
+  Zap,
+  History,
+  Package,
+  Loader2,
+  Info,
+  X,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,12 +34,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -161,13 +167,15 @@ const Pricing = () => {
   const [selectedPlan, setSelectedPlan] = useState<VoucherPackage | null>(null);
   const [showPackageDetails, setShowPackageDetails] = useState(false);
   const [packageHistory, setPackageHistory] = useState<PackageHistory[]>([]);
-  const [currentPackage, setCurrentPackage] = useState<CurrentPackage | null>(null);
+  const [currentPackage, setCurrentPackage] = useState<CurrentPackage | null>(
+    null
+  );
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
-   
+
     if (!userInfoStr) {
       fetchVoucherPackageList();
       return;
@@ -175,8 +183,7 @@ const Pricing = () => {
 
     const userInfo = JSON.parse(userInfoStr);
     if (userInfo?.userId) {
-      setIsLogin(true)
-
+      setIsLogin(true);
     }
     const clientId = userInfo?.clientId;
     fetchVoucherPackageListByClientId(clientId);
@@ -191,7 +198,9 @@ const Pricing = () => {
       const userInfo = JSON.parse(userInfoStr);
       const clientId = userInfo?.clientId;
 
-      const response = await api.get(`/v1/clients/soldpackages/history/${clientId}`);
+      const response = await api.get(
+        `/v1/clients/soldpackages/history/${clientId}`
+      );
       if (response.status === 200) {
         setPackageHistory(response.data);
       }
@@ -211,7 +220,9 @@ const Pricing = () => {
       const userInfo = JSON.parse(userInfoStr);
       const clientId = userInfo?.clientId;
 
-      const response = await api.get(`/v1/clients/soldpackages/current/${clientId}`);
+      const response = await api.get(
+        `/v1/clients/soldpackages/current/${clientId}`
+      );
       if (response.status === 200) {
         setCurrentPackage(response.data);
       }
@@ -251,10 +262,10 @@ const Pricing = () => {
       setIsLoading(false);
     }
   };
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleSubscribe = async (plan: VoucherPackage) => {
     if (!isLogin) {
-      navigate("/login")
+      navigate("/login");
       return;
     }
     setSelectedPlan(plan);
@@ -342,20 +353,18 @@ const Pricing = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Tăng khả năng tiếp cận và nổi bật hơn với gói ưu tiên
               </p>
-              {
-                isLogin &&
+              {isLogin && (
                 <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  onClick={handleShowPackageDetails}
-                >
-                  <Package className="w-4 h-4" />
-                  <span>Xem thông tin gói đang sử dụng</span>
-                </Button>
-              </div>
-              }
-            
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2"
+                    onClick={handleShowPackageDetails}
+                  >
+                    <Package className="w-4 h-4" />
+                    <span>Xem thông tin gói đang sử dụng</span>
+                  </Button>
+                </div>
+              )}
             </FadeInWhenVisible>
           </div>
 
@@ -380,7 +389,9 @@ const Pricing = () => {
                         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                           {getPackageIcon(plan.typePackage)}
                         </div>
-                        <h3 className="text-xl md:text-2xl font-bold mb-2">{plan.name}</h3>
+                        <h3 className="text-xl md:text-2xl font-bold mb-2">
+                          {plan.name}
+                        </h3>
                         <div className="text-2xl md:text-3xl font-bold mb-2">
                           {plan.typePackage === "NORMAL" ? (
                             <span className="text-base font-normal text-muted-foreground">
@@ -399,28 +410,42 @@ const Pricing = () => {
                       <div className="space-y-4 mb-8 flex-grow">
                         <div className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          <span>Có thể đăng <span className="font-medium">{plan.numberPost}</span> bài/tháng</span>
+                          <span>
+                            Có thể đăng{" "}
+                            <span className="font-medium">
+                              {plan.numberPost}
+                            </span>{" "}
+                            bài/tháng
+                          </span>
                         </div>
                         <div className="flex items-start gap-3">
                           <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                           <span>
-                            Thời hạn tồn tại của mỗi bài: <span className="font-medium">{plan.duration}</span> ngày
+                            Thời hạn tồn tại của mỗi bài:{" "}
+                            <span className="font-medium">{plan.duration}</span>{" "}
+                            ngày
                           </span>
                         </div>
                         {(plan.typePackage === "GOLD" ||
                           plan.typePackage === "DIAMOND") && (
-                            <div className="flex items-start gap-3">
-                              <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                              <span>
-                                Có thể sử dụng chat và video call với ứng viên
-                              </span>
-                            </div>
-                          )}
+                          <div className="flex items-start gap-3">
+                            <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                            <span>
+                              Có thể sử dụng{" "}
+                              <span className="font-medium">
+                                chat và video call
+                              </span>{" "}
+                              với ứng viên
+                            </span>
+                          </div>
+                        )}
                         {plan.typePackage === "DIAMOND" && (
                           <div className="flex items-start gap-3">
                             <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                             <span>
-                              Nhận thông báo gợi ý những ứng viên phù hợp
+                              <span className="font-medium">
+                                Nhận thông báo gợi ý những ứng viên phù hợp
+                              </span>
                             </span>
                           </div>
                         )}
@@ -430,7 +455,11 @@ const Pricing = () => {
                       {(plan.typePackage !== "NORMAL" || plan.myPackage) && (
                         <Button
                           className="w-full"
-                          variant={plan.status && !plan.myPackage ? "default" : "outline"}
+                          variant={
+                            plan.status && !plan.myPackage
+                              ? "default"
+                              : "outline"
+                          }
                           disabled={plan.myPackage}
                           onClick={() => handleSubscribe(plan)}
                         >
@@ -448,7 +477,7 @@ const Pricing = () => {
           <div className="mt-20">
             <FadeInWhenVisible>
               <h2 className="text-3xl font-bold text-center mb-12">
-                Đặc quyền của gói Ưu tiên
+                Đặc quyền của Gói Ưu Tiên
               </h2>
             </FadeInWhenVisible>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -479,8 +508,12 @@ const Pricing = () => {
               {faqs.map((faq, index) => (
                 <FadeInWhenVisible key={index} delay={index * 0.1}>
                   <Card className="p-6 hover:shadow-md transition-all h-full flex flex-col">
-                    <h3 className="font-semibold mb-3 text-lg">{faq.question}</h3>
-                    <p className="text-muted-foreground flex-grow">{faq.answer}</p>
+                    <h3 className="font-semibold mb-3 text-lg">
+                      {faq.question}
+                    </h3>
+                    <p className="text-muted-foreground flex-grow">
+                      {faq.answer}
+                    </p>
                   </Card>
                 </FadeInWhenVisible>
               ))}
@@ -530,11 +563,17 @@ const Pricing = () => {
           ) : (
             <Tabs defaultValue="current">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="current" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="current"
+                  className="flex items-center gap-2"
+                >
                   <Info className="w-4 h-4" />
                   Gói hiện tại
                 </TabsTrigger>
-                <TabsTrigger value="history" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="history"
+                  className="flex items-center gap-2"
+                >
                   <History className="w-4 h-4" />
                   Lịch sử sử dụng
                 </TabsTrigger>
@@ -545,42 +584,89 @@ const Pricing = () => {
                   <Card className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <h3 className="text-lg font-semibold mb-4">{currentPackage.packageTypeName}</h3>
+                        <h3 className="text-lg font-semibold mb-4">
+                          {currentPackage.packageTypeName}
+                        </h3>
                         <div className="space-y-3">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Thời gian sử dụng:</span>
+                            <span className="text-muted-foreground">
+                              Thời gian sử dụng:
+                            </span>
                             <span className="font-medium">
-                              {new Date(currentPackage.startDate).toLocaleDateString('vi-VN')} - {new Date(currentPackage.endDate).toLocaleDateString('vi-VN')}
+                              {new Date(
+                                currentPackage.startDate
+                              ).toLocaleDateString("vi-VN")}{" "}
+                              -{" "}
+                              {new Date(
+                                currentPackage.endDate
+                              ).toLocaleDateString("vi-VN")}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Thời gian còn lại:</span>
-                            <span className="font-medium">{currentPackage.remainingTimeFormatted}</span>
+                            <span className="text-muted-foreground">
+                              Thời gian còn lại:
+                            </span>
+                            <span className="font-medium">
+                              {currentPackage.remainingTimeFormatted}
+                            </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Giá gói:</span>
-                            <span className="font-medium">{currentPackage.price.toLocaleString()}đ</span>
+                            <span className="text-muted-foreground">
+                              Giá gói:
+                            </span>
+                            <span className="font-medium">
+                              {currentPackage.price.toLocaleString()}đ
+                            </span>
                           </div>
                         </div>
                       </div>
 
                       <div>
-                        <h3 className="text-lg font-semibold mb-4">Tình trạng sử dụng</h3>
+                        <h3 className="text-lg font-semibold mb-4">
+                          Tình trạng sử dụng
+                        </h3>
                         <div className="space-y-4">
                           <div>
                             <div className="flex justify-between mb-2">
-                              <span className="text-muted-foreground">Bài đăng đã sử dụng:</span>
-                              <span className="font-medium">{currentPackage.numberPosted}/{currentPackage.numberPost}</span>
+                              <span className="text-muted-foreground">
+                                Bài đăng đã sử dụng:
+                              </span>
+                              <span className="font-medium">
+                                {currentPackage.numberPosted}/
+                                {currentPackage.numberPost}
+                              </span>
                             </div>
-                            <Progress value={(currentPackage.numberPosted / currentPackage.numberPost) * 100} className="h-2" />
+                            <Progress
+                              value={
+                                (currentPackage.numberPosted /
+                                  currentPackage.numberPost) *
+                                100
+                              }
+                              className="h-2"
+                            />
                           </div>
                           <div>
                             <div className="flex justify-between mb-2">
-                              <span className="text-muted-foreground">Thời gian còn lại:</span>
-                              <span className="font-medium">{Math.round(currentPackage.remainingTimeInHours)} giờ</span>
+                              <span className="text-muted-foreground">
+                                Thời gian còn lại:
+                              </span>
+                              <span className="font-medium">
+                                {Math.round(
+                                  currentPackage.remainingTimeInHours
+                                )}{" "}
+                                giờ
+                              </span>
                             </div>
                             <Progress
-                              value={(currentPackage.remainingTimeInHours / ((new Date(currentPackage.endDate).getTime() - new Date(currentPackage.startDate).getTime()) / 3600000)) * 100}
+                              value={
+                                (currentPackage.remainingTimeInHours /
+                                  ((new Date(currentPackage.endDate).getTime() -
+                                    new Date(
+                                      currentPackage.startDate
+                                    ).getTime()) /
+                                    3600000)) *
+                                100
+                              }
                               className="h-2"
                             />
                           </div>
@@ -590,7 +676,9 @@ const Pricing = () => {
                   </Card>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-muted-foreground">Bạn chưa sử dụng gói nào</p>
+                    <p className="text-muted-foreground">
+                      Bạn chưa sử dụng gói nào
+                    </p>
                   </div>
                 )}
               </TabsContent>
@@ -611,12 +699,18 @@ const Pricing = () => {
                       <TableBody>
                         {packageHistory.map((pkg) => (
                           <TableRow key={pkg.id}>
-                            <TableCell className="font-medium">{pkg.packageTypeName}</TableCell>
+                            <TableCell className="font-medium">
+                              {pkg.packageTypeName}
+                            </TableCell>
                             <TableCell>{pkg.usagePeriod}</TableCell>
                             <TableCell>{pkg.price.toLocaleString()}đ</TableCell>
-                            <TableCell>{pkg.postsUsed}/{pkg.numberPost}</TableCell>
                             <TableCell>
-                              <Badge variant={pkg.active ? "default" : "secondary"}>
+                              {pkg.postsUsed}/{pkg.numberPost}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={pkg.active ? "default" : "secondary"}
+                              >
                                 {pkg.status}
                               </Badge>
                             </TableCell>
@@ -627,7 +721,9 @@ const Pricing = () => {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-muted-foreground">Không có lịch sử gói</p>
+                    <p className="text-muted-foreground">
+                      Không có lịch sử gói
+                    </p>
                   </div>
                 )}
               </TabsContent>

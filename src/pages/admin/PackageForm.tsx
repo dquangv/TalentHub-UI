@@ -42,6 +42,17 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
           min="0"
         />
       </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Số lương bài post</label>
+        <input
+          type="number"
+          className="w-full p-2 border rounded-md"
+          value={data.numberPost || 0}
+          onChange={(e) => onChange({ ...data, numberPost: parseInt(e.target.value, 10) })}
+          required
+          min="0"
+        />
+      </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Thời hạn đăng bài (ngày)</label>
