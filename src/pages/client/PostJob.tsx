@@ -538,7 +538,9 @@ console.log('dataaaaaaaaaa ', data)
                                         Ngân sách từ *
                                     </label>
                                     <div className="flex items-center">
-                                        <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
+                                        {/* <DollarSign className="w-5 h-5 text-muted-foreground mr-2" /> */}
+                                        VND 
+                                        #
                                         <Input
                                             type="number"
                                             min="0"
@@ -555,7 +557,9 @@ console.log('dataaaaaaaaaa ', data)
                                         Đến *
                                     </label>
                                     <div className="flex items-center">
-                                        <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
+                                        {/* <DollarSign className="w-5 h-5 text-muted-foreground mr-2" /> */}
+                                        VND 
+                                        #
                                         <Input
                                             type="number"
                                             min="0"
