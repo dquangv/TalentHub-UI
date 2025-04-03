@@ -76,11 +76,11 @@ const PostJob = () => {
     useEffect(() => {
         const initializeData = async () => {
             fetchCategories()
-             fetchSkills()
+            fetchSkills()
             if (isEditMode) {
                 await fetchJobDetails();
             }
-         
+
         };
 
         initializeData();
@@ -131,12 +131,12 @@ const PostJob = () => {
 
     const handleCreateCategory = async () => {
         if (!newCategory.trim()) return;
-        
+
         try {
             const response = await api.post("/v1/categories", {
                 categoryTitle: newCategory.trim()
             });
-            
+
             const newCategoryData = response.data;
             setCategories(prev => [...prev, newCategoryData]);
             setJobData(prev => ({ ...prev, categoryId: newCategoryData.id }));
@@ -156,12 +156,12 @@ const PostJob = () => {
 
     const handleCreateSkill = async () => {
         if (!newSkill.trim()) return;
-        
+
         try {
             const response = await api.post("/v1/jobs/skills", {
                 skillName: newSkill.trim()
             });
-            
+
             const newSkillData = response.data;
             setSkills(prev => [...prev, newSkillData]);
             setSelectedSkills(prev => [...prev, newSkillData.id]);
@@ -226,14 +226,14 @@ const PostJob = () => {
     };
 
     const navigate = useNavigate();
-    
+
     const handleSubmit = async (data: any) => {
         const userInfo: any = JSON.parse(localStorage.getItem("userInfo") || "{}");
         if (!userInfo.clientId) {
             navigate("/");
             return;
         }
-console.log('dataaaaaaaaaa ', data)
+        console.log('dataaaaaaaaaa ', data)
         const submitData = {
             ...data,
             skillId: selectedSkills,
@@ -259,7 +259,7 @@ console.log('dataaaaaaaaaa ', data)
                     message: 'Thành công',
                     description: 'Thêm công việc thành công'
                 });
-                
+
                 setJobData({
                     title: '',
                     description: '',
@@ -341,9 +341,8 @@ console.log('dataaaaaaaaaa ', data)
                                                             }}
                                                         >
                                                             <Check
-                                                                className={`mr-2 h-4 w-4 ${
-                                                                    jobData.statusJob === status ? "opacity-100" : "opacity-0"
-                                                                }`}
+                                                                className={`mr-2 h-4 w-4 ${jobData.statusJob === status ? "opacity-100" : "opacity-0"
+                                                                    }`}
                                                             />
                                                             {status}
                                                         </CommandItem>
@@ -354,67 +353,112 @@ console.log('dataaaaaaaaaa ', data)
                                     </Popover>
                                 </div>
                             )}
-
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Danh mục *
-                                </label>
-                                <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={categoryOpen}
-                                            className="w-full justify-between"
-                                        >
-                                            {jobData.categoryId
-                                                ? categories.find((category) => category.id === jobData.categoryId)?.categoryTitle
-                                                : "Chọn danh mục"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandInput
-                                                placeholder="Tìm danh mục..."
-                                                value={newCategory}
-                                                onValueChange={setNewCategory}
-                                            />
-                                            <CommandList>
-                                                <CommandEmpty>
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        className="w-full justify-start"
-                                                        onClick={handleCreateCategory}
-                                                    >
-                                                        <Plus className="mr-2 h-4 w-4" />
-                                                        Thêm "{newCategory}"
-                                                    </Button>
-                                                </CommandEmpty>
-                                                <CommandGroup>
-                                                    {categories.map((category) => (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Danh mục *
+                                    </label>
+                                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={categoryOpen}
+                                                className="w-full justify-between"
+                                            >
+                                                {jobData.categoryId
+                                                    ? categories.find((category) => category.id === jobData.categoryId)?.categoryTitle
+                                                    : "Chọn danh mục"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandInput
+                                                    placeholder="Tìm danh mục..."
+                                                    value={newCategory}
+                                                    onValueChange={setNewCategory}
+                                                    className="w-full"
+                                                />
+                                                <CommandList className="w-full">
+                                                    <CommandEmpty>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            className="w-full justify-start"
+                                                            onClick={handleCreateCategory}
+                                                        >
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            Thêm "{newCategory}"
+                                                        </Button>
+                                                    </CommandEmpty>
+                                                    <CommandGroup className="w-full">
+                                                        {categories.map((category) => (
+                                                            <CommandItem
+                                                                key={category.id}
+                                                                value={category.categoryTitle}
+                                                                className="w-full"
+                                                                onSelect={() => {
+                                                                    setJobData({ ...jobData, categoryId: category.id });
+                                                                    setCategoryOpen(false);
+                                                                }}
+                                                            >
+                                                                <Check
+                                                                    className={`mr-2 h-4 w-4 ${jobData.categoryId === category.id
+                                                                        ? "opacity-100"
+                                                                        : "opacity-0"
+                                                                        }`}
+                                                                />
+                                                                {category.categoryTitle}
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">
+                                        Phạm vi công việc *
+                                    </label>
+                                    <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                aria-expanded={scopeOpen}
+                                                className="w-full justify-between"
+                                            >
+                                                {(jobData.scope == "SMALL" ? "Nhỏ" : jobData.scope == "MEDIUM" ? "Vừa" : "Lớn") || "Chọn phạm vi"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandList className="w-full">
+                                                    {Object.values(ScopeJob).map((scope) => (
                                                         <CommandItem
-                                                            key={category.id}
-                                                            value={category.categoryTitle}
+                                                            key={scope}
+                                                            value={scope}
+                                                            className="w-full"
                                                             onSelect={() => {
-                                                                setJobData({ ...jobData, categoryId: category.id });
-                                                                setCategoryOpen(false);
+                                                                setJobData({ ...jobData, scope });
+                                                                setScopeOpen(false);
                                                             }}
                                                         >
                                                             <Check
-                                                                className={`mr-2 h-4 w-4 ${
-                                                                    jobData.categoryId === category.id ? "opacity-100" : "opacity-0"
-                                                                }`}
+                                                                className={`mr-2 h-4 w-4 ${jobData.scope === scope ? "opacity-100" : "opacity-0"
+                                                                    }`}
                                                             />
-                                                            {category.categoryTitle}
+                                                            {scope === ScopeJob.SMALL ? "Nhỏ" : scope === ScopeJob.MEDIUM ? "Vừa" : "Lớn"}
                                                         </CommandItem>
                                                     ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
+                                                </CommandList>
+                                            </Command>
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium mb-2">
@@ -428,47 +472,7 @@ console.log('dataaaaaaaaaa ', data)
                                     className="min-h-[150px]"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    Phạm vi công việc *
-                                </label>
-                                <Popover open={scopeOpen} onOpenChange={setScopeOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={scopeOpen}
-                                            className="w-full justify-between"
-                                        >
-                                            {jobData.scope || "Chọn phạm vi"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-full p-0">
-                                        <Command>
-                                            <CommandList>
-                                                {Object.values(ScopeJob).map((scope) => (
-                                                    <CommandItem
-                                                        key={scope}
-                                                        value={scope}
-                                                        onSelect={() => {
-                                                            setJobData({ ...jobData, scope });
-                                                            setScopeOpen(false);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={`mr-2 h-4 w-4 ${
-                                                                jobData.scope === scope ? "opacity-100" : "opacity-0"
-                                                            }`}
-                                                        />
-                                                        {scope === ScopeJob.SMALL ? "Nhỏ" : scope === ScopeJob.MEDIUM ? "Vừa" : "Lớn"}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
+
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -498,32 +502,32 @@ console.log('dataaaaaaaaaa ', data)
                                                 role="combobox"
                                                 className="w-full justify-between"
                                             >
-                                                {jobData.typePayment === TypePayment.HOURLY ? 'HOURLY' : 'FULL'}
+                                                {jobData.typePayment === TypePayment.HOURLY ? 'Theo giờ' : 'Theo dự án'}
                                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-full p-0">
-                                            <Command>
-                                                <CommandList>
+                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                            <Command className="w-full">
+                                                <CommandList className="w-full">
                                                     <CommandItem
+                                                        className="w-full"
                                                         onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.HOURLY })}
                                                     >
                                                         <Check
-                                                            className={`mr-2 h-4 w-4 ${
-                                                                jobData.typePayment === TypePayment.HOURLY ? "opacity-100" : "opacity-0"
-                                                            }`}
+                                                            className={`mr-2 h-4 w-4 ${jobData.typePayment === TypePayment.HOURLY ? "opacity-100" : "opacity-0"
+                                                                }`}
                                                         />
-                                                        HOURLY
+                                                        Theo giờ
                                                     </CommandItem>
                                                     <CommandItem
+                                                        className="w-full"
                                                         onSelect={() => setJobData({ ...jobData, typePayment: TypePayment.FULL })}
                                                     >
                                                         <Check
-                                                            className={`mr-2 h-4 w-4 ${
-                                                                jobData.typePayment === TypePayment.FULL ? "opacity-100" : "opacity-0"
-                                                            }`}
+                                                            className={`mr-2 h-4 w-4 ${jobData.typePayment === TypePayment.FULL ? "opacity-100" : "opacity-0"
+                                                                }`}
                                                         />
-                                                        FULL
+                                                        Theo dự án
                                                     </CommandItem>
                                                 </CommandList>
                                             </Command>
@@ -538,7 +542,8 @@ console.log('dataaaaaaaaaa ', data)
                                         Ngân sách từ *
                                     </label>
                                     <div className="flex items-center">
-                                        <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
+                                        {/* <DollarSign className="w-5 h-5 text-muted-foreground mr-2" /> */}
+                                        VND
                                         <Input
                                             type="number"
                                             min="0"
@@ -555,7 +560,8 @@ console.log('dataaaaaaaaaa ', data)
                                         Đến *
                                     </label>
                                     <div className="flex items-center">
-                                        <DollarSign className="w-5 h-5 text-muted-foreground mr-2" />
+                                        {/* <DollarSign className="w-5 h-5 text-muted-foreground mr-2" /> */}
+                                        VND
                                         <Input
                                             type="number"
                                             min="0"
@@ -580,7 +586,7 @@ console.log('dataaaaaaaaaa ', data)
                                     htmlFor="jobOpportunity"
                                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                 >
-                                    Cơ hội việc làm dài hạn
+                                    Cơ hội hợp tác dài hạn
                                 </label>
                             </div>
                         </div>
@@ -634,9 +640,8 @@ console.log('dataaaaaaaaaa ', data)
                                                     }}
                                                 >
                                                     <Check
-                                                        className={`mr-2 h-4 w-4 ${
-                                                            selectedSkills.includes(skill.id) ? "opacity-100" : "opacity-0"
-                                                        }`}
+                                                        className={`mr-2 h-4 w-4 ${selectedSkills.includes(skill.id) ? "opacity-100" : "opacity-0"
+                                                            }`}
                                                     />
                                                     {skill.skillName}
                                                 </CommandItem>
@@ -679,7 +684,7 @@ console.log('dataaaaaaaaaa ', data)
                                 {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
                             </Button>
                         )}
-                        
+
                         <Button
                             type="button"
                             disabled={isSubmitting}

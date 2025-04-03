@@ -223,8 +223,13 @@ const Navbar = () => {
             )}
           </div>
           <Link to={settingsPath}>
-            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50">
+            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50" style={{cursor: 'pointer'}}>
               <span className="text-primary-700">{t("settings")}</span>
+            </DropdownMenuItem>
+          </Link>
+          <Link to={'wallet'} replace={true} >
+            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50" style={{cursor: 'pointer'}}>
+              <span className="text-primary-700">Ví của tôi</span>
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem

@@ -24,6 +24,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
         <label className="text-sm font-medium">Tên gói</label>
         <input
           type="text"
+          disabled={true}
           className="w-full p-2 border rounded-md"
           value={data.name || ""}
           onChange={(e) => onChange({ ...data, name: e.target.value })}
