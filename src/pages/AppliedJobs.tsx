@@ -96,16 +96,16 @@ const AppliedJobs = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="pending">Đang chờ</SelectItem>
-                  <SelectItem value="interviewing">Phỏng vấn</SelectItem>
-                  <SelectItem value="accepted">Đã chấp nhận</SelectItem>
-                  <SelectItem value="rejected">Từ chối</SelectItem>
+                  <SelectItem value="applied">Đã ứng tuyển</SelectItem>
+                  <SelectItem value="rejected">Bị từ chối</SelectItem>
+                  <SelectItem value="approved">Được chấp thuận</SelectItem>
+                  <SelectItem value="cancelled">Đã hủy</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline">
+              {/* <Button variant="outline">
                 <Filter className="w-4 h-4 mr-2" />
                 Lọc
-              </Button>
+              </Button> */}
             </div>
           </Card>
         </FadeInWhenVisible>

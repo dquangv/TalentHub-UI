@@ -74,16 +74,16 @@ const AppliedJobs = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Đang chờ';
-      case 'interviewing':
-        return 'Phỏng vấn';
-      case 'accepted':
-        return 'Đã chấp nhận';
+      case 'applied':
+        return 'Đã ứng tuyển';
       case 'rejected':
-        return 'Từ chối';
-      case 'Completed':
-        return 'Hoàn thành';
+        return 'Bị từ chối';
+      case 'approved':
+        return 'Được chấp thuận';
+      // case 'cancelled':
+      //   return 'Đã hủy';
+      // case 'Completed':
+      //   return 'Hoàn thành';
       default:
         return status;
     }
@@ -170,17 +170,16 @@ const AppliedJobs = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="pending">Đang chờ</SelectItem>
-                  <SelectItem value="interviewing">Phỏng vấn</SelectItem>
-                  <SelectItem value="accepted">Đã chấp nhận</SelectItem>
-                  <SelectItem value="rejected">Từ chối</SelectItem>
-                  <SelectItem value="Completed">Hoàn thành</SelectItem>
+                  <SelectItem value="applied">Đã ứng tuyển</SelectItem>
+                  <SelectItem value="rejected">Bị từ chối</SelectItem>
+                  <SelectItem value="approved">Được chấp thuận</SelectItem>
+                  {/* <SelectItem value="cancelled">Đã hủy</SelectItem> */}
                 </SelectContent>
               </Select>
-              <Button variant="outline">
+              {/* <Button variant="outline">
                 <Filter className="w-4 h-4 mr-2" />
                 Lọc
-              </Button>
+              </Button> */}
             </div>
           </Card>
         </FadeInWhenVisible>
@@ -210,16 +209,16 @@ const AppliedJobs = () => {
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
-                          {job.hourWork}
+                          {job.hourWork} giờ
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 mr-2" />
-                          {job.fromPrice} - {job.toPrice}
+                          {job.fromPrice} - {job.toPrice} VND
                         </div>
-                        <div className="flex items-center">
+                        {/* <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
                           Ứng tuyển: {job.appliedDate}
-                        </div>
+                        </div> */}
                       </div>
 
                       <p className="text-muted-foreground mb-4">{job.description}</p>
