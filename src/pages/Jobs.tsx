@@ -273,7 +273,7 @@ const Jobs = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <h3 className="text-sm font-medium">Mức giá (VND)</h3>
+                          <h3 className="text-sm font-medium">Ngân sách (VND)</h3>
                           <div className="flex items-center gap-4">
                             <Input
                               type="number"
@@ -299,7 +299,7 @@ const Jobs = () => {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <h3 className="text-sm font-medium">Số giờ làm việc/tuần</h3>
+                          <h3 className="text-sm font-medium">Số giờ làm việc</h3>
                           <div className="flex items-center gap-4">
                             <Input
                               type="number"
@@ -375,7 +375,7 @@ const Jobs = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
-                        {job.hourWork} hours/week
+                        {job.hourWork} giờ
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-2" />
@@ -383,7 +383,7 @@ const Jobs = () => {
                       </div>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2" />
-                        {job.remainingTimeFormatted}
+                        Còn lại {job.remainingTimeFormatted}
                       </div>
                       <div className="flex items-center">
                         <History className="w-4 h-4 mr-2" />
