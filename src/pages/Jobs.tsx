@@ -9,9 +9,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetFooter,
 } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag } from "lucide-react";
+import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag, Calendar, History } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
@@ -26,7 +28,10 @@ interface Job {
   hourWork: number;
   fromPrice: number;
   toPrice: number;
-  seen: boolean
+  seen: boolean;
+  remainingTimeFormatted: string;
+  createdAt: string;
+  createdTimeFormatted: string;
 }
 
 interface FilterState {
@@ -45,7 +50,6 @@ const Jobs = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { t } = useLanguage();
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
-
 
   const [filters, setFilters] = useState<FilterState>({
     selectedSkills: [],
@@ -102,7 +106,7 @@ const Jobs = () => {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const response = await api.get("/v1/jobs", {params: {freelancerId}});
+        const response = await api.get("/v1/jobs", { params: { freelancerId } });
         if (response.status === 200) {
           setJobs(response.data);
           setFilteredJobs(response.data);
@@ -206,7 +210,7 @@ const Jobs = () => {
           </FadeInWhenVisible>
           <div className="max-w-2xl mx-auto">
             <FadeInWhenVisible delay={0.2}>
-              <div className="flex gap-4">
+              <div className="flex gap-4 mb-4">
                 <div className="flex-1">
                   <Input
                     placeholder={t("JobSearch...")}
@@ -225,102 +229,108 @@ const Jobs = () => {
                       <Filter className="w-4 h-4" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent className="w-[400px]">
+                  <SheetContent className="w-[400px] flex flex-col">
                     <SheetHeader>
                       <SheetTitle>Bộ lọc công việc</SheetTitle>
                     </SheetHeader>
-                    <div className="py-6 space-y-6">
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Danh mục</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {uniqueCategories.map(category => (
-                            <Badge
-                              key={category}
-                              variant={filters.selectedCategories.includes(category) ? "default" : "outline"}
-                              className="cursor-pointer"
-                              onClick={() => toggleCategory(category)}
-                            >
-                              {category}
-                              {filters.selectedCategories.includes(category) && (
-                                <X className="w-3 h-3 ml-1" />
-                              )}
-                            </Badge>
-                          ))}
+
+                    <ScrollArea className="flex-1 px-1">
+                      <div className="py-6 space-y-6">
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Danh mục</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {uniqueCategories.map(category => (
+                              <Badge
+                                key={category}
+                                variant={filters.selectedCategories.includes(category) ? "default" : "outline"}
+                                className="cursor-pointer"
+                                onClick={() => toggleCategory(category)}
+                              >
+                                {category}
+                                {filters.selectedCategories.includes(category) && (
+                                  <X className="w-3 h-3 ml-1" />
+                                )}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Kỹ năng</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {uniqueSkills.map(skill => (
+                              <Badge
+                                key={skill}
+                                variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
+                                className="cursor-pointer"
+                                onClick={() => toggleSkill(skill)}
+                              >
+                                {skill}
+                                {filters.selectedSkills.includes(skill) && (
+                                  <X className="w-3 h-3 ml-1" />
+                                )}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Ngân sách (VND)</h3>
+                          <div className="flex items-center gap-4">
+                            <Input
+                              type="number"
+                              value={filters.minPrice}
+                              onChange={(e) => setFilters(prev => ({
+                                ...prev,
+                                minPrice: parseInt(e.target.value) || 0
+                              }))}
+                              className="w-32"
+                              placeholder="Tối thiểu"
+                            />
+                            <span>-</span>
+                            <Input
+                              type="number"
+                              value={filters.maxPrice}
+                              onChange={(e) => setFilters(prev => ({
+                                ...prev,
+                                maxPrice: parseInt(e.target.value) || 1000000000
+                              }))}
+                              className="w-32"
+                              placeholder="Tối đa"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="text-sm font-medium">Số giờ làm việc</h3>
+                          <div className="flex items-center gap-4">
+                            <Input
+                              type="number"
+                              value={filters.minHours}
+                              onChange={(e) => setFilters(prev => ({
+                                ...prev,
+                                minHours: parseInt(e.target.value) || 0
+                              }))}
+                              className="w-20"
+                              min="0"
+                              max="168"
+                            />
+                            <span>-</span>
+                            <Input
+                              type="number"
+                              value={filters.maxHours}
+                              onChange={(e) => setFilters(prev => ({
+                                ...prev,
+                                maxHours: parseInt(e.target.value) || 168
+                              }))}
+                              className="w-20"
+                              min="0"
+                              max="168"
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Kỹ năng</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {uniqueSkills.map(skill => (
-                            <Badge
-                              key={skill}
-                              variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
-                              className="cursor-pointer"
-                              onClick={() => toggleSkill(skill)}
-                            >
-                              {skill}
-                              {filters.selectedSkills.includes(skill) && (
-                                <X className="w-3 h-3 ml-1" />
-                              )}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Mức giá (VND)</h3>
-                        <div className="flex items-center gap-4">
-                          <Input
-                            type="number"
-                            value={filters.minPrice}
-                            onChange={(e) => setFilters(prev => ({
-                              ...prev,
-                              minPrice: parseInt(e.target.value) || 0
-                            }))}
-                            className="w-32"
-                            placeholder="Tối thiểu"
-                          />
-                          <span>-</span>
-                          <Input
-                            type="number"
-                            value={filters.maxPrice}
-                            onChange={(e) => setFilters(prev => ({
-                              ...prev,
-                              maxPrice: parseInt(e.target.value) || 1000000000
-                            }))}
-                            className="w-32"
-                            placeholder="Tối đa"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Số giờ làm việc/tuần</h3>
-                        <div className="flex items-center gap-4">
-                          <Input
-                            type="number"
-                            value={filters.minHours}
-                            onChange={(e) => setFilters(prev => ({
-                              ...prev,
-                              minHours: parseInt(e.target.value) || 0
-                            }))}
-                            className="w-20"
-                            min="0"
-                            max="168"
-                          />
-                          <span>-</span>
-                          <Input
-                            type="number"
-                            value={filters.maxHours}
-                            onChange={(e) => setFilters(prev => ({
-                              ...prev,
-                              maxHours: parseInt(e.target.value) || 168
-                            }))}
-                            className="w-20"
-                            min="0"
-                            max="168"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex gap-4 pt-4">
+                    </ScrollArea>
+
+                    <SheetFooter className="pt-4 border-t mt-4">
+                      <div className="flex gap-4 w-full">
                         <Button onClick={applyFilters} className="flex-1">
                           Áp dụng
                         </Button>
@@ -328,7 +338,7 @@ const Jobs = () => {
                           Đặt lại
                         </Button>
                       </div>
-                    </div>
+                    </SheetFooter>
                   </SheetContent>
                 </Sheet>
               </div>
@@ -365,11 +375,19 @@ const Jobs = () => {
                       </div>
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2" />
-                        {job.hourWork} hours/week
+                        {job.hourWork} giờ
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-2" />
                         {job.fromPrice.toLocaleString()} - {job.toPrice.toLocaleString()} VND
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Còn lại {job.remainingTimeFormatted}
+                      </div>
+                      <div className="flex items-center">
+                        <History className="w-4 h-4 mr-2" />
+                        Đăng {job.createdTimeFormatted}
                       </div>
                     </div>
                   </div>

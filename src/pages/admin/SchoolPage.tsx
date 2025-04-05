@@ -134,7 +134,7 @@ export function SchoolsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý Trường Học</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Quản lý Trường học</h2>
         <Dialog
           open={dialogOpen}
           onOpenChange={(open) => {
@@ -197,7 +197,7 @@ export function SchoolsPage() {
           ...schoolColumns,
           {
             id: "actions",
-            header: "Actions",
+            header: "Thao tác",
             cell: ({ row }) => {
               const id = row.getValue("id");
               const quantity = row.getValue("quantityEducation");

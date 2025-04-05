@@ -101,10 +101,10 @@ const SavedJobs = () => {
                   className="w-full"
                 />
               </div>
-              <Button>
+              {/* <Button>
                 <Search className="w-4 h-4 mr-2" />
                 Tìm kiếm
-              </Button>
+              </Button> */}
             </div>
           </Card>
         </FadeInWhenVisible>
@@ -142,16 +142,16 @@ const SavedJobs = () => {
                      
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
-                          {job.hourWork}
+                          {job.hourWork} giờ
                         </div>
                         <div className="flex items-center">
                           <DollarSign className="w-4 h-4 mr-2" />
-                          {job.fromPrice} - {job.toPrice}
+                          {job.fromPrice} - {job.toPrice} VND
                         </div>
-                        <div className="flex items-center">
+                        {/* <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
                           Lưu: {job.savedDate}
-                        </div>
+                        </div> */}
                       </div>
 
                       <p className="text-muted-foreground mb-4">{job.description}</p>

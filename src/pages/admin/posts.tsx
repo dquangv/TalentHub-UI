@@ -5,6 +5,16 @@ import api from "@/api/axiosConfig";
 import { Button } from "antd";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function PostsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -12,6 +22,11 @@ export default function PostsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [emailFilter, setEmailFilter] = useState<string>("");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<{
+    type: "ban" | "unban";
+    jobId: number;
+  } | null>(null);
 
   async function fetchJobs() {
     const response = await api.get("/v1/jobs/admin");
@@ -46,21 +61,36 @@ export default function PostsPage() {
     setFilteredJobs(filtered);
   }, [statusFilter, categoryFilter, emailFilter, jobs]);
 
-  const handleBan = async (jobId) => {
+  const handleBan = async (jobId: number) => {
     try {
       await api.post(`/v1/jobs/admin/ban?jobId=${jobId}`);
       fetchJobs();
     } catch (error) {
+      console.error("Error banning job:", error);
     }
   };
 
-  const handleUnban = async (jobId) => {
+  const handleUnban = async (jobId: number) => {
     try {
       await api.post(`/v1/jobs/admin/unban?jobId=${jobId}`);
       fetchJobs();
     } catch (error) {
+      console.error("Error unbanning job:", error);
     }
   };
+
+  const handleConfirm = async () => {
+    if (!selectedAction) return;
+
+    if (selectedAction.type === "ban") {
+      await handleBan(selectedAction.jobId);
+    } else {
+      await handleUnban(selectedAction.jobId);
+    }
+    setShowConfirmDialog(false);
+    setSelectedAction(null);
+  };
+
   const uniqueStatuses = ['all'].concat(
     jobs.map(job => job.status)
       .filter((status, index, self) => self.indexOf(status) === index)
@@ -112,20 +142,48 @@ export default function PostsPage() {
         />
       </div>
 
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedAction?.type === "ban"
+                ? "Bạn có chắc chắn muốn khóa bài viết này?"
+                : "Bạn có chắc chắn muốn mở khóa bài viết này?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirm}>
+              {selectedAction?.type === "ban" ? "Khóa" : "Mở khóa"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <DataTable 
         columns={[
           ...postColumns,
           {
             id: "actions",
-            header: "Actions",
+            header: "Thao tác",
             cell: ({ row }) => {
               const id = row.getValue("id");
-              const isBanned = (row.getValue("status") === "Bị cấm");
+              const status = row.getValue("status");
+              const isBanned = (status === "Bị cấm");
+              
+              if (status === "Đóng") {
+                return null;
+              }
+
               return (
                 <div className="flex space-x-2">
                   {isBanned ? (
                     <Button
-                      onClick={() => handleUnban(id)}
+                      onClick={() => {
+                        setSelectedAction({ type: "unban", jobId: id });
+                        setShowConfirmDialog(true);
+                      }}
                       variant="outline"
                       className="text-green-600"
                     >
@@ -133,7 +191,10 @@ export default function PostsPage() {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleBan(id)}
+                      onClick={() => {
+                        setSelectedAction({ type: "ban", jobId: id });
+                        setShowConfirmDialog(true);
+                      }}
                       variant="outline"
                       className="text-red-600"
                     >

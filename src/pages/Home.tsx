@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Building, ChevronDown } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Star, MapPin, Building, ChevronDown } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,7 +13,8 @@ import 'swiper/css/pagination';
 import { useEffect, useState } from 'react';
 import api from '@/api/axiosConfig';
 import { formatCurrency } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Banner {
   id: number;
@@ -24,7 +25,17 @@ interface Banner {
   startTime: string;
   endTime: string;
 }
-
+interface Freelancer {
+  id: number;
+  name: string;
+  hourlyRate: number;
+  description: string;
+  categoryName: string;
+  userId: number;
+  avatar: string;
+  rating: number | null;
+  skills: string[];
+}
 interface Job {
   id: number;
   title: string;
@@ -35,6 +46,10 @@ interface Job {
   description: string;
   skillName: string[];
   categoryName: string;
+  applied?: boolean;
+  seen?: boolean;
+  remainingTimeFormatted?: string;
+  createdTimeFormatted?: string;
 }
 
 const Home = () => {
@@ -49,7 +64,66 @@ const Home = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [jobsPremium, setJobPremium] = useState<any[]>()
-  console.log(stats)
+  const [recommendedJobs, setRecommendedJobs] = useState<Job[]>([]);
+  const [loadingRecommendedJobs, setLoadingRecommendedJobs] = useState(true);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [suitableFreelancers, setSuitableFreelancers] = useState<Freelancer[]>([]);
+  const [loadingFreelancers, setLoadingFreelancers] = useState(true);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const userInfoStr = localStorage.getItem('userInfo');
+    if (userInfoStr) {
+      try {
+        const parsedUserInfo = JSON.parse(userInfoStr);
+        setUserInfo(parsedUserInfo);
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    const fetchSuitableFreelancers = async () => {
+      if (userInfo && userInfo.clientId) {
+        try {
+          setLoadingFreelancers(true);
+          const response = await api.get(`/v1/freelancers/clients/${userInfo.clientId}/job-category-freelancers`);
+          if (response.status === 200) {
+            setSuitableFreelancers(response.data);
+          }
+          setLoadingFreelancers(false);
+        } catch (error) {
+          console.error('Error fetching suitable freelancers:', error);
+          setLoadingFreelancers(false);
+        }
+      } else {
+        setLoadingFreelancers(false);
+      }
+    };
+
+    fetchSuitableFreelancers();
+  }, [userInfo]);
+
+  useEffect(() => {
+    const fetchRecommendedJobs = async () => {
+      if (userInfo && userInfo.freelancerId) {
+        try {
+          setLoadingRecommendedJobs(true);
+          const response = await api.get(`/v1/jobs/recommended/${userInfo.freelancerId}`);
+          if (response.status === 200) {
+            setRecommendedJobs(response.data);
+          }
+          setLoadingRecommendedJobs(false);
+        } catch (error) {
+          console.error('Error fetching recommended jobs:', error);
+          setLoadingRecommendedJobs(false);
+        }
+      } else {
+        setLoadingRecommendedJobs(false);
+      }
+    };
+
+    fetchRecommendedJobs();
+  }, [userInfo]);
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -74,7 +148,7 @@ const Home = () => {
         if (response.status === 200) {
           const today = new Date().toISOString().split('T')[0];
           const validBanners = response.data.filter(
-            (banner: Banner) => banner.endTime >= today && banner.status === 'active'
+            (banner: Banner) => banner.endTime >= today && banner.status
           );
           setBanners(validBanners);
         }
@@ -336,6 +410,10 @@ const Home = () => {
                           <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
                           <span className="text-gray-800">{job.hourWork} giờ</span>
                         </p>
+                        <p className="text-sm text-gray-600 mb-2">
+                          <span className="font-semibold text-gray-700">Hạn ứng tuyển:</span>{' '}
+                          <span className="text-primary-600 font-medium">Còn {job.remainingTimeFormatted}</span>
+                        </p>
                         <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
                         <div className="flex flex-wrap gap-2 mb-4">
                           {job.skillName.map((skill) => (
@@ -375,6 +453,210 @@ const Home = () => {
           )}
         </div>
       </section>
+      {userInfo && userInfo.clientId && (
+        <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50">
+          <div className="container mx-auto px-6">
+            <FadeInWhenVisible>
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Ứng Viên Phù Hợp Cho Dự Án Của Bạn
+              </h2>
+            </FadeInWhenVisible>
+
+            {loadingFreelancers ? (
+              <div className="text-center text-gray-500 text-lg">Đang tải danh sách ứng viên...</div>
+            ) : suitableFreelancers.length === 0 ? (
+              <div className="text-center text-gray-500 text-lg">Không tìm thấy ứng viên phù hợp.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {suitableFreelancers.map((freelancer, index) => (
+                  <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
+                    <Card className="p-6 hover:shadow-md transition-shadow">
+                      <div className="flex items-start gap-4">
+                        <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
+                          <AvatarImage
+                            src={freelancer.avatar ? `https://developments-bride-tactics-bids.trycloudflare.com/api/uploads/${freelancer.avatar}` : "/assets/default-avatar.png"}
+                            alt={freelancer.name}
+                          />
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
+                            {freelancer.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold">{freelancer.name}</h3>
+                            <div className="flex items-center">
+                              {freelancer.rating ? (
+                                <>
+                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                  <span className="ml-1">{freelancer.rating.toFixed(1)}</span>
+                                </>
+                              ) : (
+                                <span className="text-sm text-gray-500 italic">Chưa có đánh giá</span>
+                              )}
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {freelancer.categoryName}
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{freelancer.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {freelancer.skills.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-blue-600">
+                              ${freelancer.hourlyRate}/giờ
+                            </span>
+                            <Link to={`/freelancers/${freelancer.id}`}>
+                              <Button variant="outline" size="sm" className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200">
+                                Xem hồ sơ
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  </FadeInWhenVisible>
+                ))}
+              </div>
+            )}
+
+            {!loadingFreelancers && suitableFreelancers.length > 0 && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={() => navigate('/freelancers')}
+                  variant="outline"
+                  size="lg"
+                  className="hover:bg-blue-50 border-blue-200 text-blue-700"
+                >
+                  Xem tất cả ứng viên
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      {userInfo && userInfo.freelancerId && (
+        <section className="py-20 bg-gradient-to-br from-primary-50 via-white to-gray-50">
+          <div className="container mx-auto px-6">
+            <FadeInWhenVisible>
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                Công Việc Phù Hợp Với Bạn
+              </h2>
+            </FadeInWhenVisible>
+            {loadingRecommendedJobs ? (
+              <div className="text-center text-gray-500 text-lg">Đang tải công việc phù hợp...</div>
+            ) : recommendedJobs.length === 0 ? (
+              <div className="text-center text-gray-500 text-lg">Không tìm thấy công việc phù hợp với kỹ năng của bạn.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {recommendedJobs.map((job, index) => (
+                  <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+                    <Card
+                      className="relative p-6 bg-white rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 overflow-hidden group h-full"
+                      style={{ height: '100%' }}
+                    >
+                      {!job.seen && (
+                        <div className="absolute top-3 right-3">
+                          <Badge
+                            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-300"
+                          >
+                            Mới
+                          </Badge>
+                        </div>
+                      )}
+                      {job.applied && (
+                        <div className="absolute top-3 right-16">
+                          <Badge
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-green-600 hover:to-emerald-600 transition-all duration-300"
+                          >
+                            Đã ứng tuyển
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-start gap-4 flex-grow h-full">
+                        {job.categoryName.includes('Quản lý dự án') ? (
+                          <Briefcase className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        ) : job.categoryName.includes('Thiết kế') ? (
+                          <Paintbrush className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        ) : (
+                          <Code className="w-10 h-10 text-primary-600 group-hover:text-primary-700 transition-colors" />
+                        )}
+                        <div className="flex flex-col flex-grow h-full">
+                          <h3 className="text-lg font-bold text-gray-800 mb-2 group-hover:text-primary-700 transition-colors">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Đăng bởi:</span>{' '}
+                            <span className="text-gray-800">{job.companyName || 'Ẩn danh'}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Ngân sách:</span>{' '}
+                            <span className="text-primary-600 font-medium">
+                              {formatCurrency(job.fromPrice)} - {formatCurrency(job.toPrice)}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                            <span className="text-gray-800">{job.hourWork} giờ</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Hạn ứng tuyển:</span>{' '}
+                            <span className="text-primary-600 font-medium">Còn {job.remainingTimeFormatted}</span>
+                          </p>
+                          <p className="text-sm text-gray-600 mb-2">
+                            <span className="font-semibold text-gray-700">Đăng:</span>{' '}
+                            <span className="text-gray-800">{job.createdTimeFormatted}</span>
+                          </p>
+                          <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {job.skillName.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 transition-colors"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className='flex-1'></div>
+                          <Link to={`/jobs/${job.id}`}>
+                            <Button
+                              variant="outline"
+                              className="w-full bg-primary-600 text-white hover:bg-primary-700 border-none rounded-lg shadow-sm transition-all duration-300"
+                            >
+                              {job.applied ? 'Xem chi tiết' : 'Ứng tuyển ngay'}
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </FadeInWhenVisible>
+                ))}
+              </div>
+            )}
+            {!loadingRecommendedJobs && recommendedJobs.length > 0 && (
+              <div className="text-center mt-10">
+                <Button
+                  onClick={() => navigate('/jobs')}
+                  size="lg"
+                  className="bg-primary hover:bg-primary-600 text-white">
+                  Xem tất cả công việc
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
       <section className="py-16 bg-secondary-50">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -475,6 +757,10 @@ const Home = () => {
                           <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
                           <span className="text-gray-800">{job.hourWork} giờ</span>
                         </p>
+                        <p className="text-sm text-gray-600 mb-2">
+                          <span className="font-semibold text-gray-700">Hạn ứng tuyển:</span>{' '}
+                          <span className="text-primary-600 font-medium">Còn {job.remainingTimeFormatted}</span>
+                        </p>
                         <p className="text-sm text-gray-500 mb-4 leading-relaxed">{job.description}</p>
                         <div className="flex flex-wrap gap-2 mb-4">
                           {job.skillName.map((skill) => (
@@ -497,8 +783,8 @@ const Home = () => {
                             Xem chi tiết
                           </Button>
                         </Link>
-                      </div>
-                    </div>
+                      </div >
+                    </div >
                     {/* <div className="mt-6">
               <Badge
                 variant="outline"
@@ -507,15 +793,13 @@ const Home = () => {
                 {job.typePackage}
               </Badge>
             </div> */}
-                  </Card>
-                </FadeInWhenVisible>
+                  </Card >
+                </FadeInWhenVisible >
               ))}
-            </div>
+            </div >
           )}
-        </div>
-      </section>
-
-
+        </div >
+      </section >
       <section className="py-16">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
@@ -610,7 +894,27 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Howitworks')}</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps?.map((step, index) => (
+              <FadeInWhenVisible key={step.title} delay={index * 0.2}>
+                <div className="text-center group">
+                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 text-primary-700">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </div>
+              </FadeInWhenVisible>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div >
   );
 };
 

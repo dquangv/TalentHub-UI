@@ -25,7 +25,7 @@ const Contact = () => {
   return (
     <div className="py-12">
       <GoogleMapComponent/>
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 mt-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <FadeInWhenVisible>

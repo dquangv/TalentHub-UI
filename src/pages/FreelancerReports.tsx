@@ -21,15 +21,15 @@ const FreelancerReports = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { freelancerId } = useParams();
-    const navigate = useNavigate()
+  const navigate = useNavigate()
   const fetchReports = async () => {
     setLoading(true);
     try {
-        const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}")
-        if (!userInfo.freelancerId){
-            navigate("/login")
-            return
-        }
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}")
+      if (!userInfo.freelancerId) {
+        navigate("/login")
+        return
+      }
       const response = await api.get(`/v1/reported-jobs/by-freelancer/${userInfo.freelancerId}`);
       setReports(response.data);
       setError(null);
@@ -44,7 +44,7 @@ const FreelancerReports = () => {
     fetchReports();
   }, [freelancerId]);
 
-  
+
   const getStatusBadgeVariant = (status) => {
     switch (status) {
       case "REPORTED":
@@ -82,9 +82,9 @@ const FreelancerReports = () => {
       <div className="container mx-auto px-4">
         <FadeInWhenVisible>
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Báo cáo của Freelancer</h1>
+            <h1 className="text-3xl font-bold mb-2">Báo cáo của bạn</h1>
             <p className="text-muted-foreground">
-              Danh sách các báo cáo vi phạm từ freelancer này
+              Danh sách các báo cáo vi phạm từ bạn
             </p>
           </div>
         </FadeInWhenVisible>

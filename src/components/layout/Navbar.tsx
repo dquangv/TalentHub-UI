@@ -262,6 +262,9 @@ const Navbar = () => {
     );
   };
 
+  // Kiểm tra xem có nên hiển thị menu Pricing hay không
+  const shouldShowPricing = !isLoggedIn || role === "CLIENT";
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-primary-100/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -298,8 +301,9 @@ const Navbar = () => {
             ) : null}
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
-            <NavLink to="/pricing">{t("pricing")}</NavLink>
-            
+            {shouldShowPricing && (
+              <NavLink to="/pricing">{t("pricing")}</NavLink>
+            )}
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -361,6 +365,9 @@ const Navbar = () => {
               <MobileNavLink to="/jobs">{t("jobs")}</MobileNavLink>
               <MobileNavLink to="/about">{t("about")}</MobileNavLink>
               <MobileNavLink to="/contact">{t("contact")}</MobileNavLink>
+              {shouldShowPricing && (
+                <MobileNavLink to="/pricing">{t("pricing")}</MobileNavLink>
+              )}
 
               {isLoggedIn ? (
                 <div className="pt-4 space-y-2 px-4">

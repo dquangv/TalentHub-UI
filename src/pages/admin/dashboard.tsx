@@ -107,16 +107,16 @@ export default function DashboardPage() {
       />
       
       <div className="space-y-8">
-        <h2 className="text-2xl font-bold">Thống Kê Người Dùng</h2>
+        <h2 className="text-2xl font-bold">Thống kê doanh thu từ Gói dịch vụ</h2>
         <UserStats />
       </div>
 
       <div className="space-y-8">
-        <h2 className="text-2xl font-bold">Thống Kê Bài Viết</h2>
+        <h2 className="text-2xl font-bold">Thống kê doanh thu từ Banner</h2>
         <PostStats />
       </div>
 
-      <RecentActivities />
+      {/* <RecentActivities /> */}
     </div>
   );
 }

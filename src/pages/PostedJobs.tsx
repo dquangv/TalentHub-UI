@@ -42,6 +42,8 @@ import {
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
 import * as XLSX from "xlsx";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -56,7 +58,6 @@ const PostedJobs = () => {
     OPEN: 0,
     POSTED: 0,
     CLOSED: 0,
-    Pending: 0,
     BANNED: 0,
     DRAFT: 0,
   });
@@ -104,13 +105,12 @@ const PostedJobs = () => {
       const response = await api.get(`/v1/jobs/PostedJobs/${clientId}`);
       setJobs(response.data);
 
+      // Calculate stats, excluding DRAFT status for total count
       const newStats = {
-        total: response.data.length,
+        total: response.data.filter(job => job.status !== "DRAFT").length,
         OPEN: response.data.filter((job) => job.status === "OPEN").length,
         POSTED: response.data.filter((job) => job.status === "POSTED").length,
         CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
-        Pending: response.data.filter((job) => job.status === "Pending")
-          .length,
         BANNED: response.data.filter((job) => job.status === "BANNED").length,
         DRAFT: response.data.filter((job) => job.status === "DRAFT").length,
       };
@@ -134,8 +134,6 @@ const PostedJobs = () => {
         return "Đã đăng";
       case "CLOSED":
         return "Đóng";
-      case "Pending":
-        return "Chờ xử lý";
       case "BANNED":
         return "Bị cấm";
       case "DRAFT":
@@ -153,15 +151,24 @@ const PostedJobs = () => {
         return "success";
       case "CLOSED":
         return "secondary";
-      case "Pending":
-        return "warning";
       case "BANNED":
-        return "destructive";
+        return "destructive"; // Changed to destructive for BANNED status
       case "DRAFT":
         return "outline";
       default:
         return "default";
     }
+  };
+
+  // Custom styling for badges to ensure different colors
+  const getStatusBadgeStyle = (status) => {
+    if (status === "BANNED") {
+      return { backgroundColor: "#ef4444", color: "white" }; // Red color for banned
+    }
+    if (status === "DRAFT") {
+      return { backgroundColor: "#f3f4f6", color: "#6b7280", borderColor: "#d1d5db" }; // Light gray for draft
+    }
+    return {}; // Default styles for other statuses
   };
 
   // Hàm sắp xếp
@@ -251,9 +258,9 @@ const PostedJobs = () => {
       icon: <CheckCircle className="w-8 h-8 text-green-500" />,
     },
     {
-      label: "Chờ xử lý",
-      value: stats.Pending,
-      icon: <AlertCircle className="w-8 h-8 text-yellow-500" />,
+      label: "Bản nháp",
+      value: stats.DRAFT,
+      icon: <Edit2 className="w-8 h-8 text-blue-500" />,
     },
     {
       label: "Đã đóng/Bị cấm",
@@ -330,7 +337,6 @@ const PostedJobs = () => {
                   <SelectItem value="OPEN">Mở</SelectItem>
                   <SelectItem value="POSTED">Đã đăng</SelectItem>
                   <SelectItem value="CLOSED">Đóng</SelectItem>
-                  <SelectItem value="Pending">Chờ xử lý</SelectItem>
                   <SelectItem value="BANNED">Bị cấm</SelectItem>
                   <SelectItem value="DRAFT">Bản nháp</SelectItem>
                 </SelectContent>
@@ -428,49 +434,127 @@ const PostedJobs = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusBadgeVariant(job.status)}>
+                      <Badge
+                        variant={getStatusBadgeVariant(job.status)}
+                        style={getStatusBadgeStyle(job.status)}
+                      >
                         {getStatusText(job.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-amber-600"
+                                disabled={!["OPEN", "POSTED", "BANNED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "BANNED"].includes(job.status) ? `/reports-job/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <AlertCircle className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Danh sách tố cáo</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <Link to={`/reports-job/${job.id}`}>
-                            <User className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-green-600"
-                        >
-                          <Link to={`/client/applicants/${job.id}`}>
-                            <User className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Link to={`/jobs/${job.id}`}>
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          <Link to={`/client/post-job?id=${job.id}`}>
-                            <Edit2 className="w-4 h-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600"
-                          onClick={() => handleDelete(job.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {/* Applicants button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600"
+                                disabled={!["OPEN", "POSTED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED"].includes(job.status) ? `/client/applicants/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Users className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Danh sách ứng viên</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* View details button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? `/jobs/${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Xem chi tiết</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Edit button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
+                              >
+                                <Link
+                                  to={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? `/client/post-job?id=${job.id}` : "#"}
+                                  className={!["OPEN", "POSTED", "DRAFT"].includes(job.status) ? "pointer-events-none" : ""}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Chỉnh sửa</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Delete button */}
+                        <TooltipProvider delayDuration={5}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600"
+                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
+                                onClick={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? () => handleDelete(job.id) : undefined}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Xóa</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </TableCell>
                   </TableRow>
