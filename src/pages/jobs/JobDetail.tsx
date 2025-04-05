@@ -378,7 +378,7 @@ const JobDetail = () => {
                     <p className="text-sm text-muted-foreground">
                       Số giờ làm việc
                     </p>
-                    <p className="font-semibold">{job.hourWork} giờ/ngày</p>
+                    <p className="font-semibold">{job.hourWork} giờ</p>
                   </div>
                 </div>
               </Card>
