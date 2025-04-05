@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
-
+import * as XLSX from "xlsx";
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -61,6 +61,43 @@ const PostedJobs = () => {
     DRAFT: 0,
   });
   const clientId = JSON.parse(localStorage.getItem("userInfo") || "{}").clientId;
+
+  const handleExportData = () => {
+    const exportData = sortedJobs.map(job => ({
+      "Tiêu đề": job.title || "",
+      "Loại công việc": job.type || "",
+      "Số ứng viên": job.applicants || 0,
+      "Ngày đăng": job.postedDate ? new Date(job.postedDate).toLocaleDateString('vi-VN') : "",
+      "Thời gian còn lại": job.remainingTimeFormatted || "",
+      "Trạng thái": getStatusText(job.status) || "",
+      "Mô tả": job.description || "",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    worksheet['!cols'] = [
+      { wch: 30 }, 
+      { wch: 20 }, 
+      { wch: 15 }, 
+      { wch: 15 }, 
+      { wch: 20 }, 
+      { wch: 15 }, 
+      { wch: 50 }, 
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách công việc");
+
+    const fileName = `Cong_Viec_Da_Dang_${new Date().toLocaleString('vi-VN').replace(/[:/]/g, '-')}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+
+    notification.success({
+      message: "Xuất dữ liệu thành công",
+      description: "Danh sách công việc đã được xuất ra file Excel"
+    });
+  };
+
 
   const fetchJobs = async () => {
     try {
@@ -298,11 +335,7 @@ const PostedJobs = () => {
                   <SelectItem value="DRAFT">Bản nháp</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline">
-                <Filter className="w-4 h-4 mr-2" />
-                Lọc
-              </Button>
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleExportData}>
                 <Download className="w-4 h-4 mr-2" />
                 Xuất Excel
               </Button>
