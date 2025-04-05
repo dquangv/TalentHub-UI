@@ -791,7 +791,7 @@ const Wallet = () => {
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Số tiền tối thiểu cho mỗi lần nạp là 100.000đ.
+                              Số tiền tối thiểu cho mỗi lần nạp là 50.000đ.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
