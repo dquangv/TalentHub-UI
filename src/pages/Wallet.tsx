@@ -152,12 +152,15 @@ const Wallet = () => {
               <Card className="p-6 bg-primary text-primary-foreground">
                 <div className="flex items-center gap-4 mb-4">
                   <WalletIcon className="w-8 h-8" />
-                  <h2 className="text-3xl font-bold">
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(payments.balance)}
-                  </h2>
+                  <div>
+                    <p className="text-sm text-muted-foreground text-white">Số dư</p>
+                    <h2 className="text-3xl font-bold">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(payments.balance)}
+                    </h2>
+                  </div>
                 </div>
                 <Button
                   variant="secondary"
@@ -358,8 +361,7 @@ const Wallet = () => {
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         <span>
-                          Giao dịch nạp tiền thường được xử lý trong vòng 24 giờ
-                          làm việc.
+                          Tiền đã nạp vào ví thành công sẽ không được rút lại.
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -784,8 +786,8 @@ const Wallet = () => {
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Giao dịch nạp tiền thường được xử lý trong vòng 24
-                              giờ làm việc.
+                              Tiền đã nạp vào ví thành công sẽ không được rút
+                              lại.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
