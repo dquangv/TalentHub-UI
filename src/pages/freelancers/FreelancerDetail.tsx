@@ -99,7 +99,7 @@ const FreelancerDetail = () => {
                         <div className="flex items-center group">
                           <MapPin className="w-5 h-5 mr-2 text-primary" />
                           <span className="group-hover:text-primary transition-colors">
-                            {freelancer?.location}
+                            {freelancer?.province}, {freelancer?.country}
                           </span>
                         </div>
                         <div className="flex items-center group">
@@ -111,7 +111,10 @@ const FreelancerDetail = () => {
                         <div className="flex items-center group">
                           <Briefcase className="w-5 h-5 mr-2 text-primary" />
                           <span className="group-hover:text-primary transition-colors">
-                            ${freelancer?.hourlyRate}/giờ
+                            {freelancer?.hourlyRate !== null && freelancer?.hourlyRate !== undefined
+                              ? freelancer?.hourlyRate.toLocaleString()
+                              : 'Chưa có'}{' '}
+                            VND/giờ
                           </span>
                         </div>
                       </div>
@@ -146,6 +149,10 @@ const FreelancerDetail = () => {
               <TabsContent value="overview">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
                   <h2 className="text-2xl font-semibold mb-6 text-gray-900">Giới thiệu</h2>
+                  <div className="mb-4">
+                    <span className="font-medium text-gray-700">Lĩnh vực: </span>
+                    <span className="text-primary">{freelancer?.categoryTitle}</span>
+                  </div>
                   <p className="text-gray-600 mb-8 leading-relaxed">{freelancer?.overview}</p>
 
                   <h3 className="text-xl font-semibold mb-4 text-gray-900">Kỹ năng chuyên môn</h3>
