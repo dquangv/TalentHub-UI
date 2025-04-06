@@ -146,6 +146,10 @@ const FreelancerDetail = () => {
               <TabsContent value="overview">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
                   <h2 className="text-2xl font-semibold mb-6 text-gray-900">Giới thiệu</h2>
+                  <div className="mb-4">
+                    <span className="font-medium text-gray-700">Lĩnh vực: </span>
+                    <span className="text-primary">{freelancer?.categoryTitle}</span>
+                  </div>
                   <p className="text-gray-600 mb-8 leading-relaxed">{freelancer?.overview}</p>
 
                   <h3 className="text-xl font-semibold mb-4 text-gray-900">Kỹ năng chuyên môn</h3>
