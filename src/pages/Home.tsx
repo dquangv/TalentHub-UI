@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Star, MapPin } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, PenTool, Star, MapPin, Building, ChevronDown } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -208,8 +208,33 @@ const Home = () => {
       }
     };
 
+    const fetchLogo = async () => {
+      try {
+        const response = await api.get(`/v1/banners/logos`);
+        if (response.status === 200) {
+          setCustomers(response.data);
+        }
+      }
+      catch (error) {
+      }
+    };
+
+    fetchLogo();
     fetchJobs();
   }, []);
+
+  const [showAll, setShowAll] = useState(false);
+  const [customers, setCustomers] = useState([{
+    id: 1,
+    vendor: "TalentHub",
+    logo: null,
+    status: true
+  },])
+
+
+
+  const displayedCustomers = showAll ? customers : customers.slice(0, 3);
+
 
   return (
     <div>
@@ -758,8 +783,8 @@ const Home = () => {
                             Xem chi tiết
                           </Button>
                         </Link>
-                      </div>
-                    </div>
+                      </div >
+                    </div >
                     {/* <div className="mt-6">
               <Badge
                 variant="outline"
@@ -768,16 +793,81 @@ const Home = () => {
                 {job.typePackage}
               </Badge>
             </div> */}
-                  </Card>
-                </FadeInWhenVisible>
+                  </Card >
+                </FadeInWhenVisible >
               ))}
+            </div >
+          )}
+        </div >
+      </section >
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">{t('Howitworks')}</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {steps?.map((step, index) => (
+              <FadeInWhenVisible key={step.title} delay={index * 0.2}>
+                <div className="text-center group">
+                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-4 text-primary-700">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </div>
+              </FadeInWhenVisible>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+            Được tin tưởng bởi các doanh nghiệp hàng đầu
+          </h2>
+          <div className="grid grid-cols-3 gap-4 items-center">
+            {displayedCustomers.map((customer) => (
+              <div
+                key={customer.id}
+                className="flex flex-col items-center justify-center p-4 hover:bg-gray-50 rounded-lg transition-colors duration-300"
+              >
+                {customer.logo ? (
+                  <img
+                    src={customer.logo}
+                    alt={customer.vendor}
+                    className="h-12 object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <img
+                      width={40}
+                      src="/favicon.png"
+                      alt="Favicon"
+                      className="favicon"
+                    />
+                  </div>
+                )}
+                <p className="mt-2 text-sm font-medium text-gray-600 text-center">
+                  {customer.vendor}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {customers.length > 3 && (
+            <div className="text-center mt-8">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors duration-300 font-medium"
+              >
+                {showAll ? 'Thu gọn' : 'Xem thêm'}
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} />
+              </button>
             </div>
           )}
         </div>
       </section>
 
-
-      
 
       <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
@@ -824,7 +914,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 };
 
