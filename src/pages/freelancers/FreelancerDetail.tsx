@@ -111,7 +111,10 @@ const FreelancerDetail = () => {
                         <div className="flex items-center group">
                           <Briefcase className="w-5 h-5 mr-2 text-primary" />
                           <span className="group-hover:text-primary transition-colors">
-                            ${freelancer?.hourlyRate}/giờ
+                            {freelancer?.hourlyRate !== null && freelancer?.hourlyRate !== undefined
+                              ? freelancer?.hourlyRate.toLocaleString()
+                              : 'Chưa có'}{' '}
+                            VND/giờ
                           </span>
                         </div>
                       </div>
