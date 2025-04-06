@@ -99,7 +99,7 @@ const FreelancerDetail = () => {
                         <div className="flex items-center group">
                           <MapPin className="w-5 h-5 mr-2 text-primary" />
                           <span className="group-hover:text-primary transition-colors">
-                            {freelancer?.location}
+                            {freelancer?.province}, {freelancer?.country}
                           </span>
                         </div>
                         <div className="flex items-center group">
