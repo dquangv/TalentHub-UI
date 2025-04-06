@@ -59,10 +59,9 @@ const FreelancerDetail = () => {
   }
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long'
-    });
+    if (!dateString) return 'Hiện tại';
+    const date = new Date(dateString);
+    return `${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
   };
 
   return (
@@ -187,7 +186,7 @@ const FreelancerDetail = () => {
                               <span>•</span>
                               <div className="flex items-center">
                                 <Calendar className="w-4 h-4 mr-1" />
-                                {exp.startDate} - {exp.endDate || 'Hiện tại'}
+                                {formatDate(exp.startDate)} - {formatDate(exp.endDate)}
                               </div>
                             </div>
                             <p className="text-gray-600 leading-relaxed">{exp.description}</p>
