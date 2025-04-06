@@ -14,7 +14,5 @@ dist-ssr
 *.sln
 *.sw?
 
-src/api/axiosConfig.ts
-src/api/axiosConfig.ts
 Dockerfile
 nginx.conf
