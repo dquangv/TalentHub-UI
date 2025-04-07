@@ -44,6 +44,16 @@ interface Payments {
   latestDepositDate: string;
   todaySpending: number;
   latestSpendingDate: string;
+  oldestTransactionDate: string;
+}
+
+interface Transaction {
+  id: number;
+  money: number;
+  activity: string;
+  createdAt: string;
+  description: string;
+  status: string;
 }
 
 const Wallet = () => {
@@ -61,7 +71,18 @@ const Wallet = () => {
     latestDepositDate: "",
     todaySpending: 0,
     latestSpendingDate: "",
+    oldestTransactionDate: "",
   });
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: 0,
+      money: 0,
+      activity: "",
+      createdAt: "",
+      description: "",
+      status: "",
+    },
+  ]);
   const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
 
   const handleDeposit = () => {
@@ -128,8 +149,21 @@ const Wallet = () => {
     }
   };
 
+  const getTransactionsClient = async () => {
+    try {
+      const response = await api.get("/v1/transactions", {
+        params: { userId: userId },
+      });
+      console.log(response);
+      setTransactions(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getBalancerClient();
+    getTransactionsClient();
   }, [userId]);
 
   return (
@@ -153,7 +187,9 @@ const Wallet = () => {
                 <div className="flex items-center gap-4 mb-4">
                   <WalletIcon className="w-8 h-8" />
                   <div>
-                    <p className="text-sm text-muted-foreground text-white">Số dư</p>
+                    <p className="text-sm text-muted-foreground text-white">
+                      Số dư
+                    </p>
                     <h2 className="text-3xl font-bold">
                       {new Intl.NumberFormat("vi-VN", {
                         style: "currency",
@@ -258,39 +294,59 @@ const Wallet = () => {
                         Thông tin ví
                       </h3>
                       <div className="flex justify-between py-2 border-b">
-                        <span className="text-muted-foreground">ID Ví</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">W123456789</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => copyToClipboard("W123456789")}
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="text-muted-foreground">
-                          Trạng thái
-                        </span>
-                        <Badge
-                          variant="outline"
-                          className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        {/* <span className="text-muted-foreground">ID Ví</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{userId || "Không xác định"}</span>
+                        <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => copyToClipboard(userId)}
                         >
-                          Đang hoạt động
-                        </Badge>
+                        <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                      </div> */}
                       </div>
+                      {/* <div className="flex justify-between py-2 border-b">
+                      <span className="text-muted-foreground">
+                        Trạng thái
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      >
+                        Đang hoạt động
+                      </Badge>
+                      </div> */}
                       <div className="flex justify-between py-2 border-b">
                         <span className="text-muted-foreground">Ngày tạo</span>
-                        <span className="font-medium">15/03/2024</span>
+                        <span className="font-medium">
+                          {payments.latestDepositDate
+                            ? new Intl.DateTimeFormat("vi-VN", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                              }).format(
+                                new Date(payments.oldestTransactionDate)
+                              )
+                            : "Không có dữ liệu"}
+                        </span>
                       </div>
                       <div className="flex justify-between py-2 border-b">
                         <span className="text-muted-foreground">
                           Cập nhật lần cuối
                         </span>
-                        <span className="font-medium">Hôm nay, 10:30</span>
+                        <span className="font-medium">
+                          {payments.latestDepositDate
+                            ? new Intl.DateTimeFormat("vi-VN", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }).format(new Date(payments.latestDepositDate))
+                            : "Không có dữ liệu"}
+                        </span>
                       </div>
                     </div>
 
@@ -298,7 +354,7 @@ const Wallet = () => {
                       <h3 className="font-medium text-muted-foreground">
                         Giao dịch gần đây
                       </h3>
-                      {recentTransactions.map((transaction) => (
+                      {transactions.slice(0, 3).map((transaction) => (
                         <div
                           key={transaction.id}
                           className="flex items-center justify-between py-2 border-b"
@@ -306,12 +362,12 @@ const Wallet = () => {
                           <div className="flex items-center gap-3">
                             <div
                               className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                transaction.type === "deposit"
+                                transaction.activity === "Nạp tiền"
                                   ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
                                   : "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
                               }`}
                             >
-                              {transaction.type === "deposit" ? (
+                              {transaction.activity === "Nạp tiền" ? (
                                 <ArrowUpRight className="w-4 h-4" />
                               ) : (
                                 <ArrowDownLeft className="w-4 h-4" />
@@ -322,19 +378,27 @@ const Wallet = () => {
                                 {transaction.description}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {transaction.date}
+                                {transaction.createdAt
+                                  ? new Intl.DateTimeFormat("vi-VN", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }).format(new Date(transaction.createdAt))
+                                  : "Không rõ thời gian"}
                               </p>
                             </div>
                           </div>
                           <span
                             className={`font-medium ${
-                              transaction.type === "deposit"
+                              transaction.activity === "Nạp tiền"
                                 ? "text-green-600"
                                 : "text-amber-600"
                             }`}
                           >
-                            {transaction.type === "deposit" ? "+" : "-"}
-                            {transaction.amount}
+                            {transaction.activity === "Nạp tiền" ? "+" : "-"}
+                            {transaction.money}
                           </span>
                         </div>
                       ))}
@@ -447,7 +511,7 @@ const Wallet = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Mã giao dịch</TableHead>
+                          {/* <TableHead>Mã giao dịch</TableHead> */}
                           <TableHead>Ngày</TableHead>
                           <TableHead>Mô tả</TableHead>
                           <TableHead>Loại</TableHead>
@@ -458,56 +522,79 @@ const Wallet = () => {
                       <TableBody>
                         {transactions.map((transaction) => (
                           <TableRow key={transaction.id}>
-                            <TableCell className="font-medium">
+                            <TableCell className="font-medium hidden">
                               {transaction.id}
                             </TableCell>
-                            <TableCell>{transaction.date}</TableCell>
+
+                            <TableCell>
+                              {transaction.createdAt
+                                ? new Intl.DateTimeFormat("vi-VN", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }).format(new Date(transaction.createdAt))
+                                : "Không rõ thời gian"}
+                            </TableCell>
+
                             <TableCell>{transaction.description}</TableCell>
+
+                            {/* Activity Badge */}
                             <TableCell>
                               <Badge
-                                variant="outline"
-                                className={
-                                  transaction.type === "deposit"
-                                    ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                    : transaction.type === "refund"
-                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
-                                }
+                                className={`
+          border-none
+          ${
+            transaction.activity === "Nạp tiền"
+              ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+              : transaction.activity === "Rút tiền"
+              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
+              : "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+          }
+        `}
                               >
-                                {transaction.type === "deposit"
+                                {transaction.activity === "Nạp tiền"
                                   ? "Nạp tiền"
-                                  : transaction.type === "refund"
-                                  ? "Hoàn tiền"
+                                  : transaction.activity === "Rút tiền"
+                                  ? "Rút tiền"
                                   : "Thanh toán"}
                               </Badge>
                             </TableCell>
+
+                            {/* Số tiền hiển thị */}
                             <TableCell
                               className={`font-medium ${
-                                transaction.type === "deposit" ||
-                                transaction.type === "refund"
+                                transaction.activity === "Nạp tiền"
                                   ? "text-green-600 dark:text-green-400"
+                                  : transaction.activity === "Rút tiền"
+                                  ? "text-yellow-600 dark:text-yellow-400"
                                   : "text-amber-600 dark:text-amber-400"
                               }`}
                             >
-                              {transaction.type === "deposit" ||
-                              transaction.type === "refund"
+                              {(transaction.activity === "Nạp tiền" ||
+                              transaction.activity === "Rút tiền"
                                 ? "+"
-                                : "-"}
-                              {transaction.amount}
+                                : "-") + transaction.money}
                             </TableCell>
+
+                            {/* Status Badge */}
                             <TableCell>
                               <Badge
-                                variant={
-                                  transaction.status === "completed"
-                                    ? "default"
-                                    : transaction.status === "pending"
-                                    ? "secondary"
-                                    : "destructive"
-                                }
+                                className={`
+          border-none
+          ${
+            transaction.status === "SUCCESS"
+              ? "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+              : transaction.status === "PENDING"
+              ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+              : "bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+          }
+        `}
                               >
-                                {transaction.status === "completed"
-                                  ? "Hoàn thành"
-                                  : transaction.status === "pending"
+                                {transaction.status === "SUCCESS"
+                                  ? "Thành công"
+                                  : transaction.status === "PENDING"
                                   ? "Đang xử lý"
                                   : "Thất bại"}
                               </Badge>
@@ -816,117 +903,6 @@ const Wallet = () => {
     </div>
   );
 };
-
-// Sample data
-const recentTransactions = [
-  {
-    id: "TX123456",
-    date: "15/03/2024, 10:30",
-    description: "Nạp tiền qua ngân hàng",
-    type: "deposit",
-    amount: "1.000.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123455",
-    date: "14/03/2024, 15:45",
-    description: "Thanh toán dịch vụ Premium",
-    type: "payment",
-    amount: "500.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123454",
-    date: "12/03/2024, 09:15",
-    description: "Nạp tiền qua MoMo",
-    type: "deposit",
-    amount: "500.000đ",
-    status: "completed",
-  },
-];
-
-const transactions = [
-  {
-    id: "TX123456",
-    date: "15/03/2024, 10:30",
-    description: "Nạp tiền qua ngân hàng",
-    type: "deposit",
-    amount: "1.000.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123455",
-    date: "14/03/2024, 15:45",
-    description: "Thanh toán dịch vụ Premium",
-    type: "payment",
-    amount: "500.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123454",
-    date: "12/03/2024, 09:15",
-    description: "Nạp tiền qua MoMo",
-    type: "deposit",
-    amount: "500.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123453",
-    date: "10/03/2024, 14:20",
-    description: "Thanh toán dịch vụ đăng tin",
-    type: "payment",
-    amount: "200.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123452",
-    date: "08/03/2024, 11:05",
-    description: "Hoàn tiền dịch vụ",
-    type: "refund",
-    amount: "100.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123451",
-    date: "05/03/2024, 16:30",
-    description: "Nạp tiền qua thẻ tín dụng",
-    type: "deposit",
-    amount: "2.000.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123450",
-    date: "01/03/2024, 09:45",
-    description: "Thanh toán dịch vụ đăng tin",
-    type: "payment",
-    amount: "300.000đ",
-    status: "completed",
-  },
-  {
-    id: "TX123449",
-    date: "28/02/2024, 13:15",
-    description: "Nạp tiền qua ZaloPay",
-    type: "deposit",
-    amount: "500.000đ",
-    status: "pending",
-  },
-  {
-    id: "TX123448",
-    date: "25/02/2024, 10:10",
-    description: "Thanh toán dịch vụ đăng tin",
-    type: "payment",
-    amount: "200.000đ",
-    status: "failed",
-  },
-  {
-    id: "TX123447",
-    date: "20/02/2024, 14:50",
-    description: "Nạp tiền qua ngân hàng",
-    type: "deposit",
-    amount: "1.000.000đ",
-    status: "completed",
-  },
-];
 
 // Add Label component if not already defined
 const Label = ({
