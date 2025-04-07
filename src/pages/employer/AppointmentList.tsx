@@ -21,21 +21,20 @@ import {
 } from "@/components/ui/table";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
-  Filter,
   Calendar,
   Clock,
   Video,
   MapPin,
-  CheckCircle,
-  XCircle,
   BookUser,
   FileText,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 
 const AppointmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const navigate = useNavigate();
 
@@ -61,19 +60,40 @@ const AppointmentList = () => {
     fetchAppointments();
   }, [navigate]);
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch =
-      appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (appointment.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredAppointments = appointments
+    .filter((appointment) => {
+      const matchesSearch =
+        appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    return matchesSearch;
-  });
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.startTime).getTime();
+      const dateB = new Date(b.startTime).getTime();
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
 
   // Hàm chuyển hướng đến chi tiết công việc
   const navigateToJob = (jobId) => {
     navigate(`/jobs/${jobId}`);
+  };
+
+  // Định dạng ngày tháng
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('vi-VN', options);
+  };
+
+  // Định dạng giờ
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -114,7 +134,19 @@ const AppointmentList = () => {
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chủ đề</TableHead>
                   <TableHead>Bài đăng</TableHead>
-                  <TableHead>Thời gian</TableHead>
+                  <TableHead>
+                    <div
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                    >
+                      Thời gian
+                      {sortOrder === "asc" ? (
+                        <ArrowDownIcon className="ml-1" />
+                      ) : (
+                        <ArrowUpIcon className="ml-1" />
+                      )}
+                    </div>
+                  </TableHead>
                   <TableHead>Hình thức</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
@@ -165,16 +197,20 @@ const AppointmentList = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleDateString('vi-VN')}
+                          <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                          <span className="font-medium">
+                            {formatDate(appointment.startTime)}
+                          </span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleTimeString('vi-VN')}
+                          <Clock className="w-4 h-4 mr-2 text-emerald-500" />
+                          <span>
+                            {formatTime(appointment.startTime)}
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="ml-6 text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded-md inline-block">
                           {appointment.duration} phút
                         </div>
                       </div>
