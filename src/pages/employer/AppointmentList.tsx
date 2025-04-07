@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Edit } from "lucide-react";
+import EditAppointmentDialog from "./EditAppointmentDialog";
+import { notification } from "antd";
 import {
   Select,
   SelectContent,
@@ -35,46 +38,96 @@ const AppointmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
+  const fetchAppointments = async () => {
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    if (!data?.clientId) {
+      navigate("/login");
+      return;
+    }
 
+    try {
+      const response = await api.get(`/v1/appointments/clients/${data.clientId}`);
+      if (response && Array.isArray(response.data)) {
+        setAppointments(response.data);
+      } else {
+        console.error("Invalid appointments data format:", response);
+        setAppointments([]);
+        notification.warning({
+          message: "Dữ liệu không hợp lệ",
+          description: "Định dạng dữ liệu lịch hẹn không đúng",
+          placement: "topRight"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setAppointments([]);
+    }
+  };
   useEffect(() => {
-    const fetchAppointments = async () => {
-      const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      if (!data?.clientId) {
-        navigate("/login");
-        return;
-      }
+    fetchAppointments();
+  }, [navigate]);
+  const handleEditAppointment = (appointment) => {
+    const appointmentToEdit = { ...appointment };
+    if (appointmentToEdit.startTime) {
       try {
-        const response = await api.get(`/v1/appointments/clients/${data.clientId}`);
-        const appointmentsWithStatus = response.data.map((appointment: any) => ({
-          ...appointment,
-        }));
-        setAppointments(appointmentsWithStatus);
-
+        const testDate = new Date(appointmentToEdit.startTime);
+        if (isNaN(testDate.getTime())) {
+          appointmentToEdit.startTime = new Date().toISOString();
+        }
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error parsing appointment date:", error);
+        appointmentToEdit.startTime = new Date().toISOString();
       }
-    };
+    } else {
+      appointmentToEdit.startTime = new Date().toISOString();
+    }
 
+    setEditingAppointment(appointmentToEdit);
+    setIsEditDialogOpen(true);
+  };
+  const handleUpdateSuccess = (updatedAppointment) => {
+    if (!updatedAppointment || !updatedAppointment.id) {
+      console.error("Invalid updated appointment data:", updatedAppointment);
+      notification.error({
+        message: "Lỗi",
+        description: "Dữ liệu lịch hẹn cập nhật không hợp lệ",
+        placement: "topRight"
+      });
+      return;
+    }
+
+    setAppointments(prevAppointments => {
+      return prevAppointments.map(app =>
+        app && app.id === updatedAppointment.id ? updatedAppointment : app
+      );
+    });
+
+    fetchAppointments();
+  };
+  useEffect(() => {
     fetchAppointments();
   }, [navigate]);
 
-  const filteredAppointments = appointments
-    .filter((appointment) => {
+  const filteredAppointments = Array.isArray(appointments)
+    ? appointments.filter((appointment) => {
       const matchesSearch =
-        appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        appointment.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (appointment.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
+        (appointment?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.mail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
 
       return matchesSearch;
     })
-    .sort((a, b) => {
-      const dateA = new Date(a.startTime).getTime();
-      const dateB = new Date(b.startTime).getTime();
-      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-    });
+      .sort((a, b) => {
+        const dateA = new Date(a.startTime).getTime();
+        const dateB = new Date(b.startTime).getTime();
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      })
+    : [];
 
   // Hàm chuyển hướng đến chi tiết công việc
   const navigateToJob = (jobId) => {
@@ -242,6 +295,13 @@ const AppointmentList = () => {
                             Tham gia
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditAppointment(appointment)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                         <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
                         </Button>
@@ -269,6 +329,14 @@ const AppointmentList = () => {
           </FadeInWhenVisible>
         )}
       </div>
+      {editingAppointment && (
+        <EditAppointmentDialog
+          appointment={editingAppointment}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSuccess={handleUpdateSuccess}
+        />
+      )}
     </div>
   );
 };
