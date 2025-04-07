@@ -29,6 +29,7 @@ import {
   CheckCircle,
   XCircle,
   BookUser,
+  FileText,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 
@@ -37,8 +38,6 @@ const AppointmentList = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
 
   const navigate = useNavigate();
-
-  
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -63,15 +62,19 @@ const AppointmentList = () => {
   }, [navigate]);
 
   const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch = 
+    const matchesSearch =
       appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.topic.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    
-    return matchesSearch ;
+      appointment.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appointment.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    return matchesSearch;
   });
 
+  // Hàm chuyển hướng đến chi tiết công việc
+  const navigateToJob = (jobId) => {
+    navigate(`/jobs/${jobId}`);
+  };
 
   return (
     <div className="py-12">
@@ -92,7 +95,7 @@ const AppointmentList = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <Input
-                  placeholder="Tìm kiếm theo tên, email hoặc chủ đề..."
+                  placeholder="Tìm kiếm theo tên, email, chủ đề hoặc bài đăng..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
@@ -110,6 +113,7 @@ const AppointmentList = () => {
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chủ đề</TableHead>
+                  <TableHead>Bài đăng</TableHead>
                   <TableHead>Thời gian</TableHead>
                   <TableHead>Hình thức</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -145,6 +149,20 @@ const AppointmentList = () => {
                           </p>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {appointment.jobId && appointment.jobTitle ? (
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                          onClick={() => navigateToJob(appointment.jobId)}
+                        >
+                          <FileText className="w-4 h-4" />
+                          {appointment.jobTitle}
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">Không có</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
