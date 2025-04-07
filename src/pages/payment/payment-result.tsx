@@ -25,16 +25,10 @@ export default function PaymentResult() {
   const [searchParams] = useSearchParams();
 
   const getPaymentStatus = (vnp_ResponseCode: string) => {
-    switch (vnp_ResponseCode) {
-      case "00":
-        return "success";
-      case "07":
-        return "pending";
-      case "24":
-        return "cancelled";
-      default:
-        return "failed";
-    }
+    if (vnp_ResponseCode === "00") return "success";
+    else if (vnp_ResponseCode === "07") return "pending";
+    else if (vnp_ResponseCode === "24") return "cancelled";
+    else return "failed";
   };
 
   useEffect(() => {
@@ -61,7 +55,7 @@ export default function PaymentResult() {
         // Send all VNPay parameters to the server
         const response = await api.post("/v1/payments/vnpay-callback", {
           vnp_ResponseCode,
-          vnpAmount: vnp_Amount,
+          vnp_Amount,
           userId,
         });
 
