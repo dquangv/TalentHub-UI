@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Edit } from "lucide-react";
+import EditAppointmentDialog from "./EditAppointmentDialog";
+import { notification } from "antd";
 import {
   Select,
   SelectContent,
@@ -21,57 +24,130 @@ import {
 } from "@/components/ui/table";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
-  Filter,
   Calendar,
   Clock,
   Video,
   MapPin,
-  CheckCircle,
-  XCircle,
   BookUser,
+  FileText,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
 
 const AppointmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
+  const fetchAppointments = async () => {
+    const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    if (!data?.clientId) {
+      navigate("/login");
+      return;
+    }
 
-  
-
+    try {
+      const response = await api.get(`/v1/appointments/clients/${data.clientId}`);
+      if (response && Array.isArray(response.data)) {
+        setAppointments(response.data);
+      } else {
+        console.error("Invalid appointments data format:", response);
+        setAppointments([]);
+        notification.warning({
+          message: "Dữ liệu không hợp lệ",
+          description: "Định dạng dữ liệu lịch hẹn không đúng",
+          placement: "topRight"
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setAppointments([]);
+    }
+  };
   useEffect(() => {
-    const fetchAppointments = async () => {
-      const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-      if (!data?.clientId) {
-        navigate("/login");
-        return;
-      }
+    fetchAppointments();
+  }, [navigate]);
+  const handleEditAppointment = (appointment) => {
+    const appointmentToEdit = { ...appointment };
+    if (appointmentToEdit.startTime) {
       try {
-        const response = await api.get(`/v1/appointments/clients/${data.clientId}`);
-        const appointmentsWithStatus = response.data.map((appointment: any) => ({
-          ...appointment,
-        }));
-        setAppointments(appointmentsWithStatus);
-
+        const testDate = new Date(appointmentToEdit.startTime);
+        if (isNaN(testDate.getTime())) {
+          appointmentToEdit.startTime = new Date().toISOString();
+        }
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error parsing appointment date:", error);
+        appointmentToEdit.startTime = new Date().toISOString();
       }
-    };
+    } else {
+      appointmentToEdit.startTime = new Date().toISOString();
+    }
 
+    setEditingAppointment(appointmentToEdit);
+    setIsEditDialogOpen(true);
+  };
+  const handleUpdateSuccess = (updatedAppointment) => {
+    if (!updatedAppointment || !updatedAppointment.id) {
+      console.error("Invalid updated appointment data:", updatedAppointment);
+      notification.error({
+        message: "Lỗi",
+        description: "Dữ liệu lịch hẹn cập nhật không hợp lệ",
+        placement: "topRight"
+      });
+      return;
+    }
+
+    setAppointments(prevAppointments => {
+      return prevAppointments.map(app =>
+        app && app.id === updatedAppointment.id ? updatedAppointment : app
+      );
+    });
+
+    fetchAppointments();
+  };
+  useEffect(() => {
     fetchAppointments();
   }, [navigate]);
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch = 
-      appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.topic.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    
-    return matchesSearch ;
-  });
+  const filteredAppointments = Array.isArray(appointments)
+    ? appointments.filter((appointment) => {
+      const matchesSearch =
+        (appointment?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.mail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (appointment?.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
 
+      return matchesSearch;
+    })
+      .sort((a, b) => {
+        const dateA = new Date(a.startTime).getTime();
+        const dateB = new Date(b.startTime).getTime();
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      })
+    : [];
+
+  // Hàm chuyển hướng đến chi tiết công việc
+  const navigateToJob = (jobId) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
+  // Định dạng ngày tháng
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('vi-VN', options);
+  };
+
+  // Định dạng giờ
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
 
   return (
     <div className="py-12">
@@ -92,7 +168,7 @@ const AppointmentList = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <Input
-                  placeholder="Tìm kiếm theo tên, email hoặc chủ đề..."
+                  placeholder="Tìm kiếm theo tên, email, chủ đề hoặc bài đăng..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full"
@@ -110,7 +186,20 @@ const AppointmentList = () => {
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chủ đề</TableHead>
-                  <TableHead>Thời gian</TableHead>
+                  <TableHead>Bài đăng</TableHead>
+                  <TableHead>
+                    <div
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                    >
+                      Thời gian
+                      {sortOrder === "asc" ? (
+                        <ArrowDownIcon className="ml-1" />
+                      ) : (
+                        <ArrowUpIcon className="ml-1" />
+                      )}
+                    </div>
+                  </TableHead>
                   <TableHead>Hình thức</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
@@ -147,16 +236,34 @@ const AppointmentList = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1">
+                      {appointment.jobId && appointment.jobTitle ? (
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                          onClick={() => navigateToJob(appointment.jobId)}
+                        >
+                          <FileText className="w-4 h-4" />
+                          {appointment.jobTitle}
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">Không có</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleDateString('vi-VN')}
+                          <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                          <span className="font-medium">
+                            {formatDate(appointment.startTime)}
+                          </span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleTimeString('vi-VN')}
+                          <Clock className="w-4 h-4 mr-2 text-emerald-500" />
+                          <span>
+                            {formatTime(appointment.startTime)}
+                          </span>
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="ml-6 text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded-md inline-block">
                           {appointment.duration} phút
                         </div>
                       </div>
@@ -188,6 +295,13 @@ const AppointmentList = () => {
                             Tham gia
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditAppointment(appointment)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
                         <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
                         </Button>
@@ -215,6 +329,14 @@ const AppointmentList = () => {
           </FadeInWhenVisible>
         )}
       </div>
+      {editingAppointment && (
+        <EditAppointmentDialog
+          appointment={editingAppointment}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSuccess={handleUpdateSuccess}
+        />
+      )}
     </div>
   );
 };
