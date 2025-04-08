@@ -16,10 +16,11 @@ import MessageInfoPanel from './ChatComponents/MessageInfoPanel';
 import ConnectionStatus from './ChatComponents/ConnectionStatus';
 import MobileDrawer from './ChatComponents/MobileDrawer';
 import VideoCallDialog from './ChatComponents/VideoCallDialog';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 
-const MessagingContent = ({ contactId }) => {
+
+const MessagingContent = ({ contactId, navigate }) => {
     const {
         conversations,
         activeConversationId,
@@ -31,11 +32,6 @@ const MessagingContent = ({ contactId }) => {
         createNewConversation,
         markAsRead
     } = useMessages();
-    useEffect(() => {
-        if (contactId) {
-            checkAndCreateConversation(contactId);
-        }
-    }, [contactId, checkAndCreateConversation]);
     const {
         isInCall,
         isCallActive,
@@ -54,10 +50,56 @@ const MessagingContent = ({ contactId }) => {
         toggleVideo,
         toggleScreenShare
     } = useCall();
-
+    const [isLoadingConversation, setIsLoadingConversation] = useState(false);
     const [showInfoPanel, setShowInfoPanel] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isTablet, setIsTablet] = useState(false);
+    const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
+
+    // Thêm state riêng để lưu trữ activeConversation
+    const [activeConversation, setActiveConversation] = useState(null);
+
+    // useEffect riêng để xác định activeConversation từ activeConversationId và conversations
+    useEffect(() => {
+        if (activeConversationId && conversations.length > 0) {
+            // Sử dụng so sánh bằng string để tránh vấn đề kiểu dữ liệu
+            const conversation = conversations.find(
+                conv => String(conv.id) === String(activeConversationId)
+            );
+
+            if (conversation) {
+                console.log('Found matching conversation:', conversation.id, conversation.name);
+                setActiveConversation(conversation);
+            } else {
+                console.log('No matching conversation found for ID:', activeConversationId,
+                    'in', conversations.length, 'conversations');
+                setActiveConversation(null);
+            }
+        } else {
+            setActiveConversation(null);
+        }
+    }, [activeConversationId, conversations]);
+
+    // Chỉ gọi khi contactId thay đổi hoặc lần đầu tiên
+    useEffect(() => {
+        if (contactId && !isInitialLoadDone) {
+            console.log('Focusing on conversation with contactId:', contactId);
+            setIsLoadingConversation(true);
+
+            checkAndCreateConversation(contactId)
+                .then(() => {
+                    console.log("Conversation checked/created successfully");
+                    setIsInitialLoadDone(true);
+
+                    if (activeConversationId) {
+                        markAsRead(activeConversationId);
+                    }
+                })
+                .finally(() => {
+                    setIsLoadingConversation(false);
+                });
+        }
+    }, [contactId, checkAndCreateConversation, markAsRead, isInitialLoadDone, activeConversationId]);
 
     // State for mobile drawers
     const [showConversationDrawer, setShowConversationDrawer] = useState(false);
@@ -77,11 +119,13 @@ const MessagingContent = ({ contactId }) => {
             setShowConversationDrawer(false);
         }
     }, []);
+
     useEffect(() => {
         const handleSelectConversation = (event: CustomEvent<any>) => {
             const { conversationId } = event.detail;
             if (conversationId) {
                 setActiveConversationId(conversationId);
+                navigate(`/messaging?contactId=${conversationId}`, { replace: true });
             }
         };
 
@@ -90,7 +134,8 @@ const MessagingContent = ({ contactId }) => {
         return () => {
             window.removeEventListener('select-conversation', handleSelectConversation as EventListener);
         };
-    }, [setActiveConversationId]);
+    }, [setActiveConversationId, navigate]);
+
     useEffect(() => {
         checkViewportSize();
         const handleResize = () => {
@@ -120,8 +165,6 @@ const MessagingContent = ({ contactId }) => {
         }
     };
 
-    const activeConversation = conversations.find(conv => conv.id === activeConversationId);
-
     const handleCreateNewConversation = (name) => {
         const newId = createNewConversation(name);
         setActiveConversationId(newId);
@@ -133,11 +176,10 @@ const MessagingContent = ({ contactId }) => {
     // Handle selecting conversation
     const handleSelectConversation = (id) => {
         setActiveConversationId(id);
-        // Close mobile drawer when selecting one
+        navigate(`/messaging?contactId=${id}`, { replace: true });
         if (isMobile) {
             setShowConversationDrawer(false);
         }
-        // Close info panel if it was open on tablet
         if (showInfoPanel && isTablet) {
             setShowInfoPanel(false);
         }
@@ -155,11 +197,17 @@ const MessagingContent = ({ contactId }) => {
         endCall();
     };
 
+    // Mark messages as read khi active conversation thay đổi
     useEffect(() => {
         if (activeConversationId) {
             markAsRead(activeConversationId);
         }
     }, [activeConversationId, markAsRead]);
+
+    // Để debug
+    console.log('RENDER - activeConversationId:', activeConversationId);
+    console.log('RENDER - activeConversation:', activeConversation);
+    console.log('RENDER - conversations count:', conversations.length);
 
     return (
         <div className="h-screen w-full flex flex-col overflow-hidden">
@@ -168,7 +216,7 @@ const MessagingContent = ({ contactId }) => {
                     {/* Mobile buttons */}
                     <div className="flex md:hidden space-x-2">
                         {/* Info button - only show when a conversation is active */}
-                        {activeConversationId && (
+                        {activeConversation && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -207,7 +255,12 @@ const MessagingContent = ({ contactId }) => {
                                 ${(showInfoPanel && !isMobile && !isTablet) ? 'lg:pr-80' : ''}
                             `}
                         >
-                            {activeConversation ? (
+                            {isLoadingConversation ? (
+                                // Hiển thị trạng thái loading
+                                <div className="flex-1 flex items-center justify-center">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                                </div>
+                            ) : activeConversation ? (
                                 <>
                                     <ChatHeader
                                         name={activeConversation.name}
@@ -233,7 +286,6 @@ const MessagingContent = ({ contactId }) => {
                                     title="Chọn cuộc trò chuyện"
                                     description="Chọn một cuộc trò chuyện từ danh sách hoặc tạo cuộc trò chuyện mới."
                                     icon={<MessageSquare className="w-10 h-10 md:h-12 md:w-12 text-primary" />}
-
                                 />
                             )}
                         </div>
@@ -323,15 +375,16 @@ const MessagingPage = () => {
     const userId = userInfoStr ? JSON.parse(userInfoStr).userId || '' : '';
     const [searchParams] = useSearchParams();
     const contactId = searchParams.get('contactId') || '';
-    const [hasInitialized, setHasInitialized] = useState(false);
+    const navigate = useNavigate();
+
+    console.log('MessagingPage loaded with contactId:', contactId);
 
     return (
         <MessageProvider initialContactId={contactId}>
             <CallProvider userId={userId}>
                 <MessagingContent
                     contactId={contactId}
-                    hasInitialized={hasInitialized}
-                    setHasInitialized={setHasInitialized}
+                    navigate={navigate}
                 />
             </CallProvider>
         </MessageProvider>
