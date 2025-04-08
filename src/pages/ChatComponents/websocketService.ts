@@ -1,7 +1,8 @@
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as Stomp from '@stomp/stompjs';
 import { SignalRequest, SignalResponse } from './webRTCService';
-export const serverURL = 'https://elected-playstation-due-enhanced.trycloudflare.com';
+import config from '@/config';
+export const serverURL = config.current.WEBSOCKET_URL;
 export interface MessageRequest {
     senderId: string;
     receiverId: string;

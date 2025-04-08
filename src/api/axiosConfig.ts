@@ -1,24 +1,9 @@
 import axios from 'axios';
 import { notification } from 'antd';
-
-const ENV = {
-    development: {
-        API_URL: 'http://localhost:8080/api',
-        TIMEOUT: 30000,
-    },
-    production: {
-        API_URL: 'https://elected-playstation-due-enhanced.trycloudflare.com/api',
-        TIMEOUT: 30000,
-    }
-};
-
-// config môi trường
-const config = ENV[process.env.NODE_ENV || 'development'];
-
-// instance axios
+import config from '@/config';
 const axiosInstance = axios.create({
-    baseURL: config.API_URL,
-    timeout: config.TIMEOUT,
+    baseURL: config.current.API_URL,
+    timeout: config.current.TIMEOUT,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -48,7 +33,6 @@ axiosInstance.interceptors.response.use(
         const { response } = error;
         const originalRequest = error.config;
 
-        // Thử sử dụng dữ liệu tĩnh khi offline
         if (!window.navigator.onLine && !originalRequest._retry) {
             originalRequest._retry = true;
 
@@ -62,7 +46,6 @@ axiosInstance.interceptors.response.use(
             } else if (url.includes('/v1/banners')) {
                 staticDataPath = '/static-data/banners.json';
             }
-
             if (staticDataPath) {
                 try {
                     console.log(`Falling back to static data: ${staticDataPath}`);

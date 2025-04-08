@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Mail, Lock, Chrome, Facebook } from "lucide-react";
 import api from "@/api/axiosConfig";
+import config from "@/config";
 import { useAuth } from "@/contexts/AuthContext";
 import { notification } from "antd";
 
@@ -18,14 +19,13 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userLocation, setUserLocation] = useState({ lat: null, lng: null });
-
-  const { login } = useAuth();
-  const navigate = useNavigate();
   const [location, setLocation] = useState<{
     lat: number | null;
     lng: number | null;
   }>({ lat: null, lng: null });
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get user location when component mounts
@@ -46,14 +46,12 @@ const Login = () => {
       }
     );
   }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setLoading(true);
     setError("");
-
-    let lat = null;
-    let lng = null;
 
     try {
       const response = await api.post("/v1/auth/login", {
@@ -81,13 +79,16 @@ const Login = () => {
       console.error("Error during login:", err);
       notification.error({
         message: 'Lỗi đăng nhập',
-        description: err.response.data.message
-    });
-      // setError("Đăng nhập không thành công, vui lòng thử lại.");
+        description: err.response?.data?.message || 'Đăng nhập không thành công'
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  // Lấy URLs OAuth từ config
+  const googleAuthUrl = `${config.current.OAUTH_BASE_URL}/google`;
+  const facebookAuthUrl = `${config.current.OAUTH_BASE_URL}/facebook`;
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-b from-primary/5 via-background to-background">
@@ -163,25 +164,18 @@ const Login = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <a
-                  href="http://localhost:8080/oauth2/authorization/google"
-                  className="w-full"
-                >
+                <a href={googleAuthUrl} className="w-full">
                   <Button variant="outline" className="w-full">
                     <Chrome className="mr-2 h-4 w-4" />
                     Google
                   </Button>
                 </a>
-                <a
-                  href="http://localhost:8080/oauth2/authorization/facebook"
-                  className="w-full"
-                >
+                <a href={facebookAuthUrl} className="w-full">
                   <Button variant="outline" className="w-full">
                     <Facebook className="mr-2 h-4 w-4" />
                     Facebook
                   </Button>
                 </a>
-
               </div>
 
               <p className="text-center mt-6 text-sm text-muted-foreground">
