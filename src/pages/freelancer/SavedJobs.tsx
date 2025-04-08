@@ -1,18 +1,26 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Search, Briefcase, Clock, DollarSign, MapPin, Bookmark, Calendar } from 'lucide-react';
-import api from '@/api/axiosConfig'; 
-import { notification } from 'antd';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import {
+  Search,
+  Briefcase,
+  Clock,
+  DollarSign,
+  MapPin,
+  Bookmark,
+  Calendar,
+} from "lucide-react";
+import api from "@/api/axiosConfig";
+import { notification } from "antd";
 
 const SavedJobs = () => {
-  const [savedJobs, setSavedJobs] = useState<any[]>([]); 
-  const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate()
+  const [savedJobs, setSavedJobs] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -22,8 +30,10 @@ const SavedJobs = () => {
 
     const fetchSavedJobs = async () => {
       try {
-        const response = await api.get(`/v1/jobs/SavedJobs/${data.freelancerId}`);
-        setSavedJobs(response.data); 
+        const response = await api.get(
+          `/v1/jobs/SavedJobs/${data.freelancerId}`
+        );
+        setSavedJobs(response.data);
       } catch (error) {
         console.error(error);
       }
@@ -32,7 +42,6 @@ const SavedJobs = () => {
     fetchSavedJobs();
   }, []);
 
-  
   // const handleApplyJob = async (jobId: any) => {
   //   const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
@@ -56,9 +65,9 @@ const SavedJobs = () => {
   //       description: "Ứng tuyển thành công. Vui lòng chờ để được chấp nhận",
   //     });
   //   }
-  
+
   // };
-  
+
   const handleUnSaveJob = async (jobId: any) => {
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
     if (!data?.freelancerId) {
@@ -68,12 +77,12 @@ const SavedJobs = () => {
       freelancerId: data?.freelancerId,
       jobId: Number(jobId),
     });
-   
+
     notification.info({
       message: "Thông báo",
       description: "Hủy lưu việc thành công",
     });
-    setSavedJobs(pre => pre.filter(item => item?.jobId != jobId))
+    setSavedJobs((pre) => pre.filter((item) => item?.jobId != jobId));
   };
 
   return (
@@ -112,76 +121,101 @@ const SavedJobs = () => {
         {/* Saved Jobs List */}
         <div className="space-y-6">
           {savedJobs.length > 0 ? (
-            savedJobs.filter((job) => 
-              job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              job.companyName.toLowerCase().includes(searchTerm.toLowerCase())
-            )?.map((job, index) => (
-              <FadeInWhenVisible key={job.jobId} delay={index * 0.1}>
-                <Card className="p-6">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1">
+            savedJobs
+              .filter(
+                (job) =>
+                  job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  job.companyName
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+              )
+              ?.map((job, index) => (
+                <FadeInWhenVisible key={job.jobId} delay={index * 0.1}>
+                  <Card className="p-6">
+                    <div>
                       <div className="flex items-center justify-between mb-2">
-                        <Link to={`/jobs/${job.jobId}`} className="hover:underline">
+                        <Link
+                          to={`/jobs/${job.jobId}`}
+                          className="hover:underline"
+                        >
                           <h3 className="text-xl font-semibold">{job.title}</h3>
                         </Link>
                         <div className="flex items-center gap-2">
-                          <Badge variant={job.jobType === 'Toàn thời gian' ? 'default' : 'secondary'}>
+                          <Badge
+                            variant={
+                              job.jobType === "Toàn thời gian"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
                             {job.jobType}
                           </Badge>
-                          <Button onClick={() => handleUnSaveJob(job.jobId)} variant="ghost" size="icon" className="text-primary">
-                            <Bookmark className="w-5 h-5 fill-current"/>
+                          <Button
+                            onClick={() => handleUnSaveJob(job.jobId)}
+                            variant="ghost"
+                            size="icon"
+                            className="text-primary"
+                          >
+                            <Bookmark className="w-5 h-5 fill-current" />
                           </Button>
                         </div>
                       </div>
+                    </div>
+                    <div className="flex flex-col md:flex-row md:items-center gap-6">
+                      <div className="flex-1">
+                        <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center">
+                            <Briefcase className="w-4 h-4 mr-2" />
+                            {job.companyName}
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="w-4 h-4 mr-2" />
+                            {job.hourWork} giờ
+                          </div>
+                          <div className="flex items-center">
+                            <DollarSign className="w-4 h-4 mr-2" />
+                            {job.fromPrice} - {job.toPrice} VND
+                          </div>
+                        </div>
 
-                      <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
-                        <div className="flex items-center">
-                          <Briefcase className="w-4 h-4 mr-2" />
-                          {job.companyName}
+                        <p className="text-muted-foreground mb-4">
+                          {job.description}
+                        </p>
+
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {job?.skillNames?.map((skill: any) => (
+                            <Badge key={skill} variant="outline">
+                              {skill}
+                            </Badge>
+                          ))}
                         </div>
-                     
-                        <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2" />
-                          {job.hourWork} giờ
+
+                        <div className="flex flex-wrap gap-4">
+                          {/* <Button onClick={() => handleApplyJob(job.jobId)} variant="outline">
+                    {job.applied ? "Đã ứng tuyển" : "Ứng tuyển ngay"}
+                  </Button> */}
                         </div>
-                        <div className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-2" />
-                          {job.fromPrice} - {job.toPrice} VND
-                        </div>
-                        {/* <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Lưu: {job.savedDate}
-                        </div> */}
                       </div>
 
-                      <p className="text-muted-foreground mb-4">{job.description}</p>
-
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {job?.skillNames?.map((skill: any) => (
-                          <Badge key={skill} variant="outline">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex flex-wrap gap-4">
+                      <div className="flex flex-col gap-2">
                         <Button asChild>
                           <Link to={`/jobs/${job.jobId}`}>Xem chi tiết</Link>
                         </Button>
-                        {/* <Button onClick={() => handleApplyJob(job.jobId)} variant="outline"> {job.applied ? "Đã ứng tuyển": "Ứng tuyển ngay"}</Button> */}
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </FadeInWhenVisible>
-            ))
+                  </Card>
+                </FadeInWhenVisible>
+              ))
           ) : (
             <FadeInWhenVisible>
               <Card className="p-12 text-center">
                 <Bookmark className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">Chưa có công việc đã lưu</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Chưa có công việc đã lưu
+                </h3>
                 <p className="text-muted-foreground mb-6">
-                  Bạn chưa lưu công việc nào. Hãy khám phá các cơ hội việc làm và lưu lại những công việc bạn quan tâm.
+                  Bạn chưa lưu công việc nào. Hãy khám phá các cơ hội việc làm
+                  và lưu lại những công việc bạn quan tâm.
                 </p>
                 <Button asChild>
                   <Link to="/jobs">Tìm việc ngay</Link>
