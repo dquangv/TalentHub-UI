@@ -121,7 +121,7 @@ const FreelancerDetail = () => {
                       <Button
                         size="lg"
                         className="shadow-md hover:shadow-lg transition-shadow"
-                        onClick={() => window.open(`/messaging`, '_blank')}
+                        onClick={() => window.open(`/messaging?contactId=${freelancer?.userId}`, '_blank')}
                       >
                         <MessageCircle className="w-5 h-5 mr-2" />
                         Liên hệ ngay
