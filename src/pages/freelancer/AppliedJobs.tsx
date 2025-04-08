@@ -1,37 +1,45 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Filter, Clock, DollarSign, Briefcase, Calendar, Send, Star } from 'lucide-react';
-import api from '@/api/axiosConfig';
-import { notification } from 'antd';
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import {
+  Filter,
+  Clock,
+  DollarSign,
+  Briefcase,
+  Calendar,
+  Send,
+  Star,
+} from "lucide-react";
+import api from "@/api/axiosConfig";
+import { notification } from "antd";
 
 const AppliedJobs = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [appliedJobs, setAppliedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [rating, setRating] = useState<number>(0);
-  const [note, setNote] = useState<string>('');
+  const [note, setNote] = useState<string>("");
   const navigate = useNavigate();
 
   const fetchAppliedJobs = async () => {
@@ -42,11 +50,13 @@ const AppliedJobs = () => {
       return;
     }
     try {
-      const response = await api.get(`/v1/jobs/ApplyJobs/${data?.freelancerId}`);
+      const response = await api.get(
+        `/v1/jobs/ApplyJobs/${data?.freelancerId}`
+      );
       setAppliedJobs(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching jobs:', error);
+      console.error("Error fetching jobs:", error);
       setLoading(false);
     }
   };
@@ -57,29 +67,29 @@ const AppliedJobs = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'interviewing':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-      case 'accepted':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'rejected':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-      case 'Completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "interviewing":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case "accepted":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "rejected":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      case "Completed":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'applied':
-        return 'Đã ứng tuyển';
-      case 'rejected':
-        return 'Bị từ chối';
-      case 'approved':
-        return 'Được chấp thuận';
+      case "applied":
+        return "Đã ứng tuyển";
+      case "rejected":
+        return "Bị từ chối";
+      case "approved":
+        return "Được chấp thuận";
       // case 'cancelled':
       //   return 'Đã hủy';
       // case 'Completed':
@@ -98,32 +108,42 @@ const AppliedJobs = () => {
     };
 
     try {
-      const response = await api.post(`/v1/jobs/${selectedJobId}/client/review`, reviewData);
+      const response = await api.post(
+        `/v1/jobs/${selectedJobId}/client/review`,
+        reviewData
+      );
       notification.success({
-        message: 'Thành công',
-        description: 'Đánh giá đã được gửi thành công',
+        message: "Thành công",
+        description: "Đánh giá đã được gửi thành công",
       });
       setReviewDialogOpen(false);
       setRating(0);
-      setNote('');
+      setNote("");
       fetchAppliedJobs();
     } catch (error) {
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể gửi đánh giá',
+        message: "Lỗi",
+        description: "Không thể gửi đánh giá",
       });
-      console.error('Error submitting review:', error);
+      console.error("Error submitting review:", error);
     }
   };
 
-  const StarRating = ({ rating, setRating }: { rating: number; setRating: (value: number) => void }) => {
+  const StarRating = ({
+    rating,
+    setRating,
+  }: {
+    rating: number;
+    setRating: (value: number) => void;
+  }) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 cursor-pointer ${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-              }`}
+            className={`w-6 h-6 cursor-pointer ${
+              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+            }`}
             onClick={() => setRating(star)}
           />
         ))}
@@ -135,7 +155,7 @@ const AppliedJobs = () => {
     const matchesSearch =
       job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -147,7 +167,8 @@ const AppliedJobs = () => {
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Công việc đã ứng tuyển</h1>
             <p className="text-muted-foreground">
-              Theo dõi trạng thái ứng tuyển và quản lý các công việc bạn đã nộp hồ sơ
+              Theo dõi trạng thái ứng tuyển và quản lý các công việc bạn đã nộp
+              hồ sơ
             </p>
           </div>
         </FadeInWhenVisible>
@@ -191,15 +212,18 @@ const AppliedJobs = () => {
             filteredJobs?.map((job, index) => (
               <FadeInWhenVisible key={job.id} delay={index * 0.1}>
                 <Card className="p-6">
-                  <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex flex-col md:flex-row md:items-center gap-6">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
-                          <h3 className="text-xl font-semibold">{job.jobTitle}</h3>
+                        <Link
+                          to={`/jobs/${job.id}`}
+                          className="hover:underline"
+                        >
+                          <h3 className="text-xl font-semibold">
+                            {job.jobTitle}
+                          </h3>
                         </Link>
-                        <Badge className={getStatusColor(job.status)}>
-                          {getStatusText(job.status)}
-                        </Badge>
+                   
                       </div>
 
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
@@ -215,13 +239,11 @@ const AppliedJobs = () => {
                           <DollarSign className="w-4 h-4 mr-2" />
                           {job.fromPrice} - {job.toPrice} VND
                         </div>
-                        {/* <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Ứng tuyển: {job.appliedDate}
-                        </div> */}
                       </div>
 
-                      <p className="text-muted-foreground mb-4">{job.description}</p>
+                      <p className="text-muted-foreground mb-4">
+                        {job.description}
+                      </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         {job.skillNames?.map((skill) => (
@@ -232,13 +254,10 @@ const AppliedJobs = () => {
                       </div>
 
                       <div className="flex flex-wrap gap-4">
-                        <Button asChild>
-                          <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
-                        </Button>
-                        {job.status === 'interviewing' && (
+                        {job.status === "interviewing" && (
                           <Button variant="outline">Xem lịch phỏng vấn</Button>
                         )}
-                        {job.status === 'Completed' &&
+                        {job.status === "Completed" && (
                           <Button
                             variant="outline"
                             onClick={() => {
@@ -249,15 +268,26 @@ const AppliedJobs = () => {
                             <Star className="w-4 h-4 mr-2" />
                             Đánh giá
                           </Button>
-                        }
+                        )}
                       </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                    <Badge className={getStatusColor(job.status)}>
+                          {getStatusText(job.status)}
+                        </Badge>
+                      <Button asChild>
+                        <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
+                      </Button>
                     </div>
                   </div>
                 </Card>
               </FadeInWhenVisible>
             ))
           ) : (
-            <div className="text-center py-12">Không có công việc đã ứng tuyển nào.</div>
+            <div className="text-center py-12">
+              Không có công việc đã ứng tuyển nào.
+            </div>
           )}
         </div>
 
@@ -266,9 +296,12 @@ const AppliedJobs = () => {
           <FadeInWhenVisible>
             <Card className="p-12 text-center">
               <Send className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-xl font-semibold mb-2">Chưa có công việc đã ứng tuyển</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Chưa có công việc đã ứng tuyển
+              </h3>
               <p className="text-muted-foreground mb-6">
-                Bạn chưa ứng tuyển vào công việc nào. Hãy bắt đầu tìm kiếm và ứng tuyển vào những công việc phù hợp với bạn.
+                Bạn chưa ứng tuyển vào công việc nào. Hãy bắt đầu tìm kiếm và
+                ứng tuyển vào những công việc phù hợp với bạn.
               </p>
               <Button asChild>
                 <Link to="/jobs">Tìm việc ngay</Link>
@@ -281,16 +314,21 @@ const AppliedJobs = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                Đánh giá công việc: {appliedJobs.find((job) => job.id === selectedJobId)?.jobTitle}
+                Đánh giá công việc:{" "}
+                {appliedJobs.find((job) => job.id === selectedJobId)?.jobTitle}
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Điểm đánh giá (1-5 sao)</label>
+                <label className="block text-sm font-medium mb-2">
+                  Điểm đánh giá (1-5 sao)
+                </label>
                 <StarRating rating={rating} setRating={setRating} />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Ghi chú</label>
+                <label className="block text-sm font-medium mb-2">
+                  Ghi chú
+                </label>
                 <Textarea
                   placeholder="Nhập ghi chú về công việc"
                   value={note}
@@ -298,7 +336,10 @@ const AppliedJobs = () => {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setReviewDialogOpen(false)}
+                >
                   Hủy
                 </Button>
                 <Button onClick={handleReviewSubmit}>Gửi đánh giá</Button>
