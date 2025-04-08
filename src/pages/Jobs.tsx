@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag, Calendar, History } from "lucide-react";
+import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag, Calendar, History, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
@@ -310,7 +310,7 @@ const Jobs = () => {
                               }))}
                               className="w-20"
                               min="0"
-                              max="168"
+                              max="999999999999999999"
                             />
                             <span>-</span>
                             <Input
@@ -322,7 +322,7 @@ const Jobs = () => {
                               }))}
                               className="w-20"
                               min="0"
-                              max="168"
+                              max="999999999999999999"
                             />
                           </div>
                         </div>
@@ -352,7 +352,13 @@ const Jobs = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-2xl font-semibold">{job.title}</h3>
+                      <h3 className="text-2xl font-semibold">{job.title}
+                        &nbsp;
+                      {job?.jobOpportunity && (
+                        <Badge variant="default">Hợp tác lâu dài</Badge>
+                      )}
+                      </h3>
+                     
                     </div>
                     <p className="text-muted-foreground mb-4">
                       {job.description}
@@ -365,6 +371,9 @@ const Jobs = () => {
                       ))}
                     </div>
                     <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                    <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
+                      </div>
                       <div className="flex items-center">
                         <Briefcase className="w-4 h-4 mr-2" />
                         {job.companyName}
