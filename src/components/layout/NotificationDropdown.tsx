@@ -111,7 +111,7 @@ const NotificationDropdown = () => {
     if (!read) {
       markAsRead(notificationId);
     }
-    navigate(url);
+    navigate("/"+url);
   };
 
   return (

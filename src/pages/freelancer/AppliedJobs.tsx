@@ -155,7 +155,7 @@ const AppliedJobs = () => {
     const matchesSearch =
       job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || job.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || job.status?.toLowerCase() == statusFilter;
     return matchesSearch && matchesStatus;
   });
 
