@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2, Plus, X, Code, DollarSign, Star } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Plus, X, Code, Star, Search } from 'lucide-react';
 import userService, { User } from '@/api/userService';
 import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
 import { notification } from 'antd';
@@ -42,7 +42,6 @@ const Profile = () => {
   const [categoryId, setCategoryId] = useState<number>(0);
   const [categoryName, setCategoryName] = useState<string>('');
   const [updatingCategory, setUpdatingCategory] = useState<boolean>(false);
-  const [updatingHourlyRate, setUpdatingHourlyRate] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(true);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
@@ -53,6 +52,7 @@ const Profile = () => {
   const [newSkillName, setNewSkillName] = useState<string>('');
   const [isAddingNewSkill, setIsAddingNewSkill] = useState<boolean>(false);
   const [loadingSkills, setLoadingSkills] = useState<boolean>(false);
+  const [skillSearchValue, setSkillSearchValue] = useState<string>('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -123,28 +123,20 @@ const Profile = () => {
     fetchSkillsData();
   }, [userId, freelancerId]);
 
-
   const handleHourlyRateUpdate = async () => {
     try {
-      setUpdatingHourlyRate(true);
+      setLoading(true);
 
       const response = await freelancerService.updateHourlyRate(freelancerId, hourlyRate);
 
-      if (response.status === 200) {
-        setHourlyRate(response.data?.hourlyRate || hourlyRate);
-        notification.success({
-          message: 'Thành công',
-          description: 'Cập nhật giá giờ làm việc thành công!',
-        });
-      }
     } catch (error) {
       console.error('Error updating hourly rate:', error);
       notification.error({
         message: 'Lỗi',
-        description: 'Không thể cập nhật giá giờ làm việc. Vui lòng thử lại sau.',
+        description: 'Không thể cập nhật lương mong muốn. Vui lòng thử lại sau.',
       });
     } finally {
-      setUpdatingHourlyRate(false);
+      setLoading(false);
     }
   };
 
@@ -161,14 +153,14 @@ const Profile = () => {
           setCategoryName(response.data.categoryName);
           notification.success({
             message: 'Thành công',
-            description: 'Cập nhật danh mục thành công!',
+            description: 'Cập nhật lĩnh vực thành công!',
           });
         }
       } catch (error) {
         console.error('Error updating category:', error);
         notification.error({
           message: 'Lỗi',
-          description: 'Không thể cập nhật danh mục. Vui lòng thử lại sau.',
+          description: 'Không thể cập nhật lĩnh vực. Vui lòng thử lại sau.',
         });
       } finally {
         setUpdatingCategory(false);
@@ -237,7 +229,11 @@ const Profile = () => {
         introduction: profile.introduction,
         image: profile.image,
       };
+
       const response = await userService.updateUser(userId, userData);
+
+      // Cập nhật lương mong muốn (hourly rate) khi lưu form
+      await handleHourlyRateUpdate();
 
       if (response.status === 200) {
         notification.success({
@@ -387,9 +383,11 @@ const Profile = () => {
       setLoadingSkills(false);
     }
   };
-  const filteredAvailableSkills = availableSkills.filter(
-    skill => !freelancerSkills.some(fs => fs.skillId === skill.id)
-  );
+
+  // Lọc danh sách kỹ năng theo từ khóa tìm kiếm
+  const filteredAvailableSkills = availableSkills
+    .filter(skill => !freelancerSkills.some(fs => fs.skillId === skill.id))
+    .filter(skill => skill.skillName.toLowerCase().includes(skillSearchValue.toLowerCase()));
 
   if (fetching) {
     return (
@@ -480,7 +478,7 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.25}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Danh mục dịch vụ</label>
+                <label className="text-sm font-medium">Lĩnh vực</label>
                 {updatingCategory && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
               </div>
               <AutofillInput
@@ -488,7 +486,7 @@ const Profile = () => {
                 value={categoryId}
                 initialText={categoryName}
                 onChange={handleCategoryChange}
-                placeholder="Chọn hoặc nhập danh mục dịch vụ"
+                placeholder="Chọn hoặc nhập lĩnh vực"
                 disabled={updatingCategory}
               />
             </div>
@@ -497,28 +495,17 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.25}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Giá giờ làm việc (VND)</label>
-                {updatingHourlyRate && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+                <label className="text-sm font-medium">Lương mong muốn (theo giờ)</label>
               </div>
-              <div className="flex gap-2 items-center">
-                <div className="relative flex-1">
-                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="number"
-                    className="pl-10"
-                    value={hourlyRate}
-                    onChange={(e) => setHourlyRate(Number(e.target.value))}
-                    placeholder="Nhập giá theo giờ"
-                    disabled={updatingHourlyRate}
-                  />
-                </div>
-                <Button
-                  onClick={handleHourlyRateUpdate}
-                  disabled={updatingHourlyRate}
-                  size="sm"
-                >
-                  Cập nhật
-                </Button>
+              <div className="relative flex-1">
+                <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground font-medium">₫</div>
+                <Input
+                  type="number"
+                  className="pl-10"
+                  value={hourlyRate}
+                  onChange={(e) => setHourlyRate(Number(e.target.value))}
+                  placeholder="Nhập lương theo giờ"
+                />
               </div>
             </div>
           </FadeInWhenVisible>
@@ -570,11 +557,11 @@ const Profile = () => {
                 countryId={profile.country}
                 provinceId={profile.province}
                 onCountryChange={(country) => {
-                  console.log("Country selected:", country);
+                  console.log("Province/City selected:", country);
                   setProfile((prev) => ({ ...prev, country: country }));
                 }}
                 onProvinceChange={(province) => {
-                  console.log("Province selected:", province);
+                  console.log("District selected:", province);
                   setProfile((prev) => ({ ...prev, province: province }));
                 }}
                 disabled={loading}
@@ -666,44 +653,58 @@ const Profile = () => {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedSkillId?.toString() || ''}
-                    onValueChange={(value) => setSelectedSkillId(Number(value))}
-                    disabled={loadingSkills || filteredAvailableSkills.length === 0}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Chọn kỹ năng" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {filteredAvailableSkills.map((skill) => (
-                        <SelectItem key={skill.id} value={skill.id.toString()}>
-                          {skill.skillName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddSkill}
-                    disabled={!selectedSkillId || loadingSkills}
-                  >
-                    {loadingSkills ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Plus className="h-4 w-4 mr-2" />
-                    )}
-                    Thêm
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setIsAddingNewSkill(true)}
-                    disabled={loadingSkills}
-                  >
-                    Tạo mới
-                  </Button>
+                <div className="space-y-3">
+                  {/* Thanh tìm kiếm kỹ năng */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Tìm kiếm kỹ năng..."
+                      className="pl-10"
+                      value={skillSearchValue}
+                      onChange={(e) => setSkillSearchValue(e.target.value)}
+                      disabled={loadingSkills}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={selectedSkillId?.toString() || ''}
+                      onValueChange={(value) => setSelectedSkillId(Number(value))}
+                      disabled={loadingSkills || filteredAvailableSkills.length === 0}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Chọn kỹ năng" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60 overflow-y-auto">
+                        {filteredAvailableSkills.map((skill) => (
+                          <SelectItem key={skill.id} value={skill.id.toString()}>
+                            {skill.skillName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddSkill}
+                      disabled={!selectedSkillId || loadingSkills}
+                    >
+                      {loadingSkills ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Plus className="h-4 w-4 mr-2" />
+                      )}
+                      Thêm
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setIsAddingNewSkill(true)}
+                      disabled={loadingSkills}
+                    >
+                      Tạo mới
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
