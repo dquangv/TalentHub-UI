@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://talenthub.io.vn/sitemap.xml
