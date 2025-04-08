@@ -86,7 +86,10 @@ axiosInstance.interceptors.response.use(
                         description: 'Đã có lỗi xảy ra, vui lòng thử lại sau'
                     });
                     break;
-
+                    
+                case 417:
+                    break;
+    
                 default:
                     notification.error({
                         message: 'Có lỗi xảy ra',
