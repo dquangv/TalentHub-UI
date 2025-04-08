@@ -24,8 +24,9 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
-          }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+          isActive ? "text-primary-700" : ""
+        }`}
       >
         {children}
       </span>
@@ -40,8 +41,8 @@ const NavLink = ({ to, children, onClick }: any) => {
 const NavLinkDropdown = ({ children, menuItems }: any) => {
   const location = useLocation();
 
-  const isAnyActive = menuItems.some((item: any) =>
-    location.pathname === item.to
+  const isAnyActive = menuItems.some(
+    (item: any) => location.pathname === item.to
   );
 
   return (
@@ -49,7 +50,9 @@ const NavLinkDropdown = ({ children, menuItems }: any) => {
       <DropdownMenuTrigger asChild>
         <div className="relative group cursor-pointer">
           <span
-            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isAnyActive ? "text-primary-700" : ""}`}
+            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+              isAnyActive ? "text-primary-700" : ""
+            }`}
           >
             {children}
           </span>
@@ -79,6 +82,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
   const location = useLocation();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -90,6 +94,12 @@ const Navbar = () => {
           const userInfo = JSON.parse(userInfoString);
           if (!userInfo.userId) return;
 
+          if (userInfo.clientId) {
+
+            setIsClient(true);
+          } else {
+            setIsClient(false);
+          }
           const response = await userService.getUserById(userInfo.userId);
           if (response.data) {
             localStorage.setItem(
@@ -123,23 +133,22 @@ const Navbar = () => {
     }
   }, [isLoggedIn]);
 
-
   const handleLogout = () => {
-    window.location.href = '/login';
+    window.location.href = "/login";
     logout();
   };
 
   const clientMenuItems = [
     { to: "/client/post-job", label: "Đăng việc làm", icon: Plus },
     { to: "/client/posted-jobs", label: "Đã đăng", icon: FileCheck2 },
-    { to: "/client/appointment", label: "Lịch hẹn", icon: BookMarked }
+    { to: "/client/appointment", label: "Lịch hẹn", icon: BookMarked },
   ];
 
   const freelancerMenuItems = [
     { to: "/jobs", label: t("jobs"), icon: FileCheck2 },
     { to: "/saved-jobs", label: "Đã lưu", icon: BookMarked },
     { to: "/freelancer/applied-jobs", label: "Đã ứng tuyển", icon: FileCheck2 },
-    { to: "/freelancer/appointment", label: "Lịch hẹn", icon: BookMarked }
+    { to: "/freelancer/appointment", label: "Lịch hẹn", icon: BookMarked },
   ];
 
   const UserMenu = () => {
@@ -189,10 +198,10 @@ const Navbar = () => {
       userInfo.role === "FREELANCER"
         ? "/settingsfreelancer"
         : userInfo.role === "CLIENT"
-          ? "/client/profile"
-          : userInfo.role === "ADMIN"
-            ? "/admin/dashboard"
-            : "/";
+        ? "/client/profile"
+        : userInfo.role === "ADMIN"
+        ? "/admin/dashboard"
+        : "/";
 
     return (
       <DropdownMenu>
@@ -223,15 +232,24 @@ const Navbar = () => {
             )}
           </div>
           <Link to={settingsPath}>
-            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50" style={{cursor: 'pointer'}}>
+            <DropdownMenuItem
+              className="hover:bg-primary-50 focus:bg-primary-50"
+              style={{ cursor: "pointer" }}
+            >
               <span className="text-primary-700">{t("settings")}</span>
             </DropdownMenuItem>
           </Link>
-          <Link to={'wallet'} replace={true} >
-            <DropdownMenuItem className="hover:bg-primary-50 focus:bg-primary-50" style={{cursor: 'pointer'}}>
-              <span className="text-primary-700">Ví của tôi</span>
-            </DropdownMenuItem>
-          </Link>
+          {isClient && (
+            <Link to={"/wallet"} replace={true}>
+              <DropdownMenuItem
+                className="hover:bg-primary-50 focus:bg-primary-50"
+                style={{ cursor: "pointer" }}
+              >
+                <span className="text-primary-700">Ví của tôi</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
+
           <DropdownMenuItem
             onClick={handleLogout}
             className="hover:bg-destructive-50 focus:bg-destructive-50"
@@ -251,9 +269,10 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${isActive
-            ? "text-primary-700 bg-primary-100/50"
-            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${
+            isActive
+              ? "text-primary-700 bg-primary-100/50"
+              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
