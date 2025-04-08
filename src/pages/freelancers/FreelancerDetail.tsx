@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import api from '@/api/axiosConfig';
 import GoogleMapComponent from '@/components/MapComponent';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const FreelancerDetail = () => {
   const { id } = useParams();
@@ -73,14 +73,13 @@ const FreelancerDetail = () => {
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-shrink-0">
                   <div className="relative">
-                    <Avatar
-                      src={freelancer?.avatar || undefined}
-                      alt={freelancer?.name}
-                      className="w-32 h-32 rounded-full object-cover ring-4 ring-primary/10"
-                    >
-                      <AvatarFallback
-                        className="bg-primary/10 text-primary text-[10px] md:text-xs"
-                      >
+                    <Avatar className="w-32 h-32 ring-4 ring-primary/10">
+                      <AvatarImage
+                        src={freelancer?.avatar}
+                        alt={freelancer?.name}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
                         {freelancer?.name?.slice(0, 2).toUpperCase() || 'UN'}
                       </AvatarFallback>
                     </Avatar>
