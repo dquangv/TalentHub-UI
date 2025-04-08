@@ -56,7 +56,21 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
     const [userId, setUserId] = useState<string>('');
 
     const messages = activeConversationId ? allMessages[activeConversationId] || [] : [];
+    useEffect(() => {
+        if (initialContactId && conversations.length > 0) {
+            const existingConversation = conversations.find(
+                conv => String(conv.id) === String(initialContactId)
+            );
 
+            if (existingConversation) {
+                console.log('Setting active conversation from provider:', initialContactId);
+                setActiveConversationId(initialContactId);
+            } else {
+                console.log('Conversation not found in list, will attempt to create:', initialContactId);
+                checkAndCreateConversation(initialContactId);
+            }
+        }
+    }, [initialContactId, conversations]);
     useEffect(() => {
         const storedUserInfo = localStorage.getItem('userInfo');
         const storedUserId = storedUserInfo ? JSON.parse(storedUserInfo).userId : null;
@@ -84,57 +98,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
 
         return newId;
     }, []);
-    const checkAndCreateConversation = useCallback(async (contactId: string) => {
-        if (!userId || !contactId) return;
-        const existingConversation = conversations.find(conv =>
-            String(conv.id) === String(contactId)
-        );
-        if (existingConversation) {
-            console.log("Found existing conversation, activating:", existingConversation);
-            setActiveConversationId(contactId);
-        } else {
-            console.log("No existing conversation found, creating new one");
-            try {
-                const userResponse = await userService.getUserById(Number(contactId));
 
-                if (userResponse && userResponse.data) {
-                    const userData = userResponse.data;
-
-                    // Tạo tên hiển thị từ dữ liệu người dùng
-                    const displayName = userData.firstName && userData.lastName
-                        ? `${userData.firstName} ${userData.lastName}`
-                        : userData.title || `User ${contactId}`;
-
-                    // Lấy avatar nếu có
-                    const avatar = userData.image || `https://i.pravatar.cc/150?u=${contactId}`;
-
-                    console.log("Creating conversation with name:", displayName);
-                    // Quan trọng: Truyền contactId làm specificId để đảm bảo ID đúng
-                    const newId = createNewConversation(displayName, contactId);
-
-                    // Cập nhật avatar
-                    setConversations(prev =>
-                        prev.map(conv =>
-                            conv.id === contactId
-                                ? { ...conv, avatar }
-                                : conv
-                        )
-                    );
-
-                    setActiveConversationId(newId);
-                } else {
-                    console.log("User data not found, creating with default info");
-                    const newId = createNewConversation(`User ${contactId}`, contactId);
-                    setActiveConversationId(newId);
-                }
-            } catch (error) {
-                console.error("Error fetching user info:", error);
-                const newId = createNewConversation(`User ${contactId}`, contactId);
-                setActiveConversationId(newId);
-            }
-        }
-    }, [userId, conversations, createNewConversation]);
-    // Mark messages as read
     const markAsRead = useCallback((conversationId: string) => {
         if (!userId || !conversationId) return;
 
@@ -170,6 +134,89 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
             senderId: conversationId
         });
     }, [userId]);
+    const checkAndCreateConversation = useCallback(async (contactId: string) => {
+        if (!userId || !contactId) return;
+
+        console.log("Checking for conversation with contactId:", contactId);
+
+        // Tìm cuộc trò chuyện hiện tại
+        const existingConversation = conversations.find(conv =>
+            String(conv.id) === String(contactId)
+        );
+
+        if (existingConversation) {
+            console.log("Found existing conversation, activating:", existingConversation);
+            setActiveConversationId(contactId);
+
+            // Tải tin nhắn của cuộc trò chuyện này
+            try {
+                const messagesData = await chatApiService.getMessages(userId, contactId);
+
+                // Map API data to our Message interface
+                const mappedMessages: Message[] = messagesData.map(msg => ({
+                    id: msg.id,
+                    conversationId: contactId,
+                    content: msg.content,
+                    timestamp: new Date(msg.timestamp),
+                    isMe: msg.senderId === userId,
+                    isRead: msg.isRead,
+                    senderId: msg.senderId,
+                    senderName: msg.senderName,
+                    senderAvatar: msg.senderAvatar
+                }));
+
+                setAllMessages(prev => ({
+                    ...prev,
+                    [contactId]: mappedMessages,
+                }));
+
+                // Mark messages as read automatically
+                if (mappedMessages.some(msg => !msg.isRead && !msg.isMe)) {
+                    markAsRead(contactId);
+                }
+            } catch (error) {
+                console.error('Failed to load messages for existing conversation:', error);
+            }
+        } else {
+            console.log("No existing conversation found, creating new one");
+            try {
+                const userResponse = await userService.getUserById(Number(contactId));
+
+                if (userResponse && userResponse.data) {
+                    const userData = userResponse.data;
+                    const displayName = userData.firstName && userData.lastName
+                        ? `${userData.firstName} ${userData.lastName}`
+                        : userData.title || `User ${contactId}`;
+                    const avatar = userData.image || `https://i.pravatar.cc/150?u=${contactId}`;
+
+                    console.log("Creating conversation with name:", displayName);
+                    const newId = createNewConversation(displayName, contactId);
+
+                    // Cập nhật avatar
+                    setConversations(prev =>
+                        prev.map(conv =>
+                            conv.id === contactId
+                                ? { ...conv, avatar }
+                                : conv
+                        )
+                    );
+
+                    // Đặt active conversation sau khi tạo
+                    setActiveConversationId(newId);
+                } else {
+                    console.log("User data not found, creating with default info");
+                    const newId = createNewConversation(`User ${contactId}`, contactId);
+                    setActiveConversationId(newId);
+                }
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+                const newId = createNewConversation(`User ${contactId}`, contactId);
+                setActiveConversationId(newId);
+            }
+        }
+    }, [userId, conversations, createNewConversation, setActiveConversationId]);
+    // Mark messages as read
+
     // Load conversation list from API
     const loadConversations = useCallback(async () => {
         if (!userId) return;

@@ -1,0 +1,21 @@
+{
+    "name": "TalentHub",
+    "short_name": "TalentHub",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#007bff",
+    "description": "Nền tảng kết nối tài năng với nhà tuyển dụng.",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/favicon.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}
