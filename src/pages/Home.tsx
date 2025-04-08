@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Helmet } from 'react-helmet'; // Cần cài đặt thêm: npm install react-helmet
+import SEO from '@/components/SEO';
 
 interface Banner {
   id: number;
@@ -73,7 +74,7 @@ const SchemaMarkup = () => {
         "@type": "WebSite",
         "url": "https://talenthub.io.vn/",
         "name": "TalentHub - Kết nối tài năng với nhà tuyển dụng",
-        "description": "TalentHub là nền tảng kết nối tài năng IT với nhà tuyển dụng, giúp thúc đẩy sự nghiệp của bạn trong lĩnh vực công nghệ.",
+        "description": "TalentHub là nền tảng kết nối tài năng với nhà tuyển dụng, giúp thúc đẩy sự nghiệp của bạn trong lĩnh vực công nghệ.",
         "potentialAction": {
           "@type": "SearchAction",
           "target": "https://talenthub.io.vn/search?q={search_term_string}",
@@ -270,15 +271,33 @@ const Home = () => {
   }]);
 
   const displayedCustomers = showAll ? customers : customers.slice(0, 3);
-
+  const homeJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "url": "https://talenthub.io.vn/",
+    "name": "TalentHub - Kết nối tài năng IT với nhà tuyển dụng",
+    "description": "TalentHub là nền tảng kết nối tài năng IT với nhà tuyển dụng, giúp thúc đẩy sự nghiệp của bạn.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://talenthub.io.vn/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
   return (
     <main className="relative">
+      <SEO
+        title="TalentHub - Kết nối tài năng IT với nhà tuyển dụng hàng đầu Việt Nam"
+        description="TalentHub là nền tảng kết nối freelancer IT với nhà tuyển dụng, giúp bạn tìm việc hoặc thuê lập trình viên, thiết kế đồ họa, digital marketing chất lượng cao."
+        keywords="TalentHub, việc làm IT, tuyển dụng lập trình viên, freelancer Việt Nam, tìm việc IT, thuê lập trình viên"
+        canonicalUrl="/"
+        jsonLd={homeJsonLd}
+      />
       <Helmet>
-        <title>TalentHub - Kết nối tài năng IT với nhà tuyển dụng hàng đầu Việt Nam</title>
-        <meta name="description" content="TalentHub là nền tảng kết nối freelancer IT với nhà tuyển dụng, giúp bạn tìm việc hoặc thuê lập trình viên, thiết kế đồ họa, digital marketing chất lượng cao." />
-        <meta name="keywords" content="TalentHub, việc làm IT, tuyển dụng lập trình viên, freelancer Việt Nam, nhà tuyển dụng, sự nghiệp IT, việc làm công nghệ" />
-        <meta property="og:title" content="TalentHub - Kết nối tài năng IT với nhà tuyển dụng" />
-        <meta property="og:description" content="TalentHub là nền tảng kết nối tài năng IT với nhà tuyển dụng, giúp thúc đẩy sự nghiệp của bạn trong lĩnh vực công nghệ." />
+        <title>TalentHub - Kết nối tài năng với nhà tuyển dụng hàng đầu Việt Nam</title>
+        <meta name="description" content="TalentHub là nền tảng kết nối freelancer với nhà tuyển dụng, giúp bạn tìm việc hoặc thuê lập trình viên, thiết kế đồ họa, digital marketing chất lượng cao." />
+        <meta name="keywords" content="TalentHub, việc làm, tuyển dụng lập trình viên, freelancer Việt Nam, nhà tuyển dụng, sự nghiệp, việc làm công nghệ" />
+        <meta property="og:title" content="TalentHub - Kết nối tài năng với nhà tuyển dụng" />
+        <meta property="og:description" content="TalentHub là nền tảng kết nối tài năng với nhà tuyển dụng, giúp thúc đẩy sự nghiệp của bạn trong lĩnh vực công nghệ." />
         <link rel="canonical" href="https://talenthub.io.vn/" />
       </Helmet>
 
@@ -309,7 +328,7 @@ const Home = () => {
                 <SwiperSlide>
                   <img
                     src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
-                    alt="TalentHub - Kết nối với các dự án IT"
+                    alt="TalentHub - Kết nối với các dự án"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -317,7 +336,7 @@ const Home = () => {
                 <SwiperSlide>
                   <img
                     src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
-                    alt="TalentHub - Tìm freelancer IT chất lượng cao"
+                    alt="TalentHub - Tìm freelancer chất lượng cao"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -338,12 +357,12 @@ const Home = () => {
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
               <h1 className="text-2xl md:text-6xl font-bold pb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                Kết nối với các dự án IT và nhà tuyển dụng hàng đầu Việt Nam
+                Kết nối với các dự án và nhà tuyển dụng hàng đầu Việt Nam
               </h1>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
               <p className="text-xl text-muted-foreground mb-8">
-                TalentHub - Nền tảng kết nối freelancer với nhà tuyển dụng IT, giúp bạn tìm việc hoặc thuê lập trình viên chất lượng cao
+                TalentHub - Nền tảng kết nối freelancer với nhà tuyển dụng, giúp bạn tìm việc hoặc thuê lập trình viên chất lượng cao
               </p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -395,7 +414,7 @@ const Home = () => {
                     <AnimatedNumber start={0} end={stats.postedJobs} />
                   )}
                 </h3>
-                <p className="text-gray-700">Số lượng dự án IT đã đăng</p>
+                <p className="text-gray-700">Số lượng dự án đã đăng</p>
               </Card>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -420,7 +439,7 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <FadeInWhenVisible>
             <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-              Top Công Việc IT Nổi Bật
+              Top Công Việc Nổi Bật
             </h2>
           </FadeInWhenVisible>
           {loadingJobs ? (
@@ -631,7 +650,7 @@ const Home = () => {
                   <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
                     <Users className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
                     <h3 className="font-semibold text-lg mb-3 text-gray-800">Ứng viên chất lượng cao</h3>
-                    <p className="text-gray-600 text-sm">Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia IT có kỹ năng phù hợp.</p>
+                    <p className="text-gray-600 text-sm">Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia có kỹ năng phù hợp.</p>
                   </Card>
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.2}>
@@ -780,7 +799,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
-              Khám Phá Các Dự Án IT Hấp Dẫn
+              Khám Phá Các Dự Án Hấp Dẫn
             </h2>
           </FadeInWhenVisible>
           {loadingJobs ? (
@@ -951,7 +970,7 @@ const Home = () => {
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.2}>
               <p className="text-lg mb-8 text-primary-600/80">
-                Đăng ký miễn phí và bắt đầu kết nối với cộng đồng tài năng freelancer IT
+                Đăng ký miễn phí và bắt đầu kết nối với cộng đồng tài năng freelancer
               </p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.4}>
@@ -1010,12 +1029,12 @@ const Home = () => {
 const steps = [
   {
     title: 'Đăng việc miễn phí',
-    description: 'Mô tả chi tiết công việc và yêu cầu kỹ năng IT của bạn',
+    description: 'Mô tả chi tiết công việc và yêu cầu kỹ năng của bạn',
     icon: <Briefcase className="w-8 h-8 text-primary-600" />,
   },
   {
     title: 'Nhận báo giá từ chuyên gia',
-    description: 'Nhận báo giá từ các freelancer IT phù hợp với dự án của bạn',
+    description: 'Nhận báo giá từ các freelancer phù hợp với dự án của bạn',
     icon: <Users className="w-8 h-8 text-primary-600" />,
   },
   {

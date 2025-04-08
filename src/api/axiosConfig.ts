@@ -44,8 +44,36 @@ axiosInstance.interceptors.response.use(
     (response) => {
         return response.data;
     },
-    (error) => {
+    async (error) => {
         const { response } = error;
+        const originalRequest = error.config;
+
+        // Thử sử dụng dữ liệu tĩnh khi offline
+        if (!window.navigator.onLine && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            const url = originalRequest.url;
+            let staticDataPath = null;
+
+            if (url.includes('statistics/home')) {
+                staticDataPath = '/static-data/statistics.json';
+            } else if (url.includes('/v1/jobs/top-6')) {
+                staticDataPath = '/static-data/top-jobs.json';
+            } else if (url.includes('/v1/banners')) {
+                staticDataPath = '/static-data/banners.json';
+            }
+
+            if (staticDataPath) {
+                try {
+                    console.log(`Falling back to static data: ${staticDataPath}`);
+                    const response = await fetch(staticDataPath);
+                    const data = await response.json();
+                    return { data };
+                } catch (fallbackError) {
+                    console.error('Error fetching fallback data:', fallbackError);
+                }
+            }
+        }
 
         if (response) {
             switch (response.status) {
