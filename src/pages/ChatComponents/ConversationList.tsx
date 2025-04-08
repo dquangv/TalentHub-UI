@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Conversation } from './MessageContext';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -23,13 +24,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const navigate = useNavigate();
+    const handleConversationClick = (conversationId: string) => {
+        onSelectConversation(conversationId);
+        navigate(`/messaging?contactId=${conversationId}`, { replace: true });
+    };
 
-    // Filter conversations based on search query
     const filteredConversations = conversations.filter((conversation) =>
         conversation.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Handle when there are no conversations
     const hasConversations = filteredConversations.length > 0;
 
     const clearSearch = () => {
@@ -84,7 +88,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 key={conversation.id}
                                 whileHover={{ scale: 1.01 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => onSelectConversation(conversation.id)}
+                                onClick={() => handleConversationClick(conversation.id)}
                                 className={`flex items-center p-2 rounded-lg cursor-pointer mb-1 ${activeConversationId === conversation.id
                                     ? 'bg-primary/10'
                                     : 'hover:bg-muted'
