@@ -188,8 +188,7 @@ const AdminNotificationDropdown: React.FC = () => {
                 item.id === notification.id ? { ...item, read: true } : item
             )
         );
-
-        window.open(`/messaging`, '_blank');
+        window.open(`/messaging?contactId=${notification.senderId}`, '_blank');
         setIsOpen(false);
 
         if (userId) {
