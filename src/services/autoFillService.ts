@@ -29,6 +29,10 @@ export const entityConfigs: Record<string, EntityConfig> = {
         endpoint: '/v1/categories',
         nameField: 'categoryTitle',
     },
+    skill: {
+        endpoint: '/v1/jobs/skills',
+        nameField: 'skillName',
+    },
 };
 
 export function useAutofill<T extends AutofillItem>(entityType: string) {
@@ -144,11 +148,18 @@ export function useAutofill<T extends AutofillItem>(entityType: string) {
         return item[config.nameField];
     };
 
-    const filterItems = (searchText: string): T[] => {
-        if (!searchText) return items;
-        return items.filter(item =>
-            item[config.nameField].toLowerCase().includes(searchText.toLowerCase())
-        );
+    const filterItems = (searchText: string, excludeIds?: number[]): T[] => {
+        let filtered = items;
+        if (searchText) {
+            filtered = filtered.filter(item =>
+                item[config.nameField].toLowerCase().includes(searchText.toLowerCase())
+            );
+        }
+        if (excludeIds && excludeIds.length > 0) {
+            filtered = filtered.filter(item => !excludeIds.includes(item.id));
+        }
+
+        return filtered;
     };
 
     return {
@@ -172,18 +183,19 @@ export interface AutofillInputProps {
     onChange: (id: number, name: string) => void;
     placeholder?: string;
     disabled?: boolean;
+    excludeIds?: number[];
 }
 
 
+
 export function useAutofillInput(props: AutofillInputProps) {
-    const { entityType, value, initialText, onChange } = props;
+    const { entityType, value, initialText, onChange, excludeIds } = props;
     const [searchText, setSearchText] = useState(initialText || '');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [lastId, setLastId] = useState<number | null>(value || null);
     const [isEditing, setIsEditing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
-
     const {
         items,
         loading,
@@ -193,6 +205,7 @@ export function useAutofillInput(props: AutofillInputProps) {
         findItemById,
         findItemByName
     } = useAutofill(entityType);
+    const filteredItems = filterItems(searchText, excludeIds);
 
     useEffect(() => {
         // Only update text from props when not actively editing
@@ -314,8 +327,6 @@ export function useAutofillInput(props: AutofillInputProps) {
             selectItem(itemId, itemName);
         }
     };
-
-    const filteredItems = filterItems(searchText);
 
     return {
         searchText,
