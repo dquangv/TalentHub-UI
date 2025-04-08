@@ -325,10 +325,10 @@ export const reportColumns: ColumnDef<any>[] = [
     accessorKey: "id",
     header: "Mã",
   },
-  {
-    accessorKey: "fullName",
-    header: "Người tố cáo",
-  },
+  // {
+  //   accessorKey: "fullName",
+  //   header: "Người tố cáo",
+  // },
   {
     accessorKey: "jobTitle",
     header: "Tiêu đề công việc",
@@ -348,6 +348,11 @@ export const reportColumns: ColumnDef<any>[] = [
     accessorKey: "reasonFreelancer",
     header: "Lý do tố cáo",
     cell: ({ row }) => row.original.reasonFreelancer || "-",
+  },
+  {
+    accessorKey: "reasonAdmin",
+    header: "Lý do xử lý",
+    cell: ({ row }) => row.original.reasonAdmin || "-",
   },
   {
     accessorKey: "description",
@@ -378,11 +383,6 @@ export const reportColumns: ColumnDef<any>[] = [
 
       return <Badge variant={variant}>{label}</Badge>;
     },
-  },
-  {
-    accessorKey: "reasonAdmin",
-    header: "Lý do xử lý",
-    cell: ({ row }) => row.original.reasonAdmin || "-",
   },
   {
     accessorKey: "createdAt",
