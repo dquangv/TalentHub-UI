@@ -298,7 +298,9 @@ const JobDetail = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">{job.type}</Badge>
-                    {job.status && <Badge variant="secondary">{job.status}</Badge>}
+                    {job.status && (
+                      <Badge variant="secondary">{job.status}</Badge>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     <Badge variant="secondary">Mức độ dự án: {job.scope}</Badge>
@@ -341,10 +343,10 @@ const JobDetail = () => {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="text-muted-foreground w-full d-flex gap-2"
+                        className="text-red-500 border-red-500 hover:bg-red-50 hover:text-red-700 w-full flex items-center gap-2"
                       >
                         <Flag className="w-4 h-4" />
-                        <div> Báo cáo</div>
+                        <div>Báo cáo</div>
                       </Button>
                     </ReportDialog>
                   </div>
@@ -356,14 +358,14 @@ const JobDetail = () => {
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <FadeInWhenVisible delay={0.1}>
-              <Card className="p-6">
+              <Card className="p-4 flex items-center min-h-[94px]">
                 <div className="flex items-center gap-4">
-                  <DollarSign className="w-8 h-8 text-primary" />
+                  <DollarSign className="w-9 h-8 text-primary" />
                   <div>
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
-                    <p className="font-semibold">
+                    <p className="font-semibold text-sm">
                       {new Intl.NumberFormat("vi-VN").format(job.fromPrice)} -{" "}
-                      {new Intl.NumberFormat("vi-VN").format(job.toPrice)} VND
+                      {new Intl.NumberFormat("vi-VN").format(job.toPrice)}
                     </p>
                   </div>
                 </div>
@@ -389,7 +391,9 @@ const JobDetail = () => {
                 <div className="flex items-center gap-4">
                   <Calendar className="w-8 h-8 text-primary" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Thời gian còn lại</p>
+                    <p className="text-sm text-muted-foreground">
+                      Thời gian còn lại
+                    </p>
                     <p className="font-semibold">
                       {job.remainingTimeFormatted || "Không xác định"}
                     </p>
@@ -475,10 +479,11 @@ const JobDetail = () => {
                       key={cv.id}
                       className={`
                   border rounded-lg p-4 cursor-pointer transition-all flex justify-between items-center
-                  ${selectedCvId === cv.id
-                          ? "border-primary bg-primary/10"
-                          : "hover:bg-gray-50"
-                        }
+                  ${
+                    selectedCvId === cv.id
+                      ? "border-primary bg-primary/10"
+                      : "hover:bg-gray-50"
+                  }
                 `}
                       onClick={() => setSelectedCvId(cv.id)}
                     >
@@ -548,9 +553,10 @@ const JobDetail = () => {
                         border: "none",
                         borderRadius: "8px",
                       }}
-                      title={`CV Preview: ${cvs.find((cv) => cv.id === selectedCvId)?.title ||
+                      title={`CV Preview: ${
+                        cvs.find((cv) => cv.id === selectedCvId)?.title ||
                         "Untitled"
-                        }`}
+                      }`}
                     />
                   ) : (
                     <div className="flex justify-center items-center h-full">
