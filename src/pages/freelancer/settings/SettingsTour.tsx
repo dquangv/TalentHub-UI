@@ -67,13 +67,13 @@ const SettingsTour: React.FC<SettingsTourProps> = ({ refs, open, setOpen }) => {
             target: getTarget(refs.educationRef),
         },
         {
-            title: 'Portfolio',
+            title: 'Dự án',
             description: 'Quản lý và trình bày các dự án, thành tích của bạn.',
             target: getTarget(refs.portfolioRef),
         },
         {
             title: 'Bảo mật',
-            description: 'Thiết lập các tùy chọn bảo mật cho tài khoản của bạn.',
+            description: 'Thiết lập và thay đổi mật khẩu cho tài khoản của bạn.',
             target: getTarget(refs.securityRef),
         }
     ];
