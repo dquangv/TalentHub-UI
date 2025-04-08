@@ -90,7 +90,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => handleConversationClick(conversation.id)}
                                 className={`flex items-center p-2 rounded-lg cursor-pointer mb-1 ${activeConversationId === conversation.id
-                                    ? 'bg-primary/10'
+                                    ? 'bg-primary/10 border-l-4 border-primary'
                                     : 'hover:bg-muted'
                                     }`}
                             >
@@ -117,9 +117,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                             {conversation.lastMessage || 'Chưa có tin nhắn nào'}
                                         </p>
                                         {conversation.unread > 0 && (
-                                            <span className="bg-primary text-primary-foreground text-[10px] md:text-xs rounded-full h-4 min-w-4 md:h-5 md:min-w-5 flex items-center justify-center px-1 ml-1 flex-shrink-0">
+                                            <motion.span
+                                                initial={{ scale: 0.8 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{ repeat: 3, duration: 0.3 }}
+                                                className="bg-primary text-primary-foreground text-[10px] md:text-xs rounded-full h-4 min-w-4 md:h-5 md:min-w-5 flex items-center justify-center px-1 ml-1 flex-shrink-0"
+                                            >
                                                 {conversation.unread}
-                                            </span>
+                                            </motion.span>
                                         )}
                                     </div>
                                 </div>

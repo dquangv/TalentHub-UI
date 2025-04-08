@@ -19,10 +19,10 @@ const config: Config = {
         OAUTH_BASE_URL: 'http://localhost:8080/oauth2/authorization'
     },
     production: {
-        API_URL: 'https://elected-playstation-due-enhanced.trycloudflare.com/api',
-        WEBSOCKET_URL: 'https://elected-playstation-due-enhanced.trycloudflare.com',
+        API_URL: 'https://not-antarctica-platforms-varying.trycloudflare.com/api',
+        WEBSOCKET_URL: 'https://not-antarctica-platforms-varying.trycloudflare.com',
         TIMEOUT: 30000,
-        OAUTH_BASE_URL: 'https://elected-playstation-due-enhanced.trycloudflare.com/oauth2/authorization'
+        OAUTH_BASE_URL: 'https://not-antarctica-platforms-varying.trycloudflare.com/oauth2/authorization'
     },
     get current() {
         const env = process.env.NODE_ENV || 'development';

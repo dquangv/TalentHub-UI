@@ -173,10 +173,12 @@ const MessagingContent = ({ contactId, navigate }) => {
         }
     };
 
-    // Handle selecting conversation
     const handleSelectConversation = (id) => {
         setActiveConversationId(id);
         navigate(`/messaging?contactId=${id}`, { replace: true });
+
+        markAsRead(id);
+
         if (isMobile) {
             setShowConversationDrawer(false);
         }
