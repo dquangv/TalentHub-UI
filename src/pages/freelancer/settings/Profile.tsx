@@ -212,7 +212,10 @@ const Profile = () => {
     fetchUserData();
     fetchSkillsData();
   }, [userId, freelancerId]);
-
+  const formatCurrency = (value: number): string => {
+    if (!value && value !== 0) return '';
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -495,15 +498,21 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.25}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Lương mong muốn (theo giờ)</label>
+                <label className="text-sm font-medium">Lương mong muốn (VNĐ/Giờ)</label>
               </div>
-              <div className="relative flex-1">
-                <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground font-medium">₫</div>
+              <div className="relative">
                 <Input
-                  type="number"
-                  className="pl-10"
-                  value={hourlyRate}
-                  onChange={(e) => setHourlyRate(Number(e.target.value))}
+                  type="text"
+                  value={formatCurrency(hourlyRate)}
+                  onChange={(e) => {
+                    const numericValue = e.target.value.replace(/[^\d]/g, '');
+                    setHourlyRate(numericValue ? Number(numericValue) : 0);
+                  }}
+                  onBlur={() => {
+                    const formatted = formatCurrency(hourlyRate);
+                    const inputElement = document.activeElement as HTMLInputElement;
+                    if (inputElement) inputElement.value = formatted;
+                  }}
                   placeholder="Nhập lương theo giờ"
                 />
               </div>
@@ -588,125 +597,73 @@ const Profile = () => {
                 <label className="text-sm font-medium">Kỹ năng chuyên môn</label>
               </div>
 
-              {/* Skills List */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {freelancerSkills.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Chưa có kỹ năng nào được thêm</p>
-                ) : (
-                  freelancerSkills.map((skill) => (
-                    <Badge
-                      key={skill.id}
-                      variant="secondary"
-                      className="flex items-center gap-1 py-1 px-3"
-                    >
-                      {skill.skillName}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-4 w-4 rounded-full ml-1 p-0"
-                        onClick={() => handleRemoveSkill(skill.skillId)}
-                        disabled={loadingSkills}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </Badge>
-                  ))
-                )}
+              <div className="mb-4">
+                <div className="bg-muted/40 rounded-md p-3">
+                  {freelancerSkills.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-4">
+                      <Code className="h-8 w-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">Chưa có kỹ năng nào được thêm</p>
+                      <p className="text-xs text-muted-foreground mt-1">Thêm kỹ năng để tăng khả năng tìm kiếm của nhà tuyển dụng</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {freelancerSkills.map((skill) => (
+                        <FadeInWhenVisible key={skill.id} delay={0.05}>
+                          <Badge
+                            variant="secondary"
+                            className="flex items-center gap-1 py-2 px-3 transition-all hover:bg-primary/10"
+                          >
+                            {skill.skillName}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4 rounded-full ml-1 p-0 hover:bg-destructive/10 hover:text-destructive"
+                              onClick={() => handleRemoveSkill(skill.skillId)}
+                              disabled={loadingSkills}
+                              title="Xóa kỹ năng"
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </Badge>
+                        </FadeInWhenVisible>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* Add Skill */}
-              {isAddingNewSkill ? (
+              <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Input
-                    placeholder="Tên kỹ năng mới"
-                    value={newSkillName}
-                    onChange={(e) => setNewSkillName(e.target.value)}
+                  <AutofillInput
+                    entityType="skill"
+                    value={selectedSkillId || 0}
+                    initialText=""
+                    onChange={(id, name) => {
+                      if (id > 0) {
+                        setSelectedSkillId(id);
+                        handleAddSkill();
+                      }
+                    }}
+                    placeholder="Nhập hoặc chọn kỹ năng"
                     disabled={loadingSkills}
+                    excludeIds={freelancerSkills.map(skill => skill.skillId)}
                   />
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCreateSkill}
-                      disabled={!newSkillName.trim() || loadingSkills}
-                    >
-                      {loadingSkills ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Plus className="h-4 w-4 mr-2" />
-                      )}
-                      Tạo
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setIsAddingNewSkill(false);
-                        setNewSkillName('');
-                      }}
-                      disabled={loadingSkills}
-                    >
-                      Hủy
-                    </Button>
-                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddSkill}
+                    disabled={!selectedSkillId || loadingSkills}
+                    className="flex-shrink-0"
+                  >
+                    {loadingSkills ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    Thêm
+                  </Button>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Thanh tìm kiếm kỹ năng */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Tìm kiếm kỹ năng..."
-                      className="pl-10"
-                      value={skillSearchValue}
-                      onChange={(e) => setSkillSearchValue(e.target.value)}
-                      disabled={loadingSkills}
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Select
-                      value={selectedSkillId?.toString() || ''}
-                      onValueChange={(value) => setSelectedSkillId(Number(value))}
-                      disabled={loadingSkills || filteredAvailableSkills.length === 0}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Chọn kỹ năng" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60 overflow-y-auto">
-                        {filteredAvailableSkills.map((skill) => (
-                          <SelectItem key={skill.id} value={skill.id.toString()}>
-                            {skill.skillName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddSkill}
-                      disabled={!selectedSkillId || loadingSkills}
-                    >
-                      {loadingSkills ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Plus className="h-4 w-4 mr-2" />
-                      )}
-                      Thêm
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setIsAddingNewSkill(true)}
-                      disabled={loadingSkills}
-                    >
-                      Tạo mới
-                    </Button>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           </FadeInWhenVisible>
         </div>
