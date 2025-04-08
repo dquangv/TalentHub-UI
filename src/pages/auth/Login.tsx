@@ -79,6 +79,10 @@ const Login = () => {
       window.location.reload();
     } catch (err: any) {
       console.error("Error during login:", err);
+      notification.error({
+        message: 'Lỗi đăng nhập',
+        description: err.response.data.message
+    });
       // setError("Đăng nhập không thành công, vui lòng thử lại.");
     } finally {
       setLoading(false);
