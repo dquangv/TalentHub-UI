@@ -50,7 +50,7 @@ const Settings = () => {
               </TabsTrigger>
               <TabsTrigger ref={refs.portfolioRef} value="portfolio" className="flex items-center gap-2">
                 <FolderKanban className="w-4 h-4" />
-                <span className="hidden md:inline">Portfolio</span>
+                <span className="hidden md:inline">Dự án</span>
               </TabsTrigger>
               <TabsTrigger ref={refs.cvRef} value="cv" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
