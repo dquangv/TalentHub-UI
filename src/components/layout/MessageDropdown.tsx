@@ -54,7 +54,7 @@ const MessageDropdown = () => {
                                     className="flex items-start gap-2 w-full"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        window.open(`/messaging`, '_blank');
+                                        window.open(`/messaging?contactId=${conv.id}`, '_blank');
                                     }}
                                 >
                                     <div className="relative flex-shrink-0">
