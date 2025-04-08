@@ -2,15 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import countryService, { Country, Province } from '@/api/countryService';
 import { Check, ChevronsUpDown, Loader2, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import addressService, { Province, District } from '@/api/addressService';
+import { notification } from 'antd';
 
 interface LocationSelectorProps {
-    countryId: string | null;
-    provinceId: string | null;
-    onCountryChange: (country: string | null) => void;
-    onProvinceChange: (province: string | null) => void;
+    countryId: string | null; // Mặc dù UI hiển thị là Province/City nhưng vẫn giữ tên countryId
+    provinceId: string | null; // Mặc dù UI hiển thị là District nhưng vẫn giữ tên provinceId
+    onCountryChange: (country: string | null) => void; // Vẫn giữ tên để tương thích với code hiện tại
+    onProvinceChange: (province: string | null) => void; // Vẫn giữ tên để tương thích với code hiện tại
     disabled?: boolean;
 }
 
@@ -21,196 +22,150 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
     onProvinceChange,
     disabled = false
 }) => {
-    const [countries, setCountries] = useState<Country[]>([]);
     const [provinces, setProvinces] = useState<Province[]>([]);
-    const [countryOpen, setCountryOpen] = useState(false);
+    const [districts, setDistricts] = useState<District[]>([]);
     const [provinceOpen, setProvinceOpen] = useState(false);
-    const [selectedCountry, setSelectedCountry] = useState<string | null>(countryId);
-    const [selectedProvince, setSelectedProvince] = useState<string | null>(provinceId);
-    const [loadingCountries, setLoadingCountries] = useState<boolean>(false);
+    const [districtOpen, setDistrictOpen] = useState(false);
+    const [selectedProvince, setSelectedProvince] = useState<Province | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
     const [loadingProvinces, setLoadingProvinces] = useState<boolean>(false);
-    const [countrySearchValue, setCountrySearchValue] = useState('');
+    const [loadingDistricts, setLoadingDistricts] = useState<boolean>(false);
     const [provinceSearchValue, setProvinceSearchValue] = useState('');
+    const [districtSearchValue, setDistrictSearchValue] = useState('');
 
+    // Lấy danh sách tỉnh/thành phố khi component được tạo
     useEffect(() => {
-        const fetchCountries = async () => {
-            if (loadingCountries) return;
+        const fetchProvinces = async () => {
+            if (loadingProvinces) return;
 
-            setLoadingCountries(true);
+            setLoadingProvinces(true);
             try {
-                const countriesList = await countryService.getAllCountries();
-                setCountries(Array.isArray(countriesList) ? countriesList : []);
-
-                if (countryId && Array.isArray(countriesList)) {
-                    setSelectedCountry(countryId);
-                    const country = countriesList.find(c => c.name === countryId);
-                    if (country) {
-                        fetchProvincesByCountryId(country.id);
-                    }
-                }
+                const provincesData = await addressService.getProvinces();
+                setProvinces(provincesData);
             } catch (error) {
-                console.error('Error fetching countries:', error);
-                setCountries([]);
+                console.error('Error fetching provinces:', error);
+                notification.error({
+                    message: 'Lỗi',
+                    description: 'Không thể tải danh sách tỉnh/thành phố. Vui lòng thử lại sau.'
+                });
             } finally {
-                setLoadingCountries(false);
+                setLoadingProvinces(false);
             }
         };
 
-        fetchCountries();
+        fetchProvinces();
     }, []);
 
-    const fetchProvincesByCountryId = async (countryId: string) => {
-        if (!countryId || loadingProvinces) return;
+    // Khôi phục dữ liệu từ các giá trị đã lưu
+    useEffect(() => {
+        const loadSavedLocation = async () => {
+            // Nếu có countryId (tương ứng với tỉnh/thành phố)
+            if (countryId) {
+                // Tìm tỉnh/thành phố trong danh sách đã tải
+                const province = provinces.find(p => p.name === countryId);
 
-        setLoadingProvinces(true);
+                if (province) {
+                    setSelectedProvince(province);
+
+                    // Tải danh sách quận/huyện
+                    if (province.code) {
+                        try {
+                            setLoadingDistricts(true);
+                            const provinceDetails = await addressService.getProvinceDetails(province.code.toString());
+                            if (provinceDetails && provinceDetails.districts) {
+                                setDistricts(provinceDetails.districts);
+
+                                // Nếu có provinceId (tương ứng với quận/huyện)
+                                if (provinceId) {
+                                    const district = provinceDetails.districts.find(d => d.name === provinceId);
+                                    if (district) {
+                                        setSelectedDistrict(district);
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error fetching districts:', error);
+                        } finally {
+                            setLoadingDistricts(false);
+                        }
+                    }
+                }
+            }
+        };
+
+        if (provinces.length > 0) {
+            loadSavedLocation();
+        }
+    }, [countryId, provinceId, provinces]);
+
+    // Tải danh sách quận/huyện khi chọn tỉnh/thành phố
+    const fetchDistrictsByProvinceCode = async (provinceCode: string | number) => {
+        if (!provinceCode || loadingDistricts) return;
+
+        setLoadingDistricts(true);
         try {
-            const provincesList = await countryService.getProvincesByCountry(countryId);
-            setProvinces(Array.isArray(provincesList) ? provincesList : []);
-
-            if (provinceId) {
-                setSelectedProvince(provinceId);
+            const provinceDetails = await addressService.getProvinceDetails(provinceCode.toString());
+            if (provinceDetails && provinceDetails.districts) {
+                setDistricts(provinceDetails.districts);
             }
         } catch (error) {
-            console.error(`Error fetching provinces for country ${countryId}:`, error);
-            setProvinces([]);
+            console.error(`Error fetching districts for province ${provinceCode}:`, error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể tải danh sách quận/huyện. Vui lòng thử lại sau.'
+            });
+            setDistricts([]);
         } finally {
-            setLoadingProvinces(false);
+            setLoadingDistricts(false);
         }
     };
 
-    useEffect(() => {
-        if (countryId !== selectedCountry) {
-            setSelectedCountry(countryId);
-        }
-        if (provinceId !== selectedProvince) {
-            setSelectedProvince(provinceId);
-        }
-    }, [countryId, provinceId]);
-
-    const handleCountrySelect = (name: string, id: string) => {
-        setSelectedCountry(name);
-        onCountryChange(name);
-        setCountryOpen(false);
-        setCountrySearchValue('');
-
-        setSelectedProvince(null);
-        onProvinceChange(null);
-        setProvinces([]);
-
-        fetchProvincesByCountryId(id);
-    };
-
-    const handleProvinceSelect = (name: string) => {
-        setSelectedProvince(name);
-        onProvinceChange(name);
+    // Xử lý khi chọn tỉnh/thành phố
+    const handleProvinceSelect = (province: Province) => {
+        setSelectedProvince(province);
+        onCountryChange(province.name); // Lưu ý: Vẫn gọi onCountryChange nhưng giá trị là tên tỉnh/thành phố
         setProvinceOpen(false);
         setProvinceSearchValue('');
+
+        // Reset quận/huyện
+        setSelectedDistrict(null);
+        onProvinceChange(null);
+        setDistricts([]);
+
+        if (province.code) {
+            fetchDistrictsByProvinceCode(province.code);
+        }
     };
 
-    const filteredCountries = React.useMemo(() => {
-        if (!Array.isArray(countries)) return [];
+    // Xử lý khi chọn quận/huyện
+    const handleDistrictSelect = (district: District) => {
+        setSelectedDistrict(district);
+        onProvinceChange(district.name); // Lưu ý: Vẫn gọi onProvinceChange nhưng giá trị là tên quận/huyện
+        setDistrictOpen(false);
+        setDistrictSearchValue('');
+    };
 
-        return countrySearchValue.trim() === ''
-            ? countries
-            : countries.filter(country =>
-                country &&
-                country.name &&
-                country.name.toLowerCase().includes(countrySearchValue.toLowerCase())
-            );
-    }, [countries, countrySearchValue]);
-
+    // Lọc danh sách tỉnh/thành phố theo từ khóa tìm kiếm
     const filteredProvinces = React.useMemo(() => {
-        if (!Array.isArray(provinces)) return [];
-
         return provinceSearchValue.trim() === ''
             ? provinces
             : provinces.filter(province =>
-                province &&
-                province.name &&
                 province.name.toLowerCase().includes(provinceSearchValue.toLowerCase())
             );
     }, [provinces, provinceSearchValue]);
 
+    // Lọc danh sách quận/huyện theo từ khóa tìm kiếm
+    const filteredDistricts = React.useMemo(() => {
+        return districtSearchValue.trim() === ''
+            ? districts
+            : districts.filter(district =>
+                district.name.toLowerCase().includes(districtSearchValue.toLowerCase())
+            );
+    }, [districts, districtSearchValue]);
+
     return (
         <div className="space-y-3">
-            {/* Country Selector */}
-            <div className="relative">
-                <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-                    <PopoverTrigger asChild>
-                        <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={countryOpen}
-                            className="w-full justify-between"
-                            disabled={disabled || loadingCountries}
-                        >
-                            {loadingCountries ? (
-                                <div className="flex items-center">
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Đang tải...
-                                </div>
-                            ) : (
-                                selectedCountry || "Chọn quốc gia"
-                            )}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                        <div className="p-2">
-                            <div className="relative mb-2">
-                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder="Tìm kiếm quốc gia..."
-                                    className="pl-8"
-                                    value={countrySearchValue}
-                                    onChange={(e) => setCountrySearchValue(e.target.value)}
-                                />
-                            </div>
-
-                            {loadingCountries ? (
-                                <div className="flex items-center justify-center py-4">
-                                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                                </div>
-                            ) : filteredCountries.length > 0 ? (
-                                <div className="max-h-60 overflow-y-auto">
-                                    {filteredCountries.map((country) => (
-                                        <div
-                                            key={country.id}
-                                            className={cn(
-                                                "flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded hover:bg-muted",
-                                                selectedCountry === country.name && "bg-muted"
-                                            )}
-                                            onClick={() => handleCountrySelect(country.name, country.id)}
-                                        >
-                                            <div className="flex-shrink-0">
-                                                {selectedCountry === country.name && (
-                                                    <Check className="h-4 w-4" />
-                                                )}
-                                            </div>
-                                            <div className="flex items-center">
-                                                {country.flag && (
-                                                    <img
-                                                        src={country.flag}
-                                                        alt={country.name}
-                                                        className="w-4 h-3 mr-2 object-cover"
-                                                    />
-                                                )}
-                                                {country.name}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-center py-4 text-sm text-muted-foreground">
-                                    Không tìm thấy quốc gia
-                                </p>
-                            )}
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </div>
-
-            {/* Province Selector */}
+            {/* Tỉnh/Thành phố Selector (Province/City) */}
             <div className="relative">
                 <Popover open={provinceOpen} onOpenChange={setProvinceOpen}>
                     <PopoverTrigger asChild>
@@ -219,7 +174,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                             role="combobox"
                             aria-expanded={provinceOpen}
                             className="w-full justify-between"
-                            disabled={disabled || loadingProvinces || !selectedCountry}
+                            disabled={disabled || loadingProvinces}
                         >
                             {loadingProvinces ? (
                                 <div className="flex items-center">
@@ -227,7 +182,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                                     Đang tải...
                                 </div>
                             ) : (
-                                selectedProvince || "Chọn tỉnh/thành phố"
+                                selectedProvince?.name || "Chọn Tỉnh/Thành phố"
                             )}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -238,7 +193,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Tìm kiếm tỉnh/thành phố..."
-                                    className="pl-8"
+                                    className="pl-8 w-full"
                                     value={provinceSearchValue}
                                     onChange={(e) => setProvinceSearchValue(e.target.value)}
                                 />
@@ -252,15 +207,15 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                                 <div className="max-h-60 overflow-y-auto">
                                     {filteredProvinces.map((province) => (
                                         <div
-                                            key={province.id}
+                                            key={province.code}
                                             className={cn(
                                                 "flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded hover:bg-muted",
-                                                selectedProvince === province.name && "bg-muted"
+                                                selectedProvince?.code === province.code && "bg-muted"
                                             )}
-                                            onClick={() => handleProvinceSelect(province.name)}
+                                            onClick={() => handleProvinceSelect(province)}
                                         >
                                             <div className="flex-shrink-0">
-                                                {selectedProvince === province.name && (
+                                                {selectedProvince?.code === province.code && (
                                                     <Check className="h-4 w-4" />
                                                 )}
                                             </div>
@@ -273,6 +228,76 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                             ) : (
                                 <p className="text-center py-4 text-sm text-muted-foreground">
                                     Không tìm thấy tỉnh/thành phố
+                                </p>
+                            )}
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            {/* Quận/Huyện Selector (District) */}
+            <div className="relative">
+                <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
+                    <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={districtOpen}
+                            className="w-full justify-between"
+                            disabled={disabled || loadingDistricts || !selectedProvince}
+                        >
+                            {loadingDistricts ? (
+                                <div className="flex items-center">
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Đang tải...
+                                </div>
+                            ) : (
+                                selectedDistrict?.name || "Chọn Quận/Huyện"
+                            )}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                        <div className="p-2">
+                            <div className="relative mb-2">
+                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Tìm kiếm quận/huyện..."
+                                    className="pl-8 w-full"
+                                    value={districtSearchValue}
+                                    onChange={(e) => setDistrictSearchValue(e.target.value)}
+                                />
+                            </div>
+
+                            {loadingDistricts ? (
+                                <div className="flex items-center justify-center py-4">
+                                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                                </div>
+                            ) : filteredDistricts.length > 0 ? (
+                                <div className="max-h-60 overflow-y-auto">
+                                    {filteredDistricts.map((district) => (
+                                        <div
+                                            key={district.code}
+                                            className={cn(
+                                                "flex items-center gap-2 px-2 py-1.5 cursor-pointer rounded hover:bg-muted",
+                                                selectedDistrict?.code === district.code && "bg-muted"
+                                            )}
+                                            onClick={() => handleDistrictSelect(district)}
+                                        >
+                                            <div className="flex-shrink-0">
+                                                {selectedDistrict?.code === district.code && (
+                                                    <Check className="h-4 w-4" />
+                                                )}
+                                            </div>
+                                            <div>
+                                                {district.name}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-center py-4 text-sm text-muted-foreground">
+                                    {selectedProvince ? 'Không tìm thấy quận/huyện' : 'Vui lòng chọn tỉnh/thành phố trước'}
                                 </p>
                             )}
                         </div>
