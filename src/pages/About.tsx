@@ -54,7 +54,7 @@ const About = () => {
     {
       name: "Võ Thanh Tùng",
       position: "Leader",
-      image: "/public/img/team/Tung.jpg",
+      image: "/img/team/Tung.jpg",
       description: "Lãnh đạo giàu kinh nghiệm, luôn tin tưởng giao nhiệm vụ cho team",
       clusters: ["nhiệm vụ cho team"],
     },

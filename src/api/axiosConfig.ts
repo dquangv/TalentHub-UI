@@ -1,24 +1,9 @@
 import axios from 'axios';
 import { notification } from 'antd';
-
-const ENV = {
-    development: {
-        API_URL: 'http://localhost:8080/api',
-        TIMEOUT: 30000,
-    },
-    production: {
-        API_URL: 'https://developments-bride-tactics-bids.trycloudflare.com/api',
-        TIMEOUT: 30000,
-    }
-};
-
-// config môi trường
-const config = ENV[process.env.NODE_ENV || 'development'];
-
-// instance axios
+import config from '@/config';
 const axiosInstance = axios.create({
-    baseURL: config.API_URL,
-    timeout: config.TIMEOUT,
+    baseURL: config.current.API_URL,
+    timeout: config.current.TIMEOUT,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -44,8 +29,34 @@ axiosInstance.interceptors.response.use(
     (response) => {
         return response.data;
     },
-    (error) => {
+    async (error) => {
         const { response } = error;
+        const originalRequest = error.config;
+
+        if (!window.navigator.onLine && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            const url = originalRequest.url;
+            let staticDataPath = null;
+
+            if (url.includes('statistics/home')) {
+                staticDataPath = '/static-data/statistics.json';
+            } else if (url.includes('/v1/jobs/top-6')) {
+                staticDataPath = '/static-data/top-jobs.json';
+            } else if (url.includes('/v1/banners')) {
+                staticDataPath = '/static-data/banners.json';
+            }
+            if (staticDataPath) {
+                try {
+                    console.log(`Falling back to static data: ${staticDataPath}`);
+                    const response = await fetch(staticDataPath);
+                    const data = await response.json();
+                    return { data };
+                } catch (fallbackError) {
+                    console.error('Error fetching fallback data:', fallbackError);
+                }
+            }
+        }
 
         if (response) {
             switch (response.status) {
@@ -86,10 +97,10 @@ axiosInstance.interceptors.response.use(
                         description: 'Đã có lỗi xảy ra, vui lòng thử lại sau'
                     });
                     break;
-                    
+
                 case 417:
                     break;
-    
+
                 default:
                     notification.error({
                         message: 'Có lỗi xảy ra',

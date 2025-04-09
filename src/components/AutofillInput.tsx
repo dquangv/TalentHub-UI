@@ -18,7 +18,8 @@ const AutofillInput: React.FC<AutofillInputComponentProps> = ({
     placeholder,
     disabled,
     label,
-    className
+    className,
+    excludeIds // Thêm thuộc tính excludeIds vào component
 }) => {
     const {
         searchText,
@@ -37,7 +38,8 @@ const AutofillInput: React.FC<AutofillInputComponentProps> = ({
         initialText,
         onChange,
         placeholder,
-        disabled
+        disabled,
+        excludeIds // Truyền thuộc tính excludeIds vào hook
     });
 
     // Get the name field from entity config

@@ -29,6 +29,7 @@ import {
   Clock,
   FileText,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import cvService from "@/api/cvService";
@@ -38,7 +39,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import {
   Tooltip,
@@ -67,10 +68,11 @@ const Applicants = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [currentApplicant, setCurrentApplicant] = useState(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  const [selectedFreelancerId, setSelectedFreelancerId] = useState<number | null>(null);
-  const [rating, setRating] = useState<number>(0);
-  const [note, setNote] = useState<string>("");
+  const [selectedFreelancerId, setSelectedFreelancerId] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [note, setNote] = useState("");
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const fetchApplicants = async () => {
     setLoading(true);
@@ -98,6 +100,21 @@ const Applicants = () => {
   useEffect(() => {
     fetchApplicants();
   }, []);
+
+  const formatAppliedDate = (dateString) => {
+    if (!dateString) return "N/A";
+
+    const date = new Date(dateString);
+
+    // Format: hh:mm dd/mm/yyyy
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+  };
 
   const getStatusText = (status) => {
     switch (status) {
@@ -160,6 +177,10 @@ const Applicants = () => {
     }
   };
 
+  const handleJobTitleClick = (jobId) => {
+    navigate(`/jobs/${jobId}`);
+  };
+
   const handleReviewSubmit = async () => {
     if (!selectedFreelancerId) return;
 
@@ -177,7 +198,7 @@ const Applicants = () => {
       setReviewDialogOpen(false);
       setRating(0);
       setNote("");
-      fetchApplicants(); 
+      fetchApplicants();
     } catch (error) {
       notification.error({
         message: "Lỗi",
@@ -187,15 +208,14 @@ const Applicants = () => {
     }
   };
 
-  const StarRating = ({ rating, setRating }: { rating: number; setRating: (value: number) => void }) => {
+  const StarRating = ({ rating, setRating }) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 cursor-pointer ${
-              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-            }`}
+            className={`w-6 h-6 cursor-pointer ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+              }`}
             onClick={() => setRating(star)}
           />
         ))}
@@ -355,6 +375,8 @@ const Applicants = () => {
                 <TableRow>
                   <TableHead>Ứng viên</TableHead>
                   <TableHead>Chuyên môn</TableHead>
+                  <TableHead>Tên công việc</TableHead>
+                  <TableHead>Ngày ứng tuyển</TableHead>
                   <TableHead>Trạng thái</TableHead>
                   <TableHead>Đánh giá</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -370,14 +392,12 @@ const Applicants = () => {
                             src={applicant.image}
                             alt={`${applicant.firstName} ${applicant.lastName}`}
                           />
-                          <AvatarFallback>{`${applicant.firstName?.[0] || ""}${
-                            applicant.lastName?.[0] || ""
-                          }`}</AvatarFallback>
+                          <AvatarFallback>{`${applicant.firstName?.[0] || ""}${applicant.lastName?.[0] || ""
+                            }`}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{`${applicant.firstName || ""} ${
-                            applicant.lastName || ""
-                          }`}</p>
+                          <p className="font-medium">{`${applicant.firstName || ""} ${applicant.lastName || ""
+                            }`}</p>
                           <p className="text-sm text-muted-foreground">{applicant.email}</p>
                         </div>
                       </div>
@@ -388,14 +408,40 @@ const Applicants = () => {
                       </p>
                     </TableCell>
                     <TableCell>
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-left font-medium text-blue-600 hover:text-blue-800 flex items-center"
+                        onClick={() => handleJobTitleClick(applicant.jobId)}
+                      >
+                        {applicant.jobTitle || "Không có tên công việc"}
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium">
+                        {formatAppliedDate(applicant.appliedDate)}
+                      </p>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant={getStatusBadgeVariant(applicant.status)}>
                         {getStatusText(applicant.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="ml-1">{applicant.rating || "Chưa đánh giá"}</span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                          <span className="ml-1">
+                            {(!applicant.clientReviewRating || applicant.clientReviewRating === 0)
+                              ? "Chưa đánh giá"
+                              : applicant.clientReviewRating}
+                          </span>
+                        </div>
+                        {applicant.clientReviewNote && (
+                          <p className="text-xs text-gray-500 mt-1 truncate max-w-xs">
+                            {applicant.clientReviewNote}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

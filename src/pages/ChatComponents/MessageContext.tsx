@@ -242,10 +242,8 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
         }
     }, [userId]);
 
-    // Cập nhật hàm handleIncomingMessage trong MessageContext.tsx
     const handleIncomingMessage = useCallback((message: any) => {
         const isActiveConversation = activeConversationId === message.senderId;
-        // Create our message format
         const newMessage: Message = {
             id: message.id || uuidv4(),
             conversationId: message.senderId,
@@ -267,7 +265,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
             };
         });
 
-        // Update conversation list
+        // Update conversation list - Đây là phần quan trọng cần sửa
         setConversations(prev => {
             const existingConvIndex = prev.findIndex(c => c.id === message.senderId);
 
@@ -458,11 +456,9 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
     }, [userId, activeConversationId]);
 
 
-    // Send a message via WebSocket
     const sendMessage = useCallback((content: string) => {
         if (!activeConversationId || !content.trim() || !isConnected || !userId) return;
 
-        // Create a temporary message (will be replaced by server response in real implementation)
         const tempId = uuidv4();
         const newMessage: Message = {
             id: tempId,
@@ -480,7 +476,7 @@ export const MessageProvider: React.FC<MessageProviderProps> = ({ children, init
             [activeConversationId]: [...(prev[activeConversationId] || []), newMessage],
         }));
 
-        // Update conversation list
+        // Update conversation list - sửa phần này
         setConversations(prev => {
             const existingConvIndex = prev.findIndex(c => c.id === activeConversationId);
 
