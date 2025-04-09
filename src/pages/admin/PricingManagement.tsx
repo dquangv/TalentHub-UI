@@ -252,13 +252,13 @@ export default function PricingManagement() {
               Doanh thu
             </Button>
           </div>
-          <Button
+          {/* <Button
             className="gap-2"
             onClick={() => setIsCreating(true)}
           >
             <Plus className="h-4 w-4" />
             Thêm gói mới
-          </Button>
+          </Button> */}
         </div>
       </div>
 
