@@ -887,7 +887,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16" id="how-it-works">
+      {/* <section className="py-16" id="how-it-works">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Cách Thức Hoạt Động</h2>
@@ -904,6 +904,72 @@ const Home = () => {
                 </div>
               </FadeInWhenVisible>
             ))}
+          </div>
+        </div>
+      </section> */}
+
+<section className="py-16 bg-white" id="features">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Đặc điểm nổi bật</h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <FadeInWhenVisible delay={0.1}>
+              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                  <Users className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-primary-700">Cộng đồng lớn mạnh</h3>
+                <p className="text-muted-foreground">Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu</p>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible delay={0.2}>
+              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                  <TrendingUp className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-primary-700">Thanh toán an toàn</h3>
+                <p className="text-muted-foreground">Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả</p>
+              </div>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible delay={0.3}>
+              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+                  <CheckCircle className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ 24/7</h3>
+                <p className="text-muted-foreground">Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
+              </div>
+            </FadeInWhenVisible>
+          </div>
+        </div>
+      </section>
+
+      
+
+      <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative" id="cta-section">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
+        <div className="container relative mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto">
+            <FadeInWhenVisible>
+              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                Bắt đầu tìm kiếm freelancer ngay hôm nay
+              </h2>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible delay={0.2}>
+              <p className="text-lg mb-8 text-primary-600/80">
+                Đăng ký miễn phí và bắt đầu kết nối với cộng đồng tài năng freelancer
+              </p>
+            </FadeInWhenVisible>
+            <FadeInWhenVisible delay={0.4}>
+              <Button
+                size="lg"
+                className="text-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={() => navigate('/register')}
+              >
+                Đăng ký ngay
+              </Button>
+            </FadeInWhenVisible>
           </div>
         </div>
       </section>
@@ -956,70 +1022,6 @@ const Home = () => {
               </button>
             </div>
           )}
-        </div>
-      </section>
-
-      <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative" id="cta-section">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
-        <div className="container relative mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto">
-            <FadeInWhenVisible>
-              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-                Bắt đầu tìm kiếm freelancer ngay hôm nay
-              </h2>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <p className="text-lg mb-8 text-primary-600/80">
-                Đăng ký miễn phí và bắt đầu kết nối với cộng đồng tài năng freelancer
-              </p>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.4}>
-              <Button
-                size="lg"
-                className="text-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transition-all duration-300"
-                onClick={() => navigate('/register')}
-              >
-                Đăng ký ngay
-              </Button>
-            </FadeInWhenVisible>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-white" id="features">
-        <div className="container mx-auto px-4">
-          <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Đặc điểm nổi bật</h2>
-          </FadeInWhenVisible>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FadeInWhenVisible delay={0.1}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <Users className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Cộng đồng lớn mạnh</h3>
-                <p className="text-muted-foreground">Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <TrendingUp className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Thanh toán an toàn</h3>
-                <p className="text-muted-foreground">Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.3}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <CheckCircle className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ 24/7</h3>
-                <p className="text-muted-foreground">Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
-              </div>
-            </FadeInWhenVisible>
-          </div>
         </div>
       </section>
     </main>
