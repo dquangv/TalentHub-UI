@@ -135,14 +135,14 @@ const Login = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
+                {/* <div className="flex items-center justify-between text-sm">
                   <Link
                     to="/forgot-password"
                     className="text-primary hover:underline"
                   >
                     Quên mật khẩu?
                   </Link>
-                </div>
+                </div> */}
 
                 {/* Submit Button */}
                 <Button type="submit" className="w-full" disabled={loading}>
@@ -190,7 +190,7 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-primary hover:underline"
                 >
-                  vào đây
+                 Click vào đây
                 </Link>
               </p>
             </Card>
