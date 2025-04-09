@@ -304,7 +304,7 @@ const PostJob = () => {
                 <div className="space-y-8">
                     <div className="space-y-6">
                         <h2 className="text-2xl font-semibold">
-                            {isEditMode ? 'Cập nhật công việc' : 'Thông tin cơ bản'}
+                            {isEditMode ? 'Cập nhật công việc' : 'Thông tin công việc'}
                         </h2>
 
                         <div className="space-y-4">
