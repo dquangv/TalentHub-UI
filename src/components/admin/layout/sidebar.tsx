@@ -46,7 +46,7 @@ const menuItems = [
     href: "/chatbot",
   },
   {
-    title: "Quản lý Bài viết",
+    title: "Quản lý Bài đăng",
     icon: FileText,
     href: "/posts",
   },
@@ -61,7 +61,7 @@ const menuItems = [
     href: "/banners",
   },
   {
-    title: "Quản lý Báo Cáo",
+    title: "Quản lý Tố cáo",
     icon: AlertTriangle,
     href: "/reports",
   },
