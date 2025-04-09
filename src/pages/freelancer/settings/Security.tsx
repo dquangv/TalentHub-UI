@@ -107,7 +107,7 @@ const Security = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mb-8">
       <FadeInWhenVisible>
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-6">
