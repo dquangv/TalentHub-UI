@@ -43,6 +43,7 @@ interface FilterState {
   maxRate: number;
   selectedSkills: string[];
   minRating: number;
+  title: string;
 }
 
 const Freelancers = () => {
@@ -60,6 +61,7 @@ const Freelancers = () => {
     maxRate: 200,
     selectedSkills: [],
     minRating: 0,
+    title: '',
   });
 
   const uniqueProvinces: any = [];
@@ -85,6 +87,12 @@ const Freelancers = () => {
     }
   }
 
+  const uniqueTitles: string[] = [];
+  for (const f of freelancers) {
+    if (f.title && !uniqueTitles.includes(f.title)) {
+      uniqueTitles.push(f.title);
+    }
+  }
 
   useEffect(() => {
     const loadFreelancers = async () => {
@@ -127,6 +135,12 @@ const Freelancers = () => {
       );
     }
 
+    if (filters.title) {
+      filtered = filtered.filter(freelancer =>
+        freelancer.title === filters.title
+      );
+    }
+
     filtered = filtered.filter(freelancer => {
       const rate = parseFloat(freelancer.hourlyRate.replace(/[^\d.]/g, ''));
       return rate >= filters.minRate && rate <= filters.maxRate;
@@ -158,6 +172,7 @@ const Freelancers = () => {
       maxRate: 200,
       selectedSkills: [],
       minRating: 0,
+      title: '',
     });
     setFilteredFreelancers(freelancers);
   };
@@ -201,7 +216,7 @@ const Freelancers = () => {
                       <Filter className="w-4 h-4" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent className="w-[400px]">
+                  <SheetContent className="w-[400px] overflow-y-auto">
                     <SheetHeader>
                       <SheetTitle>Bộ lọc</SheetTitle>
                     </SheetHeader>
@@ -248,6 +263,26 @@ const Freelancers = () => {
                             </SelectContent>
                           </Select>
                         </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium">Chức danh</h3>
+                        <Select
+                          value={filters.title}
+                          onValueChange={(value) =>
+                            setFilters(prev => ({ ...prev, title: value }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn chức danh" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {uniqueTitles.map(title => (
+                              <SelectItem key={title} value={title}>
+                                {title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-2">
@@ -372,14 +407,14 @@ const Freelancers = () => {
                         ))}
                       </div>
                       <div className='flex-1'></div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">
-                            {freelancer.hourlyRate}/giờ
-                          </span>
-                          <Button variant="outline" size="sm">
-                            <Link to={`/freelancers/${freelancer.id}`}>{t('Viewprofile')}</Link>
-                          </Button>
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          {freelancer.hourlyRate}/giờ
+                        </span>
+                        <Button variant="outline" size="sm">
+                          <Link to={`/freelancers/${freelancer.id}`}>{t('Viewprofile')}</Link>
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
