@@ -316,13 +316,44 @@ const ExperienceComponent = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t('Enddate')}</label>
-                  <Input
-                    type="date"
-                    value={experience.endDate || ''}
-                    onChange={(e) =>
-                      experience.id && updateExperienceField(experience.id, 'endDate', e.target.value)
-                    }
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`currently-working-${experience.id}`}
+                      checked={currentlyWorking[experience.id || 0] || false}
+                      onCheckedChange={(checked) =>
+                        experience.id && handleCurrentlyWorkingChange(experience.id, checked as boolean)
+                      }
+                      disabled={isSaving}
+                    />
+                    <label
+                      htmlFor={`currently-working-${experience.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Đang làm việc
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+
+
+                    {!currentlyWorking[experience.id || 0] && (
+                      <Input
+                        type="date"
+                        value={experience.endDate || ''}
+                        onChange={(e) =>
+                          experience.id && updateExperienceField(experience.id, 'endDate', e.target.value)
+                        }
+                        disabled={isSaving || currentlyWorking[experience.id || 0]}
+                      />
+                    )}
+
+                    {currentlyWorking[experience.id || 0] && (
+                      <Input
+                        type="text"
+                        value="Hiện tại"
+                        disabled={true}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
