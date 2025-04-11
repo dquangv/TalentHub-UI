@@ -415,6 +415,34 @@ const JobDetail = () => {
                 </div>
               </Card>
             </FadeInWhenVisible>
+
+            <FadeInWhenVisible delay={0.5}>
+              <Card className="p-6">
+                <div className="flex items-center gap-4">
+                  <Users className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Tổng lượt xem
+                    </p>
+                    <p className="font-semibold">{job.totalViews} lượt</p>
+                  </div>
+                </div>
+              </Card>
+            </FadeInWhenVisible>
+
+            <FadeInWhenVisible delay={0.6}>
+              <Card className="p-6">
+                <div className="flex items-center gap-4">
+                  <Users className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Tổng ứng viên
+                    </p>
+                    <p className="font-semibold">{job.totalApplicants} người</p>
+                  </div>
+                </div>
+              </Card>
+            </FadeInWhenVisible>
           </div>
 
           {/* Description Section */}
