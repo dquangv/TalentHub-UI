@@ -339,7 +339,7 @@ const Freelancers = () => {
           ) : (
             filteredFreelancers.map((freelancer, index) => (
               <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
-                <Card className="p-6">
+                <Card className="p-6 h-full">
                   <div className="flex items-start gap-4">
                     <Avatar className="w-16 h-16 rounded-full">
                       <AvatarImage src={freelancer.avatar} alt={freelancer.name} />
