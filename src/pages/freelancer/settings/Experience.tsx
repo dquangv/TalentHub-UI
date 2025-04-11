@@ -78,13 +78,14 @@ const ExperienceComponent = () => {
       companyName: 'Công ty mới',
       position: 'Vị trí mới',
       startDate: currentDate,
-      endDate: currentDate,
+      endDate: null,
       description: '',
       status: 'active',
       freelancerId: freelancerId
     };
 
     setExperiences([...experiences, newExperience]);
+    setCurrentlyWorking(prev => ({ ...prev, [newId]: false }));
   };
 
   const removeExperience = async (id: number) => {
@@ -131,7 +132,16 @@ const ExperienceComponent = () => {
     setExperiences(updatedExperiences);
   };
 
+  const handleCurrentlyWorkingChange = (id: number, checked: boolean) => {
+    setCurrentlyWorking(prev => ({ ...prev, [id]: checked }));
 
+    if (checked) {
+      updateExperienceField(id, 'endDate', null);
+    } else {
+      const currentDate = new Date().toISOString().split('T')[0];
+      updateExperienceField(id, 'endDate', currentDate);
+    }
+  };
 
   const saveExperience = async (id: number) => {
     const experience = experiences.find(exp => exp.id === id);
