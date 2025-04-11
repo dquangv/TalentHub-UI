@@ -97,7 +97,7 @@ const Appointment = () => {
       if (response?.data) {
         notification.info({
           message: "Đặt lịch thành công",
-          description: "Chúng tôi sẽ gửi email xác nhận cho bạn",
+          description: "Đặt lịch thành công, chúng tôi sẽ thông báo cho ứng viên của bạn",
         });
       } else {
         notification.error({
