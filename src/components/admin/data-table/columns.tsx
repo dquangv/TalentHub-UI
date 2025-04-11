@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const freelancerColumns = [
   {
@@ -19,11 +19,8 @@ export const freelancerColumns = [
       const name = row.getValue("name");
       return (
         <div className="flex items-center gap-3">
-          <Avatar
-            src={row.original.avatar || undefined}
-            alt={name}
-            className="w-10 h-10"
-          >
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={row.original.avatar || undefined} alt={name} />
             <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
               {name?.slice(0, 2).toUpperCase() || "UN"}
             </AvatarFallback>
@@ -96,13 +93,10 @@ export const employerColumns = [
       const fullName = `${row.original.lastName} ${row.original.firstName}`;
       return (
         <div className="flex items-center gap-3">
-          <Avatar
-            src={row.original.image || undefined}
-            alt={fullName}
-            className="w-10 h-10"
-          >
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={row.original.image || undefined} alt={fullName} />
             <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
-              {`${row.original.lastName?.[0] || ""}${row.original.firstName?.[0] || ""}`}
+              {fullName?.slice(0, 2).toUpperCase() || "UN"}
             </AvatarFallback>
           </Avatar>
           <span className="font-medium">{fullName}</span>

@@ -113,6 +113,8 @@ const ChatbotManagement: React.FC = () => {
         requiresDbQuery: false,
         queryTemplate: ''
     });
+    const [newIntentName, setNewIntentName] = useState<string>('');
+    const [processingLoading, setProcessingLoading] = useState(false);
 
     useEffect(() => {
         fetchIntents();
@@ -298,10 +300,12 @@ const ChatbotManagement: React.FC = () => {
     const handleProcessQuery = async () => {
         if (!selectedQuery) return;
 
+        setProcessingLoading(true); // Bắt đầu loading
         try {
+            // Tạo dữ liệu cho API
             const queryData: ProcessQueryDTO = {
                 queryId: selectedQuery.id,
-                intentName: processingData.intentName,
+                intentName: processingData.intentName === 'new_intent' ? newIntentName : processingData.intentName,
                 text: processingData.text,
                 requiresDbQuery: processingData.requiresDbQuery,
                 queryTemplate: processingData.queryTemplate
@@ -313,9 +317,12 @@ const ChatbotManagement: React.FC = () => {
             fetchIntents();
             setSelectedQuery(null);
             resetProcessingData();
+            setNewIntentName('');
         } catch (error) {
             notification.error({ message: 'Error', description: 'Failed to process query' });
             console.error(error);
+        } finally {
+            setProcessingLoading(false); // Kết thúc loading dù thành công hay thất bại
         }
     };
 
@@ -533,7 +540,13 @@ const ChatbotManagement: React.FC = () => {
                                             <Label>Assign to Intent</Label>
                                             <Select
                                                 value={processingData.intentName}
-                                                onValueChange={(value) => setProcessingData({ ...processingData, intentName: value })}
+                                                onValueChange={(value) => {
+                                                    // Khi chọn tạo intent mới, reset giá trị của newIntentName
+                                                    if (value === 'new_intent') {
+                                                        setNewIntentName('');
+                                                    }
+                                                    setProcessingData({ ...processingData, intentName: value });
+                                                }}
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Select intent" />
@@ -556,8 +569,8 @@ const ChatbotManagement: React.FC = () => {
                                                     <div className="space-y-2">
                                                         <Label>Tên intent mới</Label>
                                                         <Input
-                                                            value={processingData.intentName === 'new_intent' ? '' : processingData.intentName}
-                                                            onChange={(e) => setProcessingData({ ...processingData, intentName: e.target.value })}
+                                                            value={newIntentName}
+                                                            onChange={(e) => setNewIntentName(e.target.value)}
                                                             placeholder="Nhập tên intent mới"
                                                         />
                                                     </div>
@@ -579,8 +592,20 @@ const ChatbotManagement: React.FC = () => {
                                             <Button variant="outline" onClick={() => setSelectedQuery(null)}>
                                                 Đóng
                                             </Button>
-                                            <Button onClick={handleProcessQuery}>
-                                                Xử lý câu hỏi
+                                            <Button
+                                                onClick={handleProcessQuery}
+                                                disabled={processingLoading || (
+                                                    processingData.intentName === 'new_intent' && !newIntentName.trim()
+                                                )}
+                                            >
+                                                {processingLoading ? (
+                                                    <>
+                                                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                                        Đang xử lý...
+                                                    </>
+                                                ) : (
+                                                    <>Xử lý câu hỏi</>
+                                                )}
                                             </Button>
                                         </div>
                                     </div>
