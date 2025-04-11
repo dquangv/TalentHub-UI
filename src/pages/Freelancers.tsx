@@ -339,15 +339,15 @@ const Freelancers = () => {
           ) : (
             filteredFreelancers.map((freelancer, index) => (
               <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
-                <Card className="p-6">
-                  <div className="flex items-start gap-4">
+                <Card className="p-6 h-full">
+                  <div className="flex items-start gap-4 h-full">
                     <Avatar className="w-16 h-16 rounded-full">
                       <AvatarImage src={freelancer.avatar} alt={freelancer.name} />
                       <AvatarFallback className="bg-primary/10 text-primary text-[10px] md:text-xs">
                         {freelancer.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
+                    <div className="flex-1 flex flex-col h-full">
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="font-semibold">{freelancer.name}</h3>
                         <div className="flex items-center">
@@ -358,12 +358,12 @@ const Freelancers = () => {
                       <p className="text-sm text-muted-foreground mb-2">
                         {freelancer.title}
                       </p>
-                      <div className="flex items-center text-sm text-muted-foreground mb-4">
+                      {/* <div className="flex items-center text-sm text-muted-foreground mb-4">
                         <MapPin className="w-4 h-4 mr-1" />
                         {freelancer.province && freelancer.country
                           ? `${freelancer.province}, ${freelancer.country}`
                           : freelancer.province || freelancer.country || 'Chưa cập nhật'}
-                      </div>
+                      </div> */}
                       <div className="flex flex-wrap gap-2 mb-4">
                         {freelancer.skills.map((skill) => (
                           <Badge key={skill} variant="secondary">
@@ -371,18 +371,18 @@ const Freelancers = () => {
                           </Badge>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          {freelancer.hourlyRate}/giờ
-                        </span>
-                        <Button variant="outline" size="sm">
-                          <Link to={`/freelancers/${freelancer.id}`}>
-                            {t('Viewprofile')}
-                          </Link>
-                        </Button>
-                      </div>
+                      <div className='flex-1'></div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">
+                            {freelancer.hourlyRate}/giờ
+                          </span>
+                          <Button variant="outline" size="sm">
+                            <Link to={`/freelancers/${freelancer.id}`}>{t('Viewprofile')}</Link>
+                          </Button>
+                        </div>
                     </div>
                   </div>
+
                 </Card>
               </FadeInWhenVisible>
             ))
