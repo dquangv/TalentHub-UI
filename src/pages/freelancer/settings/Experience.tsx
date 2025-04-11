@@ -32,6 +32,12 @@ const ExperienceComponent = () => {
       if (response.status === 200 && response.data) {
         setExperiences(response.data);
         setOriginalExperiences(JSON.parse(JSON.stringify(response.data)));
+
+        const workingState: Record<number, boolean> = {};
+        response.data.forEach((exp: Experience) => {
+          workingState[exp.id || 0] = exp.endDate === null;
+        });
+        setCurrentlyWorking(workingState);
       }
     } catch (error) {
       console.error('Error fetching experiences:', error);
@@ -42,6 +48,10 @@ const ExperienceComponent = () => {
     } finally {
       setInitialLoading(false);
     }
+  };
+  const formatDateForDisplay = (dateString: string | null) => {
+    if (!dateString) return 'Hiện tại';
+    return dateString;
   };
 
   const isExperienceModified = (experience: Experience): boolean => {
