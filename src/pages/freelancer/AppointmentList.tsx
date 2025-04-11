@@ -185,9 +185,9 @@ const AppointmentList = () => {
                             Tham gia
                           </Button>
                         )}
-                        <Button size="sm" variant="outline">
+                        {/* <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
-                        </Button>
+                        </Button> */}
                       </div>
                     </TableCell>
                   </TableRow>
