@@ -44,31 +44,31 @@ const Appointment = () => {
 
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
-  
+
     if (!data?.clientId) {
       navigate("/login");
       return;
     }
-  
-  
+
+
     const timeParts = formData.time.split(":");
     const hour = parseInt(timeParts[0]);
     const minute = timeParts[1] ? parseInt(timeParts[1]) : 0;
-  
-    const selectedDate = new Date(formData.selectedDate); 
-    
+
+    const selectedDate = new Date(formData.selectedDate);
+
     selectedDate.setHours(hour);
     selectedDate.setMinutes(minute);
     selectedDate.setSeconds(0);
-    selectedDate.setMilliseconds(0); 
-  
+    selectedDate.setMilliseconds(0);
+
     const appointmentData = {
-      startTime: selectedDate.toISOString(),  
+      startTime: selectedDate.toISOString(),
       duration: parseInt(formData.duration),
       topic: formData.topic,
       description: formData.description,
@@ -76,15 +76,24 @@ const Appointment = () => {
       clientId: data?.clientId,
       freelancerJobId: id,
     };
-  
+
+    const now = new Date();
+    if (selectedDate <= now) {
+      notification.error({
+        message: "Lỗi đặt lịch",
+        description: "Không thể đặt lịch hẹn trước hoặc tại thời điểm hiện tại.",
+      });
+      return;
+    }
+
     console.log("Appointment Data:", appointmentData);
-  
+
     try {
       const response = await api.post(
         "/v1/appointments/client",
         JSON.stringify(appointmentData)
       );
-  
+
       if (response?.data) {
         notification.info({
           message: "Đặt lịch thành công",
@@ -104,9 +113,9 @@ const Appointment = () => {
       });
     }
   };
-  
-  
-  
+
+
+
 
   const timeSlots = [
     "09:00",
@@ -153,9 +162,8 @@ const Appointment = () => {
           <FadeInWhenVisible delay={0.1}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               <Card
-                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
-                  appointmentType === "online" ? "ring-2 ring-primary" : ""
-                }`}
+                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${appointmentType === "online" ? "ring-2 ring-primary" : ""
+                  }`}
                 onClick={() => setAppointmentType("online")}
               >
                 <div className="flex items-center gap-4">
@@ -175,9 +183,8 @@ const Appointment = () => {
               </Card>
 
               <Card
-                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
-                  appointmentType === "offline" ? "ring-2 ring-primary" : ""
-                }`}
+                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${appointmentType === "offline" ? "ring-2 ring-primary" : ""
+                  }`}
                 onClick={() => setAppointmentType("offline")}
               >
                 <div className="flex items-center gap-4">
@@ -215,26 +222,15 @@ const Appointment = () => {
                     </div>
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          Thời gian bắt đầu
-                        </label>
-                        <Select
+                        <label className="text-sm font-medium">Thời gian bắt đầu</label>
+                        <Input
+                          type="time"
                           value={formData.time}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, time: value })
+                          onChange={(e) =>
+                            setFormData({ ...formData, time: e.target.value })
                           }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn thời gian" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timeSlots.map((time) => (
-                              <SelectItem key={time} value={time}>
-                                {time}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          required
+                        />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">
