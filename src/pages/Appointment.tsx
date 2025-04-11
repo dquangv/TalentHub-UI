@@ -77,6 +77,15 @@ const Appointment = () => {
       freelancerJobId: id,
     };
 
+    const now = new Date();
+    if (selectedDate <= now) {
+      notification.error({
+        message: "Lỗi đặt lịch",
+        description: "Không thể đặt lịch hẹn trước hoặc tại thời điểm hiện tại.",
+      });
+      return;
+    }
+
     console.log("Appointment Data:", appointmentData);
 
     try {
