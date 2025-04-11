@@ -8,6 +8,7 @@ import { Plus, Briefcase, Trash2, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import experienceService, { Experience } from '@/api/experienceService';
 import { notification } from 'antd';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const ExperienceComponent = () => {
   const { t } = useLanguage();
@@ -16,6 +17,7 @@ const ExperienceComponent = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [savingIds, setSavingIds] = useState<number[]>([]);
+  const [currentlyWorking, setCurrentlyWorking] = useState<Record<number, boolean>>({});
 
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
 
