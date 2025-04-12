@@ -24,7 +24,25 @@ const ConversationList: React.FC<ConversationListProps> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [isClient, setIsClient] = useState(true);
     const navigate = useNavigate();
+
+    // Get user info from localStorage
+    useEffect(() => {
+        const userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+            try {
+                const userInfo = JSON.parse(userInfoStr);
+                setCurrentUserId(userInfo.userId);
+                setIsClient(!userInfo.freelancerId);
+            } catch (e) {
+                console.error('Error parsing userInfo:', e);
+            }
+        }
+    }, []);
+
     const handleConversationClick = (conversationId: string) => {
         onSelectConversation(conversationId);
         navigate(`/messaging?contactId=${conversationId}`, { replace: true });
