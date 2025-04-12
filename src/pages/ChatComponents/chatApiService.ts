@@ -27,10 +27,24 @@ export interface ReadMessageRequest {
     senderId: string;
 }
 
+export interface FreelancerJob {
+    id: number;
+    title: string;
+    status: string;
+}
+
+export interface FreelancerForClient {
+    userId: number;
+    fullName: string;
+    avatar: string;
+    rating: number;
+    jobs: FreelancerJob[];
+}
+
 class ChatApiService {
     private readonly API_PATH = '/chat';
+    private readonly API_FREELANCER_PATH = '/v1/freelancers';
 
-    // Fetch user's recent conversations
     async getConversations(userId: string): Promise<ConversationSummary[]> {
         try {
             const result = await api.get(`${this.API_PATH}/conversations/${userId}`);
