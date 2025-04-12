@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Conversation } from './MessageContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import FreelancerSelectionModal from './FreelancerSelectionModal';
 
 interface ConversationListProps {
     conversations: Conversation[];
