@@ -59,7 +59,6 @@ class ChatApiService {
         }
     }
 
-    // Fetch message history between two users
     async getMessages(currentUserId: string, otherUserId: string): Promise<MessageResponse[]> {
         try {
             const result = await api.get(`${this.API_PATH}/messages/${currentUserId}/${otherUserId}`);
@@ -70,7 +69,6 @@ class ChatApiService {
         }
     }
 
-    // Mark messages as read via API
     async markMessagesAsRead(readRequest: ReadMessageRequest): Promise<void> {
         try {
             await api.post(`${this.API_PATH}/messages/read`, readRequest);
