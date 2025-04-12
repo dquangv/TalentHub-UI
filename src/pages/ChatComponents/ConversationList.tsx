@@ -171,6 +171,14 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     Tin nhắn mới
                 </button>
             </div>
+
+            {isClient && (
+                <FreelancerSelectionModal
+                    isOpen={isFreelancerModalOpen}
+                    onClose={() => setIsFreelancerModalOpen(false)}
+                    clientId={currentUserId}
+                />
+            )}
         </div>
     );
 };
