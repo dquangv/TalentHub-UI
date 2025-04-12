@@ -37,6 +37,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
             try {
                 const userInfo = JSON.parse(userInfoStr);
                 setCurrentUserId(userInfo.userId);
+                // If freelancerId is not available, user is a client
                 setIsClient(!userInfo.freelancerId);
             } catch (e) {
                 console.error('Error parsing userInfo:', e);
@@ -163,14 +164,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 )}
             </ScrollArea>
 
-            <div className="p-3 md:p-4 border-t">
-                <button
-                    className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
-                    onClick={handleNewMessageClick}
-                >
-                    <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                    Tin nhắn mới
-                </button>
+            <div className="p-3 md:p-4">
+                {isClient && (
+                    <button
+                        className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
+                        onClick={handleNewMessageClick}
+                    >
+                        <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                        Tin nhắn mới
+                    </button>
+                )}
             </div>
 
             {isClient && (
