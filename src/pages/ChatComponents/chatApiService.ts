@@ -79,8 +79,22 @@ class ChatApiService {
             throw error;
         }
     }
+
+    async getFreelancersForClient(clientId: string | number): Promise<FreelancerForClient[]> {
+        try {
+            const result = await api.get(`${this.API_FREELANCER_PATH}/client/${clientId}`);
+            console.log('Freelancers for client:', result.data);
+            if (result.status === 200) {
+                return result.data || [];
+            } else {
+                throw new Error('Failed to fetch freelancers, status not 200');
+            }
+        } catch (error) {
+            console.error('Error fetching freelancers for client:', error);
+            throw error;
+        }
+    }
 }
 
-// Singleton instance
 const chatApiService = new ChatApiService();
 export default chatApiService;
