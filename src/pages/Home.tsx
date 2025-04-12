@@ -15,7 +15,7 @@ import api from '@/api/axiosConfig';
 import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Helmet } from 'react-helmet'; // Cần cài đặt thêm: npm install react-helmet
+import { Helmet } from 'react-helmet';
 import SEO from '@/components/SEO';
 
 interface Banner {
