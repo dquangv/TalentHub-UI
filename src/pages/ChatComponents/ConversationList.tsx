@@ -58,6 +58,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
         setSearchQuery('');
     };
 
+    const handleNewMessageClick = () => {
+        if (isClient) {
+            // If user is a client, open the freelancer selection modal
+            setIsFreelancerModalOpen(true);
+        } else if (onNewConversation) {
+            // Otherwise, use the default new conversation handler
+            onNewConversation();
+        }
+    };
+
     return (
         <div className="h-full flex flex-col border-r">
             <div className="p-3 md:p-4 border-b">
