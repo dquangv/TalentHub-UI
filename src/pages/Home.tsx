@@ -565,7 +565,7 @@ const Home = () => {
                       <div className="flex items-start gap-4">
                         <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
                           <AvatarImage
-                            src={freelancer.avatar ? `https://developments-bride-tactics-bids.trycloudflare.com/api/uploads/${freelancer.avatar}` : "/assets/default-avatar.png"}
+                            src={freelancer.avatar}
                             alt={`Freelancer ${freelancer.name}`}
                             loading="lazy"
                           />
@@ -908,7 +908,7 @@ const Home = () => {
         </div>
       </section> */}
 
-<section className="py-16 bg-white" id="features">
+      <section className="py-16 bg-white" id="features">
         <div className="container mx-auto px-4">
           <FadeInWhenVisible>
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Đặc điểm nổi bật</h2>
@@ -945,7 +945,7 @@ const Home = () => {
         </div>
       </section>
 
-      
+
 
       <section className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative" id="cta-section">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
