@@ -99,6 +99,8 @@ const Appointment = () => {
           message: "Đặt lịch thành công",
           description: "Đặt lịch thành công, chúng tôi sẽ thông báo cho ứng viên của bạn",
         });
+        navigate('client/appointment', {replace: true})
+        
       } else {
         notification.error({
           message: "Đặt lịch thất bại",
