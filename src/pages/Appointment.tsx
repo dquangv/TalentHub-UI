@@ -253,7 +253,12 @@ const Appointment = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div
+                        className="space-y-2"
+                        style={{
+                          display: appointmentType === "offline" ? "none" : "block",
+                        }}
+                      >
                         <label className="text-sm font-medium">Link họp</label>
                         <Input
                           type="tel"
