@@ -99,6 +99,8 @@ const Appointment = () => {
           message: "Đặt lịch thành công",
           description: "Đặt lịch thành công, chúng tôi sẽ thông báo cho ứng viên của bạn",
         });
+        navigate('client/appointment', {replace: true})
+        
       } else {
         notification.error({
           message: "Đặt lịch thất bại",
@@ -253,7 +255,12 @@ const Appointment = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="space-y-2">
+                      <div
+                        className="space-y-2"
+                        style={{
+                          display: appointmentType === "offline" ? "none" : "block",
+                        }}
+                      >
                         <label className="text-sm font-medium">Link họp</label>
                         <Input
                           type="tel"
@@ -336,52 +343,7 @@ const Appointment = () => {
             </Card>
           </FadeInWhenVisible>
 
-          {/* Additional Information */}
-          <FadeInWhenVisible delay={0.3}>
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Giờ làm việc</h3>
-                    <p className="text-sm text-muted-foreground">
-                      T2-T6: 9:00 - 18:00
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Số người tối đa</h3>
-                    <p className="text-sm text-muted-foreground">
-                      8 người/cuộc họp
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Link className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Hỗ trợ kỹ thuật</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Luôn sẵn sàng hỗ trợ
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </FadeInWhenVisible>
+      
         </div>
       </div>
     </div>
