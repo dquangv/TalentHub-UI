@@ -10,7 +10,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, } from 'react';
 import api from '@/api/axiosConfig';
 import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
