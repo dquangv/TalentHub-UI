@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, Star, ChevronDown } from 'lucide-react';
+import { Briefcase, Users, TrendingUp, CheckCircle, Code, Paintbrush, Star, ChevronDown, Bold } from 'lucide-react';
 import AnimatedNumber from '@/components/animations/AnimatedNumber';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -439,7 +439,7 @@ const Home = () => {
         <div className="container mx-auto px-6">
           <FadeInWhenVisible>
             <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-              Top Công Việc Nổi Bật
+              Top Dự Án Nổi Bật
             </h2>
           </FadeInWhenVisible>
           {loadingJobs ? (
@@ -485,7 +485,7 @@ const Home = () => {
                           </span>
                         </p>
                         <p className="text-sm text-gray-600 mb-2">
-                          <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                          <span className="font-semibold text-gray-700">Thời gian thực hiện dự án:</span>{' '}
                           <span className="text-gray-800">{job.hourWork} giờ</span>
                         </p>
                         <p className="text-sm text-gray-600 mb-2">
@@ -742,7 +742,7 @@ const Home = () => {
                             </span>
                           </p>
                           <p className="text-sm text-gray-600 mb-2">
-                            <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                            <span className="font-semibold text-gray-700">Thời gian thực hiện dự án:</span>{' '}
                             <span className="text-gray-800">{job.hourWork} giờ</span>
                           </p>
                           <p className="text-sm text-gray-600 mb-2">
@@ -838,7 +838,7 @@ const Home = () => {
                           </span>
                         </p>
                         <p className="text-sm text-gray-600 mb-2">
-                          <span className="font-semibold text-gray-700">Thời gian:</span>{' '}
+                          <span className="font-semibold text-gray-700">Thời gian thực hiện dự án:</span>{' '}
                           <span className="text-gray-800">{job.hourWork} giờ</span>
                         </p>
                         <p className="text-sm text-gray-600 mb-2">
@@ -937,7 +937,7 @@ const Home = () => {
                 <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
                   <CheckCircle className="w-8 h-8 text-primary-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ 24/7</h3>
+                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ nhanh chóng</h3>
                 <p className="text-muted-foreground">Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
               </div>
             </FadeInWhenVisible>
@@ -977,7 +977,7 @@ const Home = () => {
       <section className="py-16 bg-white" id="trusted-companies">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
-            Được tin tưởng bởi các doanh nghiệp hàng đầu
+            Đối Tác của TalentHub
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 items-center">
             {displayedCustomers.map((customer) => (
