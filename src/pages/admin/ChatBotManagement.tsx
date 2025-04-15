@@ -322,7 +322,7 @@ const ChatbotManagement: React.FC = () => {
             notification.error({ message: 'Error', description: 'Failed to process query' });
             console.error(error);
         } finally {
-            setProcessingLoading(false); // Kết thúc loading dù thành công hay thất bại
+            setProcessingLoading(false);
         }
     };
 
