@@ -300,9 +300,8 @@ const ChatbotManagement: React.FC = () => {
     const handleProcessQuery = async () => {
         if (!selectedQuery) return;
 
-        setProcessingLoading(true); // Bắt đầu loading
+        setProcessingLoading(true);
         try {
-            // Tạo dữ liệu cho API
             const queryData: ProcessQueryDTO = {
                 queryId: selectedQuery.id,
                 intentName: processingData.intentName === 'new_intent' ? newIntentName : processingData.intentName,
