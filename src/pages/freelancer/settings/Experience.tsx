@@ -8,6 +8,7 @@ import { Plus, Briefcase, Trash2, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import experienceService, { Experience } from '@/api/experienceService';
 import { notification } from 'antd';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const ExperienceComponent = () => {
   const { t } = useLanguage();
@@ -16,6 +17,7 @@ const ExperienceComponent = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [savingIds, setSavingIds] = useState<number[]>([]);
+  const [currentlyWorking, setCurrentlyWorking] = useState<Record<number, boolean>>({});
 
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
 
@@ -30,6 +32,12 @@ const ExperienceComponent = () => {
       if (response.status === 200 && response.data) {
         setExperiences(response.data);
         setOriginalExperiences(JSON.parse(JSON.stringify(response.data)));
+
+        const workingState: Record<number, boolean> = {};
+        response.data.forEach((exp: Experience) => {
+          workingState[exp.id || 0] = exp.endDate === null;
+        });
+        setCurrentlyWorking(workingState);
       }
     } catch (error) {
       console.error('Error fetching experiences:', error);
@@ -40,6 +48,10 @@ const ExperienceComponent = () => {
     } finally {
       setInitialLoading(false);
     }
+  };
+  const formatDateForDisplay = (dateString: string | null) => {
+    if (!dateString) return 'Hiện tại';
+    return dateString;
   };
 
   const isExperienceModified = (experience: Experience): boolean => {
@@ -66,13 +78,14 @@ const ExperienceComponent = () => {
       companyName: 'Công ty mới',
       position: 'Vị trí mới',
       startDate: currentDate,
-      endDate: currentDate,
+      endDate: null,
       description: '',
       status: 'active',
       freelancerId: freelancerId
     };
 
     setExperiences([...experiences, newExperience]);
+    setCurrentlyWorking(prev => ({ ...prev, [newId]: false }));
   };
 
   const removeExperience = async (id: number) => {
@@ -119,7 +132,16 @@ const ExperienceComponent = () => {
     setExperiences(updatedExperiences);
   };
 
+  const handleCurrentlyWorkingChange = (id: number, checked: boolean) => {
+    setCurrentlyWorking(prev => ({ ...prev, [id]: checked }));
 
+    if (checked) {
+      updateExperienceField(id, 'endDate', null);
+    } else {
+      const currentDate = new Date().toISOString().split('T')[0];
+      updateExperienceField(id, 'endDate', currentDate);
+    }
+  };
 
   const saveExperience = async (id: number) => {
     const experience = experiences.find(exp => exp.id === id);
@@ -294,13 +316,44 @@ const ExperienceComponent = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t('Enddate')}</label>
-                  <Input
-                    type="date"
-                    value={experience.endDate || ''}
-                    onChange={(e) =>
-                      experience.id && updateExperienceField(experience.id, 'endDate', e.target.value)
-                    }
-                  />
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`currently-working-${experience.id}`}
+                      checked={currentlyWorking[experience.id || 0] || false}
+                      onCheckedChange={(checked) =>
+                        experience.id && handleCurrentlyWorkingChange(experience.id, checked as boolean)
+                      }
+                      disabled={isSaving}
+                    />
+                    <label
+                      htmlFor={`currently-working-${experience.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Đang làm việc
+                    </label>
+                  </div>
+                  <div className="space-y-2">
+
+
+                    {!currentlyWorking[experience.id || 0] && (
+                      <Input
+                        type="date"
+                        value={experience.endDate || ''}
+                        onChange={(e) =>
+                          experience.id && updateExperienceField(experience.id, 'endDate', e.target.value)
+                        }
+                        disabled={isSaving || currentlyWorking[experience.id || 0]}
+                      />
+                    )}
+
+                    {currentlyWorking[experience.id || 0] && (
+                      <Input
+                        type="text"
+                        value="Hiện tại"
+                        disabled={true}
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">

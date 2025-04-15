@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import AutofillInput from '@/components/AutofillInput';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Education {
   id: number;
@@ -57,7 +58,7 @@ const Education = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState(true);
   const [savingIds, setSavingIds] = useState<number[]>([]);
-
+  const [currentlyStudying, setCurrentlyStudying] = useState<Record<number, boolean>>({});
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId || 1;
 
   useEffect(() => {
@@ -79,6 +80,12 @@ const Education = () => {
             majorName: edu.major.majorName,
           }));
           setEducation(educationData);
+
+          const studyingState: Record<number, boolean> = {};
+          educationData.forEach(edu => {
+            studyingState[edu.id] = edu.endDate === null;
+          });
+          setCurrentlyStudying(studyingState);
         }
       } catch (error) {
         console.error("Error fetching education data:", error);
@@ -93,9 +100,8 @@ const Education = () => {
 
     fetchEducationData();
   }, [freelancerId]);
-
-  const formatDateForDisplay = (dateString: string) => {
-    if (!dateString) return '';
+  const formatDateForDisplay = (dateString: string | null) => {
+    if (!dateString) return 'Hiện tại';
     try {
       const date = new Date(dateString);
       return format(date, 'MM/yyyy');
@@ -109,8 +115,9 @@ const Education = () => {
   };
 
   const addEducation = useCallback(() => {
+    const newId = Date.now();
     const newEducation = {
-      id: Date.now(),
+      id: newId,
       startDate: new Date().toISOString(),
       endDate: new Date().toISOString(),
       description: '',
@@ -122,7 +129,9 @@ const Education = () => {
       majorName: '',
     };
     setEducation(prevEducation => [...prevEducation, newEducation]);
+    setCurrentlyStudying(prev => ({ ...prev, [newId]: false }));
   }, []);
+
 
   const removeEducation = useCallback(async (id: number) => {
     const existingRecord = education.find(edu => edu.id === id && edu.id < Date.now() - 86400000);
@@ -161,7 +170,14 @@ const Education = () => {
 
     console.log(`Updated ${field} to ${value} for education ${id}`);
   }, []);
-
+  const handleCurrentlyStudyingChange = useCallback((id: number, checked: boolean) => {
+    setCurrentlyStudying(prev => ({ ...prev, [id]: checked }));
+    if (checked) {
+      updateEducationField(id, 'endDate', null);
+    } else {
+      updateEducationField(id, 'endDate', new Date().toISOString());
+    }
+  }, [updateEducationField]);
   const handleAutofillChange = useCallback((id: number, field: 'school' | 'degree' | 'major', itemId: number, itemName: string) => {
     console.log(`Autofill change for ${field}: ID=${itemId}, Name=${itemName}`);
 
@@ -387,29 +403,61 @@ const Education = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">{t('Theyearends')}</label>
-                  <div className="flex w-full max-w-sm items-center space-x-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className="w-full justify-start text-left font-normal"
-                          disabled={isSaving}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {edu.endDate ? formatDateForDisplay(edu.endDate) : "Chọn ngày kết thúc"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={edu.endDate ? new Date(edu.endDate) : undefined}
-                          onSelect={(date) =>
-                            date && updateEducationField(edu.id, 'endDate', formatDateForApi(date))
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`currently-studying-${edu.id}`}
+                        checked={currentlyStudying[edu.id] || false}
+                        onCheckedChange={(checked) =>
+                          handleCurrentlyStudyingChange(edu.id, checked as boolean)
+                        }
+                        disabled={isSaving}
+                      />
+                      <label
+                        htmlFor={`currently-studying-${edu.id}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Đang học
+                      </label>
+                    </div>
+
+                    {!currentlyStudying[edu.id] && (
+                      <div className="flex w-full max-w-sm items-center space-x-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant={"outline"}
+                              className="w-full justify-start text-left font-normal"
+                              disabled={isSaving || currentlyStudying[edu.id]}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {edu.endDate ? formatDateForDisplay(edu.endDate) : "Chọn ngày kết thúc"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={edu.endDate ? new Date(edu.endDate) : undefined}
+                              onSelect={(date) =>
+                                date && updateEducationField(edu.id, 'endDate', formatDateForApi(date))
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
+
+                    {currentlyStudying[edu.id] && (
+                      <Button
+                        variant={"outline"}
+                        className="w-full justify-start text-left font-normal"
+                        disabled={true}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        Hiện tại
+                      </Button>
+                    )}
                   </div>
                 </div>
 

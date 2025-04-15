@@ -16,4 +16,3 @@ dist-ssr
 
 Dockerfile
 nginx.conf
-src/config.ts

@@ -27,10 +27,24 @@ export interface ReadMessageRequest {
     senderId: string;
 }
 
+export interface FreelancerJob {
+    id: number;
+    title: string;
+    status: string;
+}
+
+export interface FreelancerForClient {
+    userId: number;
+    fullName: string;
+    avatar: string;
+    rating: number;
+    jobs: FreelancerJob[];
+}
+
 class ChatApiService {
     private readonly API_PATH = '/chat';
+    private readonly API_FREELANCER_PATH = '/v1/freelancers';
 
-    // Fetch user's recent conversations
     async getConversations(userId: string): Promise<ConversationSummary[]> {
         try {
             const result = await api.get(`${this.API_PATH}/conversations/${userId}`);
@@ -45,7 +59,6 @@ class ChatApiService {
         }
     }
 
-    // Fetch message history between two users
     async getMessages(currentUserId: string, otherUserId: string): Promise<MessageResponse[]> {
         try {
             const result = await api.get(`${this.API_PATH}/messages/${currentUserId}/${otherUserId}`);
@@ -56,7 +69,6 @@ class ChatApiService {
         }
     }
 
-    // Mark messages as read via API
     async markMessagesAsRead(readRequest: ReadMessageRequest): Promise<void> {
         try {
             await api.post(`${this.API_PATH}/messages/read`, readRequest);
@@ -65,8 +77,22 @@ class ChatApiService {
             throw error;
         }
     }
+
+    async getFreelancersForClient(clientId: string | number): Promise<FreelancerForClient[]> {
+        try {
+            const result = await api.get(`${this.API_FREELANCER_PATH}/client/${clientId}`);
+            console.log('Freelancers for client:', result.data);
+            if (result.status === 200) {
+                return result.data || [];
+            } else {
+                throw new Error('Failed to fetch freelancers, status not 200');
+            }
+        } catch (error) {
+            console.error('Error fetching freelancers for client:', error);
+            throw error;
+        }
+    }
 }
 
-// Singleton instance
 const chatApiService = new ChatApiService();
 export default chatApiService;

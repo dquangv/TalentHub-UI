@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Conversation } from './MessageContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import FreelancerSelectionModal from './FreelancerSelectionModal';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -24,7 +25,26 @@ const ConversationList: React.FC<ConversationListProps> = ({
 }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string>('');
+    const [isClient, setIsClient] = useState(true);
     const navigate = useNavigate();
+
+    // Get user info from localStorage
+    useEffect(() => {
+        const userInfoStr = localStorage.getItem('userInfo');
+        if (userInfoStr) {
+            try {
+                const userInfo = JSON.parse(userInfoStr);
+                setCurrentUserId(userInfo.userId);
+                // If freelancerId is not available, user is a client
+                setIsClient(!userInfo.freelancerId);
+            } catch (e) {
+                console.error('Error parsing userInfo:', e);
+            }
+        }
+    }, []);
+
     const handleConversationClick = (conversationId: string) => {
         onSelectConversation(conversationId);
         navigate(`/messaging?contactId=${conversationId}`, { replace: true });
@@ -38,6 +58,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
     const clearSearch = () => {
         setSearchQuery('');
+    };
+
+    const handleNewMessageClick = () => {
+        if (isClient) {
+            // If user is a client, open the freelancer selection modal
+            setIsFreelancerModalOpen(true);
+        } else if (onNewConversation) {
+            // Otherwise, use the default new conversation handler
+            onNewConversation();
+        }
     };
 
     return (
@@ -134,15 +164,25 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 )}
             </ScrollArea>
 
-            <div className="p-3 md:p-4 border-t">
-                <button
-                    className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
-                    onClick={onNewConversation}
-                >
-                    <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                    Tin nhắn mới
-                </button>
+            <div className="p-3 md:p-4">
+                {isClient && (
+                    <button
+                        className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
+                        onClick={handleNewMessageClick}
+                    >
+                        <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                        Tin nhắn mới
+                    </button>
+                )}
             </div>
+
+            {isClient && (
+                <FreelancerSelectionModal
+                    isOpen={isFreelancerModalOpen}
+                    onClose={() => setIsFreelancerModalOpen(false)}
+                    clientId={currentUserId}
+                />
+            )}
         </div>
     );
 };

@@ -300,9 +300,8 @@ const ChatbotManagement: React.FC = () => {
     const handleProcessQuery = async () => {
         if (!selectedQuery) return;
 
-        setProcessingLoading(true); // Bắt đầu loading
+        setProcessingLoading(true);
         try {
-            // Tạo dữ liệu cho API
             const queryData: ProcessQueryDTO = {
                 queryId: selectedQuery.id,
                 intentName: processingData.intentName === 'new_intent' ? newIntentName : processingData.intentName,
@@ -312,7 +311,7 @@ const ChatbotManagement: React.FC = () => {
             };
 
             await chatbotService.processUnrecognizedQuery(queryData);
-            notification.success({ message: 'Success', description: 'Query processed successfully' });
+            notification.success({ message: 'Thành công!', description: 'Xử lý câu hỏi thành công' });
             fetchUnprocessedQueries();
             fetchIntents();
             setSelectedQuery(null);
@@ -322,7 +321,7 @@ const ChatbotManagement: React.FC = () => {
             notification.error({ message: 'Error', description: 'Failed to process query' });
             console.error(error);
         } finally {
-            setProcessingLoading(false); // Kết thúc loading dù thành công hay thất bại
+            setProcessingLoading(false);
         }
     };
 
