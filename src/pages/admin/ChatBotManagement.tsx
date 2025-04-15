@@ -312,7 +312,7 @@ const ChatbotManagement: React.FC = () => {
             };
 
             await chatbotService.processUnrecognizedQuery(queryData);
-            notification.success({ message: 'Success', description: 'Query processed successfully' });
+            notification.success({ message: 'Thành công!', description: 'Xử lý câu hỏi thành công' });
             fetchUnprocessedQueries();
             fetchIntents();
             setSelectedQuery(null);
