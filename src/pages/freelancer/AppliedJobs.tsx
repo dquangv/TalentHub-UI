@@ -257,7 +257,7 @@ const AppliedJobs = () => {
                         {job.status === "interviewing" && (
                           <Button variant="outline">Xem lịch phỏng vấn</Button>
                         )}
-                        {job.status === "Completed" && (
+                        {job.status === "Applied" && (
                           <Button
                             variant="outline"
                             onClick={() => {
