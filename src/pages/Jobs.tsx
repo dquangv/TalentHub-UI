@@ -51,6 +51,7 @@ const Jobs = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { t } = useLanguage();
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+  const [freelancerCategory, setFreelancerCategory] = useState("");
 
   const [filters, setFilters] = useState<FilterState>({
     selectedSkills: [],
