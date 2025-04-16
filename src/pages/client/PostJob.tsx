@@ -254,7 +254,7 @@ const PostJob = () => {
                 });
             } else {
                 console.log('submitDta ', submitData)
-                await api.post('/v1/jobs/createJob', submitData);
+                const response = await api.post('/v1/jobs/createJob', submitData);
                 if (data.statusJob == StatusJob.DRAFT) {
                     notification.success({
                         message: 'Thành công',
@@ -266,6 +266,8 @@ const PostJob = () => {
                         message: 'Thành công',
                         description: 'Thêm công việc thành công'
                     });
+                    console.log(response)
+                    navigate(`/jobs/${response.data.jobId}`)
                 }
 
 
