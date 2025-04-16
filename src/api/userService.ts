@@ -41,67 +41,71 @@ interface OtpResponse {
 }
 
 const userService = {
-    getUserById: async (userId: number): Promise<ApiResponse<User>> => {
-        const response = await api.get(`/users/${userId}`);
-        return {
-            message: response.statusText,
-            status: response.status,
-            data: response.data,
-        };
+    getUserById: async (userId: number): Promise<User> => {
+        try {
+            const response = await api.get(`/users/${userId}`);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    updateUser: async (userId: number, userData: Partial<User>): Promise<ApiResponse<User>> => {
+    updateUser: async (userId: number, userData: Partial<User>): Promise<User> => {
         console.log('Sending user data to server:', userData);
-        const response = await api.put(`/users/${userId}`, userData);
-        return {
-            message: response.statusText,
-            status: response.status,
-            data: response.data,
-        };
+        try {
+            const response = await api.put(`/users/${userId}`, userData);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     },
 
     uploadImage: async (file: File): Promise<string> => {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await api.post('/images/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        try {
+            const response = await api.post('/images/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
 
-        return (response as unknown as ImageUploadResponse).url;
+            return response.url;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    updateUserImage: async (userId: number, imageUrl: string): Promise<ApiResponse<User>> => {
+    updateUserImage: async (userId: number, imageUrl: string): Promise<User> => {
         return await userService.updateUser(userId, { image: imageUrl });
     },
 
-    changePassword: async (data: ChangePasswordRequest): Promise<ApiResponse<boolean>> => {
-        const response = await api.post('/v1/account/change-password', data);
-        return {
-            message: response.data?.message || 'Mật khẩu đã được thay đổi',
-            status: response.status,
-            data: response.data?.data || true
-        };
+    changePassword: async (data: ChangePasswordRequest): Promise<any> => {
+        try {
+            const response = await api.post('/v1/account/change-password', data);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    sendOtp: async (email: string): Promise<ApiResponse<string>> => {
-        const response = await api.post(`/v1/account/send-otp?email=${encodeURIComponent(email)}`);
-        return {
-            message: response.data?.message || 'Đã gửi mã OTP',
-            status: response.status,
-            data: response.data?.data || `Đã gửi mã OTP đến ${email}`
-        };
+    sendOtp: async (email: string): Promise<any> => {
+        try {
+            const response = await api.post(`/v1/account/send-otp?email=${encodeURIComponent(email)}`);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     },
 
-    resetPassword: async (data: ResetPasswordRequest): Promise<ApiResponse<OtpResponse>> => {
-        const response = await api.post('/v1/account/reset-password', data);
-        return {
-            message: response.data?.message || 'Đặt lại mật khẩu thành công',
-            status: response.status,
-            data: response.data?.data || { message: 'Mật khẩu đã được đặt lại', success: true }
-        };
+    resetPassword: async (data: ResetPasswordRequest): Promise<any> => {
+        try {
+            const response = await api.post('/v1/account/reset-password', data);
+            return response;
+        } catch (error) {
+            throw error;
+        }
     },
 
     getLocationDisplay: (country: string | null, province: string | null): string => {
