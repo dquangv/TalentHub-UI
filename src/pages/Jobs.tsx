@@ -137,7 +137,16 @@ const Jobs = () => {
         const response = await api.get("/v1/jobs", { params: { freelancerId } });
         if (response.status === 200) {
           setJobs(response.data);
-          setFilteredJobs(response.data);
+
+          // Apply filters based on freelancerCategory
+          if (filters.selectedCategories.length > 0) {
+            const filtered = response.data.filter(job =>
+              filters.selectedCategories.includes(job.categoryName)
+            );
+            setFilteredJobs(filtered);
+          } else {
+            setFilteredJobs(response.data);
+          }
         } else {
           console.error("Failed to fetch jobs:", response.message);
         }
@@ -146,7 +155,7 @@ const Jobs = () => {
       }
     };
     fetchJobs();
-  }, [freelancerId]);
+  }, [freelancerId, filters.selectedCategories]);
 
   const toggleSkill = (skill: string) => {
     setFilters(prev => ({
