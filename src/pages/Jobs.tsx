@@ -102,7 +102,30 @@ const Jobs = () => {
     }
     return skills;
   };
+  useEffect(() => {
+    const fetchFreelancerData = async () => {
+      if (freelancerId) {
+        try {
+          const response = await freelancerService.getFreelancerById(Number(freelancerId));
+          if (response.status === 200 && response.data) {
+            const categoryName = response.data.categoryName;
+            console.log(categoryName);
 
+            setFreelancerCategory(categoryName);
+
+            setFilters(prev => ({
+              ...prev,
+              selectedCategories: categoryName ? [categoryName] : []
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching freelancer data:", error);
+        }
+      }
+    };
+
+    fetchFreelancerData();
+  }, [freelancerId]);
   const uniqueSkills = getAvailableSkills();
 
   useEffect(() => {
