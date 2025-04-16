@@ -237,7 +237,7 @@ const Pricing = () => {
     setShowPackageDetails(true);
     await Promise.all([fetchCurrentPackage(), fetchPackageHistory()]);
   };
-  const fetchVnPayWithCallback = async (amount: number) => {
+  const fetchVnPayWithCallback = async (amount: number, desc: string) => {
     try {
       const userInfoStr = localStorage.getItem("userInfo");
 
@@ -255,7 +255,7 @@ const Pricing = () => {
       }
 
       const response = await api.post(
-        `/v1/payments/vnpay-with-callback?vnp_Amount=${amount}&userId=${userId}`
+        `/v1/payments/vnpay-with-callback?vnp_Amount=${amount}&userId=${userId}&desc=${desc}`
       );
 
       console.log("payment", response.data);
@@ -300,6 +300,19 @@ const Pricing = () => {
     setShowConfirmDialog(true);
   };
 
+  const getTypePayment = (typePackage: string) => {
+    switch (typePackage) {
+      case "SILVER":
+        return "Thanh toán gói bạc";
+      case "GOLD":
+        return "Thanh toán gói vàng";
+      case "DIAMOND":
+        return "Thanh toán gói kim cương";
+      default:
+        return "Thanh toán gói khác";
+    }
+  };
+
   const confirmSubscribe = async () => {
     if (!selectedPlan) return;
 
@@ -316,12 +329,13 @@ const Pricing = () => {
         typePackage: selectedPlan.typePackage,
         clientId: userInfo.clientId,
       };
+      const typePayment = getTypePayment(selectedPlan.typePackage);
 
       const response = await api.post(
         "/v1/clients/soldpackages",
         subscribeData
       );
-      fetchVnPayWithCallback(selectedPlan.price);
+      fetchVnPayWithCallback(selectedPlan.price, typePayment);
 
       if (response.status === 201) {
         fetchVoucherPackageListByClientId(userInfo.clientId);
