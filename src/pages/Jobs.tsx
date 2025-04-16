@@ -18,6 +18,8 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
 import freelancerService from "@/api/freelancerService";
+import { Spin } from "antd";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface Job {
   id: string;
@@ -51,7 +53,7 @@ const Jobs = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { t } = useLanguage();
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
-  const [freelancerCategory, setFreelancerCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filters, setFilters] = useState<FilterState>({
     selectedSkills: [],
@@ -112,10 +114,6 @@ const Jobs = () => {
           const response = await freelancerService.getFreelancerById(Number(freelancerId));
           if (response.status === 200 && response.data) {
             const categoryName = response.data.categoryName;
-            console.log(categoryName);
-
-            setFreelancerCategory(categoryName);
-
             setFilters(prev => ({
               ...prev,
               selectedCategories: categoryName ? [categoryName] : []
@@ -133,6 +131,7 @@ const Jobs = () => {
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setIsLoading(true);
       try {
         const response = await api.get("/v1/jobs", { params: { freelancerId } });
         if (response.status === 200) {
@@ -152,6 +151,8 @@ const Jobs = () => {
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchJobs();
@@ -184,44 +185,49 @@ const Jobs = () => {
   };
 
   const applyFilters = () => {
-    let filtered = [...jobs];
+    setIsLoading(true);
 
-    if (searchTerm) {
+    setTimeout(() => {
+      let filtered = [...jobs];
+
+      if (searchTerm) {
+        filtered = filtered.filter(job =>
+          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.skillName.some(skill =>
+            skill.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        );
+      }
+
+      if (filters.selectedSkills.length > 0) {
+        filtered = filtered.filter(job =>
+          filters.selectedSkills.some(skill =>
+            job.skillName.includes(skill)
+          )
+        );
+      }
+
       filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.skillName.some(skill =>
-          skill.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        job.fromPrice >= filters.minPrice &&
+        job.toPrice <= filters.maxPrice
       );
-    }
 
-    if (filters.selectedSkills.length > 0) {
       filtered = filtered.filter(job =>
-        filters.selectedSkills.some(skill =>
-          job.skillName.includes(skill)
-        )
+        job.hourWork >= filters.minHours &&
+        job.hourWork <= filters.maxHours
       );
-    }
 
-    filtered = filtered.filter(job =>
-      job.fromPrice >= filters.minPrice &&
-      job.toPrice <= filters.maxPrice
-    );
+      if (filters.selectedCategories.length > 0) {
+        filtered = filtered.filter(job =>
+          filters.selectedCategories.includes(job.categoryName)
+        );
+      }
 
-    filtered = filtered.filter(job =>
-      job.hourWork >= filters.minHours &&
-      job.hourWork <= filters.maxHours
-    );
-
-    if (filters.selectedCategories.length > 0) {
-      filtered = filtered.filter(job =>
-        filters.selectedCategories.includes(job.categoryName)
-      );
-    }
-
-    setFilteredJobs(filtered);
-    setIsFilterOpen(false);
+      setFilteredJobs(filtered);
+      setIsLoading(false);
+      setIsFilterOpen(false);
+    }, 800);
   };
 
   const resetFilters = () => {
@@ -387,9 +393,11 @@ const Jobs = () => {
           </div>
         </div>
         <div className="space-y-6">
-          {filteredJobs.map((job, index) => (
-            <FadeInWhenVisible key={job.id} delay={index * 0.1}>
-              <Card className="p-6">
+          {isLoading ? (
+            <LoadingEffect />
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job, index) => (
+              <Card key={job.id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
@@ -399,7 +407,6 @@ const Jobs = () => {
                           <Badge variant="default">Hợp tác lâu dài</Badge>
                         )}
                       </h3>
-
                     </div>
                     <p className="text-muted-foreground mb-4">
                       {job.description}
@@ -449,8 +456,13 @@ const Jobs = () => {
                   </div>
                 </div>
               </Card>
-            </FadeInWhenVisible>
-          ))}
+            ))
+          ) : (
+            <div className="text-center py-10">
+              <div className="text-2xl font-semibold">Không tìm thấy công việc phù hợp</div>
+              <p className="text-muted-foreground mt-2">Thử điều chỉnh lại bộ lọc của bạn</p>
+            </div>
+          )}
         </div>
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
@@ -460,6 +472,5 @@ const Jobs = () => {
       </div>
     </div>
   );
-};
-
+}
 export default Jobs;
