@@ -19,10 +19,10 @@ const config: Config = {
         OAUTH_BASE_URL: 'http://localhost:8080/oauth2/authorization'
     },
     production: {
-        API_URL: 'https://comparison-leonard-blah-equations.trycloudflare.com/api',
-        WEBSOCKET_URL: 'https://comparison-leonard-blah-equations.trycloudflare.com',
+        API_URL: 'https://api.talenthub.io.vn/api',
+        WEBSOCKET_URL: 'https://api.talenthub.io.vn',
         TIMEOUT: 30000,
-        OAUTH_BASE_URL: 'https://comparison-leonard-blah-equations.trycloudflare.com/oauth2/authorization'
+        OAUTH_BASE_URL: 'https://api.talenthub.io.vn/oauth2/authorization'
     },
     get current() {
         const env = process.env.NODE_ENV || 'development';
