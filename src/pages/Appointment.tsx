@@ -99,8 +99,7 @@ const Appointment = () => {
           message: "Đặt lịch thành công",
           description: "Đặt lịch thành công, chúng tôi sẽ thông báo cho ứng viên của bạn",
         });
-        navigate('client/appointment', {replace: true})
-        
+        window.location.pathname = '/client/appointment'
       } else {
         notification.error({
           message: "Đặt lịch thất bại",
@@ -235,25 +234,15 @@ const Appointment = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">
-                          Thời lượng
-                        </label>
-                        <Select
+                        <label className="text-sm font-medium">Thời lượng</label>
+                        <Input
+                          type="number"
                           value={formData.duration}
-                          onValueChange={(value) =>
-                            setFormData({ ...formData, duration: value })
+                          onChange={(e) =>
+                            setFormData({ ...formData, duration: e.target.value })
                           }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn thời lượng" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="30">30 phút</SelectItem>
-                            <SelectItem value="60">1 giờ</SelectItem>
-                            <SelectItem value="90">1 giờ 30 phút</SelectItem>
-                            <SelectItem value="120">2 giờ</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          placeholder="Nhập thời lượng (ví dụ: 30 phút)"
+                        />
                       </div>
                       <div
                         className="space-y-2"
@@ -342,8 +331,6 @@ const Appointment = () => {
               </form>
             </Card>
           </FadeInWhenVisible>
-
-      
         </div>
       </div>
     </div>

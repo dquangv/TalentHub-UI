@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Tabs,
   TabsContent,
@@ -18,6 +18,13 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [openTour, setOpenTour] = useState(false);
 
+  useEffect(() => {
+    const userInfoStr = localStorage.getItem("userInfo");
+    const userId = userInfoStr ? JSON.parse(userInfoStr).userId : null;
+    if(!userId){
+      window.location.pathname = '/'
+    }
+  }, [])
   const refs = {
     tabsRef1: useRef<HTMLDivElement>(null),
     tabsRef: useRef<HTMLDivElement>(null),
