@@ -381,6 +381,9 @@ const Pricing = () => {
             <FadeInWhenVisible>
               <h1 className="text-4xl font-bold mb-6">Gói Ưu Tiên</h1>
               <p className="text-xl text-muted-foreground mb-8">
+                Chỉ áp dụng đối với Nhà Tuyển Dụng
+              </p>
+              <p className="text-xl text-muted-foreground mb-8">
                 Tăng khả năng tiếp cận và nổi bật hơn với gói ưu tiên
               </p>
               {isLogin && (

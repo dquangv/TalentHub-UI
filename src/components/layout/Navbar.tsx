@@ -252,7 +252,7 @@ const Navbar = () => {
 
           <DropdownMenuItem
             onClick={handleLogout}
-            className="hover:bg-destructive-50 focus:bg-destructive-50"
+            className="hover:bg-destructive-50"
           >
             <LogOut className="mr-2 h-4 w-4 text-destructive-500" />
             <span className="text-destructive-500">{t("logout")}</span>

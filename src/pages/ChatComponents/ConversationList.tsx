@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Plus, X } from 'lucide-react';
+import { Search, Plus, X, UserCog, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { Conversation } from './MessageContext';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import FreelancerSelectionModal from './FreelancerSelectionModal';
+import AdminSelectionModal from './AdminSelectionModal';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -26,6 +33,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+    const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string>('');
     const [isClient, setIsClient] = useState(true);
     const navigate = useNavigate();
@@ -58,16 +66,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
     const clearSearch = () => {
         setSearchQuery('');
-    };
-
-    const handleNewMessageClick = () => {
-        if (isClient) {
-            // If user is a client, open the freelancer selection modal
-            setIsFreelancerModalOpen(true);
-        } else if (onNewConversation) {
-            // Otherwise, use the default new conversation handler
-            onNewConversation();
-        }
     };
 
     return (
@@ -165,15 +163,28 @@ const ConversationList: React.FC<ConversationListProps> = ({
             </ScrollArea>
 
             <div className="p-3 md:p-4">
-                {isClient && (
-                    <button
-                        className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
-                        onClick={handleNewMessageClick}
-                    >
-                        <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                        Tin nhắn mới
-                    </button>
-                )}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
+                        >
+                            <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                            Tin nhắn mới
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                        {isClient && (
+                            <DropdownMenuItem onClick={() => setIsFreelancerModalOpen(true)}>
+                                <Users className="h-4 w-4 mr-2" />
+                                <span>Chat với Freelancer</span>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => setIsAdminModalOpen(true)}>
+                            <UserCog className="h-4 w-4 mr-2" />
+                            <span>Chat với Admin</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             {isClient && (
@@ -183,6 +194,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
                     clientId={currentUserId}
                 />
             )}
+
+            <AdminSelectionModal
+                isOpen={isAdminModalOpen}
+                onClose={() => setIsAdminModalOpen(false)}
+            />
         </div>
     );
 };

@@ -17,6 +17,9 @@ import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag, Calendar, History
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
+import freelancerService from "@/api/freelancerService";
+import { Spin } from "antd";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface Job {
   id: string;
@@ -50,6 +53,7 @@ const Jobs = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { t } = useLanguage();
   const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+  const [isLoading, setIsLoading] = useState(false);
 
   const [filters, setFilters] = useState<FilterState>({
     selectedSkills: [],
@@ -59,6 +63,7 @@ const Jobs = () => {
     maxHours: 168,
     selectedCategories: [],
   });
+
 
   const uniqueCategories: string[] = [];
   jobs.forEach(job => {
@@ -91,34 +96,67 @@ const Jobs = () => {
       });
     } else {
       filters.selectedCategories.forEach(category => {
-        categorySkills[category].forEach(skill => {
-          if (!skills.includes(skill)) {
-            skills.push(skill);
-          }
-        });
+        if (categorySkills[category]) {
+          categorySkills[category].forEach(skill => {
+            if (!skills.includes(skill)) {
+              skills.push(skill);
+            }
+          });
+        }
       });
     }
     return skills;
   };
+  useEffect(() => {
+    const fetchFreelancerData = async () => {
+      if (freelancerId) {
+        try {
+          const response = await freelancerService.getFreelancerById(Number(freelancerId));
+          if (response.status === 200 && response.data) {
+            const categoryName = response.data.categoryName;
+            setFilters(prev => ({
+              ...prev,
+              selectedCategories: categoryName ? [categoryName] : []
+            }));
+          }
+        } catch (error) {
+          console.error("Error fetching freelancer data:", error);
+        }
+      }
+    };
 
+    fetchFreelancerData();
+  }, [freelancerId]);
   const uniqueSkills = getAvailableSkills();
 
   useEffect(() => {
     const fetchJobs = async () => {
+      setIsLoading(true);
       try {
         const response = await api.get("/v1/jobs", { params: { freelancerId } });
         if (response.status === 200) {
           setJobs(response.data);
-          setFilteredJobs(response.data);
+
+          // Apply filters based on freelancerCategory
+          if (filters.selectedCategories.length > 0) {
+            const filtered = response.data.filter(job =>
+              filters.selectedCategories.includes(job.categoryName)
+            );
+            setFilteredJobs(filtered);
+          } else {
+            setFilteredJobs(response.data);
+          }
         } else {
           console.error("Failed to fetch jobs:", response.message);
         }
       } catch (error) {
         console.error("Error fetching jobs:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchJobs();
-  }, [freelancerId]);
+  }, [freelancerId, filters.selectedCategories]);
 
   const toggleSkill = (skill: string) => {
     setFilters(prev => ({
@@ -147,44 +185,49 @@ const Jobs = () => {
   };
 
   const applyFilters = () => {
-    let filtered = [...jobs];
+    setIsLoading(true);
 
-    if (searchTerm) {
+    setTimeout(() => {
+      let filtered = [...jobs];
+
+      if (searchTerm) {
+        filtered = filtered.filter(job =>
+          job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          job.skillName.some(skill =>
+            skill.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        );
+      }
+
+      if (filters.selectedSkills.length > 0) {
+        filtered = filtered.filter(job =>
+          filters.selectedSkills.some(skill =>
+            job.skillName.includes(skill)
+          )
+        );
+      }
+
       filtered = filtered.filter(job =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.skillName.some(skill =>
-          skill.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        job.fromPrice >= filters.minPrice &&
+        job.toPrice <= filters.maxPrice
       );
-    }
 
-    if (filters.selectedSkills.length > 0) {
       filtered = filtered.filter(job =>
-        filters.selectedSkills.some(skill =>
-          job.skillName.includes(skill)
-        )
+        job.hourWork >= filters.minHours &&
+        job.hourWork <= filters.maxHours
       );
-    }
 
-    filtered = filtered.filter(job =>
-      job.fromPrice >= filters.minPrice &&
-      job.toPrice <= filters.maxPrice
-    );
+      if (filters.selectedCategories.length > 0) {
+        filtered = filtered.filter(job =>
+          filters.selectedCategories.includes(job.categoryName)
+        );
+      }
 
-    filtered = filtered.filter(job =>
-      job.hourWork >= filters.minHours &&
-      job.hourWork <= filters.maxHours
-    );
-
-    if (filters.selectedCategories.length > 0) {
-      filtered = filtered.filter(job =>
-        filters.selectedCategories.includes(job.categoryName)
-      );
-    }
-
-    setFilteredJobs(filtered);
-    setIsFilterOpen(false);
+      setFilteredJobs(filtered);
+      setIsLoading(false);
+      setIsFilterOpen(false);
+    }, 800);
   };
 
   const resetFilters = () => {
@@ -257,19 +300,23 @@ const Jobs = () => {
                         <div className="space-y-2">
                           <h3 className="text-sm font-medium">Kỹ năng</h3>
                           <div className="flex flex-wrap gap-2">
-                            {uniqueSkills.map(skill => (
-                              <Badge
-                                key={skill}
-                                variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
-                                className="cursor-pointer"
-                                onClick={() => toggleSkill(skill)}
-                              >
-                                {skill}
-                                {filters.selectedSkills.includes(skill) && (
-                                  <X className="w-3 h-3 ml-1" />
-                                )}
-                              </Badge>
-                            ))}
+                            {uniqueSkills.length > 0 ? (
+                              uniqueSkills.map(skill => (
+                                <Badge
+                                  key={skill}
+                                  variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
+                                  className="cursor-pointer"
+                                  onClick={() => toggleSkill(skill)}
+                                >
+                                  {skill}
+                                  {filters.selectedSkills.includes(skill) && (
+                                    <X className="w-3 h-3 ml-1" />
+                                  )}
+                                </Badge>
+                              ))
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Không có kỹ năng nào khả dụng</p>
+                            )}
                           </div>
                         </div>
                         <div className="space-y-2">
@@ -346,19 +393,20 @@ const Jobs = () => {
           </div>
         </div>
         <div className="space-y-6">
-          {filteredJobs.map((job, index) => (
-            <FadeInWhenVisible key={job.id} delay={index * 0.1}>
-              <Card className="p-6">
+          {isLoading ? (
+            <LoadingEffect />
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job, index) => (
+              <Card key={job.id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-2xl font-semibold">{job.title}
                         &nbsp;
-                      {job?.jobOpportunity && (
-                        <Badge variant="default">Hợp tác lâu dài</Badge>
-                      )}
+                        {job?.jobOpportunity && (
+                          <Badge variant="default">Hợp tác lâu dài</Badge>
+                        )}
                       </h3>
-                     
                     </div>
                     <p className="text-muted-foreground mb-4">
                       {job.description}
@@ -371,8 +419,8 @@ const Jobs = () => {
                       ))}
                     </div>
                     <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                    <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
                       </div>
                       <div className="flex items-center">
                         <Briefcase className="w-4 h-4 mr-2" />
@@ -408,8 +456,13 @@ const Jobs = () => {
                   </div>
                 </div>
               </Card>
-            </FadeInWhenVisible>
-          ))}
+            ))
+          ) : (
+            <div className="text-center py-10">
+              <div className="text-2xl font-semibold">Không tìm thấy công việc phù hợp</div>
+              <p className="text-muted-foreground mt-2">Thử điều chỉnh lại bộ lọc của bạn</p>
+            </div>
+          )}
         </div>
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
@@ -419,6 +472,5 @@ const Jobs = () => {
       </div>
     </div>
   );
-};
-
+}
 export default Jobs;

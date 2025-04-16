@@ -61,10 +61,7 @@ axiosInstance.interceptors.response.use(
         if (response) {
             switch (response.status) {
                 case 400:
-                    notification.error({
-                        message: 'Lỗi dữ liệu',
-                        description: response.data.message || 'Dữ liệu không hợp lệ'
-                    });
+
                     break;
 
                 case 401:
