@@ -17,6 +17,7 @@ import { Search, Filter, Clock, DollarSign, Briefcase, X, Tag, Calendar, History
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import api from "@/api/axiosConfig";
+import freelancerService from "@/api/freelancerService";
 
 interface Job {
   id: string;
