@@ -294,19 +294,23 @@ const Jobs = () => {
                         <div className="space-y-2">
                           <h3 className="text-sm font-medium">Kỹ năng</h3>
                           <div className="flex flex-wrap gap-2">
-                            {uniqueSkills.map(skill => (
-                              <Badge
-                                key={skill}
-                                variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
-                                className="cursor-pointer"
-                                onClick={() => toggleSkill(skill)}
-                              >
-                                {skill}
-                                {filters.selectedSkills.includes(skill) && (
-                                  <X className="w-3 h-3 ml-1" />
-                                )}
-                              </Badge>
-                            ))}
+                            {uniqueSkills.length > 0 ? (
+                              uniqueSkills.map(skill => (
+                                <Badge
+                                  key={skill}
+                                  variant={filters.selectedSkills.includes(skill) ? "default" : "outline"}
+                                  className="cursor-pointer"
+                                  onClick={() => toggleSkill(skill)}
+                                >
+                                  {skill}
+                                  {filters.selectedSkills.includes(skill) && (
+                                    <X className="w-3 h-3 ml-1" />
+                                  )}
+                                </Badge>
+                              ))
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Không có kỹ năng nào khả dụng</p>
+                            )}
                           </div>
                         </div>
                         <div className="space-y-2">
@@ -391,11 +395,11 @@ const Jobs = () => {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-2xl font-semibold">{job.title}
                         &nbsp;
-                      {job?.jobOpportunity && (
-                        <Badge variant="default">Hợp tác lâu dài</Badge>
-                      )}
+                        {job?.jobOpportunity && (
+                          <Badge variant="default">Hợp tác lâu dài</Badge>
+                        )}
                       </h3>
-                     
+
                     </div>
                     <p className="text-muted-foreground mb-4">
                       {job.description}
@@ -408,8 +412,8 @@ const Jobs = () => {
                       ))}
                     </div>
                     <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                    <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
                       </div>
                       <div className="flex items-center">
                         <Briefcase className="w-4 h-4 mr-2" />
