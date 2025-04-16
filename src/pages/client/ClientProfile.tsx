@@ -304,7 +304,7 @@ const ClientProfile = () => {
 
                         <FadeInWhenVisible delay={0.9}>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Loại ngân sách</label>
+                                <label className="text-sm font-medium">Hình thức thanh toán</label>
                                 <select
                                     className="w-full p-2 border rounded"
                                     value={profile.typePrice}
@@ -312,9 +312,9 @@ const ClientProfile = () => {
                                         setProfile({ ...profile, typePrice: e.target.value })
                                     }
                                 >
-                                    <option value="">Chọn loại ngân sách</option>
-                                    <option value="FIXED">Cố định</option>
-                                    <option value="HOURLYRATE">Theo giờ</option>
+                                    <option value="">Chọn hình thức</option>
+                                    <option value="HOURLY">Theo giờ</option>
+                                    <option value="FULL">Theo dự án</option>
                                 </select>
                             </div>
                         </FadeInWhenVisible>
