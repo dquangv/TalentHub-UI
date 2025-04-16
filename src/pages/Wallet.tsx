@@ -575,7 +575,11 @@ const Wallet = () => {
                               {(transaction.activity === "Nạp tiền" ||
                               transaction.activity === "Rút tiền"
                                 ? "+"
-                                : "-") + transaction.money}
+                                : "-") +
+                                new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(transaction.money)}
                             </TableCell>
 
                             {/* Status Badge */}
