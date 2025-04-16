@@ -41,9 +41,23 @@ export interface FreelancerForClient {
     jobs: FreelancerJob[];
 }
 
+export interface AdminUser {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phoneNumber: string;
+    province: string;
+    country: string;
+    title: string;
+    introduction: string;
+    image: string;
+    role: string;
+}
+
 class ChatApiService {
     private readonly API_PATH = '/chat';
     private readonly API_FREELANCER_PATH = '/v1/freelancers';
+    private readonly API_USERS_PATH = '/users';
 
     async getConversations(userId: string): Promise<ConversationSummary[]> {
         try {
@@ -89,6 +103,17 @@ class ChatApiService {
             }
         } catch (error) {
             console.error('Error fetching freelancers for client:', error);
+            throw error;
+        }
+    }
+
+    async getActiveAdmins(): Promise<AdminUser[]> {
+        try {
+            const result = await api.get(`${this.API_USERS_PATH}/admins/active`);
+            console.log('Active admins:', result.data);
+            return result.data || [];
+        } catch (error) {
+            console.error('Error fetching active admins:', error);
             throw error;
         }
     }
