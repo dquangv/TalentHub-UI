@@ -62,6 +62,7 @@ const Jobs = () => {
     selectedCategories: [],
   });
 
+
   const uniqueCategories: string[] = [];
   jobs.forEach(job => {
     if (!uniqueCategories.includes(job.categoryName)) {
@@ -93,11 +94,13 @@ const Jobs = () => {
       });
     } else {
       filters.selectedCategories.forEach(category => {
-        categorySkills[category].forEach(skill => {
-          if (!skills.includes(skill)) {
-            skills.push(skill);
-          }
-        });
+        if (categorySkills[category]) {
+          categorySkills[category].forEach(skill => {
+            if (!skills.includes(skill)) {
+              skills.push(skill);
+            }
+          });
+        }
       });
     }
     return skills;
