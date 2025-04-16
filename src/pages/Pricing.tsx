@@ -237,6 +237,34 @@ const Pricing = () => {
     setShowPackageDetails(true);
     await Promise.all([fetchCurrentPackage(), fetchPackageHistory()]);
   };
+  const fetchVnPayWithCallback = async (amount: number) => {
+    try {
+      const userInfoStr = localStorage.getItem("userInfo");
+
+      if (!userInfoStr) {
+        console.error("User info not found in localStorage");
+        return;
+      }
+
+      const userInfo = JSON.parse(userInfoStr);
+      const userId = userInfo?.userId;
+
+      if (!userId) {
+        console.error("User ID not found in user info");
+        return;
+      }
+
+      const response = await api.post(
+        `/v1/payments/vnpay-with-callback?vnp_Amount=${amount}&userId=${userId}`
+      );
+
+      console.log("payment", response.data);
+    } catch (err) {
+      console.error("Error fetching payment vnpay-with-callback:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchVoucherPackageList = async () => {
     try {
@@ -293,6 +321,7 @@ const Pricing = () => {
         "/v1/clients/soldpackages",
         subscribeData
       );
+      fetchVnPayWithCallback(selectedPlan.price);
 
       if (response.status === 201) {
         fetchVoucherPackageListByClientId(userInfo.clientId);
