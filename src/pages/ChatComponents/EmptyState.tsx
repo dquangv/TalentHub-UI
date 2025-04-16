@@ -1,8 +1,15 @@
-// EmptyState.tsx - Optimized for responsiveness
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { MessageSquarePlus } from 'lucide-react';
+import { MessageSquarePlus, UserCog, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
+import FreelancerSelectionModal from './FreelancerSelectionModal';
+import AdminSelectionModal from './AdminSelectionModal';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface EmptyStateProps {
     title?: string;
@@ -10,6 +17,8 @@ interface EmptyStateProps {
     icon?: React.ReactNode;
     actionLabel?: string;
     onAction?: () => void;
+    clientId?: string;
+    isClient?: boolean;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -18,7 +27,18 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     icon = <MessageSquarePlus className="h-10 w-10 md:h-12 md:w-12 text-primary" />,
     actionLabel = 'Cuộc trò chuyện mới',
     onAction,
+    clientId = '',
+    isClient = true,
 }) => {
+    const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
+    const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+    const handleActionClick = () => {
+        if (onAction) {
+            onAction();
+        }
+    };
+
     return (
         <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-6">
             <motion.div
@@ -48,18 +68,45 @@ const EmptyState: React.FC<EmptyStateProps> = ({
                 {description}
             </motion.p>
 
-            {onAction && (
-                <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                >
-                    <Button onClick={onAction} className="px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base">
-                        <MessageSquarePlus className="mr-2 h-4 w-4" />
-                        {actionLabel}
-                    </Button>
-                </motion.div>
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+            >
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button className="px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base">
+                            <MessageSquarePlus className="mr-2 h-4 w-4" />
+                            {actionLabel}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                        {isClient && (
+                            <DropdownMenuItem onClick={() => setIsFreelancerModalOpen(true)}>
+                                <Users className="h-4 w-4 mr-2" />
+                                <span>Chat với Freelancer</span>
+                            </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => setIsAdminModalOpen(true)}>
+                            <UserCog className="h-4 w-4 mr-2" />
+                            <span>Chat với Admin</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </motion.div>
+
+            {isClient && (
+                <FreelancerSelectionModal
+                    isOpen={isFreelancerModalOpen}
+                    onClose={() => setIsFreelancerModalOpen(false)}
+                    clientId={clientId}
+                />
             )}
+
+            <AdminSelectionModal
+                isOpen={isAdminModalOpen}
+                onClose={() => setIsAdminModalOpen(false)}
+            />
         </div>
     );
 };
