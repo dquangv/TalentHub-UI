@@ -11,11 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import FreelancerSelectionModal from './FreelancerSelectionModal';
 import AdminSelectionModal from './AdminSelectionModal';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger
+} from "@/components/ui/tabs";
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -34,8 +34,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
     const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+    const [isMultiTabModalOpen, setIsMultiTabModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string>('');
-    const [isClient, setIsClient] = useState(true);
+    const [isClient, setIsClient] = useState(false);
+    const [isFreelancer, setIsFreelancer] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     // Get user info from localStorage
@@ -45,8 +48,20 @@ const ConversationList: React.FC<ConversationListProps> = ({
             try {
                 const userInfo = JSON.parse(userInfoStr);
                 setCurrentUserId(userInfo.userId);
-                // If freelancerId is not available, user is a client
-                setIsClient(!userInfo.freelancerId);
+
+                // Set user roles - properly check for roles
+                const hasAdminRole = userInfo.isAdmin || userInfo.role === 'ADMIN';
+                const hasFreelancerRole = userInfo.freelancerId || userInfo.role === 'FREELANCER';
+
+                setIsAdmin(hasAdminRole);
+                setIsFreelancer(hasFreelancerRole && !hasAdminRole);
+                setIsClient(!hasFreelancerRole && !hasAdminRole);
+
+                console.log('User roles:', {
+                    isAdmin: hasAdminRole,
+                    isFreelancer: hasFreelancerRole && !hasAdminRole,
+                    isClient: !hasFreelancerRole && !hasAdminRole
+                });
             } catch (e) {
                 console.error('Error parsing userInfo:', e);
             }
@@ -68,6 +83,50 @@ const ConversationList: React.FC<ConversationListProps> = ({
         setSearchQuery('');
     };
 
+    // Multi-tab modal component
+    const ClientChatModal = () => {
+        return (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setIsMultiTabModalOpen(false)}>
+                <div className="bg-background rounded-lg shadow-lg w-full max-w-lg overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}>
+                    <Tabs defaultValue="freelancers" className="w-full">
+                        <div className="px-4 pt-4 pb-2">
+                            <h3 className="text-lg font-semibold mb-3">Bắt đầu cuộc trò chuyện mới</h3>
+                            <TabsList className="grid grid-cols-2 w-full">
+                                <TabsTrigger value="freelancers">Freelancers</TabsTrigger>
+                                <TabsTrigger value="admins">Admins</TabsTrigger>
+                            </TabsList>
+                        </div>
+
+                        <TabsContent value="freelancers" className="p-4 pt-2">
+                            <FreelancerSelectionModal
+                                isOpen={true}
+                                onClose={() => setIsMultiTabModalOpen(false)}
+                                clientId={currentUserId}
+                                embedded={true}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="admins" className="p-4 pt-2">
+                            <AdminSelectionModal
+                                isOpen={true}
+                                onClose={() => setIsMultiTabModalOpen(false)}
+                                embedded={true}
+                            />
+                        </TabsContent>
+
+                        <div className="border-t p-3 flex justify-end">
+                            <Button variant="outline" onClick={() => setIsMultiTabModalOpen(false)}>
+                                Đóng
+                            </Button>
+                        </div>
+                    </Tabs>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="h-full flex flex-col border-r">
             <div className="p-3 md:p-4 border-b">
@@ -75,7 +134,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 <div className="relative">
                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder='Tìm kiếm tin nhắn'
+                        placeholder="Tìm kiếm tin nhắn"
                         className="pl-9 pr-8 text-sm py-1.5"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -163,42 +222,36 @@ const ConversationList: React.FC<ConversationListProps> = ({
             </ScrollArea>
 
             <div className="p-3 md:p-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
-                        >
-                            <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                            Tin nhắn mới
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                        {isClient && (
-                            <DropdownMenuItem onClick={() => setIsFreelancerModalOpen(true)}>
-                                <Users className="h-4 w-4 mr-2" />
-                                <span>Chat với Freelancer</span>
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => setIsAdminModalOpen(true)}>
-                            <UserCog className="h-4 w-4 mr-2" />
-                            <span>Chat với Admin</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Admin doesn't have a new message button */}
+                {!isAdmin && (
+                    <Button
+                        className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
+                        onClick={() => {
+                            if (isFreelancer) {
+                                // Freelancer can only chat with admins
+                                setIsAdminModalOpen(true);
+                            } else if (isClient) {
+                                // Client gets the tab interface
+                                setIsMultiTabModalOpen(true);
+                            }
+                        }}
+                    >
+                        <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                        {isFreelancer ? 'Admin hỗ trợ' : 'Tin nhắn mới'}
+                    </Button>
+                )}
             </div>
 
-            {isClient && (
-                <FreelancerSelectionModal
-                    isOpen={isFreelancerModalOpen}
-                    onClose={() => setIsFreelancerModalOpen(false)}
-                    clientId={currentUserId}
+            {/* Regular AdminSelectionModal for Freelancers */}
+            {isFreelancer && (
+                <AdminSelectionModal
+                    isOpen={isAdminModalOpen}
+                    onClose={() => setIsAdminModalOpen(false)}
                 />
             )}
 
-            <AdminSelectionModal
-                isOpen={isAdminModalOpen}
-                onClose={() => setIsAdminModalOpen(false)}
-            />
+            {/* Multi-tab modal for clients */}
+            {isMultiTabModalOpen && <ClientChatModal />}
         </div>
     );
 };
