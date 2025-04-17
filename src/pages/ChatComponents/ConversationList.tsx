@@ -34,8 +34,11 @@ const ConversationList: React.FC<ConversationListProps> = ({
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFreelancerModalOpen, setIsFreelancerModalOpen] = useState(false);
     const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+    const [isMultiTabModalOpen, setIsMultiTabModalOpen] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string>('');
-    const [isClient, setIsClient] = useState(true);
+    const [isClient, setIsClient] = useState(false);
+    const [isFreelancer, setIsFreelancer] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     // Get user info from localStorage
