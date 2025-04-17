@@ -134,7 +134,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 <div className="relative">
                     <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder='Tìm kiếm tin nhắn'
+                        placeholder="Tìm kiếm tin nhắn"
                         className="pl-9 pr-8 text-sm py-1.5"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -222,42 +222,36 @@ const ConversationList: React.FC<ConversationListProps> = ({
             </ScrollArea>
 
             <div className="p-3 md:p-4">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button
-                            className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
-                        >
-                            <Plus className="h-4 w-4 mr-1 md:mr-2" />
-                            Tin nhắn mới
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                        {isClient && (
-                            <DropdownMenuItem onClick={() => setIsFreelancerModalOpen(true)}>
-                                <Users className="h-4 w-4 mr-2" />
-                                <span>Chat với Freelancer</span>
-                            </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => setIsAdminModalOpen(true)}>
-                            <UserCog className="h-4 w-4 mr-2" />
-                            <span>Chat với Admin</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Admin doesn't have a new message button */}
+                {!isAdmin && (
+                    <Button
+                        className="flex items-center justify-center w-full p-1.5 md:p-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm"
+                        onClick={() => {
+                            if (isFreelancer) {
+                                // Freelancer can only chat with admins
+                                setIsAdminModalOpen(true);
+                            } else if (isClient) {
+                                // Client gets the tab interface
+                                setIsMultiTabModalOpen(true);
+                            }
+                        }}
+                    >
+                        <Plus className="h-4 w-4 mr-1 md:mr-2" />
+                        {isFreelancer ? 'Admin hỗ trợ' : 'Tin nhắn mới'}
+                    </Button>
+                )}
             </div>
 
-            {isClient && (
-                <FreelancerSelectionModal
-                    isOpen={isFreelancerModalOpen}
-                    onClose={() => setIsFreelancerModalOpen(false)}
-                    clientId={currentUserId}
+            {/* Regular AdminSelectionModal for Freelancers */}
+            {isFreelancer && (
+                <AdminSelectionModal
+                    isOpen={isAdminModalOpen}
+                    onClose={() => setIsAdminModalOpen(false)}
                 />
             )}
 
-            <AdminSelectionModal
-                isOpen={isAdminModalOpen}
-                onClose={() => setIsAdminModalOpen(false)}
-            />
+            {/* Multi-tab modal for clients */}
+            {isMultiTabModalOpen && <ClientChatModal />}
         </div>
     );
 };
