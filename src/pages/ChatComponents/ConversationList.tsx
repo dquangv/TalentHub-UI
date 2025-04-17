@@ -83,6 +83,50 @@ const ConversationList: React.FC<ConversationListProps> = ({
         setSearchQuery('');
     };
 
+    // Multi-tab modal component
+    const ClientChatModal = () => {
+        return (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                onClick={() => setIsMultiTabModalOpen(false)}>
+                <div className="bg-background rounded-lg shadow-lg w-full max-w-lg overflow-hidden"
+                    onClick={(e) => e.stopPropagation()}>
+                    <Tabs defaultValue="freelancers" className="w-full">
+                        <div className="px-4 pt-4 pb-2">
+                            <h3 className="text-lg font-semibold mb-3">Bắt đầu cuộc trò chuyện mới</h3>
+                            <TabsList className="grid grid-cols-2 w-full">
+                                <TabsTrigger value="freelancers">Freelancers</TabsTrigger>
+                                <TabsTrigger value="admins">Admins</TabsTrigger>
+                            </TabsList>
+                        </div>
+
+                        <TabsContent value="freelancers" className="p-4 pt-2">
+                            <FreelancerSelectionModal
+                                isOpen={true}
+                                onClose={() => setIsMultiTabModalOpen(false)}
+                                clientId={currentUserId}
+                                embedded={true}
+                            />
+                        </TabsContent>
+
+                        <TabsContent value="admins" className="p-4 pt-2">
+                            <AdminSelectionModal
+                                isOpen={true}
+                                onClose={() => setIsMultiTabModalOpen(false)}
+                                embedded={true}
+                            />
+                        </TabsContent>
+
+                        <div className="border-t p-3 flex justify-end">
+                            <Button variant="outline" onClick={() => setIsMultiTabModalOpen(false)}>
+                                Đóng
+                            </Button>
+                        </div>
+                    </Tabs>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="h-full flex flex-col border-r">
             <div className="p-3 md:p-4 border-b">
