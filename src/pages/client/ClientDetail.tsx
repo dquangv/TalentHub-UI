@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tabs,
   TabsContent,
@@ -11,211 +11,253 @@ import {
 } from '@/components/ui/tabs';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
 import {
-  Building2,
+  MapPin,
+  Star,
+  MessageCircle,
   Mail,
   Phone,
-  MapPin,
-  Briefcase,
-  DollarSign,
-  Globe,
-  FileText,
-  MessageSquare,
-  History,
-  Star,
-  Users,
-  Calendar,
+  Building,
+  User,
 } from 'lucide-react';
+import clientsService, { ClientDetail as ClientDetailType } from '@/api/clientsService';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const ClientDetail = () => {
-  const [profile, setProfile] = useState({
-    // User information
-    firstName: 'Nguyễn',
-    lastName: 'Văn B',
-    email: 'nguyenvanb@company.com',
-    phoneNumber: '0987654321',
-    address: 'TP. Hồ Chí Minh',
-    title: 'Project Manager',
-    introduction: 'Project Manager với hơn 8 năm kinh nghiệm quản lý dự án phần mềm...',
+  const { id } = useParams();
+  const [client, setClient] = useState<ClientDetailType | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    // Company information
-    companyName: 'Tech Solutions Corp',
-    phoneContact: '02838123456',
-    companyAddress: 'Quận 1, TP. HCM',
-    industry: 'Công nghệ thông tin',
+  useEffect(() => {
+    const fetchClientDetail = async () => {
+      if (!id) return;
 
-    // Client specific
-    fromPrice: 500,
-    toPrice: 2000,
-    typePrice: 'USD',
-    avatar: 'https://github.com/shadcn.png',
-  });
+      try {
+        setLoading(true);
+        const response = await clientsService.getClientDetail(parseInt(id));
+        console.log('Client detail:', response.data);
+        setClient(response.data);
+      } catch (error) {
+        console.error("Error fetching client detail: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClientDetail();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!client) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-700">Không tìm thấy thông tin nhà tuyển dụng</h2>
+          <p className="mt-2 text-gray-500">Nhà tuyển dụng không tồn tại hoặc đã bị xóa</p>
+        </div>
+      </div>
+    );
+  }
+
+  const fullName = `${client.firstName} ${client.lastName}`;
 
   return (
-    <div className="py-12">
+    <div className="py-12 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
-          {/* Header Section */}
+        <div className="max-w-4xl mx-auto">
           <FadeInWhenVisible>
-            <Card className="p-8 mb-8">
+            <Card className="p-8 mb-8 hover:shadow-lg transition-shadow duration-300">
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-shrink-0">
-                  <Avatar className="w-32 h-32">
-                    <AvatarImage src={profile.avatar} alt={`${profile.firstName} ${profile.lastName}`} />
-                    <AvatarFallback>NV</AvatarFallback>
+                  <Avatar className="w-32 h-32 ring-4 ring-primary/10">
+                    <AvatarImage
+                      src={client.image}
+                      alt={fullName}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                      {client.firstName.slice(0, 1).toUpperCase()}{client.lastName.slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
                 <div className="flex-grow">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2">
-                        {profile.firstName} {profile.lastName}
-                      </h1>
-                      <p className="text-xl text-muted-foreground mb-4">
-                        {profile.title}
+                      <h1 className="text-3xl font-bold mb-2 text-gray-900">{fullName}</h1>
+                      <p className="text-xl text-primary mb-4">
+                        {client.title}
                       </p>
-                      <div className="flex flex-wrap gap-4 text-muted-foreground">
-                        <div className="flex items-center">
-                          <Building2 className="w-4 h-4 mr-2" />
-                          {profile.companyName}
+                      <div className="flex flex-wrap gap-6 text-gray-600 mb-4">
+                        <div className="flex items-center group">
+                          <MapPin className="w-5 h-5 mr-2 text-primary" />
+                          <span className="group-hover:text-primary transition-colors">
+                            {client.province}, {client.country}
+                          </span>
                         </div>
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {profile.address}
+                        <div className="flex items-center group">
+                          <Star className="w-5 h-5 mr-2 text-yellow-400 fill-current" />
+                          <span className="group-hover:text-primary transition-colors">
+                            {client.averageRating.toFixed(1)} ({client.jobsCount} dự án)
+                          </span>
+                        </div>
+                        <div className="flex items-center group">
+                          <Building className="w-5 h-5 mr-2 text-primary" />
+                          <span className="group-hover:text-primary transition-colors">
+                            {client.companies[0]?.companyName || 'Chưa cập nhật'}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Button>
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Liên hệ
-                      </Button>
-                      <Button variant="outline">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Báo cáo
+                      <Button
+                        size="lg"
+                        className="shadow-md hover:shadow-lg transition-shadow"
+                        onClick={() => window.open(`/messaging?contactId=${client.userId}`, '_blank')}
+                      >
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        Liên hệ ngay
                       </Button>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="p-4">
-                      <div className="flex items-center gap-3">
-                        <DollarSign className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Ngân sách</p>
-                          <p className="font-semibold">
-                            {profile.fromPrice} - {profile.toPrice} {profile.typePrice}
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Star className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Đánh giá</p>
-                          <p className="font-semibold">4.8/5.0</p>
-                        </div>
-                      </div>
-                    </Card>
-                    <Card className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Users className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Dự án đã thuê</p>
-                          <p className="font-semibold">12 dự án</p>
-                        </div>
-                      </div>
-                    </Card>
                   </div>
                 </div>
               </div>
             </Card>
           </FadeInWhenVisible>
 
-          {/* Main Content */}
           <FadeInWhenVisible delay={0.2}>
-            <Tabs defaultValue="overview" className="space-y-6">
-              <TabsList>
+            <Tabs defaultValue="overview" className="space-y-4">
+              <TabsList className="bg-white shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-                <TabsTrigger value="company">Công ty</TabsTrigger>
+                <TabsTrigger value="companies">Công ty</TabsTrigger>
+                <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview">
-                <Card className="p-8">
-                  <h2 className="text-xl font-semibold mb-6">Giới thiệu</h2>
-                  <p className="text-muted-foreground mb-8">{profile.introduction}</p>
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Giới thiệu</h2>
+                  <p className="text-gray-600 mb-8 leading-relaxed">{client.introduction}</p>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="font-semibold mb-4">Thông tin liên hệ</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <Mail className="w-5 h-5 text-muted-foreground" />
-                          <span>{profile.email}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900">Thông tin liên hệ</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center">
+                          <Mail className="w-5 h-5 mr-3 text-primary" />
+                          <span>{client.email}</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Phone className="w-5 h-5 text-muted-foreground" />
-                          <span>{profile.phoneNumber}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-muted-foreground" />
-                          <span>{profile.address}</span>
+                        {client.companies[0]?.phoneContact && (
+                          <div className="flex items-center">
+                            <Phone className="w-5 h-5 mr-3 text-primary" />
+                            <span>{client.companies[0]?.phoneContact}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center">
+                          <MapPin className="w-5 h-5 mr-3 text-primary" />
+                          <span>{client.province}, {client.country}</span>
                         </div>
                       </div>
                     </div>
-
-              
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900">Ngân sách</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Ngân sách từ:</span>
+                          <span className="font-medium">{client.fromPrice.toLocaleString()} VND</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Đến:</span>
+                          <span className="font-medium">{client.toPrice.toLocaleString()} VND</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-600">Số dự án đã đăng:</span>
+                          <span className="font-medium">{client.jobsCount}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="company">
-                <Card className="p-8">
-                  <div className="flex items-center gap-4 mb-8">
-                    <Building2 className="w-8 h-8 text-primary" />
-                    <div>
-                      <h2 className="text-xl font-semibold">{profile.companyName}</h2>
-                      <p className="text-muted-foreground">{profile.industry}</p>
-                    </div>
-                  </div>
+              <TabsContent value="companies">
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Thông tin công ty</h2>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="font-semibold mb-4">Thông tin công ty</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <Phone className="w-5 h-5 text-muted-foreground" />
-                          <span>{profile.phoneContact}</span>
+                  {client.companies.length > 0 ? (
+                    <div className="space-y-8">
+                      {client.companies.map((company) => (
+                        <div key={company.id} className="flex gap-6 group">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                              <Building className="w-6 h-6 text-primary" />
+                            </div>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-900">{company.companyName}</h3>
+                            <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
+                              <Badge variant="outline">{company.industry}</Badge>
+                            </div>
+                            <div className="space-y-2 text-gray-600">
+                              <div className="flex items-center">
+                                <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                                <span>{company.address}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                                <span>{company.phoneContact}</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-muted-foreground" />
-                          <span>{profile.companyAddress}</span>
-                        </div>
-                        {/* <div className="flex items-center gap-3">
-                          <Globe className="w-5 h-5 text-muted-foreground" />
-                          <span>www.techsolutions.com</span>
-                        </div> */}
-                      </div>
+                      ))}
                     </div>
-
-                    {/* <div>
-                      <h3 className="font-semibold mb-4">Quy mô công ty</h3>
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <Users className="w-5 h-5 text-muted-foreground" />
-                          <span>100-200 nhân viên</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Briefcase className="w-5 h-5 text-muted-foreground" />
-                          <span>Thành lập năm 2015</span>
-                        </div>
-                      </div>
-                    </div> */}
-                  </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Không có thông tin công ty
+                    </div>
+                  )}
                 </Card>
               </TabsContent>
 
-          
+              <TabsContent value="reviews">
+                <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">Đánh giá từ Freelancer</h2>
+
+                  {client.reviews && client.reviews.length > 0 ? (
+                    <div className="space-y-6">
+                      {client.reviews.map((review) => (
+                        <div key={review.id} className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
+                          <div className="flex justify-between items-start mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-gray-900">{review.reviewerName}</h3>
+                              </div>
+                            </div>
+                            <div className="flex items-center">
+                              <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                              <span className="ml-1 font-semibold">{review.rating}</span>
+                            </div>
+                          </div>
+
+                          <p className="text-gray-600 italic">"{review.note}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      Chưa có đánh giá nào
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
             </Tabs>
           </FadeInWhenVisible>
         </div>
@@ -223,6 +265,5 @@ const ClientDetail = () => {
     </div>
   );
 };
-
 
 export default ClientDetail;
