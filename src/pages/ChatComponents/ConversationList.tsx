@@ -11,11 +11,11 @@ import { useNavigate } from 'react-router-dom';
 import FreelancerSelectionModal from './FreelancerSelectionModal';
 import AdminSelectionModal from './AdminSelectionModal';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger
+} from "@/components/ui/tabs";
 
 interface ConversationListProps {
     conversations: Conversation[];
