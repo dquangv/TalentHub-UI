@@ -425,7 +425,7 @@ const Wallet = () => {
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         <span>
-                          Tiền đã nạp vào ví thành công sẽ không được rút lại.
+                          Tiền đã nạp vào ví thành công sẽ không thể rút lại.
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -877,7 +877,7 @@ const Wallet = () => {
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Tiền đã nạp vào ví thành công sẽ không được rút
+                              Tiền đã nạp vào ví thành công sẽ không thể rút
                               lại.
                             </span>
                           </li>
