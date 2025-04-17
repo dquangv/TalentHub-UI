@@ -50,8 +50,8 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 setCurrentUserId(userInfo.userId);
 
                 // Set user roles - properly check for roles
-                const hasAdminRole = userInfo.isAdmin || userInfo.role === 'admin';
-                const hasFreelancerRole = userInfo.freelancerId || userInfo.role === 'freelancer';
+                const hasAdminRole = userInfo.isAdmin || userInfo.role === 'ADMIN';
+                const hasFreelancerRole = userInfo.freelancerId || userInfo.role === 'FREELANCER';
 
                 setIsAdmin(hasAdminRole);
                 setIsFreelancer(hasFreelancerRole && !hasAdminRole);
