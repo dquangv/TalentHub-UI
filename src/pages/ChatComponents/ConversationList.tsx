@@ -48,8 +48,20 @@ const ConversationList: React.FC<ConversationListProps> = ({
             try {
                 const userInfo = JSON.parse(userInfoStr);
                 setCurrentUserId(userInfo.userId);
-                // If freelancerId is not available, user is a client
-                setIsClient(!userInfo.freelancerId);
+
+                // Set user roles - properly check for roles
+                const hasAdminRole = userInfo.isAdmin || userInfo.role === 'admin';
+                const hasFreelancerRole = userInfo.freelancerId || userInfo.role === 'freelancer';
+
+                setIsAdmin(hasAdminRole);
+                setIsFreelancer(hasFreelancerRole && !hasAdminRole);
+                setIsClient(!hasFreelancerRole && !hasAdminRole);
+
+                console.log('User roles:', {
+                    isAdmin: hasAdminRole,
+                    isFreelancer: hasFreelancerRole && !hasAdminRole,
+                    isClient: !hasFreelancerRole && !hasAdminRole
+                });
             } catch (e) {
                 console.error('Error parsing userInfo:', e);
             }
