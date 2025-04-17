@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, BookMarked, FileCheck2, Plus } from "lucide-react";
+import { Menu, X, LogOut, BookMarked, FileCheck2, Plus, Users, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationDropdown from "./NotificationDropdown";
@@ -24,9 +24,8 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
-          isActive ? "text-primary-700" : ""
-        }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
+          }`}
       >
         {children}
       </span>
@@ -50,9 +49,8 @@ const NavLinkDropdown = ({ children, menuItems }: any) => {
       <DropdownMenuTrigger asChild>
         <div className="relative group cursor-pointer">
           <span
-            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
-              isAnyActive ? "text-primary-700" : ""
-            }`}
+            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isAnyActive ? "text-primary-700" : ""
+              }`}
           >
             {children}
           </span>
@@ -95,7 +93,6 @@ const Navbar = () => {
           if (!userInfo.userId) return;
 
           if (userInfo.clientId) {
-
             setIsClient(true);
           } else {
             setIsClient(false);
@@ -198,10 +195,10 @@ const Navbar = () => {
       userInfo.role === "FREELANCER"
         ? "/settingsfreelancer"
         : userInfo.role === "CLIENT"
-        ? "/client/profile"
-        : userInfo.role === "ADMIN"
-        ? "/admin/dashboard"
-        : "/";
+          ? "/client/profile"
+          : userInfo.role === "ADMIN"
+            ? "/admin/dashboard"
+            : "/";
 
     return (
       <DropdownMenu>
@@ -269,10 +266,9 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${
-            isActive
-              ? "text-primary-700 bg-primary-100/50"
-              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${isActive
+            ? "text-primary-700 bg-primary-100/50"
+            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -280,9 +276,6 @@ const Navbar = () => {
       </Link>
     );
   };
-
-  // Kiểm tra xem có nên hiển thị menu Pricing hay không
-  const shouldShowPricing = !isLoggedIn || role === "CLIENT";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-primary-100/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -303,26 +296,31 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <NavLink to="/">{t("home")}</NavLink>
-            {role === "CLIENT" ? (
-              <>
-                <NavLink to="/freelancers">{t("freelancers")}</NavLink>
-                <NavLinkDropdown menuItems={clientMenuItems}>
-                  Quản lý công việc
-                </NavLinkDropdown>
-              </>
-            ) : role === "FREELANCER" ? (
-              <>
-                <NavLinkDropdown menuItems={freelancerMenuItems}>
-                  Quản lý công việc
-                </NavLinkDropdown>
-                <NavLink to="/reports-freelancer">Báo cáo</NavLink>
-              </>
+
+            {isLoggedIn ? (
+              // Người dùng đã đăng nhập
+              role === "CLIENT" ? (
+                // Nhà tuyển dụng
+                <>
+                  <NavLink to="/freelancers">{t("freelancers")}</NavLink>
+                  <NavLinkDropdown menuItems={clientMenuItems}>
+                    Quản lý công việc
+                  </NavLinkDropdown>
+                </>
+              ) : role === "FREELANCER" ? (
+                <>
+                  <NavLink to="/clients">Nhà tuyển dụng</NavLink>
+                  <NavLinkDropdown menuItems={freelancerMenuItems}>
+                    Quản lý công việc
+                  </NavLinkDropdown>
+                  <NavLink to="/reports-freelancer">Báo cáo</NavLink>
+                </>
+              ) : null
             ) : null}
+
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
-            {shouldShowPricing && (
-              <NavLink to="/pricing">{t("pricing")}</NavLink>
-            )}
+            <NavLink to="/pricing">{t("pricing")}</NavLink>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -378,15 +376,35 @@ const Navbar = () => {
           <div className="md:hidden py-4 bg-gradient-to-b from-background via-primary-50/50 to-background">
             <div className="flex flex-col space-y-4">
               <MobileNavLink to="/">{t("home")}</MobileNavLink>
-              <MobileNavLink to="/freelancers">
-                {t("freelancers")}
-              </MobileNavLink>
-              <MobileNavLink to="/jobs">{t("jobs")}</MobileNavLink>
+
+              {isLoggedIn ? (
+                // Menu cho người dùng đã đăng nhập trên mobile
+                <>
+                  {role === "CLIENT" && (
+                    <>
+                      <MobileNavLink to="/freelancers">{t("freelancers")}</MobileNavLink>
+                      <MobileNavLink to="/client/post-job">Đăng việc làm</MobileNavLink>
+                      <MobileNavLink to="/client/posted-jobs">Công việc đã đăng</MobileNavLink>
+                      <MobileNavLink to="/client/appointment">Lịch hẹn</MobileNavLink>
+                    </>
+                  )}
+                  {role === "FREELANCER" && (
+                    <>
+                      <MobileNavLink to="/freelancers">{t("freelancers")}</MobileNavLink>
+                      <MobileNavLink to="/clients">Nhà tuyển dụng</MobileNavLink>
+                      <MobileNavLink to="/jobs">{t("jobs")}</MobileNavLink>
+                      <MobileNavLink to="/saved-jobs">Công việc đã lưu</MobileNavLink>
+                      <MobileNavLink to="/freelancer/applied-jobs">Đã ứng tuyển</MobileNavLink>
+                      <MobileNavLink to="/freelancer/appointment">Lịch hẹn</MobileNavLink>
+                      <MobileNavLink to="/reports-freelancer">Báo cáo</MobileNavLink>
+                    </>
+                  )}
+                </>
+              ) : null}
+
               <MobileNavLink to="/about">{t("about")}</MobileNavLink>
               <MobileNavLink to="/contact">{t("contact")}</MobileNavLink>
-              {shouldShowPricing && (
-                <MobileNavLink to="/pricing">{t("pricing")}</MobileNavLink>
-              )}
+              <MobileNavLink to="/pricing">{t("pricing")}</MobileNavLink>
 
               {isLoggedIn ? (
                 <div className="pt-4 space-y-2 px-4">
