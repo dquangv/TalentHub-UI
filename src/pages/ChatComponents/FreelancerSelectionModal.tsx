@@ -27,7 +27,8 @@ interface FreelancerSelectionModalProps {
 const FreelancerSelectionModal: React.FC<FreelancerSelectionModalProps> = ({
     isOpen,
     onClose,
-    clientId
+    clientId,
+    embedded = false
 }) => {
     const [freelancers, setFreelancers] = useState<FreelancerForClient[]>([]);
     const [filteredFreelancers, setFilteredFreelancers] = useState<FreelancerForClient[]>([]);
