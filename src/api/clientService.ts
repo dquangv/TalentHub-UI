@@ -19,6 +19,15 @@ interface Client {
     avatar?: string;
 }
 
+interface Company {
+    id?: number;
+    companyName: string;
+    address: string;
+    phoneContact: string;
+    industry: string;
+    clientId?: number;
+}
+
 interface ApiResponse<T> {
     message: string;
     status: number;
