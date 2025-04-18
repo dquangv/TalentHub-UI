@@ -150,6 +150,50 @@ const Wallet = () => {
     }
   };
 
+  const filterTransactionsByDate = (transactions: Transaction[]) => {
+    const now = new Date();
+
+    switch (dateFilter) {
+      case "today":
+        return transactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          return (
+            transactionDate.getDate() === now.getDate() &&
+            transactionDate.getMonth() === now.getMonth() &&
+            transactionDate.getFullYear() === now.getFullYear()
+          );
+        });
+
+      case "week": {
+        const startOfWeek = new Date(
+          now.setDate(now.getDate() - now.getDay() + 1)
+        ); // Start of the week (Monday)
+        const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6)); // End of the week (Sunday)
+        return transactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
+        });
+      }
+
+      case "month":
+        return transactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          return (
+            transactionDate.getMonth() === now.getMonth() &&
+            transactionDate.getFullYear() === now.getFullYear()
+          );
+        });
+
+      case "year":
+        return transactions.filter((transaction) => {
+          const transactionDate = new Date(transaction.createdAt);
+          return transactionDate.getFullYear() === now.getFullYear();
+        });
+
+      default:
+        return transactions; // "all" or any other value
+    }
+  };
   const getTransactionsClient = async () => {
     try {
       const response = await api.get("/v1/transactions", {
@@ -521,13 +565,8 @@ const Wallet = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {transactions
-                          .filter((transaction) =>
-                            transaction.description
-                              .toLowerCase()
-                              .includes(searchKeyword.toLowerCase())
-                          )
-                          .map((transaction) => (
+                        {filterTransactionsByDate(transactions).map(
+                          (transaction) => (
                             <TableRow key={transaction.id}>
                               <TableCell>
                                 {transaction.createdAt
@@ -578,7 +617,8 @@ const Wallet = () => {
                                 </Badge>
                               </TableCell>
                             </TableRow>
-                          ))}
+                          )
+                        )}
                       </TableBody>
                     </Table>
                   </div>
