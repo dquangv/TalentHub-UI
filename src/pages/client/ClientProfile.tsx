@@ -481,8 +481,121 @@ const ClientProfile = () => {
                     </div>
                 </Card>
             </form>
-        </div>
 
+            {/* Company Information Section */}
+            <Card className="p-6">
+                <FadeInWhenVisible>
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center">
+                            <Building className="h-5 w-5 mr-2" />
+                            <h3 className="text-xl font-bold">Thông tin công ty</h3>
+                        </div>
+                        {hasCompany && (
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={handleDeleteCompany}
+                                disabled={companyLoading}
+                            >
+                                {companyLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Xóa
+                                    </>
+                                )}
+                            </Button>
+                        )}
+                    </div>
+                </FadeInWhenVisible>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FadeInWhenVisible delay={0.1}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tên công ty</label>
+                            <Input
+                                value={company.companyName}
+                                onChange={(e) =>
+                                    setCompany({ ...company, companyName: e.target.value })
+                                }
+                                placeholder="Nhập tên công ty"
+                            />
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.2}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Ngành nghề</label>
+                            <Input
+                                value={company.industry}
+                                onChange={(e) =>
+                                    setCompany({ ...company, industry: e.target.value })
+                                }
+                                placeholder="Nhập ngành nghề kinh doanh"
+                            />
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.3}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Số điện thoại liên hệ</label>
+                            <div className="relative">
+                                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="tel"
+                                    className="pl-10"
+                                    value={company.phoneContact}
+                                    onChange={(e) =>
+                                        setCompany({ ...company, phoneContact: e.target.value })
+                                    }
+                                    placeholder="Nhập số điện thoại liên hệ"
+                                />
+                            </div>
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.4}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Địa chỉ công ty</label>
+                            <div className="relative">
+                                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    className="pl-10"
+                                    value={company.address}
+                                    onChange={(e) =>
+                                        setCompany({ ...company, address: e.target.value })
+                                    }
+                                    placeholder="Nhập địa chỉ công ty"
+                                />
+                            </div>
+                        </div>
+                    </FadeInWhenVisible>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                    <Button
+                        type="button"
+                        onClick={handleCompanySubmit}
+                        disabled={companyLoading}
+                    >
+                        {companyLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Đang lưu...
+                            </>
+                        ) : hasCompany ? (
+                            'Cập nhật thông tin công ty'
+                        ) : (
+                            <>
+                                <Plus className="h-4 w-4 mr-1" />
+                                Thêm công ty
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </Card>
+        </div>
     );
 };
 
