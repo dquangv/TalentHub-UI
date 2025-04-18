@@ -565,7 +565,7 @@ const Wallet = () => {
                   </div>
 
                   {/* Transactions Table */}
-                  <div className="rounded-md border overflow-hidden">
+                  <div className="rounded-md min-h-[450px] border overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow>
