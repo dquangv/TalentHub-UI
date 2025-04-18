@@ -338,7 +338,7 @@ const Pricing = () => {
           setTimeout(() => {
             messageApi.open({
               type: "error",
-              content: "Số dự của bạn không đủ để đăng ký gói",
+              content: "Số dư của bạn không đủ để đăng ký gói",
             });
           }, 0);
         }
