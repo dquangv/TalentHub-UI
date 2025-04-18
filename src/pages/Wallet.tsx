@@ -178,6 +178,15 @@ const Wallet = () => {
 
     return transactions
       .filter((transaction) => {
+        // Lọc theo từ khóa tìm kiếm
+        if (searchKeyword.trim() !== "") {
+          return transaction.description
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase());
+        }
+        return true; // Nếu không có từ khóa, trả về tất cả
+      })
+      .filter((transaction) => {
         // Lọc theo thời gian
         switch (dateFilter) {
           case "today": {
@@ -257,8 +266,8 @@ const Wallet = () => {
         index: item.id,
         money: item.money,
         activity: item.activity,
-        createdAt: item.createdAt, 
-        description: item.description, 
+        createdAt: item.createdAt,
+        description: item.description,
         status: item.status,
       });
     });
@@ -269,10 +278,9 @@ const Wallet = () => {
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF4CAF50" }, 
+        fgColor: { argb: "FF4CAF50" },
       };
       cell.alignment = { vertical: "middle", horizontal: "center" };
-
     });
 
     // Ghi file
