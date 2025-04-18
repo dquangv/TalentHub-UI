@@ -81,6 +81,59 @@ const clientService = {
 
         return response.url;
     },
+
+    // New company-related APIs
+    getClientCompanies: async (clientId: number): Promise<ApiResponse<Company[]>> => {
+        try {
+            const response = await api.get(`/v1/clients/${clientId}/companies`);
+            return {
+                message: response.message || 'Companies retrieved successfully',
+                status: response.status,
+                data: response.data,
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    createCompany: async (companyData: Company): Promise<ApiResponse<Company>> => {
+        try {
+            const response = await api.post('/v1/companies', companyData);
+            return {
+                message: response.message || 'Company created successfully',
+                status: response.status,
+                data: response.data,
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    updateCompany: async (companyId: number, companyData: Omit<Company, 'clientId'>): Promise<ApiResponse<Company>> => {
+        try {
+            const response = await api.put(`/v1/companies/${companyId}`, companyData);
+            return {
+                message: response.message || 'Company updated successfully',
+                status: response.status,
+                data: response.data,
+            };
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    deleteCompany: async (companyId: number): Promise<ApiResponse<null>> => {
+        try {
+            const response = await api.delete(`/v1/companies/${companyId}`);
+            return {
+                message: response.message || 'Company deleted successfully',
+                status: response.status,
+                data: null,
+            };
+        } catch (error) {
+            throw error;
+        }
+    }
 };
 
 export default clientService;
