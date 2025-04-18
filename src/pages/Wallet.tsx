@@ -775,13 +775,15 @@ const Wallet = () => {
                               value={depositAmount}
                               onChange={(e) => setDepositAmount(e.target.value)}
                             />
+                            <Label>Lưu ý mức tối thiếu là 50.000 VND</Label>{" "}
+                            <span className="text-red-500">*</span>
                           </div>
                         </div>
 
                         <div className="space-y-2">
                           <Label>Phương thức thanh toán</Label>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <Card
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
+                            {/* <Card
                               className={`p-4 cursor-pointer border transition-all ${
                                 depositMethod === "bank"
                                   ? "border-primary bg-primary/5"
@@ -797,8 +799,8 @@ const Wallet = () => {
                                     Ngân hàng
                                   </p>
                                 </div>
-                              </div>
-                            </Card>
+                              </div> */}
+                            {/* </Card> */}
 
                             <Card
                               className={`p-4 cursor-pointer border transition-all ${
@@ -840,7 +842,7 @@ const Wallet = () => {
                           </div>
                         </div>
 
-                        {depositMethod === "bank" && (
+                        {/* {depositMethod === "bank" && (
                           <div className="bg-muted/50 p-4 rounded-lg space-y-4">
                             <h3 className="font-medium">
                               Thông tin chuyển khoản
@@ -933,7 +935,7 @@ const Wallet = () => {
                               dư cho bạn.
                             </p>
                           </div>
-                        )}
+                        )} */}
 
                         {depositMethod === "ewallet" && (
                           <div className="flex flex-col items-center p-6 border rounded-lg">
@@ -950,6 +952,7 @@ const Wallet = () => {
                           disabled={
                             !depositAmount ||
                             !depositMethod ||
+                            Number(depositAmount) < 50000 ||
                             isProcessing ||
                             depositMethod !== "card"
                           }
