@@ -135,6 +135,84 @@ const ClientProfile = () => {
         }
     };
 
+    const handleCompanySubmit = async () => {
+        try {
+            setCompanyLoading(true);
+
+            if (hasCompany && company.id) {
+                // Update existing company
+                const { companyName, address, phoneContact, industry } = company;
+                const updateResponse = await clientService.updateCompany(company.id, {
+                    companyName,
+                    address,
+                    phoneContact,
+                    industry
+                });
+
+                if (updateResponse.status === 200) {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Cập nhật thông tin công ty thành công!',
+                    });
+                }
+            } else {
+                // Create new company
+                const createResponse = await clientService.createCompany({
+                    ...company,
+                    clientId
+                });
+
+                if (createResponse.status === 201 && createResponse.data) {
+                    setCompany(createResponse.data);
+                    setHasCompany(true);
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Thêm mới công ty thành công!',
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error saving company data:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể lưu thông tin công ty. Vui lòng thử lại sau.',
+            });
+        } finally {
+            setCompanyLoading(false);
+        }
+    };
+
+    const handleDeleteCompany = async () => {
+        if (!company.id) return;
+
+        try {
+            setCompanyLoading(true);
+            const deleteResponse = await clientService.deleteCompany(company.id);
+
+            if (deleteResponse.status === 204) {
+                setCompany({
+                    companyName: '',
+                    address: '',
+                    phoneContact: '',
+                    industry: ''
+                });
+                setHasCompany(false);
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Xóa thông tin công ty thành công!',
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting company:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể xóa thông tin công ty. Vui lòng thử lại sau.',
+            });
+        } finally {
+            setCompanyLoading(false);
+        }
+    };
+
     const handleAvatarButtonClick = () => {
         if (fileInputRef.current) {
             fileInputRef.current.click();
