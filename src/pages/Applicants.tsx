@@ -515,7 +515,8 @@ const Applicants = () => {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
-                                disabled={applicant.status !== "Applied"}
+                                // disabled={applicant.status !== "Applied"}
+                                disabled={enableAction}
                                 onClick={() =>
                                   handleApproved({
                                     jobId: applicant?.jobId,
@@ -541,7 +542,8 @@ const Applicants = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={applicant.status !== "Applied"}
+                                // disabled={applicant.status !== "Applied"}
+                                disabled={enableAction}
                                 onClick={() =>
                                   handleReject({
                                     jobId: applicant?.jobId,
