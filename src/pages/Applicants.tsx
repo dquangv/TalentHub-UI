@@ -74,9 +74,11 @@ const Applicants = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [enableAction, setEnableAction] = useState(false)
   async function fetchJob(jobId: any) {
     await api.get(`/v1/jobs/detail-job/${jobId}`).then(result => {
       if (result?.data?.status == "Đóng") {
+        setEnableAction(true)
       }
     })
   }
