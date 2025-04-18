@@ -139,6 +139,7 @@ const clientService = {
 export default clientService;
 export type {
     Client,
+    Company,
     ApiResponse,
     ClientPriceUpdateRequest
 };
