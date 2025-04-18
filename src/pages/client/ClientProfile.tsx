@@ -32,9 +32,18 @@ const ClientProfile = () => {
         typePrice: '',
     });
 
+    const [company, setCompany] = useState<Company>({
+        companyName: '',
+        address: '',
+        phoneContact: '',
+        industry: '',
+    });
+
     const [loading, setLoading] = useState<boolean>(false);
+    const [companyLoading, setCompanyLoading] = useState<boolean>(false);
     const [uploadingImage, setUploadingImage] = useState<boolean>(false);
     const [fetching, setFetching] = useState<boolean>(true);
+    const [hasCompany, setHasCompany] = useState<boolean>(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
