@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2 } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Building, Trash2, Plus } from 'lucide-react';
 import { notification } from 'antd';
 import userService, { User } from '@/api/userService';
-import clientService from '@/api/clientService';
+import clientService, { Company } from '@/api/clientService';
 import LocationSelector from '../freelancer/settings/LocationSelector';
 
 const ClientProfile = () => {
