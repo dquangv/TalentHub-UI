@@ -10,6 +10,7 @@ import {
   Info,
   X,
 } from "lucide-react";
+import { message } from "antd";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -172,6 +173,7 @@ const Pricing = () => {
   );
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
@@ -237,30 +239,32 @@ const Pricing = () => {
     setShowPackageDetails(true);
     await Promise.all([fetchCurrentPackage(), fetchPackageHistory()]);
   };
-  const fetchVnPayWithCallback = async (amount: number, desc: string) => {
+  const fetchVnPayWithCallback = async (
+    amount: number,
+    desc: string
+  ): Promise<{ success: boolean; error?: string }> => {
     try {
       const userInfoStr = localStorage.getItem("userInfo");
-
-      if (!userInfoStr) {
-        console.error("User info not found in localStorage");
-        return;
-      }
+      if (!userInfoStr)
+        return { success: false, error: "Không tìm thấy thông tin người dùng" };
 
       const userInfo = JSON.parse(userInfoStr);
       const userId = userInfo?.userId;
-
-      if (!userId) {
-        console.error("User ID not found in user info");
-        return;
-      }
+      if (!userId)
+        return { success: false, error: "Không tìm thấy ID người dùng" };
 
       const response = await api.post(
         `/v1/payments/vnpay-with-callback?vnp_Amount=${amount}&userId=${userId}&desc=${desc}`
       );
 
-      console.log("payment", response.data);
+      if (response.data.transactionStatus === "FAILED") {
+        return { success: false, error: response.data.message };
+      }
+
+      return { success: true };
     } catch (err) {
-      console.error("Error fetching payment vnpay-with-callback:", err);
+      console.error("Lỗi khi gọi thanh toán:", err);
+      return { success: false, error: "Đã có lỗi xảy ra khi xử lý thanh toán" };
     } finally {
       setIsLoading(false);
     }
@@ -318,10 +322,28 @@ const Pricing = () => {
 
     try {
       const userInfoStr = localStorage.getItem("userInfo");
-      if (!userInfoStr) {
+      if (!userInfoStr) return;
+
+      const userInfo = JSON.parse(userInfoStr);
+      const typePayment = getTypePayment(selectedPlan.typePackage);
+
+      // Gọi thanh toán trước
+      const { success, error } = await fetchVnPayWithCallback(
+        selectedPlan.price,
+        typePayment
+      );
+
+      if (!success) {
+        if (error) {
+          setTimeout(() => {
+            messageApi.open({
+              type: "error",
+              content: "Số dự của bạn không đủ để đăng ký gói",
+            });
+          }, 0);
+        }
         return;
       }
-      const userInfo = JSON.parse(userInfoStr);
 
       const subscribeData = {
         price: selectedPlan.price,
@@ -329,19 +351,16 @@ const Pricing = () => {
         typePackage: selectedPlan.typePackage,
         clientId: userInfo.clientId,
       };
-      const typePayment = getTypePayment(selectedPlan.typePackage);
 
       const response = await api.post(
         "/v1/clients/soldpackages",
         subscribeData
       );
-      fetchVnPayWithCallback(selectedPlan.price, typePayment);
-
       if (response.status === 201) {
         fetchVoucherPackageListByClientId(userInfo.clientId);
       }
     } catch (err) {
-      console.error("Error subscribing to package:", err);
+      console.error("Lỗi khi đăng ký gói:", err);
     } finally {
       setShowConfirmDialog(false);
       setSelectedPlan(null);
@@ -639,8 +658,8 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn
-              đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?
+              Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác,
+              gói cũ sẽ mất. Bạn đã chắc chắn chưa?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -843,6 +862,7 @@ const Pricing = () => {
           )}
         </DialogContent>
       </Dialog>
+      {contextHolder}
     </>
   );
 };
