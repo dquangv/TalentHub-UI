@@ -145,6 +145,8 @@ const Applicants = () => {
         return "Hoàn thành";
       case "Cancelled":
         return "Đã hủy";
+      case "Approved":
+        return "Đã chấp thuận";
       default:
         return status;
     }
