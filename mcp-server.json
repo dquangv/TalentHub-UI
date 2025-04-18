@@ -1,0 +1,289 @@
+{
+    "name": "My workflow",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "/mcp-server",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                200,
+                2380
+            ],
+            "id": "a8ee29fa-3935-4c80-b6e9-fca340dbffd8",
+            "name": "Webhook",
+            "webhookId": "017c1e41-233a-428d-b976-6dc3a7c07947"
+        },
+        {
+            "parameters": {
+                "jsCode": "let message = $input.first().json.body?.message || \"\";\n\n// Kiểm tra dữ liệu đầu vào\nif (!message || message.trim() === \"\") {\n  return [{\n    json: {\n      success: false,\n      error: \"Vui lòng cung cấp nội dung tin nhắn\",\n    }\n  }];\n}\n\n// Tiền xử lý câu hỏi\nmessage = message.trim();\n\n// Loại bỏ các từ khóa SQL trực tiếp nếu người dùng nhập vào để tránh SQL injection\nmessage = message.replace(/(\\b)(select|insert|update|delete|drop|alter|create|truncate|grant)(\\b)/gi, \n  match => `tìm kiếm ${match.toLowerCase()}`);\n\nreturn [{\n  json: {\n    message: message,\n    timestamp: new Date().toISOString(),\n    requiresSQL: /tìm|liệt kê|thống kê|đếm|danh sách|hiển thị/i.test(message)\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                420,
+                2380
+            ],
+            "id": "80f5b9bd-1f5f-4133-b19f-4426e0973e93",
+            "name": "Parse Input"
+        },
+        {
+            "parameters": {
+                "promptType": "define",
+                "text": "=# Vai trò của bạn\n\nBạn là trợ lý thông minh của TalentHub - nền tảng kết nối freelancer và khách hàng. Nhiệm vụ của bạn là phân tích câu hỏi của người dùng và cung cấp thông tin chính xác, đặc biệt là đưa ra các câu truy vấn SQL phù hợp khi cần thiết dựa trên cấu trúc dữ liệu của hệ thống.\n\n# Cấu trúc dữ liệu của TalentHub\n\n## Entity liên quan đến tài khoản:\n1. **account**: id (PK), email, password, role (ENUM: ADMIN, CLIENT, FREELANCER), created_at, updated_at, status (ENUM), lat, lng\n2. **users**: id (PK), first_name, last_name, phone_number, province, country, title, introduction, image, account_id (FK)\n3. **freelancer**: id (PK), hourly_rate, description, category_id (FK), user_id (FK)\n4. **client**: id (PK), from_price, to_price, type_price, user_id (FK)\n5. **company**: id (PK), company_name, phone_contact, address, industry, client_id (FK)\n\n## Entity liên quan đến kỹ năng và năng lực:\n1. **skill**: id (PK), skill_name\n2. **freelancer_skill**: id (PK), freelancer_id (FK), skill_id (FK)\n3. **category**: id (PK), category_title\n4. **cv**: id (PK), title, url, status, freelancer_id (FK)\n5. **experiences**: id (PK), company_name, position, start_date, end_date, description, status, freelancer_id (FK)\n6. **education**: id (PK), start_date, end_date, description, image, school_id (FK), degree_id (FK), major_id (FK), freelancer_id (FK)\n7. **school**: id (PK), school_name\n8. **major**: id (PK), major_name\n9. **degree**: id (PK), degree_title\n10. **projects**: id (PK), title, tech, description, link, image, freelancer_id (FK)\n\n## Entity liên quan đến công việc:\n1. **job**: id (PK), title, scope (ENUM: SMALL, MEDIUM, LARGE), hour_work, duration, end_date, job_opportunity, from_price, to_price, type_price, description, type_payment (ENUM: HOURLY, FULL), status (ENUM: CLOSED, BANNED, OPEN, DRAFT), created_at, updated_at, client_id (FK), category_id (FK)\n2. **job_skill**: id (PK), job_id (FK), skill_id (FK)\n3. **freelancer_job**: id (PK), is_saved, status (ENUM: Applied, Cancelled, Approved, Rejected, Viewed), applied_date, freelancer_id (FK), job_id (FK), freelancer_review_id (FK), client_review_id (FK), cv_id (FK)\n4. **appointments**: id (PK), topic, start_time, duration, description, link, client_id (FK), freelancer_job_id (FK)\n\n## Entity liên quan đến đánh giá:\n1. **freelancer_review**: id (PK), rating, note\n2. **client_review**: id (PK), rating, note\n\n## Entity liên quan đến gói dịch vụ:\n1. **sold_packages**: id (PK), start_date, end_date, price, number_post, number_posted, status, voucher_packages (FK), client (FK)\n\n# ENUM và kiểu dữ liệu đặc biệt\n- **RoleUser**: ADMIN, CLIENT, FREELANCER\n- **StatusAccount**: VERIFIED, UNVERIFIED, BANNED\n- **ScopeJob**: SMALL, MEDIUM, LARGE\n- **StatusFreelancerJob**: Applied, Cancelled, Approved, Rejected, Viewed\n- **StatusJob**: CLOSED, BANNED, OPEN, DRAFT\n- **TypePayment**: HOURLY, FULL\n\n# Mối quan hệ giữa các entity\n\n- **users** (1-1) **account**: Mỗi người dùng có một tài khoản\n- **users** (1-1) **freelancer** hoặc **client**: Một người dùng có thể là freelancer hoặc client\n- **client** (1-1) **company**: Một client có thể liên kết với một công ty\n- **freelancer** (1-N) **freelancer_skill**: Một freelancer có nhiều kỹ năng\n- **freelancer_skill** (N-1) **skill**: Nhiều freelancer có thể có cùng một kỹ năng\n- **freelancer** (1-N) **cv**, **education**, **experiences**, **projects**: Một freelancer có nhiều hồ sơ, học vấn, kinh nghiệm, dự án\n- **client** (1-N) **job**: Một client có thể đăng nhiều công việc\n- **job** (1-N) **job_skill**: Một công việc yêu cầu nhiều kỹ năng\n- **job** (1-N) **freelancer_job**: Một công việc có nhiều freelancer ứng tuyển\n- **freelancer** (1-N) **freelancer_job**: Một freelancer ứng tuyển nhiều công việc\n- **freelancer_job** (1-1) **freelancer_review**, **client_review**: Mỗi công việc được thực hiện có đánh giá\n- **client** (1-N) **sold_packages**: Một client mua nhiều gói dịch vụ\n- **client** (1-N) **appointments**: Một client có nhiều cuộc hẹn với freelancer\n\n# Quan trọng: Cấu hình database\n- Tên database: **freelancer** (không phải mysql)\n- Tất cả tên bảng đều là lowercase và có thể có dấu gạch dưới\n- Tên cột cũng là lowercase với các từ được nối bằng dấu gạch dưới (snake_case)\n\n# Hướng dẫn xử lý câu hỏi\n\nKhi nhận được câu hỏi từ người dùng: \"{{ $json.message }}\", hãy:\n\n1. **Phân tích nội dung câu hỏi** để xác định yêu cầu chính và các thực thể liên quan\n2. **Xác định loại câu hỏi**:\n   - Truy vấn thông tin (cần SQL)\n   - Giải thích về hệ thống (không cần SQL)\n   - Hướng dẫn sử dụng (không cần SQL)\n\n3. **Nếu cần truy vấn SQL**:\n   - Luôn chỉ định chính xác tên database: `freelancer.table_name`\n   - Sử dụng tên bảng và cột chính xác theo cấu trúc đã mô tả (lowercase và snake_case)\n   - Xác định các bảng cần JOIN\n   - Xác định các điều kiện WHERE\n   - Xác định các trường cần SELECT\n   - Cân nhắc các trường hợp NULL và cách xử lý\n   - Sử dụng các hàm SQL phù hợp (COUNT, AVG, GROUP BY, v.v.)\n   - Đảm bảo câu truy vấn tối ưu và đúng cú pháp MySQL\n   - Luôn thêm LIMIT để tránh kết quả quá lớn\n\n4. **Đưa ra câu trả lời toàn diện** bao gồm:\n   - Phân tích câu hỏi một cách rõ ràng\n   - Câu truy vấn SQL (nếu cần) với giải thích từng phần\n   - Giải thích cách để truy xuất thông tin bổ sung nếu cần\n\n5. **Luôn trả về câu truy vấn SQL trong định dạng markdown với cú pháp:**\n```sql\nSELECT * FROM freelancer.table_name WHERE condition LIMIT 100;\n```\n\nHãy đảm bảo câu SQL của bạn chỉ chứa các lệnh SELECT an toàn, không bao gồm câu lệnh thay đổi dữ liệu như INSERT, UPDATE, DELETE.\n\n# Ví dụ câu truy vấn đúng:\n```sql\nSELECT j.title, j.description, c.category_title \nFROM freelancer.job j \nJOIN freelancer.category c ON j.category_id = c.id \nWHERE j.status = 'OPEN' \nLIMIT 10;\n```\n\nLƯU Ý: Đây là ví dụ quan trọng để tránh lỗi khi truy vấn. Hãy đảm bảo luôn sử dụng tên database (freelancer) và các tên bảng, tên cột chính xác.",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.agent",
+            "typeVersion": 1.8,
+            "position": [
+                680,
+                2380
+            ],
+            "id": "a339fbc6-0508-4fab-8998-20beb202aede",
+            "name": "AI Agent"
+        },
+        {
+            "parameters": {
+                "model": "=llama3.2",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+            "typeVersion": 1,
+            "position": [
+                640,
+                2580
+            ],
+            "id": "c580c801-7665-430c-8c80-ae26788200c4",
+            "name": "Ollama Chat Model",
+            "credentials": {
+                "ollamaApi": {
+                    "id": "RBKUaE6cshZdt4Sg",
+                    "name": "Ollama account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Ensure aiResponse is a string\nconst aiResponse = $input.first()?.json?.output || \"\";\n\n// Check if aiResponse is a string\nif (typeof aiResponse !== 'string') {\n  return [{\n    json: {\n      aiResponse: \"Không nhận được phản hồi từ AI\",\n      needsQuery: false,\n      error: \"Invalid AI response format\"\n    }\n  }];\n}\n\n// Function to extract SQL from response\n// Modified to handle various SQL formatting including markdown and regular code blocks\nfunction extractSQL(text) {\n  // Try markdown SQL format first\n  let sqlRegex = /```sql\\s+([\\s\\S]*?)\\s+```/i;\n  let match = text.match(sqlRegex);\n  \n  // If not found, try alternative markdown format\n  if (!match) {\n    sqlRegex = /```markdown\\s+(SELECT[\\s\\S]*?LIMIT[\\s\\S]*?;)\\s+```/i;\n    match = text.match(sqlRegex);\n  }\n  \n  // If still not found, try plain SQL without code blocks\n  if (!match) {\n    sqlRegex = /SELECT[\\s\\S]*?FROM[\\s\\S]*?(?:WHERE[\\s\\S]*?)?(?:ORDER BY[\\s\\S]*?)?LIMIT\\s+\\d+\\s*;/i;\n    match = text.match(sqlRegex);\n  }\n  \n  return match ? match[1].trim() : null;\n}\n\n// Extract SQL from response\nconst extractedSQL = extractSQL(aiResponse);\n\n// Check if SQL exists\nif (!extractedSQL) {\n  return [{\n    json: {\n      aiResponse: aiResponse,\n      needsQuery: false\n    }\n  }];\n}\n\n// Normalize SQL\nconst normalizedSQL = extractedSQL\n  .replace(/\\s+/g, ' ')\n  .replace(/;$/, '')\n  .replace(/\\{.*?\\}/g, '10000') // Replace placeholder variables with default values\n  .trim();\n\n// Basic SQL safety check\nconst isSafeQuery = normalizedSQL.toLowerCase().startsWith('select') && \n  !normalizedSQL.toLowerCase().includes('drop') &&\n  !normalizedSQL.toLowerCase().includes('delete') &&\n  !normalizedSQL.toLowerCase().includes('update') &&\n  !normalizedSQL.toLowerCase().includes('insert') &&\n  !normalizedSQL.toLowerCase().includes('alter');\n\nif (!isSafeQuery) {\n  return [{\n    json: {\n      aiResponse: \"Xin lỗi, tôi không thể thực hiện truy vấn này vì lý do bảo mật. Chỉ cho phép truy vấn SELECT.\",\n      needsQuery: false,\n      error: \"Unsafe SQL detected\"\n    }\n  }];\n}\n\n// Add LIMIT if not present\nconst sqlWithLimit = normalizedSQL.toLowerCase().includes('limit')\n  ? normalizedSQL\n  : `${normalizedSQL} LIMIT 100`;\n\n// Ensure database name is correctly specified\nlet finalSQL = sqlWithLimit;\nif (!finalSQL.includes('freelancer.')) {\n  // Replace just the table name with database.table format\n  finalSQL = finalSQL.replace(/\\bFROM\\s+(\\w+)\\b/gi, 'FROM freelancer.$1');\n  // Also handle JOIN statements\n  finalSQL = finalSQL.replace(/\\bJOIN\\s+(\\w+)\\b/gi, 'JOIN freelancer.$1');\n}\n\nreturn [{\n  json: {\n    aiResponse: aiResponse,\n    sqlQuery: finalSQL,\n    needsQuery: true\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1000,
+                2520
+            ],
+            "id": "dc670413-9856-43fc-8d72-983a4f2ea9ca",
+            "name": "SQL Generator"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.needsQuery }}",
+                            "value2": true
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                1220,
+                2360
+            ],
+            "id": "f366d27d-a0f3-424b-b35f-8e036a46bc97",
+            "name": "Need SQL?"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Check if we have query results from MySQL\nconst sqlResults = $input.first().json.data || [];\nlet output = $input.first().json.aiResponse || \"\";\nconst sqlQuery = $input.first().json.sqlQuery || \"\";\n\n// Function to format results as markdown table\nfunction formatResultsAsMarkdown(results) {\n  if (!results || results.length === 0) {\n    return \"Không tìm thấy kết quả phù hợp.\";\n  }\n  \n  // Create headers\n  const headers = Object.keys(results[0]);\n  let markdown = '| ' + headers.join(' | ') + ' |\\n';\n  markdown += '| ' + headers.map(() => '---').join(' | ') + ' |\\n';\n  \n  // Add rows\n  results.forEach(row => {\n    markdown += '| ' + headers.map(header => {\n      const value = row[header];\n      if (value === null || value === undefined) return 'N/A';\n      if (typeof value === 'object') return JSON.stringify(value);\n      return String(value);\n    }).join(' | ') + ' |\\n';\n  });\n  \n  return markdown;\n}\n\n// Format results as markdown\nconst sqlResultsFormatted = formatResultsAsMarkdown(sqlResults);\n\n// Replace SQL code block or add results section\nif (output.includes('```sql') || output.includes('```markdown')) {\n  // Replace existing SQL code block with results\n  output = output.replace(/```(?:sql|markdown)[\\s\\S]*?```/, '```sql\\n' + sqlQuery + '\\n```\\n\\n**Kết quả truy vấn:**\\n\\n' + sqlResultsFormatted);\n} else {\n  // Add SQL and results at the end of the response\n  output += '\\n\\n```sql\\n' + sqlQuery + '\\n```\\n\\n**Kết quả truy vấn:**\\n\\n' + sqlResultsFormatted;\n}\n\n// Add explanation if not already there\nif (!output.includes(\"Giải thích truy vấn\")) {\n  output += \"\\n\\n**Giải thích truy vấn:**\\n\\nTruy vấn này tìm kiếm dữ liệu từ hệ thống TalentHub dựa trên các điều kiện bạn đã cung cấp. Kết quả hiển thị các thông tin phù hợp với yêu cầu của bạn.\";\n}\n\nreturn [{\n  json: {\n    finalResponse: output,\n    timestamp: new Date().toISOString()\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1660,
+                2360
+            ],
+            "id": "85c89b82-43a3-4612-a269-9691ae250b83",
+            "name": "Process SQL Results"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {success: true, response: $json.finalResponse, timestamp: $json.timestamp} }}",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1860,
+                2200
+            ],
+            "id": "b2ea95e4-9aec-4aaa-af5f-95843cdca86b",
+            "name": "Respond To Webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Node xử lý lỗi\nlet errorMessage = \"Đã xảy ra lỗi trong quá trình xử lý yêu cầu\";\nlet suggestionMessage = \"Vui lòng thử lại với câu hỏi khác hoặc liên hệ quản trị viên.\";\n\n// Kiểm tra lỗi từ input\nif ($input.first().json.error) {\n  errorMessage = $input.first().json.error;\n}\n\nreturn [{\n  json: {\n    success: false,\n    error: errorMessage,\n    suggestion: suggestionMessage,\n    timestamp: new Date().toISOString()\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1080,
+                2040
+            ],
+            "id": "0d32d02d-021f-49da-9083-fe4bf0984b0e",
+            "name": "Error Handler"
+        },
+        {
+            "parameters": {
+                "operation": "executeQuery",
+                "query": "={{ $json.sqlQuery }}",
+                "additionalFields": {
+                    "database": "freelancer"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.mySql",
+            "typeVersion": 2.4,
+            "position": [
+                1440,
+                2360
+            ],
+            "id": "ff676d5c-e743-4363-9fb0-6f7d3acb0aa8",
+            "name": "MySQL",
+            "credentials": {
+                "mySql": {
+                    "id": "M5NIK0q7Cuo0toWH",
+                    "name": "MySQL account"
+                }
+            }
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Input": {
+            "main": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "AI Agent": {
+            "main": [
+                [
+                    {
+                        "node": "SQL Generator",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Chat Model": {
+            "ai_languageModel": [
+                [
+                    {
+                        "node": "AI Agent",
+                        "type": "ai_languageModel",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "SQL Generator": {
+            "main": [
+                [
+                    {
+                        "node": "Need SQL?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Need SQL?": {
+            "main": [
+                [
+                    {
+                        "node": "MySQL",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Process SQL Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process SQL Results": {
+            "main": [
+                [
+                    {
+                        "node": "Respond To Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Error Handler": {
+            "main": [
+                [
+                    {
+                        "node": "Respond To Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "MySQL": {
+            "main": [
+                [
+                    {
+                        "node": "Process SQL Results",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "versionId": "35e6e9e7-23c6-4fda-bf39-39792aa3ecc6",
+    "meta": {
+        "templateCredsSetupCompleted": true,
+        "instanceId": "4bfa0ec633b2fedb377be3f27aaa33f9916019e6f53386fc8b5aa9e17f54ad87"
+    },
+    "id": "vmxg0xl3aCS1XUia",
+    "tags": []
+}
