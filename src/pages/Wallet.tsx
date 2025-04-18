@@ -150,6 +150,23 @@ const Wallet = () => {
       console.log(error);
     }
   };
+  const getTransactionsClient = async () => {
+    try {
+      const response = await api.get("/v1/transactions", {
+        params: { userId: userId },
+      });
+      console.log(response);
+      setTransactions(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleReloadTrasactionp = () => {
+    getBalancerClient();
+    getTransactionsClient();
+  };
+
   const paginatedTransactions = transactions.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -208,17 +225,6 @@ const Wallet = () => {
         if (statusFilter === "all") return true;
         return transaction.status === statusFilter;
       });
-  };
-  const getTransactionsClient = async () => {
-    try {
-      const response = await api.get("/v1/transactions", {
-        params: { userId: userId },
-      });
-      console.log(response);
-      setTransactions(response.data);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   useEffect(() => {
@@ -506,7 +512,11 @@ const Wallet = () => {
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold">Lịch sử giao dịch</h2>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        onClick={handleReloadTrasactionp}
+                        variant="outline"
+                        size="sm"
+                      >
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Làm mới
                       </Button>
@@ -578,58 +588,60 @@ const Wallet = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filterTransactions(paginatedTransactions).map((transaction) => (
-                          <TableRow key={transaction.id}>
-                            <TableCell>
-                              {transaction.createdAt
-                                ? new Intl.DateTimeFormat("vi-VN", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }).format(new Date(transaction.createdAt))
-                                : "Không rõ thời gian"}
-                            </TableCell>
-                            <TableCell>{transaction.description}</TableCell>
-                            <TableCell>
-                              <Badge
-                                className={`${
-                                  transaction.activity === "Nạp tiền"
-                                    ? "bg-green-100 text-green-700"
-                                    : transaction.activity === "Rút tiền"
-                                    ? "bg-yellow-100 text-yellow-700"
-                                    : "bg-amber-100 text-amber-700"
-                                }`}
-                              >
-                                {transaction.activity}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              {new Intl.NumberFormat("vi-VN", {
-                                style: "currency",
-                                currency: "VND",
-                              }).format(transaction.money)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                className={`${
-                                  transaction.status === "SUCCESS"
-                                    ? "bg-green-200 text-green-800"
+                        {filterTransactions(paginatedTransactions).map(
+                          (transaction) => (
+                            <TableRow key={transaction.id}>
+                              <TableCell>
+                                {transaction.createdAt
+                                  ? new Intl.DateTimeFormat("vi-VN", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }).format(new Date(transaction.createdAt))
+                                  : "Không rõ thời gian"}
+                              </TableCell>
+                              <TableCell>{transaction.description}</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${
+                                    transaction.activity === "Nạp tiền"
+                                      ? "bg-green-100 text-green-700"
+                                      : transaction.activity === "Rút tiền"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-amber-100 text-amber-700"
+                                  }`}
+                                >
+                                  {transaction.activity}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(transaction.money)}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${
+                                    transaction.status === "SUCCESS"
+                                      ? "bg-green-200 text-green-800"
+                                      : transaction.status === "PENDING"
+                                      ? "bg-yellow-200 text-yellow-800"
+                                      : "bg-red-200 text-red-800"
+                                  }`}
+                                >
+                                  {transaction.status === "SUCCESS"
+                                    ? "Thành công"
                                     : transaction.status === "PENDING"
-                                    ? "bg-yellow-200 text-yellow-800"
-                                    : "bg-red-200 text-red-800"
-                                }`}
-                              >
-                                {transaction.status === "SUCCESS"
-                                  ? "Thành công"
-                                  : transaction.status === "PENDING"
-                                  ? "Đang xử lý"
-                                  : "Thất bại"}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                                    ? "Đang xử lý"
+                                    : "Thất bại"}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
                       </TableBody>
                     </Table>
                   </div>
