@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2 } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Building, Trash2, Plus } from 'lucide-react';
 import { notification } from 'antd';
 import userService, { User } from '@/api/userService';
-import clientService from '@/api/clientService';
+import clientService, { Company } from '@/api/clientService';
 import LocationSelector from '../freelancer/settings/LocationSelector';
 
 const ClientProfile = () => {
@@ -32,9 +32,18 @@ const ClientProfile = () => {
         typePrice: '',
     });
 
+    const [company, setCompany] = useState<Company>({
+        companyName: '',
+        address: '',
+        phoneContact: '',
+        industry: '',
+    });
+
     const [loading, setLoading] = useState<boolean>(false);
+    const [companyLoading, setCompanyLoading] = useState<boolean>(false);
     const [uploadingImage, setUploadingImage] = useState<boolean>(false);
     const [fetching, setFetching] = useState<boolean>(true);
+    const [hasCompany, setHasCompany] = useState<boolean>(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,6 +68,13 @@ const ClientProfile = () => {
                         typePrice: clientResponse.data.typePrice || '',
                     });
                 }
+
+                // Fetch company data
+                const companyResponse = await clientService.getClientCompanies(clientId);
+                if (companyResponse.status === 200 && companyResponse.data && companyResponse.data.length > 0) {
+                    setCompany(companyResponse.data[0]);
+                    setHasCompany(true);
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 notification.error({
@@ -73,7 +89,7 @@ const ClientProfile = () => {
         if (userId) {
             fetchUserData();
         }
-    }, [userId]);
+    }, [userId, clientId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -116,6 +132,84 @@ const ClientProfile = () => {
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCompanySubmit = async () => {
+        try {
+            setCompanyLoading(true);
+
+            if (hasCompany && company.id) {
+                // Update existing company
+                const { companyName, address, phoneContact, industry } = company;
+                const updateResponse = await clientService.updateCompany(company.id, {
+                    companyName,
+                    address,
+                    phoneContact,
+                    industry
+                });
+
+                if (updateResponse.status === 200) {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Cập nhật thông tin công ty thành công!',
+                    });
+                }
+            } else {
+                // Create new company
+                const createResponse = await clientService.createCompany({
+                    ...company,
+                    clientId
+                });
+
+                if (createResponse.status === 201 && createResponse.data) {
+                    setCompany(createResponse.data);
+                    setHasCompany(true);
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Thêm mới công ty thành công!',
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error saving company data:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể lưu thông tin công ty. Vui lòng thử lại sau.',
+            });
+        } finally {
+            setCompanyLoading(false);
+        }
+    };
+
+    const handleDeleteCompany = async () => {
+        if (!company.id) return;
+
+        try {
+            setCompanyLoading(true);
+            const deleteResponse = await clientService.deleteCompany(company.id);
+
+            if (deleteResponse.status === 204) {
+                setCompany({
+                    companyName: '',
+                    address: '',
+                    phoneContact: '',
+                    industry: ''
+                });
+                setHasCompany(false);
+                notification.success({
+                    message: 'Thành công',
+                    description: 'Xóa thông tin công ty thành công!',
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting company:', error);
+            notification.error({
+                message: 'Lỗi',
+                description: 'Không thể xóa thông tin công ty. Vui lòng thử lại sau.',
+            });
+        } finally {
+            setCompanyLoading(false);
         }
     };
 
@@ -174,6 +268,7 @@ const ClientProfile = () => {
             }
         }
     };
+
     if (fetching) {
         return (
             <div className="flex justify-center items-center h-64 ">
@@ -182,10 +277,11 @@ const ClientProfile = () => {
             </div>
         );
     }
+
     return (
         <div className='max-w-4xl mx-auto'>
             <form onSubmit={handleSubmit}>
-                <Card className="p-6">
+                <Card className="p-6 mb-6">
                     <FadeInWhenVisible>
                         <div className="flex items-center gap-6 mb-8">
                             <div className="relative">
@@ -385,8 +481,121 @@ const ClientProfile = () => {
                     </div>
                 </Card>
             </form>
-        </div>
 
+            {/* Company Information Section */}
+            <Card className="p-6">
+                <FadeInWhenVisible>
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center">
+                            <Building className="h-5 w-5 mr-2" />
+                            <h3 className="text-xl font-bold">Thông tin công ty</h3>
+                        </div>
+                        {hasCompany && (
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={handleDeleteCompany}
+                                disabled={companyLoading}
+                            >
+                                {companyLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Xóa
+                                    </>
+                                )}
+                            </Button>
+                        )}
+                    </div>
+                </FadeInWhenVisible>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FadeInWhenVisible delay={0.1}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Tên công ty</label>
+                            <Input
+                                value={company.companyName}
+                                onChange={(e) =>
+                                    setCompany({ ...company, companyName: e.target.value })
+                                }
+                                placeholder="Nhập tên công ty"
+                            />
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.2}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Ngành nghề</label>
+                            <Input
+                                value={company.industry}
+                                onChange={(e) =>
+                                    setCompany({ ...company, industry: e.target.value })
+                                }
+                                placeholder="Nhập ngành nghề kinh doanh"
+                            />
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.3}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Số điện thoại liên hệ</label>
+                            <div className="relative">
+                                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="tel"
+                                    className="pl-10"
+                                    value={company.phoneContact}
+                                    onChange={(e) =>
+                                        setCompany({ ...company, phoneContact: e.target.value })
+                                    }
+                                    placeholder="Nhập số điện thoại liên hệ"
+                                />
+                            </div>
+                        </div>
+                    </FadeInWhenVisible>
+
+                    <FadeInWhenVisible delay={0.4}>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Địa chỉ công ty</label>
+                            <div className="relative">
+                                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    className="pl-10"
+                                    value={company.address}
+                                    onChange={(e) =>
+                                        setCompany({ ...company, address: e.target.value })
+                                    }
+                                    placeholder="Nhập địa chỉ công ty"
+                                />
+                            </div>
+                        </div>
+                    </FadeInWhenVisible>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                    <Button
+                        type="button"
+                        onClick={handleCompanySubmit}
+                        disabled={companyLoading}
+                    >
+                        {companyLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Đang lưu...
+                            </>
+                        ) : hasCompany ? (
+                            'Cập nhật thông tin công ty'
+                        ) : (
+                            <>
+                                <Plus className="h-4 w-4 mr-1" />
+                                Thêm công ty
+                            </>
+                        )}
+                    </Button>
+                </div>
+            </Card>
+        </div>
     );
 };
 
