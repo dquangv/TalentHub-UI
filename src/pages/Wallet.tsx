@@ -72,6 +72,8 @@ const Wallet = () => {
     latestSpendingDate: "",
     oldestTransactionDate: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [searchKeyword, setSearchKeyword] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
@@ -148,7 +150,10 @@ const Wallet = () => {
       console.log(error);
     }
   };
-
+  const paginatedTransactions = transactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
   const filterTransactions = (transactions: Transaction[]) => {
     const now = new Date();
 
@@ -573,7 +578,7 @@ const Wallet = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filterTransactions(transactions).map((transaction) => (
+                        {filterTransactions(paginatedTransactions).map((transaction) => (
                           <TableRow key={transaction.id}>
                             <TableCell>
                               {transaction.createdAt
@@ -632,13 +637,39 @@ const Wallet = () => {
                   {/* Pagination */}
                   <div className="flex items-center justify-between mt-6">
                     <p className="text-sm text-muted-foreground">
-                      Hiển thị 1-10 của 24 giao dịch
+                      Hiển thị {(currentPage - 1) * itemsPerPage + 1}-
+                      {Math.min(
+                        currentPage * itemsPerPage,
+                        transactions.length
+                      )}{" "}
+                      của {transactions.length} giao dịch
                     </p>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" disabled>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={currentPage === 1}
+                        onClick={() =>
+                          setCurrentPage((prev) => Math.max(prev - 1, 1))
+                        }
+                      >
                         Trước
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          currentPage * itemsPerPage >= transactions.length
+                        }
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(
+                              prev + 1,
+                              Math.ceil(transactions.length / itemsPerPage)
+                            )
+                          )
+                        }
+                      >
                         Tiếp
                       </Button>
                     </div>
