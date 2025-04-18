@@ -37,7 +37,9 @@ import {
   Banknote,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
-
+import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 interface Payments {
   balance: number;
   latestDeposit: number;
@@ -231,6 +233,55 @@ const Wallet = () => {
     getBalancerClient();
     getTransactionsClient();
   }, [userId]);
+
+  const exportToExcelStyled = async (
+    dataSource: Transaction[],
+    fileName: string
+  ) => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Giao dịch");
+
+    // Thêm header
+    worksheet.columns = [
+      { header: "STT", key: "index", width: 10 },
+      { header: "Số tiền", key: "money", width: 15 },
+      { header: "Loại", key: "activity", width: 10 },
+      { header: "Ngày giao dịch", key: "createdAt", width: 20 },
+      { header: "Mô tả", key: "description", width: 30 },
+      { header: "Trạng thái", key: "status", width: 15 },
+    ];
+
+    // Ghi dữ liệu
+    dataSource.forEach((item) => {
+      worksheet.addRow({
+        index: item.id,
+        money: item.money,
+        activity: item.activity,
+        createdAt: item.createdAt, 
+        description: item.description, 
+        status: item.status,
+      });
+    });
+
+    // Style cho header
+    worksheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF4CAF50" }, 
+      };
+      cell.alignment = { vertical: "middle", horizontal: "center" };
+
+    });
+
+    // Ghi file
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+    saveAs(blob, `${fileName}.xlsx`);
+  };
 
   return (
     <div className="py-12">
@@ -520,7 +571,13 @@ const Wallet = () => {
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Làm mới
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button
+                        onClick={() =>
+                          exportToExcelStyled(transactions, "Lịch sử giao dịch")
+                        }
+                        variant="outline"
+                        size="sm"
+                      >
                         <Download className="w-4 h-4 mr-2" />
                         Xuất Excel
                       </Button>
