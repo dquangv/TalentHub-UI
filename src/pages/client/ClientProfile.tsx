@@ -68,6 +68,13 @@ const ClientProfile = () => {
                         typePrice: clientResponse.data.typePrice || '',
                     });
                 }
+
+                // Fetch company data
+                const companyResponse = await clientService.getClientCompanies(clientId);
+                if (companyResponse.status === 200 && companyResponse.data && companyResponse.data.length > 0) {
+                    setCompany(companyResponse.data[0]);
+                    setHasCompany(true);
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error);
                 notification.error({
@@ -82,7 +89,7 @@ const ClientProfile = () => {
         if (userId) {
             fetchUserData();
         }
-    }, [userId]);
+    }, [userId, clientId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
