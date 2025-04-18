@@ -250,6 +250,12 @@ const Applicants = () => {
         message: "Thành công",
         description: "Chấp thuận thành công",
       });
+      console.log('applicants ', applicants)
+      if(applicants.length > 0){
+       const jobId = applicants[0]?.jobId
+       await api.get(`/v1/jobs/close-job/${jobId}`)
+      }
+      // await api.get('close-job')
       fetchApplicants();
     } catch (err) {
       notification.error({
