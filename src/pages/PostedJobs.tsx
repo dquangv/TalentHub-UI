@@ -474,11 +474,12 @@ const PostedJobs = () => {
                                 size="sm"
                                 variant="outline"
                                 className="text-green-600"
-                                disabled={!["OPEN", "POSTED"].includes(job.status)}
+                                // disabled={!["OPEN", "POSTED"].includes(job.status)}
                               >
                                 <Link
-                                  to={["OPEN", "POSTED"].includes(job.status) ? `/client/applicants/${job.id}` : "#"}
-                                  className={!["OPEN", "POSTED"].includes(job.status) ? "pointer-events-none" : ""}
+                                  // to={["OPEN", "POSTED"].includes(job.status) ? `/client/applicants/${job.id}` : "#"}
+                                  to={`/client/applicants/${job.id}`}
+                                  // className={!["OPEN", "POSTED"].includes(job.status) ? "pointer-events-none" : ""}
                                 >
                                   <Users className="w-4 h-4" />
                                 </Link>

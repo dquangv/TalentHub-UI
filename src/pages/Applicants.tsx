@@ -74,6 +74,23 @@ const Applicants = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [enableAction, setEnableAction] = useState(false)
+  async function fetchJob(jobId: any) {
+    await api.get(`/v1/jobs/detail-job/${jobId}`).then(result => {
+      if (result?.data?.status == "Đóng") {
+        setEnableAction(true)
+      }
+    })
+  }
+  useEffect(() => {
+    if (applicants?.length > 0) {
+      const jobId = applicants[0]?.jobId
+      if(jobId){
+        fetchJob(jobId)
+      }
+    }
+  }, [applicants])
+
   const fetchApplicants = async () => {
     setLoading(true);
     try {
@@ -128,6 +145,8 @@ const Applicants = () => {
         return "Hoàn thành";
       case "Cancelled":
         return "Đã hủy";
+      case "Approved":
+        return "Đã chấp thuận";
       default:
         return status;
     }
@@ -241,6 +260,7 @@ const Applicants = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
 
   async function handleApproved(data) {
     setLoading(true);
@@ -250,6 +270,14 @@ const Applicants = () => {
         message: "Thành công",
         description: "Chấp thuận thành công",
       });
+      console.log('applicants ', applicants)
+      if(applicants.length > 0) {
+        const jobId = applicants[0]?.jobId
+        await api.get(`/v1/jobs/close-job/${jobId}`).then(() => {
+          fetchJob(jobId)
+        })
+      }
+      // await api.get('close-job')
       fetchApplicants();
     } catch (err) {
       notification.error({
@@ -489,7 +517,8 @@ const Applicants = () => {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
-                                disabled={applicant.status !== "Applied"}
+                                // disabled={applicant.status !== "Applied"}
+                                disabled={enableAction}
                                 onClick={() =>
                                   handleApproved({
                                     jobId: applicant?.jobId,
@@ -515,7 +544,8 @@ const Applicants = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={applicant.status !== "Applied"}
+                                // disabled={applicant.status !== "Applied"}
+                                disabled={enableAction}
                                 onClick={() =>
                                   handleReject({
                                     jobId: applicant?.jobId,
