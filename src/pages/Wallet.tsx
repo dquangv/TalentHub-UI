@@ -58,7 +58,6 @@ interface Transaction {
 
 const Wallet = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -150,49 +149,60 @@ const Wallet = () => {
     }
   };
 
-  const filterTransactionsByDate = (transactions: Transaction[]) => {
+  const filterTransactions = (transactions: Transaction[]) => {
     const now = new Date();
 
-    switch (dateFilter) {
-      case "today":
-        return transactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          return (
-            transactionDate.getDate() === now.getDate() &&
-            transactionDate.getMonth() === now.getMonth() &&
-            transactionDate.getFullYear() === now.getFullYear()
-          );
-        });
+    return transactions
+      .filter((transaction) => {
+        // Lọc theo thời gian
+        switch (dateFilter) {
+          case "today": {
+            const transactionDate = new Date(transaction.createdAt);
+            return (
+              transactionDate.getDate() === now.getDate() &&
+              new Date(transaction.createdAt).getMonth() === now.getMonth() &&
+              new Date(transaction.createdAt).getFullYear() ===
+                now.getFullYear()
+            );
+          }
+          case "week": {
+            const startOfWeek = new Date(
+              now.setDate(now.getDate() - now.getDay() + 1)
+            ); // Start of the week (Monday)
+            const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6)); // End of the week (Sunday)
+            const transactionDate = new Date(transaction.createdAt);
+            return (
+              transactionDate >= startOfWeek && transactionDate <= endOfWeek
+            );
+          }
+          case "month":
+            return (
+              new Date(transaction.createdAt).getMonth() === now.getMonth() &&
+              new Date(transaction.createdAt).getFullYear() ===
+                now.getFullYear()
+            );
+          case "year":
+            return (
+              new Date(transaction.createdAt).getFullYear() ===
+              now.getFullYear()
+            );
+          default:
+            return true; // "all"
+        }
+      })
+      .filter((transaction) => {
+        // Lọc theo loại giao dịch
+        if (typeFilter === "all") return true;
+        console.log(transaction.activity);
+        console.log(typeFilter);
 
-      case "week": {
-        const startOfWeek = new Date(
-          now.setDate(now.getDate() - now.getDay() + 1)
-        ); // Start of the week (Monday)
-        const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6)); // End of the week (Sunday)
-        return transactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          return transactionDate >= startOfWeek && transactionDate <= endOfWeek;
-        });
-      }
-
-      case "month":
-        return transactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          return (
-            transactionDate.getMonth() === now.getMonth() &&
-            transactionDate.getFullYear() === now.getFullYear()
-          );
-        });
-
-      case "year":
-        return transactions.filter((transaction) => {
-          const transactionDate = new Date(transaction.createdAt);
-          return transactionDate.getFullYear() === now.getFullYear();
-        });
-
-      default:
-        return transactions; // "all" or any other value
-    }
+        return transaction.activity === typeFilter;
+      })
+      .filter((transaction) => {
+        // Lọc theo trạng thái giao dịch
+        if (statusFilter === "all") return true;
+        return transaction.status === statusFilter;
+      });
   };
   const getTransactionsClient = async () => {
     try {
@@ -530,9 +540,8 @@ const Wallet = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tất cả</SelectItem>
-                        <SelectItem value="deposit">Nạp tiền</SelectItem>
-                        <SelectItem value="payment">Thanh toán</SelectItem>
-                        <SelectItem value="refund">Hoàn tiền</SelectItem>
+                        <SelectItem value="Nạp tiền">Nạp tiền</SelectItem>
+                        <SelectItem value="Rút tiền">Rút tiền</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select
@@ -544,9 +553,8 @@ const Wallet = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Tất cả</SelectItem>
-                        <SelectItem value="completed">Hoàn thành</SelectItem>
-                        <SelectItem value="pending">Đang xử lý</SelectItem>
-                        <SelectItem value="failed">Thất bại</SelectItem>
+                        <SelectItem value="SUCCESS">Thành Công</SelectItem>
+                        <SelectItem value="FAILED">Thất bại</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -565,60 +573,58 @@ const Wallet = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filterTransactionsByDate(transactions).map(
-                          (transaction) => (
-                            <TableRow key={transaction.id}>
-                              <TableCell>
-                                {transaction.createdAt
-                                  ? new Intl.DateTimeFormat("vi-VN", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    }).format(new Date(transaction.createdAt))
-                                  : "Không rõ thời gian"}
-                              </TableCell>
-                              <TableCell>{transaction.description}</TableCell>
-                              <TableCell>
-                                <Badge
-                                  className={`${
-                                    transaction.activity === "Nạp tiền"
-                                      ? "bg-green-100 text-green-700"
-                                      : transaction.activity === "Rút tiền"
-                                      ? "bg-yellow-100 text-yellow-700"
-                                      : "bg-amber-100 text-amber-700"
-                                  }`}
-                                >
-                                  {transaction.activity}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(transaction.money)}
-                              </TableCell>
-                              <TableCell>
-                                <Badge
-                                  className={`${
-                                    transaction.status === "SUCCESS"
-                                      ? "bg-green-200 text-green-800"
-                                      : transaction.status === "PENDING"
-                                      ? "bg-yellow-200 text-yellow-800"
-                                      : "bg-red-200 text-red-800"
-                                  }`}
-                                >
-                                  {transaction.status === "SUCCESS"
-                                    ? "Thành công"
+                        {filterTransactions(transactions).map((transaction) => (
+                          <TableRow key={transaction.id}>
+                            <TableCell>
+                              {transaction.createdAt
+                                ? new Intl.DateTimeFormat("vi-VN", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }).format(new Date(transaction.createdAt))
+                                : "Không rõ thời gian"}
+                            </TableCell>
+                            <TableCell>{transaction.description}</TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`${
+                                  transaction.activity === "Nạp tiền"
+                                    ? "bg-green-100 text-green-700"
+                                    : transaction.activity === "Rút tiền"
+                                    ? "bg-yellow-100 text-yellow-700"
+                                    : "bg-amber-100 text-amber-700"
+                                }`}
+                              >
+                                {transaction.activity}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(transaction.money)}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`${
+                                  transaction.status === "SUCCESS"
+                                    ? "bg-green-200 text-green-800"
                                     : transaction.status === "PENDING"
-                                    ? "Đang xử lý"
-                                    : "Thất bại"}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        )}
+                                    ? "bg-yellow-200 text-yellow-800"
+                                    : "bg-red-200 text-red-800"
+                                }`}
+                              >
+                                {transaction.status === "SUCCESS"
+                                  ? "Thành công"
+                                  : transaction.status === "PENDING"
+                                  ? "Đang xử lý"
+                                  : "Thất bại"}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </div>
