@@ -268,6 +268,7 @@ const ClientProfile = () => {
             }
         }
     };
+
     if (fetching) {
         return (
             <div className="flex justify-center items-center h-64 ">
@@ -276,10 +277,11 @@ const ClientProfile = () => {
             </div>
         );
     }
+
     return (
         <div className='max-w-4xl mx-auto'>
             <form onSubmit={handleSubmit}>
-                <Card className="p-6">
+                <Card className="p-6 mb-6">
                     <FadeInWhenVisible>
                         <div className="flex items-center gap-6 mb-8">
                             <div className="relative">
