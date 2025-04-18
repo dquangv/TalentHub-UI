@@ -115,7 +115,7 @@ const AdminSelectionModal: React.FC<AdminSelectionModalProps> = ({
                     {searchQuery ? 'Không tìm thấy admin phù hợp' : 'Không có admin nào đang hoạt động'}
                 </div>
             ) : (
-                <ScrollArea className={embedded ? "h-[40vh]" : "h-[50vh]"} className="pr-4">
+                <ScrollArea className={embedded ? "h-[40vh]" : "h-[50vh]"}>
                     <div className="space-y-4">
                         {filteredAdmins.map((admin) => (
                             <motion.div
