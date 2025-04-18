@@ -74,6 +74,21 @@ const Applicants = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  async function fetchJob(jobId: any) {
+    await api.get(`/v1/jobs/detail-job/${jobId}`).then(result => {
+      if (result?.data?.status == "Đóng") {
+      }
+    })
+  }
+  useEffect(() => {
+    if (applicants?.length > 0) {
+      const jobId = applicants[0]?.jobId
+      if(jobId){
+        fetchJob(jobId)
+      }
+    }
+  }, [applicants])
+
   const fetchApplicants = async () => {
     setLoading(true);
     try {
@@ -241,6 +256,7 @@ const Applicants = () => {
   if (error) {
     return <div>{error}</div>;
   }
+  
 
   async function handleApproved(data) {
     setLoading(true);
@@ -251,9 +267,11 @@ const Applicants = () => {
         description: "Chấp thuận thành công",
       });
       console.log('applicants ', applicants)
-      if(applicants.length > 0){
-       const jobId = applicants[0]?.jobId
-       await api.get(`/v1/jobs/close-job/${jobId}`)
+      if(applicants.length > 0) {
+        const jobId = applicants[0]?.jobId
+        await api.get(`/v1/jobs/close-job/${jobId}`).then(() => {
+          fetchJob(jobId)
+        })
       }
       // await api.get('close-job')
       fetchApplicants();
