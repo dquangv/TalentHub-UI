@@ -73,6 +73,7 @@ const Wallet = () => {
     latestSpendingDate: "",
     oldestTransactionDate: "",
   });
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: 0,
@@ -461,10 +462,10 @@ const Wallet = () => {
                   <div className="flex flex-col md:flex-row gap-4 mb-6">
                     <div className="flex-1">
                       <Input
-                        placeholder="Tìm kiếm giao dịch..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full"
+                        placeholder="Tìm kiếm mô tả..."
+                        value={searchKeyword}
+                        onChange={(e) => setSearchKeyword(e.target.value)}
+                        className="mb-4"
                       />
                     </div>
                     <Select value={dateFilter} onValueChange={setDateFilter}>
@@ -520,91 +521,64 @@ const Wallet = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {transactions.map((transaction) => (
-                          <TableRow key={transaction.id}>
-                            <TableCell className="font-medium hidden">
-                              {transaction.id}
-                            </TableCell>
-
-                            <TableCell>
-                              {transaction.createdAt
-                                ? new Intl.DateTimeFormat("vi-VN", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }).format(new Date(transaction.createdAt))
-                                : "Không rõ thời gian"}
-                            </TableCell>
-
-                            <TableCell>{transaction.description}</TableCell>
-
-                            {/* Activity Badge */}
-                            <TableCell>
-                              <Badge
-                                className={`
-          border-none
-          ${
-            transaction.activity === "Nạp tiền"
-              ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-              : transaction.activity === "Rút tiền"
-              ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400"
-              : "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
-          }
-        `}
-                              >
-                                {transaction.activity === "Nạp tiền"
-                                  ? "Nạp tiền"
-                                  : transaction.activity === "Rút tiền"
-                                  ? "Rút tiền"
-                                  : "Thanh toán"}
-                              </Badge>
-                            </TableCell>
-
-                            {/* Số tiền hiển thị */}
-                            <TableCell
-                              className={`font-medium ${
-                                transaction.activity === "Nạp tiền"
-                                  ? "text-green-600 dark:text-green-400"
-                                  : transaction.activity === "Rút tiền"
-                                  ? "text-yellow-600 dark:text-yellow-400"
-                                  : "text-amber-600 dark:text-amber-400"
-                              }`}
-                            >
-                              {(transaction.activity === "Nạp tiền" ||
-                              transaction.activity === "Rút tiền"
-                                ? "+"
-                                : "-") +
-                                new Intl.NumberFormat("vi-VN", {
+                        {transactions
+                          .filter((transaction) =>
+                            transaction.description
+                              .toLowerCase()
+                              .includes(searchKeyword.toLowerCase())
+                          )
+                          .map((transaction) => (
+                            <TableRow key={transaction.id}>
+                              <TableCell>
+                                {transaction.createdAt
+                                  ? new Intl.DateTimeFormat("vi-VN", {
+                                      day: "2-digit",
+                                      month: "2-digit",
+                                      year: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    }).format(new Date(transaction.createdAt))
+                                  : "Không rõ thời gian"}
+                              </TableCell>
+                              <TableCell>{transaction.description}</TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${
+                                    transaction.activity === "Nạp tiền"
+                                      ? "bg-green-100 text-green-700"
+                                      : transaction.activity === "Rút tiền"
+                                      ? "bg-yellow-100 text-yellow-700"
+                                      : "bg-amber-100 text-amber-700"
+                                  }`}
+                                >
+                                  {transaction.activity}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {new Intl.NumberFormat("vi-VN", {
                                   style: "currency",
                                   currency: "VND",
                                 }).format(transaction.money)}
-                            </TableCell>
-
-                            {/* Status Badge */}
-                            <TableCell>
-                              <Badge
-                                className={`
-          border-none
-          ${
-            transaction.status === "SUCCESS"
-              ? "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-              : transaction.status === "PENDING"
-              ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-              : "bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-          }
-        `}
-                              >
-                                {transaction.status === "SUCCESS"
-                                  ? "Thành công"
-                                  : transaction.status === "PENDING"
-                                  ? "Đang xử lý"
-                                  : "Thất bại"}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${
+                                    transaction.status === "SUCCESS"
+                                      ? "bg-green-200 text-green-800"
+                                      : transaction.status === "PENDING"
+                                      ? "bg-yellow-200 text-yellow-800"
+                                      : "bg-red-200 text-red-800"
+                                  }`}
+                                >
+                                  {transaction.status === "SUCCESS"
+                                    ? "Thành công"
+                                    : transaction.status === "PENDING"
+                                    ? "Đang xử lý"
+                                    : "Thất bại"}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          ))}
                       </TableBody>
                     </Table>
                   </div>
