@@ -45,7 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { useAuth } from "@/contexts/AuthContext";
+// import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export const trialFeatures = [
@@ -307,13 +307,13 @@ const Pricing = () => {
   const getTypePayment = (typePackage: string) => {
     switch (typePackage) {
       case "SILVER":
-        return "Thanh toán gói bạc";
+        return "bạc";
       case "GOLD":
-        return "Thanh toán gói vàng";
+        return "vàng";
       case "DIAMOND":
-        return "Thanh toán gói kim cương";
+        return "kim cương";
       default:
-        return "Thanh toán gói khác";
+        return "khác";
     }
   };
 
@@ -330,7 +330,7 @@ const Pricing = () => {
       // Gọi thanh toán trước
       const { success, error } = await fetchVnPayWithCallback(
         selectedPlan.price,
-        typePayment
+        "Thanh toán gói " + typePayment
       );
 
       if (!success) {
@@ -343,6 +343,13 @@ const Pricing = () => {
           }, 0);
         }
         return;
+      } else {
+        setTimeout(() => {
+          messageApi.open({
+            type: "success",
+            content: `Bạn đã đăng ký thành công gói ${typePayment}`,
+          });
+        }, 0);
       }
 
       const subscribeData = {
@@ -379,7 +386,7 @@ const Pricing = () => {
   }
 
   // Function to get the appropriate icon for each package type
-  const getPackageIcon = (typePackage) => {
+  const getPackageIcon = (typePackage: string) => {
     switch (typePackage) {
       case "Dùng thử":
         return <Sparkles className="w-8 h-8 text-primary" />;
@@ -397,7 +404,7 @@ const Pricing = () => {
   };
 
   // Function to determine if a plan should show the "popular" badge
-  const isPopularPlan = (plan) => {
+  const isPopularPlan = (plan: VoucherPackage) => {
     return plan.status && plan.typePackage == "GOLD";
   };
 
