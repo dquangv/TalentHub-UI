@@ -276,7 +276,7 @@ const PostedJobs = () => {
         <FadeInWhenVisible>
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Công việc đã đăng</h1>
+              <h1 className="text-3xl font-bold mb-2">Quản lý bài đăng</h1>
               <p className="text-muted-foreground">
                 Quản lý và theo dõi các tin tuyển dụng của bạn
               </p>

@@ -237,6 +237,34 @@ const Pricing = () => {
     setShowPackageDetails(true);
     await Promise.all([fetchCurrentPackage(), fetchPackageHistory()]);
   };
+  const fetchVnPayWithCallback = async (amount: number, desc: string) => {
+    try {
+      const userInfoStr = localStorage.getItem("userInfo");
+
+      if (!userInfoStr) {
+        console.error("User info not found in localStorage");
+        return;
+      }
+
+      const userInfo = JSON.parse(userInfoStr);
+      const userId = userInfo?.userId;
+
+      if (!userId) {
+        console.error("User ID not found in user info");
+        return;
+      }
+
+      const response = await api.post(
+        `/v1/payments/vnpay-with-callback?vnp_Amount=${amount}&userId=${userId}&desc=${desc}`
+      );
+
+      console.log("payment", response.data);
+    } catch (err) {
+      console.error("Error fetching payment vnpay-with-callback:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchVoucherPackageList = async () => {
     try {
@@ -272,6 +300,19 @@ const Pricing = () => {
     setShowConfirmDialog(true);
   };
 
+  const getTypePayment = (typePackage: string) => {
+    switch (typePackage) {
+      case "SILVER":
+        return "Thanh toán gói bạc";
+      case "GOLD":
+        return "Thanh toán gói vàng";
+      case "DIAMOND":
+        return "Thanh toán gói kim cương";
+      default:
+        return "Thanh toán gói khác";
+    }
+  };
+
   const confirmSubscribe = async () => {
     if (!selectedPlan) return;
 
@@ -288,11 +329,13 @@ const Pricing = () => {
         typePackage: selectedPlan.typePackage,
         clientId: userInfo.clientId,
       };
+      const typePayment = getTypePayment(selectedPlan.typePackage);
 
       const response = await api.post(
         "/v1/clients/soldpackages",
         subscribeData
       );
+      fetchVnPayWithCallback(selectedPlan.price, typePayment);
 
       if (response.status === 201) {
         fetchVoucherPackageListByClientId(userInfo.clientId);
@@ -596,7 +639,7 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedPlan?.name} bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn
+              Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn
               đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -137,7 +137,7 @@ const Navbar = () => {
 
   const clientMenuItems = [
     { to: "/client/post-job", label: "Đăng việc làm", icon: Plus },
-    { to: "/client/posted-jobs", label: "Đã đăng", icon: FileCheck2 },
+    { to: "/client/posted-jobs", label: "Quản lý bài đăng", icon: FileCheck2 },
     { to: "/client/appointment", label: "Lịch hẹn", icon: BookMarked },
   ];
 
