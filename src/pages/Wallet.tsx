@@ -180,9 +180,20 @@ const Wallet = () => {
       .filter((transaction) => {
         // Lọc theo từ khóa tìm kiếm
         if (searchKeyword.trim() !== "") {
-          return transaction.description
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase());
+          return (
+            transaction.description
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase()) ||
+            transaction.activity
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase()) ||
+            transaction.status
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase()) ||
+            transaction.createdAt
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase())
+          );
         }
         return true; // Nếu không có từ khóa, trả về tất cả
       })
