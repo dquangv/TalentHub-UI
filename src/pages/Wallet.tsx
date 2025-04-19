@@ -561,7 +561,7 @@ const Wallet = () => {
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         <span>
-                          Tiền đã nạp vào ví thành công sẽ không thể rút lại.
+                          Tiền đã nạp vào ví thành công sẽ không thể hoàn lại.
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -786,8 +786,8 @@ const Wallet = () => {
                               value={depositAmount}
                               onChange={(e) => setDepositAmount(e.target.value)}
                             />
-                            <Label>Lưu ý mức tối thiếu là 50.000 VND</Label>{" "}
-                            <span className="text-red-500">*</span>
+                            {/* <Label>Lưu ý mức tối thiếu là 50.000 VND</Label>{" "}
+                            <span className="text-red-500">*</span> */}
                           </div>
                         </div>
 
@@ -1019,20 +1019,20 @@ const Wallet = () => {
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Tiền đã nạp vào ví thành công sẽ không thể rút
-                              lại.
+                              Tiền đã nạp vào ví thành công sẽ <strong>không thể hoàn
+                              lại</strong>.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Số tiền tối thiểu cho mỗi lần nạp là 50.000đ.
+                              Số tiền tối thiểu cho mỗi lần nạp là <strong>50.000đ</strong>.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Vui lòng kiểm tra kỹ thông tin trước khi thực hiện
+                              Vui lòng <strong>kiểm tra kỹ thông tin</strong> trước khi thực hiện
                               giao dịch.
                             </span>
                           </li>

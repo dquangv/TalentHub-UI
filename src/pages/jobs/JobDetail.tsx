@@ -32,7 +32,7 @@ import {
 interface JobDetailResponse {
   id: number;
   title: string;
-  companyName: string;
+  companyName?: string;
   clientId: number;
   firstName: string;
   lastName: string;
@@ -280,11 +280,13 @@ const JobDetail = () => {
                 <div>
                   <h1 className="text-3xl font-bold mb-2">{job.title}</h1>
                   <div className="flex flex-wrap gap-4 text-muted-foreground mb-4">
-                    <div className="flex items-center">
-                      <Briefcase className="w-4 h-4 mr-2" />
-                      {job.companyName}
-                    </div>
-                    <Link to={`/client/${job.clientId}`}>
+                    {job?.companyName && (
+                      <div className="flex items-center">
+                        <Briefcase className="w-4 h-4 mr-2" />
+                        {job.companyName}
+                      </div>
+                    )}
+                    <Link to={`/clients/${job.clientId}`}>
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2" />
                         {job.firstName + " " + job.lastName}
@@ -360,7 +362,7 @@ const JobDetail = () => {
                     <p className="text-sm text-muted-foreground">Ngân sách</p>
                     <p className="font-semibold text-sm">
                       {new Intl.NumberFormat("vi-VN").format(job.fromPrice)} -{" "}
-                      {new Intl.NumberFormat("vi-VN").format(job.toPrice)}
+                      {new Intl.NumberFormat("vi-VN").format(job.toPrice)} VNĐ
                     </p>
                   </div>
                 </div>
