@@ -282,7 +282,11 @@ const Pricing = () => {
     }
   };
 
-  const fetchVoucherPackageListByClientId = async (clientId: boolean) => {
+  const fetchVoucherPackageListByClientId = async (clientId?: string) => {
+    if (!clientId) {
+      setIsLoading(false)
+      return;
+    }
     try {
       const response = await api.get(
         "/v1/voucher-packages/all-voucher/client",
