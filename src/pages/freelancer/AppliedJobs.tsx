@@ -27,6 +27,7 @@ import {
   Calendar,
   Send,
   Star,
+  User,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
@@ -67,13 +68,13 @@ const AppliedJobs = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending":
+      case "Applied":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
       case "interviewing":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
-      case "accepted":
+      case "Approved":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "rejected":
+      case "Rejected":
         return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
       case "Completed":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
@@ -84,11 +85,11 @@ const AppliedJobs = () => {
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "applied":
+      case "Applied":
         return "Đã ứng tuyển";
-      case "rejected":
+      case "Rejected":
         return "Bị từ chối";
-      case "approved":
+      case "Approved":
         return "Được chấp thuận";
       // case 'cancelled':
       //   return 'Đã hủy';
@@ -155,7 +156,8 @@ const AppliedJobs = () => {
     const matchesSearch =
       job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       job.companyName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || job.status?.toLowerCase() == statusFilter;
+    const matchesStatus =
+      statusFilter === "all" || job.status?.toLowerCase() == statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -223,7 +225,6 @@ const AppliedJobs = () => {
                             {job.jobTitle}
                           </h3>
                         </Link>
-                   
                       </div>
 
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
@@ -273,9 +274,9 @@ const AppliedJobs = () => {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                    <Badge className={getStatusColor(job.status)}>
-                          {getStatusText(job.status)}
-                        </Badge>
+                      <Badge className={getStatusColor(job.status)}>
+                        {getStatusText(job.status)}
+                      </Badge>
                       <Button asChild>
                         <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
                       </Button>
