@@ -199,6 +199,7 @@ const Pricing = () => {
 
       const userInfo = JSON.parse(userInfoStr);
       const clientId = userInfo?.clientId;
+      if (!clientId) return;
 
       const response = await api.get(
         `/v1/clients/soldpackages/history/${clientId}`
