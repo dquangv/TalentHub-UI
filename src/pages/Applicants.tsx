@@ -139,12 +139,10 @@ const Applicants = () => {
         return "Đã ứng tuyển";
       case "Viewed":
         return "Đã xem";
-      case "In Progress":
-        return "Đang thực hiện";
-      case "Completed":
-        return "Hoàn thành";
-      case "Cancelled":
-        return "Đã hủy";
+      case "Rejected":
+        return "Từ chối";
+      // case "Cancelled":
+      //   return "Đã hủy";
       case "Approved":
         return "Đã chấp thuận";
       default:
