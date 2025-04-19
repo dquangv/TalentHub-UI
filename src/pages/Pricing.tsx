@@ -665,8 +665,9 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác,
-              gói cũ sẽ mất. Bạn đã chắc chắn chưa?
+              {selectedPlan?.typePackage !== "NORMAL" && !selectedPlan?.myPackage
+                ? "Bạn có chắc chắn muốn mua gói này không?"
+                : "Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
