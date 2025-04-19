@@ -431,7 +431,7 @@ const Pricing = () => {
               <p className="text-xl text-muted-foreground mb-8">
                 Tăng khả năng tiếp cận và nổi bật hơn với gói ưu tiên
               </p>
-              {isLogin && (
+              {isLogin || !JSON.parse(localStorage.getItem("userInfo")!).clientId && (
                 <div className="flex justify-center">
                   <Button
                     variant="outline"
@@ -514,19 +514,19 @@ const Pricing = () => {
                         <div className="mt-auto">
                           {(plan.typePackage !== "NORMAL" ||
                             plan.myPackage) && (
-                            <Button
-                              className="w-full"
-                              variant={
-                                plan.status && !plan.myPackage
-                                  ? "default"
-                                  : "outline"
-                              }
-                              disabled={plan.myPackage}
-                              onClick={() => handleSubscribe(plan)}
-                            >
-                              {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                            </Button>
-                          )}
+                              <Button
+                                className="w-full"
+                                variant={
+                                  plan.status && !plan.myPackage
+                                    ? "default"
+                                    : "outline"
+                                }
+                                disabled={plan.myPackage}
+                                onClick={() => handleSubscribe(plan)}
+                              >
+                                {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                              </Button>
+                            )}
                         </div>
                       </div>
                     </Card>
