@@ -58,10 +58,8 @@ const Applicants = () => {
   const [stats, setStats] = useState({
     total: 0,
     Applied: 0,
-    Viewed: 0,
-    InProgress: 0,
-    Completed: 0,
-    Cancelled: 0,
+    Rejected: 0,
+    Approved: 0,
   });
   const [previewVisible, setPreviewVisible] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState("");
@@ -100,10 +98,8 @@ const Applicants = () => {
       const newStats = {
         total: response.data.length,
         Applied: response.data.filter((a) => a.status === "Applied").length,
-        Viewed: response.data.filter((a) => a.status === "Viewed").length,
-        InProgress: response.data.filter((a) => a.status === "In Progress").length,
-        Completed: response.data.filter((a) => a.status === "Completed").length,
-        Cancelled: response.data.filter((a) => a.status === "Cancelled").length,
+        Rejected: response.data.filter((a) => a.status === "Rejected").length,
+        Approved: response.data.filter((a) => a.status === "Approved").length,
       };
       setStats(newStats);
       setError(null);
@@ -309,18 +305,18 @@ const Applicants = () => {
       icon: <Users className="w-8 h-8 text-primary" />,
     },
     {
-      label: "Đã hủy",
-      value: stats.Cancelled,
+      label: "Đã từ chối",
+      value: stats.Rejected,
       icon: <Clock className="w-8 h-8 text-yellow-500" />,
     },
     {
       label: "Đang thực hiện",
-      value: stats.InProgress,
+      value: stats.Approved,
       icon: <CheckCircle className="w-8 h-8 text-green-500" />,
     },
     {
-      label: "Hoàn thành",
-      value: stats.Completed,
+      label: "Đã ứng tuyển",
+      value: stats.Applied,
       icon: <CheckCircle className="w-8 h-8 text-blue-500" />,
     },
   ];
