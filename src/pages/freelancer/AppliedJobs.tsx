@@ -54,7 +54,10 @@ const AppliedJobs = () => {
       const response = await api.get(
         `/v1/jobs/ApplyJobs/${data?.freelancerId}`
       );
-      setAppliedJobs(response.data);
+      const sortedJobs = response?.data?.sort((a: any, b: any) => 
+        new Date(b.applyDate) - new Date(a.applyDate)
+      ) || [];
+      setAppliedJobs(sortedJobs);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching jobs:", error);
