@@ -106,31 +106,86 @@ const Register = () => {
       },
       (err) => {
         console.error("Error getting location: ", err);
-        // notification.error({
-        //   message: "Location Access Denied",
-        //   description: "Please allow location access to proceed with registration.",
-        // });
+        notification.warning({
+          message: "Cảnh báo vị trí",
+          description: "Không thể truy cập vị trí của bạn. Điều này có thể ảnh hưởng đến một số tính năng.",
+        });
       }
     );
   }, []);
- const { login } = useAuth();
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleProvinceChange = async (provinceCode) => {
+    const province = provinces.find(p => p.code.toString() === provinceCode.toString());
+    setSelectedProvince(province || null);
+  };
+
+  const handleDistrictChange = async (districtCode) => {
+    const district = districts.find(d => d.code.toString() === districtCode.toString());
+    setSelectedDistrict(district || null);
+  };
+
+  const handleWardChange = (wardCode) => {
+    const ward = wards.find(w => w.code.toString() === wardCode.toString());
+    setSelectedWard(ward || null);
+  };
+
+  const handleNextTab = () => {
+    if (activeTab === "basicInfo") {
+      // Validate basic info
+      if (!formData.email || !formData.password || !formData.confirmPassword || !formData.role) {
+        setError("Vui lòng điền đầy đủ thông tin cơ bản");
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError("Mật khẩu không khớp");
+        return;
+      }
+      setError("");
+      setActiveTab("personalInfo");
+    } else if (activeTab === "personalInfo") {
+      // Validate personal info
+      if (!formData.firstName || !formData.lastName || !formData.phoneNumber) {
+        setError("Vui lòng điền đầy đủ thông tin cá nhân");
+        return;
+      }
+      if (!selectedProvince || !selectedDistrict || !selectedWard) {
+        setError("Vui lòng chọn đầy đủ địa chỉ");
+        return;
+      }
+      setError("");
+      setActiveTab("professionalInfo");
+    }
+  };
+
+  const handlePrevTab = () => {
+    if (activeTab === "personalInfo") {
+      setActiveTab("basicInfo");
+    } else if (activeTab === "professionalInfo") {
+      setActiveTab("personalInfo");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu không khớp");
-      return;
-    }
-
+    // Final validation
     if (!formData.email || !formData.password || !formData.role) {
-      setError("Vui lòng điền tất cả thông tin");
+      setError("Vui lòng điền tất cả thông tin cơ bản");
+      setActiveTab("basicInfo");
       return;
     }
 
-    // if (!location.lat || !location.lng) {
-    //   setError("Vui lòng cho phép địa chỉ của bạn");
-    //   return;
-    // }
+    if (!formData.firstName || !formData.lastName || !formData.phoneNumber) {
+      setError("Vui lòng điền tất cả thông tin cá nhân");
+      setActiveTab("personalInfo");
+      return;
+    }
+
+    if (!selectedProvince || !selectedDistrict) {
+      setError("Vui lòng chọn đầy đủ địa chỉ");
+      setActiveTab("personalInfo");
+      return;
+    }
 
     setError("");
     setLoading(true);
@@ -138,13 +193,24 @@ const Register = () => {
     const status = formData.role === "FREELANCER" ? "Xác thực" : "Chưa xác thực";
 
     try {
+      // Prepare address data according to requirements
+      // Using province as country, ward as province
+      const country = selectedProvince ? selectedProvince.name : '';
+      const province = selectedWard ? selectedWard.name : '';
+
+      // Remove confirmPassword as it's not needed in the API request
+      const { confirmPassword, ...dataToSend } = formData;
+
       const response = await api.post("/v1/account/register", {
-        ...formData,
-        lat: location.lat,
-        lng: location.lng,
+        ...dataToSend,
+        country,                   // Tỉnh/thành
+        province,                  // Phường/xã
+        lat: location.lat || 0,
+        lng: location.lng || 0,
         status,
       });
-      const data = response.data
+
+      const data = response.data;
       login({
         accessToken: data?.accessToken,
         userId: data?.userId,
@@ -155,91 +221,299 @@ const Register = () => {
         lat: data?.lat,
         lng: data?.lng,
       });
+
+      notification.success({
+        message: "Đăng ký thành công",
+        description: "Chào mừng bạn đến với nền tảng của chúng tôi!",
+      });
+
       navigate("/");
-    } catch (err: any) {
-      setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
+    } catch (err) {
+      console.error("Registration error:", err);
+      setError(err.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/5 via-background to-background">
+    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/10 via-background to-background">
       <div className="container mx-auto px-4">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-2xl mx-auto">
           <FadeInWhenVisible>
             <Card className="p-8">
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold mb-2">Đăng ký tài khoản</h1>
-                <p className="text-muted-foreground">Tạo tài khoản để bắt đầu sự nghiệp freelance</p>
+                <h1 className="text-3xl font-bold mb-2">Đăng ký tài khoản</h1>
+                <p className="text-muted-foreground">
+                  {formData.role === "FREELANCER"
+                    ? "Tạo tài khoản để bắt đầu sự nghiệp freelance của bạn"
+                    : formData.role === "CLIENT"
+                      ? "Tạo tài khoản để tìm kiếm freelancer cho dự án của bạn"
+                      : "Tạo tài khoản để bắt đầu"}
+                </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      className="pl-10"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    />
-                  </div>
-                </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-3 mb-8">
+                  <TabsTrigger value="basicInfo">Thông tin cơ bản</TabsTrigger>
+                  <TabsTrigger value="personalInfo">Thông tin cá nhân</TabsTrigger>
+                  <TabsTrigger value="professionalInfo">Thông tin chuyên môn</TabsTrigger>
+                </TabsList>
 
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="Mật khẩu"
-                      className="pl-10"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    />
-                  </div>
-                </div>
+                {/* Basic Information Tab */}
+                <TabsContent value="basicInfo">
+                  <form className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          placeholder="Email"
+                          className="pl-10"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="Xác nhận mật khẩu"
-                      className="pl-10"
-                      value={formData.confirmPassword}
-                      onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    />
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          placeholder="Mật khẩu"
+                          className="pl-10"
+                          value={formData.password}
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <div className="relative">
-                    <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Select
-                      value={formData.role}
-                      onValueChange={(value) => setFormData({ ...formData, role: value })}
-                    >
-                      <SelectTrigger className="pl-10">
-                        <SelectValue placeholder="Chọn vai trò" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="FREELANCER">Freelancer</SelectItem>
-                        <SelectItem value="CLIENT">Nhà tuyển dụng</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          placeholder="Xác nhận mật khẩu"
+                          className="pl-10"
+                          value={formData.confirmPassword}
+                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-                {/* Error message */}
-                {error && <div className="text-red-500 text-center">{error}</div>}
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Select
+                          value={formData.role}
+                          onValueChange={(value) => setFormData({ ...formData, role: value })}
+                        >
+                          <SelectTrigger className="pl-10">
+                            <SelectValue placeholder="Chọn vai trò" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="FREELANCER">Freelancer</SelectItem>
+                            <SelectItem value="CLIENT">Nhà tuyển dụng</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
-                {/* Submit Button */}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Đang đăng ký..." : "Đăng ký"}
-                </Button>
-              </form>
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+
+                    <div className="flex justify-end">
+                      <Button type="button" onClick={handleNextTab}>
+                        Tiếp theo
+                      </Button>
+                    </div>
+                  </form>
+                </TabsContent>
+
+                {/* Personal Information Tab */}
+                <TabsContent value="personalInfo">
+                  <form className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Họ"
+                            className="pl-10"
+                            value={formData.lastName}
+                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder="Tên"
+                            className="pl-10"
+                            value={formData.firstName}
+                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="tel"
+                          placeholder="Số điện thoại"
+                          className="pl-10"
+                          value={formData.phoneNumber}
+                          onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Address Selection */}
+                    <div className="space-y-4">
+                      <p className="text-sm font-medium">Địa chỉ</p>
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Select
+                            value={selectedProvince?.code?.toString() || ""}
+                            onValueChange={handleProvinceChange}
+                          >
+                            <SelectTrigger className="pl-10">
+                              <SelectValue placeholder="Chọn Tỉnh/Thành phố" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-80">
+                              {provinces.map((province) => (
+                                <SelectItem
+                                  key={province.code}
+                                  value={province.code.toString()}
+                                >
+                                  {province.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Select
+                            value={selectedDistrict?.code?.toString() || ""}
+                            onValueChange={handleDistrictChange}
+                            disabled={!selectedProvince}
+                          >
+                            <SelectTrigger className="pl-10">
+                              <SelectValue placeholder="Chọn Quận/Huyện" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-80">
+                              {districts.map((district) => (
+                                <SelectItem
+                                  key={district.code}
+                                  value={district.code.toString()}
+                                >
+                                  {district.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                          <Select
+                            value={selectedWard?.code?.toString() || ""}
+                            onValueChange={handleWardChange}
+                            disabled={!selectedDistrict}
+                          >
+                            <SelectTrigger className="pl-10">
+                              <SelectValue placeholder="Chọn Phường/Xã" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-80">
+                              {wards.map((ward) => (
+                                <SelectItem
+                                  key={ward.code}
+                                  value={ward.code.toString()}
+                                >
+                                  {ward.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+
+                    <div className="flex justify-between">
+                      <Button type="button" variant="outline" onClick={handlePrevTab}>
+                        Quay lại
+                      </Button>
+                      <Button type="button" onClick={handleNextTab}>
+                        Tiếp theo
+                      </Button>
+                    </div>
+                  </form>
+                </TabsContent>
+
+                {/* Professional Information Tab */}
+                <TabsContent value="professionalInfo">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Tiêu đề chuyên môn"
+                          className="pl-10"
+                          value={formData.title}
+                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formData.role === "FREELANCER"
+                            ? "Ví dụ: Lập trình viên Full-stack với 5 năm kinh nghiệm"
+                            : "Ví dụ: CEO tại Công ty ABC"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Info className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Textarea
+                          placeholder="Giới thiệu bản thân"
+                          className="pl-10 min-h-[100px]"
+                          value={formData.introduction}
+                          onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formData.role === "FREELANCER"
+                            ? "Mô tả ngắn gọn về kỹ năng và kinh nghiệm của bạn"
+                            : "Mô tả ngắn gọn về công ty hoặc dự án của bạn"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+
+                    <div className="flex justify-between">
+                      <Button type="button" variant="outline" onClick={handlePrevTab}>
+                        Quay lại
+                      </Button>
+                      <Button type="submit" className="bg-primary" disabled={loading}>
+                        {loading ? "Đang đăng ký..." : "Hoàn tất đăng ký"}
+                      </Button>
+                    </div>
+                  </form>
+                </TabsContent>
+              </Tabs>
 
               {/* Login Link */}
               <p className="text-center mt-6 text-sm text-muted-foreground">
