@@ -239,8 +239,46 @@ const Settings = () => {
   return (
     <div className="">
       <div ref={refs.tabsRef1} className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Cài đặt tài khoản</h1>
         <div >
+          <Card className="p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">Mức độ hoàn thiện hồ sơ</h3>
+              <span className="text-lg font-semibold">{completionPercentage}%</span>
+            </div>
+            <Progress value={completionPercentage} className="h-2 mb-4" />
+
+            <div className="bg-muted p-4 rounded-lg">
+              {completionPercentage === 100 ? (
+                <div className="flex items-center text-green-500">
+                  <CircleCheck className="h-5 w-5 mr-2" />
+                  <p>Tuyệt vời! Hồ sơ của bạn đã hoàn thiện 100%</p>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center text-amber-500 mb-2">
+                    <CircleAlert className="h-5 w-5 mr-2 flex-shrink-0" />
+                    <p>Hồ sơ của bạn chưa hoàn thiện. Điều này có thể ảnh hưởng đến khả năng tiếp cận khách hàng.</p>
+                  </div>
+
+                  <div className="mt-3">
+                    <p className="font-medium mb-2">Các thông tin cần bổ sung:</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {incompleteFields.map((field, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center bg-background rounded px-3 py-2 cursor-pointer hover:bg-secondary/50"
+                          onClick={() => setActiveTab(field.tab)}
+                        >
+                          <div className="h-2 w-2 rounded-full bg-amber-500 mr-2"></div>
+                          <span>{field.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </Card>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList ref={refs.tabsRef} className="grid grid-cols-2 md:grid-cols-6 mb-8">
               <TabsTrigger ref={refs.profileRef} value="profile" className="flex items-center gap-2">
