@@ -370,10 +370,8 @@ const Applicants = () => {
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
                   <SelectItem value="Applied">Đã ứng tuyển</SelectItem>
-                  <SelectItem value="Viewed">Đã xem</SelectItem>
-                  <SelectItem value="In Progress">Đang thực hiện</SelectItem>
-                  <SelectItem value="Completed">Hoàn thành</SelectItem>
-                  <SelectItem value="Cancelled">Đã hủy</SelectItem>
+                  <SelectItem value="Rejected">Đã từ chối</SelectItem>
+                  <SelectItem value="Approved">Đã chấp thuận</SelectItem>
                 </SelectContent>
               </Select>
 
