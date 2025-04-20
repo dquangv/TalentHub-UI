@@ -106,7 +106,32 @@ const ClientProfile = () => {
             fetchUserData();
         }
     }, [userId, clientId]);
+    useEffect(() => {
+        // Calculate profile completion
+        const calculateProfileCompletion = () => {
+            const requiredFields = [
+                { name: 'Họ tên', value: fullName.trim() !== '' },
+                { name: 'Chức danh', value: profile.title?.trim() !== '' },
+                { name: 'Số điện thoại', value: profile.phoneNumber?.trim() !== '' },
+                { name: 'Vị trí', value: profile.country !== null && profile.province !== null },
+                { name: 'Giới thiệu', value: profile.introduction?.trim() !== '' },
+                { name: 'Ảnh đại diện', value: profile.image?.trim() !== '' },
+                { name: 'Ngân sách', value: profile.fromPrice > 0 && profile.toPrice > 0 && profile.typePrice?.trim() !== '' },
+                { name: 'Thông tin công ty', value: hasCompany }
+            ];
 
+            const incomplete = requiredFields.filter(field => !field.value).map(field => field.name);
+            setIncompleteFields(incomplete);
+
+            const completedCount = requiredFields.length - incomplete.length;
+            const percentage = Math.round((completedCount / requiredFields.length) * 100);
+            setCompletionPercentage(percentage);
+        };
+
+        if (!fetching) {
+            calculateProfileCompletion();
+        }
+    }, [profile, hasCompany, fullName, fetching]);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
