@@ -74,7 +74,11 @@ const ChooseRole = () => {
 
       const response = await api.post(`/v1/account/choose-role?${queryParams.toString()}`);
       login(response.data)
-      navigate("/");
+      if (formData.role == "FREELANCER"){
+       navigate("/settingsfreelancer")
+      }else {
+        navigate("/client/profile")
+      }
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
