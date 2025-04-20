@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,14 +31,72 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     role: "",
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+    title: "",
+    introduction: "",
   });
-  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+
+  // Address data
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [selectedProvince, setSelectedProvince] = useState<Province | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+  const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
+
+  const [location, setLocation] = useState({ lat: null, lng: null });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
+  // Fetch provinces on component mount
   useEffect(() => {
-    // Get user location when component mounts
+    const fetchProvinces = async () => {
+      const data = await addressService.getProvinces();
+      setProvinces(data);
+    };
+    fetchProvinces();
+  }, []);
+
+  // Fetch districts when province changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (selectedProvince) {
+        const provinceDetails = await addressService.getProvinceDetails(selectedProvince.code);
+        if (provinceDetails && provinceDetails.districts) {
+          setDistricts(provinceDetails.districts);
+        }
+      } else {
+        setDistricts([]);
+      }
+      setSelectedDistrict(null);
+      setWards([]);
+      setSelectedWard(null);
+    };
+    fetchDistricts();
+  }, [selectedProvince]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (selectedDistrict) {
+        const districtDetails = await addressService.getDistrictDetails(selectedDistrict.code);
+        if (districtDetails && districtDetails.wards) {
+          setWards(districtDetails.wards);
+        }
+      } else {
+        setWards([]);
+      }
+      setSelectedWard(null);
+    };
+    fetchWards();
+  }, [selectedDistrict]);
+
+  // Get user location
+  useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
