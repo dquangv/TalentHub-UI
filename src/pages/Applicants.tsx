@@ -31,6 +31,7 @@ import {
   Loader2,
   ExternalLink,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import api from "@/api/axiosConfig";
 import cvService from "@/api/cvService";
 import {
@@ -58,10 +59,8 @@ const Applicants = () => {
   const [stats, setStats] = useState({
     total: 0,
     Applied: 0,
-    Viewed: 0,
-    InProgress: 0,
-    Completed: 0,
-    Cancelled: 0,
+    Rejected: 0,
+    Approved: 0,
   });
   const [previewVisible, setPreviewVisible] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState("");
@@ -82,6 +81,28 @@ const Applicants = () => {
       }
     })
   }
+
+  const exportToExcel = () => {
+    const excelData = applicants.map((applicant) => ({
+      "Họ và Tên": `${applicant.firstName} ${applicant.lastName}`,
+      "Email": applicant.email,
+      "Chuyên môn": applicant.position || "Không có chuyên môn",
+      "Tên công việc": applicant.jobTitle || "Không có tên công việc",
+      "Ngày ứng tuyển": formatAppliedDate(applicant.appliedDate),
+      "Trạng thái": getStatusText(applicant.status),
+      "Đánh giá": applicant.clientReviewRating || "Chưa đánh giá",
+      "Ghi chú đánh giá": applicant.clientReviewNote || "",
+      "Link CV": applicant.cvURL || "Không có CV",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
+
+    XLSX.writeFile(workbook, `Applicants_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   useEffect(() => {
     if (applicants?.length > 0) {
       const jobId = applicants[0]?.jobId
@@ -100,10 +121,8 @@ const Applicants = () => {
       const newStats = {
         total: response.data.length,
         Applied: response.data.filter((a) => a.status === "Applied").length,
-        Viewed: response.data.filter((a) => a.status === "Viewed").length,
-        InProgress: response.data.filter((a) => a.status === "In Progress").length,
-        Completed: response.data.filter((a) => a.status === "Completed").length,
-        Cancelled: response.data.filter((a) => a.status === "Cancelled").length,
+        Rejected: response.data.filter((a) => a.status === "Rejected").length,
+        Approved: response.data.filter((a) => a.status === "Approved").length,
       };
       setStats(newStats);
       setError(null);
@@ -309,18 +328,18 @@ const Applicants = () => {
       icon: <Users className="w-8 h-8 text-primary" />,
     },
     {
-      label: "Đã hủy",
-      value: stats.Cancelled,
+      label: "Đã từ chối",
+      value: stats.Rejected,
       icon: <Clock className="w-8 h-8 text-yellow-500" />,
     },
     {
       label: "Đang thực hiện",
-      value: stats.InProgress,
+      value: stats.Approved,
       icon: <CheckCircle className="w-8 h-8 text-green-500" />,
     },
     {
-      label: "Hoàn thành",
-      value: stats.Completed,
+      label: "Đã ứng tuyển",
+      value: stats.Applied,
       icon: <CheckCircle className="w-8 h-8 text-blue-500" />,
     },
   ];
@@ -374,14 +393,12 @@ const Applicants = () => {
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
                   <SelectItem value="Applied">Đã ứng tuyển</SelectItem>
-                  <SelectItem value="Viewed">Đã xem</SelectItem>
-                  <SelectItem value="In Progress">Đang thực hiện</SelectItem>
-                  <SelectItem value="Completed">Hoàn thành</SelectItem>
-                  <SelectItem value="Cancelled">Đã hủy</SelectItem>
+                  <SelectItem value="Rejected">Đã từ chối</SelectItem>
+                  <SelectItem value="Approved">Đã chấp thuận</SelectItem>
                 </SelectContent>
               </Select>
 
-              <Button variant="outline">
+              <Button variant="outline" onClick={exportToExcel}>
                 <Download className="w-4 h-4 mr-2" />
                 Xuất Excel
               </Button>
