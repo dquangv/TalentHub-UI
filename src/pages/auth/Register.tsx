@@ -52,7 +52,6 @@ const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // Fetch provinces on component mount
   useEffect(() => {
     const fetchProvinces = async () => {
       const data = await addressService.getProvinces();
@@ -148,7 +147,7 @@ const Register = () => {
         setError("Vui lòng điền đầy đủ thông tin cá nhân");
         return;
       }
-      if (!selectedProvince || !selectedDistrict || !selectedWard) {
+      if (!selectedProvince || !selectedDistrict) {
         setError("Vui lòng chọn đầy đủ địa chỉ");
         return;
       }
@@ -189,22 +188,16 @@ const Register = () => {
 
     setError("");
     setLoading(true);
-
     const status = formData.role === "FREELANCER" ? "Xác thực" : "Chưa xác thực";
-
     try {
-      // Prepare address data according to requirements
-      // Using province as country, ward as province
       const country = selectedProvince ? selectedProvince.name : '';
-      const province = selectedWard ? selectedWard.name : '';
-
-      // Remove confirmPassword as it's not needed in the API request
+      const province = selectedDistrict ? selectedDistrict.name : '';
       const { confirmPassword, ...dataToSend } = formData;
 
       const response = await api.post("/v1/account/register", {
         ...dataToSend,
-        country,                   // Tỉnh/thành
-        province,                  // Phường/xã
+        country,
+        province,
         lat: location.lat || 0,
         lng: location.lng || 0,
         status,
@@ -418,31 +411,6 @@ const Register = () => {
                                   value={district.code.toString()}
                                 >
                                   {district.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                          <Select
-                            value={selectedWard?.code?.toString() || ""}
-                            onValueChange={handleWardChange}
-                            disabled={!selectedDistrict}
-                          >
-                            <SelectTrigger className="pl-10">
-                              <SelectValue placeholder="Chọn Phường/Xã" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-80">
-                              {wards.map((ward) => (
-                                <SelectItem
-                                  key={ward.code}
-                                  value={ward.code.toString()}
-                                >
-                                  {ward.name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
