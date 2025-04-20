@@ -235,7 +235,6 @@ const Profile = () => {
 
       const response = await userService.updateUser(userId, userData);
 
-      // Cập nhật lương mong muốn (hourly rate) khi lưu form
       await handleHourlyRateUpdate();
 
       if (response.status === 200) {
@@ -386,20 +385,6 @@ const Profile = () => {
       setLoadingSkills(false);
     }
   };
-
-  // Lọc danh sách kỹ năng theo từ khóa tìm kiếm
-  const filteredAvailableSkills = availableSkills
-    .filter(skill => !freelancerSkills.some(fs => fs.skillId === skill.id))
-    .filter(skill => skill.skillName.toLowerCase().includes(skillSearchValue.toLowerCase()));
-
-  if (fetching) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">Đang tải thông tin...</span>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit}>

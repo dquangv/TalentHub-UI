@@ -219,10 +219,18 @@ const Register = () => {
         description: "Chào mừng bạn đến với TalentHub!",
       });
 
-      navigate("/");
-    } catch (err) {
-      console.error("Registration error:", err);
-      setError(err.response?.data?.message || "Đã xảy ra lỗi, vui lòng thử lại sau.");
+      if (formData.role == "FREELANCER"){
+        navigate("/settingsfreelancer")
+       }else {
+         navigate("/client/profile")
+       }
+    } catch (err: any) {
+      console.error("Error during login:", err);
+      notification.error({
+        message: 'Lỗi đăng ký',
+        description: err.response?.data?.message || 'Đăng ký không thành công'
+      });
+      setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
