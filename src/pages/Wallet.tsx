@@ -548,7 +548,10 @@ const Wallet = () => {
                             }`}
                           >
                             {transaction.activity === "Nạp tiền" ? "+" : "-"}
-                            {transaction.money}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(transaction.money)}
                           </span>
                         </div>
                       ))}
@@ -730,10 +733,21 @@ const Wallet = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="font-medium">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(transaction.money)}
+                                <span
+                                  className={`font-medium ${
+                                    transaction.activity === "Nạp tiền"
+                                      ? "text-green-600"
+                                      : "text-amber-600"
+                                  }`}
+                                >
+                                  {transaction.activity === "Nạp tiền"
+                                    ? "+"
+                                    : "-"}
+                                  {new Intl.NumberFormat("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }).format(transaction.money)}
+                                </span>
                               </TableCell>
                               <TableCell>
                                 <Badge
