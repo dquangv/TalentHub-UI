@@ -142,9 +142,8 @@ const AppliedJobs = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 cursor-pointer ${
-              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-            }`}
+            className={`w-6 h-6 cursor-pointer ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+              }`}
             onClick={() => setRating(star)}
           />
         ))}
@@ -217,13 +216,8 @@ const AppliedJobs = () => {
                   <div className="flex flex-col md:flex-row md:items-center gap-6">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <Link
-                          to={`/jobs/${job.id}`}
-                          className="hover:underline"
-                        >
-                          <h3 className="text-xl font-semibold">
-                            {job.jobTitle}
-                          </h3>
+                        <Link to={`/jobs/${job.id}`} className="hover:underline">
+                          <h3 className="text-xl font-semibold">{job.jobTitle}</h3>
                         </Link>
                       </div>
 
@@ -240,11 +234,13 @@ const AppliedJobs = () => {
                           <DollarSign className="w-4 h-4 mr-2" />
                           {job.fromPrice} - {job.toPrice} VND
                         </div>
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Đã ứng tuyển: {job.createdTimeFormatted || "Không xác định"}
+                        </div>
                       </div>
 
-                      <p className="text-muted-foreground mb-4">
-                        {job.description}
-                      </p>
+                      <p className="text-muted-foreground mb-4">{job.description}</p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         {job.skillNames?.map((skill) => (
@@ -291,7 +287,6 @@ const AppliedJobs = () => {
             </div>
           )}
         </div>
-
         {/* Empty State */}
         {filteredJobs.length === 0 && !loading && (
           <FadeInWhenVisible>
