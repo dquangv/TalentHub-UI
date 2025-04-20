@@ -142,7 +142,6 @@ const Register = () => {
       setError("");
       setActiveTab("personalInfo");
     } else if (activeTab === "personalInfo") {
-      // Validate personal info
       if (!formData.firstName || !formData.lastName || !formData.phoneNumber) {
         setError("Vui lòng điền đầy đủ thông tin cá nhân");
         return;
