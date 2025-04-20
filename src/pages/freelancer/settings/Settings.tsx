@@ -11,8 +11,17 @@ import Education from './Education';
 import Portfolio from './Portfolio';
 import Security from './Security';
 import CVManager from '../CVManager';
-import { User, Briefcase, GraduationCap, FolderKanban, Shield, FileText } from 'lucide-react';
+import { User, Briefcase, GraduationCap, FolderKanban, Shield, FileText, CircleCheck, CircleAlert } from 'lucide-react';
 import SettingsTour from './SettingsTour';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import userService from '@/api/userService';
+import freelancerService from '@/api/freelancerService';
+import experienceService from '@/api/experienceService';
+import skillService from '@/api/skillService';
+import projectsService from '@/api/projectsService';
+import api from '@/api/axiosConfig';
+import cvService from '@/api/cvService';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
