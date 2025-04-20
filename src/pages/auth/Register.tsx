@@ -10,13 +10,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, BriefcaseIcon } from "lucide-react";
+import { Mail, Lock, BriefcaseIcon, User, Phone, MapPin, FileText, Info, Home } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
+import addressService, { Province, District, Ward } from "@/api/addressService";
 
 const Register = () => {
+  const [activeTab, setActiveTab] = useState("basicInfo");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
