@@ -5,13 +5,21 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2, Building, Trash2, Plus } from 'lucide-react';
+import { Camera, Phone, MapPin, Loader2, Building, Trash2, Plus, User2 } from 'lucide-react';
 import { notification } from 'antd';
 import userService, { User } from '@/api/userService';
 import clientService, { Company } from '@/api/clientService';
 import LocationSelector from '../freelancer/settings/LocationSelector';
-
+import { Progress } from '@/components/ui/progress';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from '@/components/ui/tabs';
+import { CircleCheck, CircleAlert } from 'lucide-react';
 const ClientProfile = () => {
+    const [activeTab, setActiveTab] = useState('profile');
     const [profile, setProfile] = useState<User & {
         fromPrice: number;
         toPrice: number;
