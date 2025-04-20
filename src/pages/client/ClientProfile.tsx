@@ -46,7 +46,14 @@ const ClientProfile = () => {
     const [hasCompany, setHasCompany] = useState<boolean>(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-
+    const isCompanyFormValid = () => {
+        return (
+            company.companyName.trim() !== '' &&
+            company.industry.trim() !== '' &&
+            company.phoneContact.trim() !== '' &&
+            company.address.trim() !== ''
+        );
+    };
     const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId;
     const clientId = JSON.parse(localStorage.getItem('userInfo') || '{}').clientId;
     const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
@@ -577,7 +584,7 @@ const ClientProfile = () => {
                     <Button
                         type="button"
                         onClick={handleCompanySubmit}
-                        disabled={companyLoading}
+                        disabled={companyLoading || !isCompanyFormValid()}
                     >
                         {companyLoading ? (
                             <>
