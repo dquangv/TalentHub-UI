@@ -26,11 +26,202 @@ import cvService from '@/api/cvService';
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [openTour, setOpenTour] = useState(false);
+  const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+  const [incompleteFields, setIncompleteFields] = useState<string[]>([]);
+  const [profileData, setProfileData] = useState(null);
+  const [educationData, setEducationData] = useState([]);
+  const [experienceData, setExperienceData] = useState([]);
+  const [skillsData, setSkillsData] = useState([]);
+  const [projectsData, setProjectsData] = useState([]);
+  const [cvData, setCvData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const userInfoStr = localStorage.getItem("userInfo");
+        const userInfo = userInfoStr ? JSON.parse(userInfoStr) : {};
+        const userId = userInfo.userId;
+        const freelancerId = userInfo.freelancerId;
 
+        if (!userId || !freelancerId) {
+          window.location.pathname = '/';
+          return;
+        }
+
+        // Initialize data containers
+        let userData = null;
+        let freelancerData = null;
+        let educationData = [];
+        let experienceData = [];
+        let skillsData = [];
+        let projectsData = [];
+        let cvData = [];
+
+        // Fetch user profile data
+        try {
+          const userResponse = await userService.getUserById(userId);
+          if (userResponse.status === 200) {
+            userData = userResponse.data;
+            setProfileData(userData);
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+
+        // Fetch freelancer profile data
+        try {
+          const freelancerResponse = await freelancerService.getFreelancerById(freelancerId);
+          if (freelancerResponse.status === 200) {
+            freelancerData = freelancerResponse.data;
+          }
+        } catch (error) {
+          console.error('Error fetching freelancer data:', error);
+        }
+
+        // Fetch education data
+        try {
+          const educationResponse = await api.get(`/v1/educations/freelancer/${freelancerId}`);
+          if (educationResponse.status === 200) {
+            educationData = educationResponse.data || [];
+            setEducationData(educationData);
+          }
+        } catch (error) {
+          console.error('Error fetching education data:', error);
+        }
+
+        // Fetch experience data
+        try {
+          const experienceResponse = await experienceService.getFreelancerExperiences(freelancerId);
+          if (experienceResponse.status === 200) {
+            experienceData = experienceResponse.data || [];
+            setExperienceData(experienceData);
+          }
+        } catch (error) {
+          console.error('Error fetching experience data:', error);
+        }
+
+        // Fetch skills data
+        try {
+          const skillsResponse = await skillService.getFreelancerSkills(freelancerId);
+          if (skillsResponse.status === 200) {
+            skillsData = skillsResponse.data || [];
+            setSkillsData(skillsData);
+          }
+        } catch (error) {
+          console.error('Error fetching skills data:', error);
+        }
+
+        // Fetch projects data
+        try {
+          const projectsResponse = await projectsService.getProjectsByFreelancerId(freelancerId);
+          if (projectsResponse.status === 200) {
+            projectsData = projectsResponse.data || [];
+            setProjectsData(projectsData);
+          }
+        } catch (error) {
+          console.error('Error fetching projects data:', error);
+        }
+
+        // Fetch CV data
+        try {
+          const cvResponse = await cvService.getCVsByFreelancerId(freelancerId);
+          if (cvResponse.status === 200) {
+            cvData = cvResponse.data || [];
+            setCvData(cvData);
+          }
+        } catch (error) {
+          console.error('Error fetching CV data:', error);
+        }
+
+        calculateProfileCompletion(
+          userData,
+          freelancerData,
+          educationData,
+          experienceData,
+          skillsData,
+          projectsData,
+          cvData
+        );
+      } catch (error) {
+        console.error('Error in fetchAllData:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+  const calculateProfileCompletion = (
+    profile,
+    freelancerProfile,
+    education,
+    experience,
+    skills,
+    projects,
+    cvs
+  ) => {
+    const educationIsValid = Array.isArray(education) && education.length > 0;
+
+    const cvsIsValid = Array.isArray(cvs) && cvs.length > 0;
+    const fullName = profile ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim() : '';
+    const title = profile?.title?.trim() || '';
+    const categoryName = freelancerProfile?.categoryName?.trim() || '';
+    const phoneNumber = profile?.phoneNumber?.trim() || '';
+    const hasLocation = Boolean(profile?.country) && Boolean(profile?.province);
+    const introduction = profile?.introduction?.trim() || '';
+    const hasProfileImage = Boolean(profile?.image?.trim());
+    const hourlyRate = Number(freelancerProfile?.hourlyRate) || 0;
+    const hasSkills = Array.isArray(skills) && skills.length > 0;
+    const hasExperience = Array.isArray(experience) && experience.length > 0;
+    const hasEducation = educationIsValid;
+    const hasProjects = Array.isArray(projects) && projects.length > 0;
+    const hasCVs = cvsIsValid;
+
+    const requiredFields = [
+      { name: 'Họ tên', value: Boolean(fullName), tab: 'profile' },
+      { name: 'Chức danh', value: Boolean(title), tab: 'profile' },
+      { name: 'Lĩnh vực', value: Boolean(categoryName), tab: 'profile' },
+      { name: 'Số điện thoại', value: Boolean(phoneNumber), tab: 'profile' },
+      { name: 'Vị trí', value: hasLocation, tab: 'profile' },
+      { name: 'Giới thiệu', value: Boolean(introduction), tab: 'profile' },
+      { name: 'Ảnh đại diện', value: hasProfileImage, tab: 'profile' },
+      { name: 'Lương mong muốn', value: hourlyRate > 0, tab: 'profile' },
+      { name: 'Kỹ năng', value: hasSkills, tab: 'profile' },
+
+      // Tab Kinh nghiệm làm việc
+      { name: 'Kinh nghiệm làm việc', value: hasExperience, tab: 'experience' },
+
+      // Tab Học vấn
+      { name: 'Thông tin học vấn', value: hasEducation, tab: 'education' },
+
+      // Tab Portfolio
+      { name: 'Dự án cá nhân', value: hasProjects, tab: 'portfolio' },
+
+      // Tab CV
+      { name: 'CV cá nhân', value: hasCVs, tab: 'cv' },
+    ];
+
+
+    const incomplete = requiredFields
+      .filter(field => !field.value)
+      .map(field => ({
+        name: field.name,
+        tab: field.tab
+      }));
+
+    const completedCount = requiredFields.length - incomplete.length;
+    const percentage = Math.round((completedCount / requiredFields.length) * 100);
+
+    console.groupEnd();
+
+    setIncompleteFields(incomplete);
+    setCompletionPercentage(percentage);
+  };
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
     const userId = userInfoStr ? JSON.parse(userInfoStr).userId : null;
-    if(!userId){
+    if (!userId) {
       window.location.pathname = '/'
     }
   }, [])
