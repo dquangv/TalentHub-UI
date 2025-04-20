@@ -217,7 +217,7 @@ const Register = () => {
 
       notification.success({
         message: "Đăng ký thành công",
-        description: "Chào mừng bạn đến với nền tảng của chúng tôi!",
+        description: "Chào mừng bạn đến với TalentHub!",
       });
 
       navigate("/");
