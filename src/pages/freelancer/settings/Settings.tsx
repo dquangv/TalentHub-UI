@@ -48,8 +48,6 @@ const Settings = () => {
           window.location.pathname = '/';
           return;
         }
-
-        // Initialize data containers
         let userData = null;
         let freelancerData = null;
         let educationData = [];
@@ -57,8 +55,6 @@ const Settings = () => {
         let skillsData = [];
         let projectsData = [];
         let cvData = [];
-
-        // Fetch user profile data
         try {
           const userResponse = await userService.getUserById(userId);
           if (userResponse.status === 200) {
@@ -68,8 +64,6 @@ const Settings = () => {
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
-
-        // Fetch freelancer profile data
         try {
           const freelancerResponse = await freelancerService.getFreelancerById(freelancerId);
           if (freelancerResponse.status === 200) {
@@ -78,8 +72,6 @@ const Settings = () => {
         } catch (error) {
           console.error('Error fetching freelancer data:', error);
         }
-
-        // Fetch education data
         try {
           const educationResponse = await api.get(`/v1/educations/freelancer/${freelancerId}`);
           if (educationResponse.status === 200) {
@@ -89,8 +81,6 @@ const Settings = () => {
         } catch (error) {
           console.error('Error fetching education data:', error);
         }
-
-        // Fetch experience data
         try {
           const experienceResponse = await experienceService.getFreelancerExperiences(freelancerId);
           if (experienceResponse.status === 200) {
@@ -100,8 +90,6 @@ const Settings = () => {
         } catch (error) {
           console.error('Error fetching experience data:', error);
         }
-
-        // Fetch skills data
         try {
           const skillsResponse = await skillService.getFreelancerSkills(freelancerId);
           if (skillsResponse.status === 200) {
@@ -111,8 +99,6 @@ const Settings = () => {
         } catch (error) {
           console.error('Error fetching skills data:', error);
         }
-
-        // Fetch projects data
         try {
           const projectsResponse = await projectsService.getProjectsByFreelancerId(freelancerId);
           if (projectsResponse.status === 200) {
@@ -123,7 +109,6 @@ const Settings = () => {
           console.error('Error fetching projects data:', error);
         }
 
-        // Fetch CV data
         try {
           const cvResponse = await cvService.getCVsByFreelancerId(freelancerId);
           if (cvResponse.status === 200) {
@@ -188,17 +173,9 @@ const Settings = () => {
       { name: 'Ảnh đại diện', value: hasProfileImage, tab: 'profile' },
       { name: 'Lương mong muốn', value: hourlyRate > 0, tab: 'profile' },
       { name: 'Kỹ năng', value: hasSkills, tab: 'profile' },
-
-      // Tab Kinh nghiệm làm việc
       { name: 'Kinh nghiệm làm việc', value: hasExperience, tab: 'experience' },
-
-      // Tab Học vấn
       { name: 'Thông tin học vấn', value: hasEducation, tab: 'education' },
-
-      // Tab Portfolio
       { name: 'Dự án cá nhân', value: hasProjects, tab: 'portfolio' },
-
-      // Tab CV
       { name: 'CV cá nhân', value: hasCVs, tab: 'cv' },
     ];
 
