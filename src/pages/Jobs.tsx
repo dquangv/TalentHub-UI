@@ -114,10 +114,13 @@ const Jobs = () => {
           const response = await freelancerService.getFreelancerById(Number(freelancerId));
           if (response.status === 200 && response.data) {
             const categoryName = response.data.categoryName;
-            setFilters(prev => ({
-              ...prev,
-              selectedCategories: categoryName ? [categoryName] : []
-            }));
+            if (categoryName) {
+              setFilters(prev => ({
+                ...prev,
+                selectedCategories: categoryName ? [categoryName] : []
+              }));
+            }
+
           }
         } catch (error) {
           console.error("Error fetching freelancer data:", error);
@@ -139,6 +142,9 @@ const Jobs = () => {
 
           // Apply filters based on freelancerCategory
           if (filters.selectedCategories.length > 0) {
+            if (filters.selectedCategories.includes("No category")) {
+              filters.selectedCategories = []
+            }
             const filtered = response.data.filter(job =>
               filters.selectedCategories.includes(job.categoryName)
             );
