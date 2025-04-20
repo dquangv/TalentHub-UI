@@ -46,7 +46,8 @@ const ClientProfile = () => {
         phoneContact: '',
         industry: '',
     });
-
+    const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+    const [incompleteFields, setIncompleteFields] = useState<string[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [companyLoading, setCompanyLoading] = useState<boolean>(false);
     const [uploadingImage, setUploadingImage] = useState<boolean>(false);
