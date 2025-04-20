@@ -137,8 +137,12 @@ const Applicants = () => {
     switch (status) {
       case "Applied":
         return "Đã ứng tuyển";
+      case "Viewed":
+        return "Đã xem";
       case "Rejected":
         return "Đã từ chối";
+      // case "Cancelled":
+      //   return "Đã hủy";
       case "Approved":
         return "Đã chấp thuận";
       default:

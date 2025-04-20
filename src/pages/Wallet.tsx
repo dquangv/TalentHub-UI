@@ -40,6 +40,8 @@ import api from "@/api/axiosConfig";
 import * as XLSX from "xlsx";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { Calendar } from "@/components/ui/calendar";
+import DatePickerInput from "@/components/ui/datepickerinput";
 interface Payments {
   balance: number;
   latestDeposit: number;
@@ -60,8 +62,10 @@ interface Transaction {
 
 const Wallet = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const [dateFilter, setDateFilter] = useState("all");
+  // const [dateFilter, setDateFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [statusFilter, setStatusFilter] = useState("all");
   const [depositAmount, setDepositAmount] = useState("");
   const [depositMethod, setDepositMethod] = useState("");
@@ -115,10 +119,10 @@ const Wallet = () => {
     }, 2000);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Đã sao chép vào clipboard");
-  };
+  // const copyToClipboard = (text: string) => {
+  //   navigator.clipboard.writeText(text);
+  //   toast.success("Đã sao chép vào clipboard");
+  // };
 
   // const handleGetVnpay = () => {
   //   if (!depositAmount) {
@@ -174,68 +178,89 @@ const Wallet = () => {
     currentPage * itemsPerPage
   );
   const filterTransactions = (transactions: Transaction[]) => {
-    const now = new Date();
-
-    return transactions
-      .filter((transaction) => {
-        // Lọc theo từ khóa tìm kiếm
-        if (searchKeyword.trim() !== "") {
-          return transaction.description
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase());
-        }
-        return true; // Nếu không có từ khóa, trả về tất cả
-      })
-      .filter((transaction) => {
-        // Lọc theo thời gian
-        switch (dateFilter) {
-          case "today": {
+    return (
+      transactions
+        .filter((transaction) => {
+          // Lọc theo từ khóa tìm kiếm
+          if (searchKeyword.trim() !== "") {
             const transactionDate = new Date(transaction.createdAt);
+            const formattedDate = transactionDate.toLocaleDateString("vi-VN"); // Định dạng ngày theo "vi-VN"
             return (
-              transactionDate.getDate() === now.getDate() &&
-              new Date(transaction.createdAt).getMonth() === now.getMonth() &&
-              new Date(transaction.createdAt).getFullYear() ===
-                now.getFullYear()
+              transaction.description
+                .toLowerCase()
+                .includes(searchKeyword.toLowerCase()) ||
+              transaction.activity
+                .toLowerCase()
+                .includes(searchKeyword.toLowerCase()) ||
+              transaction.status
+                .toLowerCase()
+                .includes(searchKeyword.toLowerCase()) ||
+              transaction.status
+                .toLowerCase()
+                .includes(searchKeyword.toLowerCase()) ||
+              formattedDate.includes(searchKeyword) // So sánh ngày đã định dạng
             );
           }
-          case "week": {
-            const startOfWeek = new Date(
-              now.setDate(now.getDate() - now.getDay() + 1)
-            ); // Start of the week (Monday)
-            const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6)); // End of the week (Sunday)
+          return true; // Nếu không có từ khóa, trả về tất cả
+        })
+        // .filter((transaction) => {
+        //   // Lọc theo thời gian
+        //   switch (dateFilter) {
+        //     case "today": {
+        //       const transactionDate = new Date(transaction.createdAt);
+        //       return (
+        //         transactionDate.getDate() === now.getDate() &&
+        //         new Date(transaction.createdAt).getMonth() === now.getMonth() &&
+        //         new Date(transaction.createdAt).getFullYear() ===
+        //           now.getFullYear()
+        //       );
+        //     }
+        //     case "week": {
+        //       const startOfWeek = new Date(
+        //         now.setDate(now.getDate() - now.getDay() + 1)
+        //       ); // Start of the week (Monday)
+        //       const endOfWeek = new Date(now.setDate(startOfWeek.getDate() + 6)); // End of the week (Sunday)
+        //       const transactionDate = new Date(transaction.createdAt);
+        //       return (
+        //         transactionDate >= startOfWeek && transactionDate <= endOfWeek
+        //       );
+        //     }
+        //     case "month":
+        //       return (
+        //         new Date(transaction.createdAt).getMonth() === now.getMonth() &&
+        //         new Date(transaction.createdAt).getFullYear() ===
+        //           now.getFullYear()
+        //       );
+        //     case "year":
+        //       return (
+        //         new Date(transaction.createdAt).getFullYear() ===
+        //         now.getFullYear()
+        //       );
+        //     default:
+        //       return true; // "all"
+        //   }
+        // })
+        .filter((transaction) => {
+          if (startDate && endDate) {
             const transactionDate = new Date(transaction.createdAt);
-            return (
-              transactionDate >= startOfWeek && transactionDate <= endOfWeek
-            );
+            return transactionDate >= startDate && transactionDate <= endDate;
           }
-          case "month":
-            return (
-              new Date(transaction.createdAt).getMonth() === now.getMonth() &&
-              new Date(transaction.createdAt).getFullYear() ===
-                now.getFullYear()
-            );
-          case "year":
-            return (
-              new Date(transaction.createdAt).getFullYear() ===
-              now.getFullYear()
-            );
-          default:
-            return true; // "all"
-        }
-      })
-      .filter((transaction) => {
-        // Lọc theo loại giao dịch
-        if (typeFilter === "all") return true;
-        console.log(transaction.activity);
-        console.log(typeFilter);
+          return true; // Nếu không chọn khoảng thời gian, trả về tất cả
+        })
+        .filter((transaction) => {
+          // Lọc theo loại giao dịch
+          if (typeFilter === "all") return true;
+          console.log(transaction.activity);
+          console.log(typeFilter);
 
-        return transaction.activity === typeFilter;
-      })
-      .filter((transaction) => {
-        // Lọc theo trạng thái giao dịch
-        if (statusFilter === "all") return true;
-        return transaction.status === statusFilter;
-      });
+          return transaction.activity === typeFilter;
+        })
+        .filter((transaction) => {
+          // Lọc theo trạng thái giao dịch
+          if (statusFilter === "all") return true;
+          return transaction.status === statusFilter;
+        })
+    );
   };
 
   useEffect(() => {
@@ -523,7 +548,10 @@ const Wallet = () => {
                             }`}
                           >
                             {transaction.activity === "Nạp tiền" ? "+" : "-"}
-                            {transaction.money}
+                            {new Intl.NumberFormat("vi-VN", {
+                              style: "currency",
+                              currency: "VND",
+                            }).format(transaction.money)}
                           </span>
                         </div>
                       ))}
@@ -550,7 +578,7 @@ const Wallet = () => {
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                         <span>
-                          Tiền đã nạp vào ví thành công sẽ không thể rút lại.
+                          Tiền đã nạp vào ví thành công sẽ không thể hoàn lại.
                         </span>
                       </li>
                       <li className="flex items-start gap-2">
@@ -602,7 +630,30 @@ const Wallet = () => {
                         className="mb-4"
                       />
                     </div>
-                    <Select value={dateFilter} onValueChange={setDateFilter}>
+                    <div className="flex gap-4">
+                      {/* Input cho ngày bắt đầu */}
+                      <div>
+                        <DatePickerInput
+                          selectedDate={startDate}
+                          onDateChange={setStartDate}
+                          inputProps={{
+                            placeholder: "Ngày bắt đầu",
+                          }}
+                        />
+                      </div>
+
+                      {/* Input cho ngày kết thúc */}
+                      <div>
+                        <DatePickerInput
+                          selectedDate={endDate}
+                          onDateChange={setEndDate}
+                          inputProps={{
+                            placeholder: "Ngày kết thúc",
+                          }}
+                        />
+                      </div>
+                    </div>
+                    {/* <Select value={dateFilter} onValueChange={setDateFilter}>
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Thời gian" />
                       </SelectTrigger>
@@ -613,7 +664,7 @@ const Wallet = () => {
                         <SelectItem value="month">Tháng này</SelectItem>
                         <SelectItem value="year">Năm nay</SelectItem>
                       </SelectContent>
-                    </Select>
+                    </Select> */}
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Loại giao dịch" />
@@ -682,10 +733,21 @@ const Wallet = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell className="font-medium">
-                                {new Intl.NumberFormat("vi-VN", {
-                                  style: "currency",
-                                  currency: "VND",
-                                }).format(transaction.money)}
+                                <span
+                                  className={`font-medium ${
+                                    transaction.activity === "Nạp tiền"
+                                      ? "text-green-600"
+                                      : "text-amber-600"
+                                  }`}
+                                >
+                                  {transaction.activity === "Nạp tiền"
+                                    ? "+"
+                                    : "-"}
+                                  {new Intl.NumberFormat("vi-VN", {
+                                    style: "currency",
+                                    currency: "VND",
+                                  }).format(transaction.money)}
+                                </span>
                               </TableCell>
                               <TableCell>
                                 <Badge
@@ -775,8 +837,8 @@ const Wallet = () => {
                               value={depositAmount}
                               onChange={(e) => setDepositAmount(e.target.value)}
                             />
-                            <Label>Lưu ý mức tối thiếu là 50.000 VND</Label>{" "}
-                            <span className="text-red-500">*</span>
+                            {/* <Label>Lưu ý mức tối thiếu là 50.000 VND</Label>{" "}
+                            <span className="text-red-500">*</span> */}
                           </div>
                         </div>
 
@@ -1008,21 +1070,22 @@ const Wallet = () => {
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Tiền đã nạp vào ví thành công sẽ không thể rút
-                              lại.
+                              Tiền đã nạp vào ví thành công sẽ{" "}
+                              <strong>không thể hoàn lại</strong>.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Số tiền tối thiểu cho mỗi lần nạp là 50.000đ.
+                              Số tiền tối thiểu cho mỗi lần nạp là{" "}
+                              <strong>50.000đ</strong>.
                             </span>
                           </li>
                           <li className="flex items-start gap-2">
                             <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                             <span>
-                              Vui lòng kiểm tra kỹ thông tin trước khi thực hiện
-                              giao dịch.
+                              Vui lòng <strong>kiểm tra kỹ thông tin</strong>{" "}
+                              trước khi thực hiện giao dịch.
                             </span>
                           </li>
                         </ul>

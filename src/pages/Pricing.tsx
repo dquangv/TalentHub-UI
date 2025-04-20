@@ -199,6 +199,7 @@ const Pricing = () => {
 
       const userInfo = JSON.parse(userInfoStr);
       const clientId = userInfo?.clientId;
+      if (!clientId) return;
 
       const response = await api.get(
         `/v1/clients/soldpackages/history/${clientId}`
@@ -281,7 +282,11 @@ const Pricing = () => {
     }
   };
 
-  const fetchVoucherPackageListByClientId = async (clientId: boolean) => {
+  const fetchVoucherPackageListByClientId = async (clientId?: string) => {
+    if (!clientId) {
+      setIsLoading(false)
+      return;
+    }
     try {
       const response = await api.get(
         "/v1/voucher-packages/all-voucher/client",
@@ -509,19 +514,19 @@ const Pricing = () => {
                         <div className="mt-auto">
                           {(plan.typePackage !== "NORMAL" ||
                             plan.myPackage) && (
-                            <Button
-                              className="w-full"
-                              variant={
-                                plan.status && !plan.myPackage
-                                  ? "default"
-                                  : "outline"
-                              }
-                              disabled={plan.myPackage}
-                              onClick={() => handleSubscribe(plan)}
-                            >
-                              {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                            </Button>
-                          )}
+                              <Button
+                                className="w-full"
+                                variant={
+                                  plan.status && !plan.myPackage
+                                    ? "default"
+                                    : "outline"
+                                }
+                                disabled={plan.myPackage}
+                                onClick={() => handleSubscribe(plan)}
+                              >
+                                {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                              </Button>
+                            )}
                         </div>
                       </div>
                     </Card>
@@ -665,8 +670,9 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác,
-              gói cũ sẽ mất. Bạn đã chắc chắn chưa?
+              {selectedPlan?.typePackage !== "NORMAL" && !selectedPlan?.myPackage
+                ? "Bạn có chắc chắn muốn mua gói này không?"
+                : "Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -735,9 +741,13 @@ const Pricing = () => {
                                 currentPackage.startDate
                               ).toLocaleDateString("vi-VN")}{" "}
                               -{" "}
-                              {new Date(
-                                currentPackage.endDate
-                              ).toLocaleDateString("vi-VN")}
+                              {currentPackage.endDate ? (
+                                new Date(
+                                  currentPackage.endDate
+                                ).toLocaleDateString("vi-VN")
+                              ) : (
+                                <span className="text-primary font-semibold">Vô thời hạn</span>
+                              )}
                             </span>
                           </div>
                           <div className="flex justify-between">
@@ -745,7 +755,11 @@ const Pricing = () => {
                               Thời gian còn lại:
                             </span>
                             <span className="font-medium">
-                              {currentPackage.remainingTimeFormatted}
+                              {currentPackage.endDate ? (
+                                currentPackage.remainingTimeFormatted
+                              ) : (
+                                <span className="text-primary font-semibold">Vô thời hạn</span>
+                              )}
                             </span>
                           </div>
                           <div className="flex justify-between">
@@ -783,31 +797,45 @@ const Pricing = () => {
                               className="h-2"
                             />
                           </div>
-                          <div>
-                            <div className="flex justify-between mb-2">
-                              <span className="text-muted-foreground">
-                                Thời gian còn lại:
-                              </span>
-                              <span className="font-medium">
-                                {Math.round(
-                                  currentPackage.remainingTimeInHours
-                                )}{" "}
-                                giờ
-                              </span>
+                          {currentPackage.endDate ? (
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <span className="text-muted-foreground">
+                                  Thời gian còn lại:
+                                </span>
+                                <span className="font-medium">
+                                  {Math.round(
+                                    currentPackage.remainingTimeInHours
+                                  )}{" "}
+                                  giờ
+                                </span>
+                              </div>
+                              <Progress
+                                value={
+                                  (currentPackage.remainingTimeInHours /
+                                    ((new Date(currentPackage.endDate).getTime() -
+                                      new Date(
+                                        currentPackage.startDate
+                                      ).getTime()) /
+                                      3600000)) *
+                                  100
+                                }
+                                className="h-2"
+                              />
                             </div>
-                            <Progress
-                              value={
-                                (currentPackage.remainingTimeInHours /
-                                  ((new Date(currentPackage.endDate).getTime() -
-                                    new Date(
-                                      currentPackage.startDate
-                                    ).getTime()) /
-                                    3600000)) *
-                                100
-                              }
-                              className="h-2"
-                            />
-                          </div>
+                          ) : (
+                            <div>
+                              <div className="flex justify-between mb-2">
+                                <span className="text-muted-foreground">
+                                  Thời hạn sử dụng:
+                                </span>
+                                <span className="font-medium text-primary">
+                                  Vô thời hạn
+                                </span>
+                              </div>
+                              <Progress value={100} className="h-2" />
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
