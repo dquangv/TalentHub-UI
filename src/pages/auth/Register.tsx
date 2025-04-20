@@ -142,7 +142,6 @@ const Register = () => {
       setError("");
       setActiveTab("personalInfo");
     } else if (activeTab === "personalInfo") {
-      // Validate personal info
       if (!formData.firstName || !formData.lastName || !formData.phoneNumber) {
         setError("Vui lòng điền đầy đủ thông tin cá nhân");
         return;
@@ -217,7 +216,7 @@ const Register = () => {
 
       notification.success({
         message: "Đăng ký thành công",
-        description: "Chào mừng bạn đến với nền tảng của chúng tôi!",
+        description: "Chào mừng bạn đến với TalentHub!",
       });
 
       navigate("/");
