@@ -31,6 +31,7 @@ import {
   Loader2,
   ExternalLink,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import api from "@/api/axiosConfig";
 import cvService from "@/api/cvService";
 import {
@@ -80,6 +81,28 @@ const Applicants = () => {
       }
     })
   }
+
+  const exportToExcel = () => {
+    const excelData = applicants.map((applicant) => ({
+      "Họ và Tên": `${applicant.firstName} ${applicant.lastName}`,
+      "Email": applicant.email,
+      "Chuyên môn": applicant.position || "Không có chuyên môn",
+      "Tên công việc": applicant.jobTitle || "Không có tên công việc",
+      "Ngày ứng tuyển": formatAppliedDate(applicant.appliedDate),
+      "Trạng thái": getStatusText(applicant.status),
+      "Đánh giá": applicant.clientReviewRating || "Chưa đánh giá",
+      "Ghi chú đánh giá": applicant.clientReviewNote || "",
+      "Link CV": applicant.cvURL || "Không có CV",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
+
+    XLSX.writeFile(workbook, `Applicants_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   useEffect(() => {
     if (applicants?.length > 0) {
       const jobId = applicants[0]?.jobId
@@ -375,7 +398,7 @@ const Applicants = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline">
+              <Button variant="outline" onClick={exportToExcel}>
                 <Download className="w-4 h-4 mr-2" />
                 Xuất Excel
               </Button>
