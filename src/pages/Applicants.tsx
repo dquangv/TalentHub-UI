@@ -85,7 +85,7 @@ const Applicants = () => {
   useEffect(() => {
     if (applicants?.length > 0) {
       const jobId = applicants[0]?.jobId
-      if(jobId){
+      if (jobId) {
         fetchJob(jobId)
       }
     }
@@ -140,7 +140,7 @@ const Applicants = () => {
       case "Viewed":
         return "Đã xem";
       case "Rejected":
-        return "Từ chối";
+        return "Đã từ chối";
       // case "Cancelled":
       //   return "Đã hủy";
       case "Approved":
@@ -154,14 +154,10 @@ const Applicants = () => {
     switch (status) {
       case "Applied":
         return "secondary";
-      case "Viewed":
-        return "default";
-      case "In Progress":
-        return "warning";
-      case "Completed":
+      case "Rejected":
+        return "rejected";
+      case "Approved":
         return "success";
-      case "Cancelled":
-        return "destructive";
       default:
         return "default";
     }
@@ -258,7 +254,7 @@ const Applicants = () => {
   if (error) {
     return <div>{error}</div>;
   }
-  
+
 
   async function handleApproved(data) {
     setLoading(true);
@@ -269,7 +265,7 @@ const Applicants = () => {
         description: "Chấp thuận thành công",
       });
       console.log('applicants ', applicants)
-      if(applicants.length > 0) {
+      if (applicants.length > 0) {
         const jobId = applicants[0]?.jobId
         await api.get(`/v1/jobs/close-job/${jobId}`).then(() => {
           fetchJob(jobId)
@@ -516,7 +512,7 @@ const Applicants = () => {
                             <TooltipTrigger asChild>
                               <Button
                                 // disabled={applicant.status !== "Applied"}
-                                disabled={enableAction}
+                                disabled={enableAction || applicant.status == "Rejected"}
                                 onClick={() =>
                                   handleApproved({
                                     jobId: applicant?.jobId,
@@ -543,7 +539,7 @@ const Applicants = () => {
                                 size="sm"
                                 variant="outline"
                                 // disabled={applicant.status !== "Applied"}
-                                disabled={enableAction}
+                                disabled={enableAction || applicant.status == "Rejected"}
                                 onClick={() =>
                                   handleReject({
                                     jobId: applicant?.jobId,
@@ -570,6 +566,8 @@ const Applicants = () => {
                                 disabled={applicant.status !== "Approved"}
                                 onClick={() => {
                                   setSelectedFreelancerId(applicant.id);
+                                  setRating(applicant.clientReviewRating || 0);
+                                  setNote(applicant.clientReviewNote || "");
                                   setReviewDialogOpen(true);
                                 }}
                                 className="text-yellow-600"
@@ -654,7 +652,7 @@ const Applicants = () => {
                 <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button onClick={handleReviewSubmit}>Gửi đánh giá</Button>
+                <Button onClick={handleReviewSubmit} disabled={note != null}>{!note ? "Bạn đã đánh giá" : "Gửi đánh giá"}</Button>
               </div>
             </div>
           </DialogContent>
