@@ -234,7 +234,8 @@ const Settings = () => {
                 <>
                   <div className="flex items-center text-amber-500 mb-2">
                     <CircleAlert className="h-5 w-5 mr-2 flex-shrink-0" />
-                    <p>Hồ sơ của bạn chưa hoàn thiện. Điều này có thể ảnh hưởng đến khả năng tiếp cận khách hàng.</p>
+                    {/* <p>Hồ sơ của bạn chưa hoàn thiện. Điều này có thể ảnh hưởng đến khả năng tiếp cận khách hàng.</p> */}
+                    <p>Hồ sơ của bạn chưa hoàn thiện. Vui lòng cung cấp các thông tin cần thiết để admin xác thực</p>
                   </div>
 
                   <div className="mt-3">
