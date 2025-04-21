@@ -5,10 +5,10 @@ interface TotalStatsProps {
   totalAccounts: number;
   totalRevenue: number;
   accountGrowth: number;
-  revenuesGrowth: number;
+  revenueGrowth: number;
 }
 
-export function TotalStats({ totalAccounts, totalRevenue, accountGrowth, revenuesGrowth }: TotalStatsProps) {
+export function TotalStats({ totalAccounts, totalRevenue, accountGrowth, revenueGrowth }: TotalStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
@@ -37,7 +37,7 @@ export function TotalStats({ totalAccounts, totalRevenue, accountGrowth, revenue
             })}
           </div>
           <p className="text-xs text-muted-foreground">
-            {`${revenuesGrowth > 0 ? '+' : ''}${revenuesGrowth.toFixed(1)}% so với tháng trước`}
+            {`${revenueGrowth > 0 ? '+' : ''}${revenueGrowth.toFixed(1)}% so với tháng trước`}
           </p>
         </CardContent>
       </Card>
