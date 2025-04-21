@@ -318,7 +318,9 @@ const JobDetail = () => {
                     >
                       {!jobFreelancerInfo?.status
                         ? "Ứng tuyển ngay"
-                        : "Đã ứng tuyển"}
+                        : jobFreelancerInfo?.status === "Applied"
+                          ? "Đã ứng tuyển"
+                          : jobFreelancerInfo?.status === "Approved" ? "Đã chấp thuận" : "Đã từ chối"}
                     </Button>
 
                     {/* Save/Unsave job button */}
