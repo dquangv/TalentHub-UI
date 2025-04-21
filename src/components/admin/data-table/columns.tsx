@@ -210,14 +210,39 @@ export const accountColumns = [
   },
   {
     id: "role",
-    accessorKey: "role",
+    accessorKey: "role", 
     header: "Quyền",
   },
   {
     id: "status",
     accessorKey: "status",
     header: "Trạng thái",
-    cell: ({ row }) => (row.getValue("status") ? "Đang hoạt động" : "Đã khóa"),
+    cell: ({ row }: { row: any }) => {
+      const status = row.getValue("status");
+      let variant: "default" | "success" | "destructive" | "warning" = "default";
+      let label = "Chưa xác thực";
+      let style = {};
+
+      switch (status) {
+        case "Xác thực":
+          variant = "success";
+          label = "Xác thực";
+          style = { backgroundColor: "#22c55e", color: "white" };
+          break;
+        case "Khóa":
+          variant = "destructive";
+          label = "Khóa";
+          style = { backgroundColor: "#ef4444", color: "white" };
+          break;
+        case "Chưa xác thực":
+          variant = "warning";
+          label = "Chưa xác thực";
+          style = { backgroundColor: "#eab308", color: "white" };
+          break;
+      }
+
+      return <Badge variant={variant} style={style}>{label}</Badge>;
+    },
   },
   {
     id: "createdAt",
@@ -228,10 +253,9 @@ export const accountColumns = [
   {
     id: "updatedAt",
     accessorKey: "updatedAt",
-    header: "Ngày sửa",
+    header: "Ngày sửa", 
     cell: ({ row }) => new Date(row.getValue("updatedAt")).toLocaleString(),
   },
-
 ];
 
 export const bannerColumns: ColumnDef<any>[] = [
