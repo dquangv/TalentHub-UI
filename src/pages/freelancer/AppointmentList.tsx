@@ -5,13 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -26,15 +19,16 @@ import {
   Video,
   MapPin,
   BookUser,
+  ArrowUpDown,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 
 const AppointmentList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [appointments, setAppointments] = useState<any[]>([]);
-  
-  const navigate = useNavigate();
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest"); 
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -48,10 +42,7 @@ const AppointmentList = () => {
         const appointmentsWithStatus = response.data.map((appointment: any) => ({
           ...appointment,
         }));
-        const sortedAppointments = appointmentsWithStatus.sort((a: any, b: any) =>
-          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-        );
-        setAppointments(sortedAppointments);
+        setAppointments(appointmentsWithStatus);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
@@ -60,15 +51,23 @@ const AppointmentList = () => {
     fetchAppointments();
   }, [navigate]);
 
-  const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch =
-      appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.topic.toLowerCase().includes(searchTerm.toLowerCase());
+  const handleSort = () => {
+    setSortOrder(sortOrder === "newest" ? "oldest" : "newest");
+  };
 
-
-    return matchesSearch;
-  });
+  const filteredAppointments = appointments
+    .filter((appointment) => {
+      const matchesSearch =
+        appointment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.mail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appointment.topic.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      const timeA = new Date(a.startTime).getTime();
+      const timeB = new Date(b.startTime).getTime();
+      return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
+    });
 
   return (
     <div className="py-12">
@@ -107,10 +106,16 @@ const AppointmentList = () => {
                 <TableRow>
                   <TableHead>Nhà tuyển dụng</TableHead>
                   <TableHead>Chủ đề</TableHead>
-                  <TableHead>Thời gian</TableHead>
+                  <TableHead>
+                    <button
+                      className="flex items-center gap-2 hover:text-primary"
+                      onClick={handleSort}
+                    >
+                      Thời gian
+                      <ArrowUpDown className="w-4 h-4" />
+                    </button>
+                  </TableHead>
                   <TableHead>Hình thức</TableHead>
-                  {/* <TableHead>Nhà tuyển dụng</TableHead> */}
-                  {/* <TableHead>Trạng thái</TableHead> */}
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
@@ -187,9 +192,6 @@ const AppointmentList = () => {
                             Tham gia
                           </Button>
                         )}
-                        {/* <Button size="sm" variant="outline">
-                          <BookUser className="w-4 h-4" />
-                        </Button> */}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -207,7 +209,6 @@ const AppointmentList = () => {
               <h3 className="text-xl font-semibold mb-2">
                 Chưa có cuộc hẹn nào
               </h3>
-             
               <Button asChild>
                 <Link to="/jobs">Tìm công việc</Link>
               </Button>
