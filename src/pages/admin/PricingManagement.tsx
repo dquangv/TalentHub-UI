@@ -28,7 +28,8 @@ interface VoucherPackage {
   numberPost?: number;
   status: boolean;
   purchaseCount?: number;
-  description?: string; // Thêm description vào interface
+  description?: string;
+  typePackage: "NORMAL" | "SILVER" | "GOLD" | "DIAMOND";
 }
 
 const defaultPackage: Omit<VoucherPackage, "id"> = {
@@ -38,6 +39,7 @@ const defaultPackage: Omit<VoucherPackage, "id"> = {
   status: true,
   numberPost: 0,
   description: "",
+  typePackage: "NORMAL"
 };
 
 type TabType = "list" | "grid";
@@ -59,7 +61,20 @@ export default function PricingManagement() {
   const fetchVoucherPackages = async () => {
     try {
       const response = await api.get("/v1/voucher-packages");
-      setVoucherPackages(response.data);
+      // Gán typePackage cho mỗi gói dựa vào tên
+      const packagesWithType = response.data.map((pkg: VoucherPackage) => {
+        let typePackage = "NORMAL";
+        const nameLower = pkg.name.toLowerCase();
+        if (nameLower.includes("kim cương")) {
+          typePackage = "DIAMOND";
+        } else if (nameLower.includes("vàng")) {
+          typePackage = "GOLD";
+        } else if (nameLower.includes("bạc")) {
+          typePackage = "SILVER";
+        }
+        return {...pkg, typePackage};
+      });
+      setVoucherPackages(packagesWithType);
     } catch (error) {
       console.error("Error fetching voucher packages:", error);
     } finally {
@@ -89,17 +104,22 @@ export default function PricingManagement() {
 
     setIsSubmitting(true);
     try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const userId = userInfo.userId;
+
       const requestData = {
         name: editPackage.name,
         description: editPackage.description,
         price: editPackage.price,
-        numberPost: editPackage.numberPost,
-        status: editPackage.status,
         duration: editPackage.duration,
+        status: editPackage.status,
+        accountId: userId,
+        typePackage: editPackage.typePackage,
+        numberPost: editPackage.numberPost
       };
 
       const response = await api.put(
-        `/v1/voucher-packages/update-by-name?name=${encodeURIComponent(editPackage.name)}`,
+        `/v1/voucher-packages`,
         requestData
       );
 
