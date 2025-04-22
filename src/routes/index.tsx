@@ -145,10 +145,7 @@ export const mainRoutes: RouteObject[] = [
     path: '/forgot-password',
     element: <ForgotPassword />
   },
-  {
-    path: '/appointment/:id',
-    element: <Appointment />
-  },
+ 
   {
     path: 'freelancer/appointment',
     element: <AppointmentFreelancerList />
