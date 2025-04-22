@@ -48,8 +48,10 @@ const AppointmentList = () => {
         const appointmentsWithStatus = response.data.map((appointment: any) => ({
           ...appointment,
         }));
-        setAppointments(appointmentsWithStatus);
-
+        const sortedAppointments = appointmentsWithStatus.sort((a: any, b: any) =>
+          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+        );
+        setAppointments(sortedAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       }
