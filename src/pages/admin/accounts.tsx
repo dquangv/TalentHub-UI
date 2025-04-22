@@ -16,11 +16,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+type StatusAccount = 'Xác thực' | 'Chưa xác thực' | 'Khóa';
+
 interface Account {
   id: number;
   email: string;
   role: string;
-  status: boolean;
+  status: StatusAccount;
   createdAt: string;
   updatedAt: string;
 }
@@ -48,6 +50,7 @@ export default function AccountsPage() {
           setAccounts(response.data);
         }
       } catch (err) {
+        console.error("Error fetching accounts:", err);
       } finally {
         setLoading(false);
       }
@@ -62,11 +65,13 @@ export default function AccountsPage() {
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
-            account.email === email ? { ...account, status: false } : account
+            account.email === email ? { ...account, status: 'Khóa' } : account
           )
         );
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error banning account:", err);
+    }
   };
 
   const handleUnban = async (email: string) => {
@@ -75,11 +80,13 @@ export default function AccountsPage() {
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
-            account.email === email ? { ...account, status: true } : account
+            account.email === email ? { ...account, status: 'Xác thực' } : account
           )
         );
       } 
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error unbanning account:", err);
+    }
   };
 
   const handleConfirm = async () => {
@@ -97,9 +104,7 @@ export default function AccountsPage() {
   const filteredAccounts = accounts.filter(account => {
     const emailMatch = account.email.toLowerCase().includes(filters.email.toLowerCase());
     const roleMatch = filters.role === "all" || account.role === filters.role;
-    const statusMatch = filters.status === "all" || 
-      (filters.status === "active" && account.status) ||
-      (filters.status === "banned" && !account.status);
+    const statusMatch = filters.status === "all" || account.status === filters.status;
     
     return emailMatch && roleMatch && statusMatch;
   });
@@ -142,8 +147,9 @@ export default function AccountsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả</SelectItem>
-            <SelectItem value="active">Đang hoạt động</SelectItem>
-            <SelectItem value="banned">Đã khóa</SelectItem>
+            <SelectItem value="Xác thực">Xác thực</SelectItem>
+            <SelectItem value="Chưa xác thực">Chưa xác thực</SelectItem>
+            <SelectItem value="Khóa">Khóa</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -178,10 +184,12 @@ export default function AccountsPage() {
               header: "Thao tác",
               cell: ({ row }) => {
                 const email = row.getValue("email");
-                const isBanned = !row.getValue("status");
+                const status = row.getValue("status") as StatusAccount;
+                const isLocked = status === 'Khóa';
+                
                 return (
                   <div className="flex space-x-2">
-                    {isBanned ? (
+                    {isLocked ? (
                       <Button
                         onClick={() => {
                           setSelectedAction({ type: "unban", email: email as string });
