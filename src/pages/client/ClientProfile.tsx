@@ -560,7 +560,7 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.3}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Chức danh</label>
+                    <label className="text-sm font-medium">Chức danh (hiện tại)</label>
                     <Input
                       value={profile.title}
                       onChange={(e) =>
@@ -589,7 +589,7 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.7}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách từ</label>
+                    <label className="text-sm font-medium">Ngân sách từ (VNĐ)</label>
                     <Input
                       type="number"
                       value={profile.fromPrice}
@@ -606,7 +606,7 @@ const ClientProfile = () => {
 
                 <FadeInWhenVisible delay={0.8}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách đến</label>
+                    <label className="text-sm font-medium">Ngân sách đến (VNĐ)</label>
                     <Input
                       type="number"
                       value={profile.toPrice}
