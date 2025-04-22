@@ -9,9 +9,9 @@ interface RevenueDTOResponse {
 }
 
 export function UserStats() {
-  const [weeklyData, setWeeklyData] = useState<RevenueDTOResponse[]>([]);
   const [monthlyData, setMonthlyData] = useState<RevenueDTOResponse[]>([]);
   const [quarterlyData, setQuarterlyData] = useState<RevenueDTOResponse[]>([]);
+  const [yearlyData, setYearlyData] = useState<RevenueDTOResponse[]>([]);
 
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -19,20 +19,15 @@ export function UserStats() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [weeklyRes, monthlyRes, quarterlyRes] = await Promise.all([
-          api.get(`/v1/revenues/week`, {
-            params: {
-              year: currentYear,
-              month: currentMonth
-            }
-          }),
+        const [monthlyRes, quarterlyRes, yearlyRes] = await Promise.all([
           api.get(`/v1/revenues/month/${currentYear}`),
           api.get(`/v1/revenues/quarter/${currentYear}`),
+          api.get(`/v1/revenues/year`),
         ]);
 
-        setWeeklyData(weeklyRes.data);
         setMonthlyData(monthlyRes.data);
         setQuarterlyData(quarterlyRes.data);
+        setYearlyData(yearlyRes.data);
         
       } catch (error) {
         console.error("Error fetching revenue data:", error);
@@ -66,26 +61,6 @@ export function UserStats() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
-          <CardTitle>Theo tuần (Tháng {currentMonth}/{currentYear})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" tickFormatter={(value) => `Tuần ${value}`} />
-              <YAxis tickFormatter={formatYAxis} />
-              <Tooltip
-                formatter={(value: number) => formatCurrency(value)}
-                labelFormatter={(label) => `Tuần ${label}`}
-              />
-              <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Theo tháng (Năm {currentYear})</CardTitle>
         </CardHeader>
         <CardContent>
@@ -117,6 +92,26 @@ export function UserStats() {
               <Tooltip
                 formatter={(value: number) => formatCurrency(value)}
                 labelFormatter={(label) => `Quý ${label}`}
+              />
+              <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Theo năm</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={yearlyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" tickFormatter={(value) => `${value}`} />
+              <YAxis tickFormatter={formatYAxis} />
+              <Tooltip
+                formatter={(value: number) => formatCurrency(value)}
+                labelFormatter={(label) => `Năm ${label}`}
               />
               <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" />
             </LineChart>

@@ -24,7 +24,7 @@ export default function DashboardPage() {
     jobGrowth: 0,
     approvedJobGrowth: 0,
     accountGrowth: 0,
-    revenuesGrowth: 0
+    revenueGrowth: 0
   });
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             jobGrowth: response.jobGrowth || 0,
             approvedJobGrowth : response.approvedJobGrowth || 0,
             accountGrowth: response.accountGrowth || 0,
-            revenuesGrowth: response.revenuesGrowth || 0
+            revenueGrowth: response.revenueGrowth || 0
           });
         }
       } catch (error) {
@@ -103,7 +103,7 @@ export default function DashboardPage() {
         totalAccounts={stats.totalAccounts}
         totalRevenue={stats.totalRevenue}
         accountGrowth={growthRates.accountGrowth}
-        revenuesGrowth={growthRates.revenuesGrowth}
+        revenueGrowth={growthRates.revenueGrowth}
       />
       
       <div className="space-y-8">
