@@ -17,6 +17,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import api from "@/api/axiosConfig";
 import PackageForm from "./PackageForm";
+import { notification } from "antd";
 
 interface VoucherPackage {
   id: number;
@@ -60,7 +61,7 @@ export default function PricingManagement() {
 
   const fetchVoucherPackages = async () => {
     try {
-      const response = await api.get("/v1/voucher-packages");
+      const response = await api.get("/v1/voucher-packages/all-voucher");
       // Gán typePackage cho mỗi gói dựa vào tên
       const packagesWithType = response.data.map((pkg: VoucherPackage) => {
         let typePackage = "NORMAL";
@@ -91,8 +92,16 @@ export default function PricingManagement() {
       setVoucherPackages((prev) => [...prev, response.data]);
       setIsCreating(false);
       setNewPackage(defaultPackage);
+      notification.success({
+        message: "Thành công",
+        description: "Tạo gói dịch vụ mới thành công",
+      });
     } catch (error) {
       console.error("Error creating package:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể tạo gói dịch vụ. Vui lòng thử lại sau.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -127,8 +136,16 @@ export default function PricingManagement() {
       await fetchVoucherPackages();
       setIsEditing(false);
       setEditPackage(null);
+      notification.success({
+        message: "Thành công",
+        description: "Cập nhật gói dịch vụ thành công",
+      });
     } catch (error) {
       console.error("Error updating package:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Không thể cập nhật gói dịch vụ. Vui lòng thử lại sau.",
+      });
     } finally {
       setIsSubmitting(false);
     }
