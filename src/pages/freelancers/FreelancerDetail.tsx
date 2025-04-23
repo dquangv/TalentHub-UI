@@ -55,6 +55,9 @@ const FreelancerDetail = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const isReviewValue = searchParams.get('is_review');
     console.log('isReview ',isReviewValue)
+    if(isReviewValue){
+      setDefaultTab("reviews")
+    }
   }, []);
 
   if (loading) {
