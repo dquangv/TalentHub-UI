@@ -29,6 +29,7 @@ const FreelancerDetail = () => {
   const [freelancer, setFreelancer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
+  const [defaultTab, setDefaultTab] = useState("overview")
   useEffect(() => {
     const fetchFreelancerDetail = async () => {
       try {
@@ -49,6 +50,15 @@ const FreelancerDetail = () => {
 
     fetchFreelancerDetail();
   }, [id]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const isReviewValue = searchParams.get('is_review');
+    console.log('isReview ',isReviewValue)
+    if(isReviewValue){
+      setDefaultTab("reviews")
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -134,7 +144,7 @@ const FreelancerDetail = () => {
           </FadeInWhenVisible>
 
           <FadeInWhenVisible delay={0.2}>
-            <Tabs defaultValue="overview" className="space-y-4">
+            <Tabs defaultValue={defaultTab} className="space-y-4">
               <TabsList className="bg-white shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>

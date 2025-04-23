@@ -669,7 +669,7 @@ const Applicants = () => {
                 <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
                   Hủy
                 </Button>
-                <Button onClick={handleReviewSubmit} disabled={note != null}>{!note ? "Bạn đã đánh giá" : "Gửi đánh giá"}</Button>
+                <Button onClick={handleReviewSubmit} disabled={rating != 0 && note != null}>{rating != 0 && note != null ? "Bạn đã đánh giá" : "Gửi đánh giá"}</Button>
               </div>
             </div>
           </DialogContent>
