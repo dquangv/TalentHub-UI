@@ -29,7 +29,7 @@ const FreelancerDetail = () => {
   const [freelancer, setFreelancer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
-
+  const [defaultTab, setDefaultTab] = useState("overview")
   useEffect(() => {
     const fetchFreelancerDetail = async () => {
       try {
