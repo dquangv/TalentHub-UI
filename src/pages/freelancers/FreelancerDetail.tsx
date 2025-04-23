@@ -141,7 +141,7 @@ const FreelancerDetail = () => {
           </FadeInWhenVisible>
 
           <FadeInWhenVisible delay={0.2}>
-            <Tabs defaultValue="overview" className="space-y-4">
+            <Tabs defaultValue={defaultTab} className="space-y-4">
               <TabsList className="bg-white shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
