@@ -11,6 +11,7 @@ interface User {
     introduction: string;
     image: string;
     role: string;
+    status: string;
 }
 
 interface ApiResponse<T> {

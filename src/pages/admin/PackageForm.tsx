@@ -44,7 +44,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
         />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Số lương bài post</label>
+        <label className="text-sm font-medium">Số lượng bài đăng</label>
         <input
           type="number"
           className="w-full p-2 border rounded-md"
@@ -56,7 +56,7 @@ const PackageForm = ({ data, onChange, onSubmit, onCancel, title, description, i
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Thời hạn đăng bài (ngày)</label>
+        <label className="text-sm font-medium">Thời hạn bài đăng (ngày)</label>
         <input
           type="number"
           className="w-full p-2 border rounded-md"

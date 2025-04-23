@@ -14,6 +14,7 @@ import {
   Trash2,
   Plus,
   User2,
+  AlertCircle,
 } from "lucide-react";
 import { notification } from "antd";
 import userService, { User } from "@/api/userService";
@@ -21,7 +22,9 @@ import clientService, { Company } from "@/api/clientService";
 import LocationSelector from "../freelancer/settings/LocationSelector";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CircleCheck, CircleAlert } from "lucide-react";
+import { CircleCheck, CircleAlert, CheckCircle2, Lock } from "lucide-react";
+
+
 const ClientProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [profile, setProfile] = useState<
@@ -44,6 +47,7 @@ const ClientProfile = () => {
     fromPrice: 0,
     toPrice: 0,
     typePrice: "",
+    status: ""
   });
 
   const [company, setCompany] = useState<Company>({
@@ -166,6 +170,7 @@ const ClientProfile = () => {
       calculateProfileCompletion();
     }
   }, [profile, hasCompany, fullName, fetching]);
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -473,6 +478,16 @@ const ClientProfile = () => {
                   <div>
                     <h2 className="text-2xl font-bold">{fullName}</h2>
                     <p className="text-muted-foreground">{profile.title}</p>
+                    <div className={`text-sm mt-1 px-3 py-1 rounded-full inline-flex items-center gap-1.5 ${
+                      profile.status === "Xác thực" ? "bg-green-100 text-green-800" :
+                      profile.status === "Chưa xác thực" ? "bg-amber-100 text-amber-800" :
+                      profile.status === "Khóa" ? "bg-red-100 text-red-800" : ""
+                    }`}>
+                      {profile.status === "Xác thực" && <CheckCircle2 className="w-4 h-4" />}
+                      {profile.status === "Chưa xác thực" && <AlertCircle className="w-4 h-4" />}
+                      {profile.status === "Khóa" && <Lock className="w-4 h-4" />}
+                      {profile.status}
+                    </div>
                   </div>
                 </div>
               </FadeInWhenVisible>
@@ -545,7 +560,7 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.3}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Chức danh</label>
+                    <label className="text-sm font-medium">Chức danh (hiện tại)</label>
                     <Input
                       value={profile.title}
                       onChange={(e) =>
@@ -574,7 +589,7 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.7}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách từ</label>
+                    <label className="text-sm font-medium">Ngân sách từ (VNĐ)</label>
                     <Input
                       type="number"
                       value={profile.fromPrice}
@@ -591,7 +606,7 @@ const ClientProfile = () => {
 
                 <FadeInWhenVisible delay={0.8}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách đến</label>
+                    <label className="text-sm font-medium">Ngân sách đến (VNĐ)</label>
                     <Input
                       type="number"
                       value={profile.toPrice}

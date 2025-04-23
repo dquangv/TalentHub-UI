@@ -127,7 +127,7 @@ const Footer = () => {
                     onClick={(e) => handleProtectedLink(e, '/pricing')}
                     className="text-sm text-muted-foreground hover:text-foreground hover:underline"
                   >
-                    Bảng giá
+                    Gói dịch vụ
                   </Link>
                 </li>
               </ul>

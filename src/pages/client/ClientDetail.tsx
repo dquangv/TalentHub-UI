@@ -18,13 +18,20 @@ import {
   Phone,
   Building,
   User,
+  CheckCircle2,
+  AlertCircle,
+  Lock,
 } from 'lucide-react';
 import clientsService, { ClientDetail as ClientDetailType } from '@/api/clientsService';
+import userService from '@/api/userService';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+
 
 const ClientDetail = () => {
   const { id } = useParams();
   const [client, setClient] = useState<ClientDetailType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +43,10 @@ const ClientDetail = () => {
         const response = await clientsService.getClientDetail(parseInt(id));
         console.log('Client detail:', response.data);
         setClient(response.data);
+
+        // Fetch user data
+        const userResponse = await userService.getUserById(parseInt(id));
+        setUser(userResponse.data);
       } catch (error) {
         console.error("Error fetching client detail: ", error);
       } finally {
@@ -89,10 +100,22 @@ const ClientDetail = () => {
                 <div className="flex-grow">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                     <div>
-                      <h1 className="text-3xl font-bold mb-2 text-gray-900">{fullName}</h1>
-                      <p className="text-xl text-primary mb-4">
-                        {client.title}
-                      </p>
+                      <h1 className="text-3xl font-bold mb-4 text-gray-900">{fullName}</h1>
+                      <div className="flex items-center gap-2 mb-3">
+                        <p className="text-xl text-primary">
+                          {client.title}
+                        </p>
+                        <div className={`text-sm px-3 py-1 rounded-full inline-flex items-center gap-1.5 ${
+                          user?.status === "Xác thực" ? "bg-green-100 text-green-800" :
+                          user?.status === "Chưa xác thực" ? "bg-amber-100 text-amber-800" :
+                          user?.status === "Khóa" ? "bg-red-100 text-red-800" : ""
+                        }`}>
+                          {user?.status === "Xác thực" && <CheckCircle2 className="w-4 h-4" />}
+                          {user?.status === "Chưa xác thực" && <AlertCircle className="w-4 h-4" />}
+                          {user?.status === "Khóa" && <Lock className="w-4 h-4" />}
+                          {user?.status}
+                        </div>
+                      </div>
                       <div className="flex flex-wrap gap-6 text-gray-600 mb-4">
                         <div className="flex items-center group">
                           <MapPin className="w-5 h-5 mr-2 text-primary" />

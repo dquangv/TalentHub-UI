@@ -36,11 +36,13 @@ enum StatusJob {
     BANNED = 'Bị cấm',
     DRAFT = 'Bản nháp'
 }
+
 enum ScopeJob {
     SMALL = 'SMALL',
     MEDIUM = 'MEDIUM',
     LARGE = 'LARGE'
 }
+
 const PostJob = () => {
     const [searchParams] = useSearchParams();
     const jobId = searchParams.get('id');
@@ -292,7 +294,7 @@ const PostJob = () => {
         } catch (error) {
             notification.error({
                 message: 'Lỗi',
-                description: isEditMode ? 'Không thể cập nhật công việc' : 'Không thể tạo công việc'
+                description: isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.'
             });
             console.error('Error handling job:', error);
         } finally {

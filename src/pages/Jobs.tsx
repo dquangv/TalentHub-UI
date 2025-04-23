@@ -428,10 +428,12 @@ const Jobs = () => {
                       <div className="flex items-center">
                         <User className="w-4 h-4 mr-2" /> {job?.client.firstName} {job?.client.lastName}
                       </div>
-                      <div className="flex items-center">
-                        <Briefcase className="w-4 h-4 mr-2" />
-                        {job.companyName}
-                      </div>
+                      {job.companyName && (
+                        <div className="flex items-center">
+                          <Briefcase className="w-4 h-4 mr-2" />
+                          {job.companyName}
+                        </div>
+                      )}
                       <div className="flex items-center">
                         <Tag className="w-4 h-4 mr-2" />
                         {job.categoryName}
