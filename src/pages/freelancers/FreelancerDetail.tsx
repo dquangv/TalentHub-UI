@@ -29,6 +29,7 @@ const FreelancerDetail = () => {
   const [freelancer, setFreelancer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [jobs, setJobs] = useState([]);
+
   useEffect(() => {
     const fetchFreelancerDetail = async () => {
       try {
@@ -49,6 +50,12 @@ const FreelancerDetail = () => {
 
     fetchFreelancerDetail();
   }, [id]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const isReviewValue = searchParams.get('is_review');
+    console.log('isReview ',isReviewValue)
+  }, []);
 
   if (loading) {
     return (
