@@ -78,7 +78,17 @@ const ChooseRole = () => {
        navigate("/settingsfreelancer")
       }else {
         navigate("/client/profile")
+
+        notification.info({
+          message: "Thông báo",
+          description: "Vui lòng kiểm tra email để xác thực tài khoản"
+        });
       }
+
+      notification.success({
+        message: "Đăng ký thành công",
+        description: "Chào mừng bạn đến với TalentHub!",
+      });
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
