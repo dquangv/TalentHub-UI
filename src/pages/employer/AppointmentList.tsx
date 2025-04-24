@@ -110,7 +110,6 @@ const AppointmentList = () => {
   const handleMarkAsCompleted = async (appointmentId: number) => {
     try {
       const response = await api.post(`/v1/appointments/${appointmentId}/complete`);
-      console.log('data ', response)
       if (response === "Appointment marked as completed successfully") {
         notification.success({
           message: "Thành công",
@@ -131,29 +130,29 @@ const AppointmentList = () => {
 
   const filteredAppointments = Array.isArray(appointments)
     ? appointments
-        .filter((appointment) => {
-          const matchesSearch =
-            (appointment?.name || "")
+      .filter((appointment) => {
+        const matchesSearch =
+          (appointment?.name || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (appointment?.mail || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (appointment?.topic || "")
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (appointment?.jobTitle &&
+            appointment.jobTitle
               .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            (appointment?.mail || "")
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            (appointment?.topic || "")
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            (appointment?.jobTitle &&
-              appointment.jobTitle
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase()));
+              .includes(searchTerm.toLowerCase()));
 
-          return matchesSearch;
-        })
-        .sort((a, b) => {
-          const dateA = new Date(a.startTime).getTime();
-          const dateB = new Date(b.startTime).getTime();
-          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-        })
+        return matchesSearch;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.startTime).getTime();
+        const dateB = new Date(b.startTime).getTime();
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      })
     : [];
 
   // Hàm chuyển hướng đến chi tiết công việc
@@ -318,11 +317,10 @@ const AppointmentList = () => {
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`px-2 py-1 rounded-md text-sm ${
-                          appointment.isCompleted
+                        className={`px-2 py-1 rounded-md text-sm ${appointment.isCompleted
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
-                        }`}
+                          }`}
                       >
                         {appointment.isCompleted ? "Hoàn thành" : "Sắp diễn ra"}
                       </span>
