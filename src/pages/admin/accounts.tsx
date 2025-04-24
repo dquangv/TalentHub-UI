@@ -32,7 +32,7 @@ export default function AccountsPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [selectedAction, setSelectedAction] = useState<{
-    type: "ban" | "unban";
+    type: "ban" | "unban" | "verify";
     email: string;
   } | null>(null);
   const [filters, setFilters] = useState({
@@ -83,9 +83,24 @@ export default function AccountsPage() {
             account.email === email ? { ...account, status: 'Xác thực' } : account
           )
         );
-      } 
+      }
     } catch (err) {
       console.error("Error unbanning account:", err);
+    }
+  };
+
+  const handleVerify = async (email: string) => {
+    try {
+      const response = await api.post(`/v1/account/admin/verify?email=${email}`);
+      if (response.status === 200) {
+        setAccounts((prevAccounts) =>
+          prevAccounts.map((account) =>
+            account.email === email ? { ...account, status: 'Xác thực' } : account
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error verifying account:", err);
     }
   };
 
@@ -94,8 +109,10 @@ export default function AccountsPage() {
 
     if (selectedAction.type === "ban") {
       await handleBan(selectedAction.email);
-    } else {
+    } else if (selectedAction.type === "unban") {
       await handleUnban(selectedAction.email);
+    } else if (selectedAction.type === "verify") {
+      await handleVerify(selectedAction.email);
     }
     setShowConfirmDialog(false);
     setSelectedAction(null);
@@ -161,13 +178,15 @@ export default function AccountsPage() {
             <AlertDialogDescription>
               {selectedAction?.type === "ban"
                 ? "Bạn có chắc chắn muốn khóa tài khoản này?"
-                : "Bạn có chắc chắn muốn mở khóa tài khoản này?"}
+                : selectedAction?.type === "unban"
+                ? "Bạn có chắc chắn muốn mở khóa tài khoản này?"
+                : "Bạn có chắc chắn muốn xác thực tài khoản này?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
-              {selectedAction?.type === "ban" ? "Khóa" : "Mở khóa"}
+              {selectedAction?.type === "ban" ? "Khóa" : selectedAction?.type === "unban" ? "Mở khóa" : "Xác thực"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -189,6 +208,18 @@ export default function AccountsPage() {
                 
                 return (
                   <div className="flex space-x-2">
+                    {status === 'Chưa xác thực' && (
+                      <Button
+                        onClick={() => {
+                          setSelectedAction({ type: "verify", email: email as string });
+                          setShowConfirmDialog(true);
+                        }}
+                        variant="outline"
+                        className="text-blue-600"
+                      >
+                        Xác thực
+                      </Button>
+                    )}
                     {isLocked ? (
                       <Button
                         onClick={() => {
