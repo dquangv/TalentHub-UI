@@ -219,11 +219,15 @@ const Register = () => {
         description: "Chào mừng bạn đến với TalentHub!",
       });
 
-      if (formData.role == "FREELANCER"){
+      if (formData.role === "FREELANCER") {
         navigate("/settingsfreelancer")
-       }else {
-         navigate("/client/profile")
-       }
+      } else {
+        navigate("/client/profile")
+        notification.info({
+          message: "Thông báo",
+          description: "Vui lòng kiểm tra email để xác thực tài khoản"
+        });
+      }
     } catch (err: any) {
       console.error("Error during login:", err);
       notification.error({
