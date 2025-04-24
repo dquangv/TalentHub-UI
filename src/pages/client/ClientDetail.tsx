@@ -213,13 +213,17 @@ const ClientDetail = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Ngân sách từ:</span>
                           <span className="font-medium">
-                            {client.fromPrice.toLocaleString()} VND
+                            {client.fromPrice
+                              ? `${client.fromPrice.toLocaleString()} VND`
+                              : "Chưa có"}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600">Đến:</span>
                           <span className="font-medium">
-                            {client.toPrice.toLocaleString()} VND
+                            {client.toPrice
+                              ? `${client.toPrice.toLocaleString()} VND`
+                              : "Chưa có"}
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
