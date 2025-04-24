@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Edit } from "lucide-react";
+import { Edit, CheckCircle } from "lucide-react";
 import EditAppointmentDialog from "./EditAppointmentDialog";
 import { notification } from "antd";
 
@@ -36,6 +36,7 @@ const AppointmentList = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const navigate = useNavigate();
+
   const fetchAppointments = async () => {
     const data = JSON.parse(localStorage.getItem("userInfo") || "{}");
     if (!data?.clientId) {
@@ -53,7 +54,7 @@ const AppointmentList = () => {
         notification.warning({
           message: "Dữ liệu không hợp lệ",
           description: "Định dạng dữ liệu lịch hẹn không đúng",
-          placement: "topRight"
+          placement: "topRight",
         });
       }
     } catch (error) {
@@ -61,9 +62,11 @@ const AppointmentList = () => {
       setAppointments([]);
     }
   };
+
   useEffect(() => {
     fetchAppointments();
   }, [navigate]);
+
   const handleEditAppointment = (appointment) => {
     const appointmentToEdit = { ...appointment };
     if (appointmentToEdit.startTime) {
@@ -83,44 +86,53 @@ const AppointmentList = () => {
     setEditingAppointment(appointmentToEdit);
     setIsEditDialogOpen(true);
   };
+
   const handleUpdateSuccess = (updatedAppointment) => {
     if (!updatedAppointment || !updatedAppointment.id) {
       console.error("Invalid updated appointment data:", updatedAppointment);
       notification.error({
         message: "Lỗi",
         description: "Dữ liệu lịch hẹn cập nhật không hợp lệ",
-        placement: "topRight"
+        placement: "topRight",
       });
       return;
     }
 
-    setAppointments(prevAppointments => {
-      return prevAppointments.map(app =>
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((app) =>
         app && app.id === updatedAppointment.id ? updatedAppointment : app
-      );
-    });
+      )
+    );
 
     fetchAppointments();
   };
-  useEffect(() => {
-    fetchAppointments();
-  }, [navigate]);
+
 
   const filteredAppointments = Array.isArray(appointments)
-    ? appointments.filter((appointment) => {
-      const matchesSearch =
-        (appointment?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (appointment?.mail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (appointment?.topic || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (appointment?.jobTitle && appointment.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
+    ? appointments
+        .filter((appointment) => {
+          const matchesSearch =
+            (appointment?.name || "")
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            (appointment?.mail || "")
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            (appointment?.topic || "")
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            (appointment?.jobTitle &&
+              appointment.jobTitle
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()));
 
-      return matchesSearch;
-    })
-      .sort((a, b) => {
-        const dateA = new Date(a.startTime).getTime();
-        const dateB = new Date(b.startTime).getTime();
-        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
-      })
+          return matchesSearch;
+        })
+        .sort((a, b) => {
+          const dateA = new Date(a.startTime).getTime();
+          const dateB = new Date(b.startTime).getTime();
+          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        })
     : [];
 
   // Hàm chuyển hướng đến chi tiết công việc
@@ -131,15 +143,20 @@ const AppointmentList = () => {
   // Định dạng ngày tháng
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('vi-VN', options);
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    return date.toLocaleDateString("vi-VN", options);
   };
 
   // Định dạng giờ
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
   };
 
@@ -184,7 +201,9 @@ const AppointmentList = () => {
                   <TableHead>
                     <div
                       className="flex items-center gap-1 cursor-pointer"
-                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                      onClick={() =>
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                      }
                     >
                       Thời gian
                       {sortOrder === "asc" ? (
@@ -195,6 +214,7 @@ const AppointmentList = () => {
                     </div>
                   </TableHead>
                   <TableHead>Hình thức</TableHead>
+                  <TableHead>Trạng thái</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
@@ -253,9 +273,7 @@ const AppointmentList = () => {
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2 text-emerald-500" />
-                          <span>
-                            {formatTime(appointment.startTime)}
-                          </span>
+                          <span>{formatTime(appointment.startTime)}</span>
                         </div>
                         <div className="ml-6 text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded-md inline-block">
                           {appointment.duration} phút
@@ -278,12 +296,25 @@ const AppointmentList = () => {
                       </div>
                     </TableCell>
                     <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-md text-sm ${
+                          appointment.isCompleted
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {appointment.isCompleted ? "Hoàn thành" : "Sắp diễn ra"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
                       <div className="flex justify-end gap-2">
                         {appointment.link && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(appointment.link, '_blank')}
+                            onClick={() =>
+                              window.open(appointment.link, "_blank")
+                            }
                           >
                             <Video className="w-4 h-4 mr-2" />
                             Tham gia
@@ -296,6 +327,7 @@ const AppointmentList = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
+                      
                         <Button size="sm" variant="outline">
                           <BookUser className="w-4 h-4" />
                         </Button>
