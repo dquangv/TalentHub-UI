@@ -143,7 +143,7 @@ const Freelancers = () => {
     }
 
     filtered = filtered.filter(freelancer => {
-      const rate = parseFloat(freelancer.hourlyRate.replace(/[^\d.]/g, ''));
+      const rate = parseFloat(freelancer.hourlyRate.replace(/[^\d.]/g, '')) || 0.0;
       return rate >= filters.minRate && rate <= filters.maxRate;
     });
 
