@@ -1,15 +1,10 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
   MapPin,
   Star,
@@ -21,12 +16,12 @@ import {
   CheckCircle2,
   AlertCircle,
   Lock,
-} from 'lucide-react';
-import clientsService, { ClientDetail as ClientDetailType } from '@/api/clientsService';
-import userService from '@/api/userService';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-
+} from "lucide-react";
+import clientsService, {
+  ClientDetail as ClientDetailType,
+} from "@/api/clientsService";
+import userService from "@/api/userService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ClientDetail = () => {
   const { id } = useParams();
@@ -41,7 +36,7 @@ const ClientDetail = () => {
       try {
         setLoading(true);
         const response = await clientsService.getClientDetail(parseInt(id));
-        console.log('Client detail:', response.data);
+        console.log("Client detail:", response.data);
         setClient(response.data);
 
         // Fetch user data
