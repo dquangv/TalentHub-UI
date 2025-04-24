@@ -1,18 +1,15 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
   MapPin,
   Star,
-  MessageCircle,
   Mail,
   Phone,
   Building,
-  User,
   CheckCircle2,
   AlertCircle,
   Lock,
