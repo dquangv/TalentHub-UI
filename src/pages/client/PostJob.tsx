@@ -62,7 +62,7 @@ const PostJob = () => {
         title: '',
         description: '',
         scope: ScopeJob.SMALL,
-        hourWork: 40,
+        hourWork: null,
         duration: 30,
         jobOpportunity: false,
         fromPrice: 0,
@@ -196,6 +196,13 @@ const PostJob = () => {
             });
             return false;
         }
+        if(!data.hourWork){
+            notification.error({
+                message: 'Lỗi',
+                description: 'Vui lòng nhập số giờ làm việc'
+            });
+            return false;
+        }
         if (!data.fromPrice || !data.toPrice || data.fromPrice <= 0 || data.toPrice <= 0) {
             notification.error({
                 message: 'Lỗi',
@@ -278,7 +285,7 @@ const PostJob = () => {
                     title: '',
                     description: '',
                     scope: '',
-                    hourWork: 40,
+                    hourWork: null,
                     duration: 30,
                     jobOpportunity: false,
                     fromPrice: 0,
@@ -498,7 +505,7 @@ const PostJob = () => {
                                         <Input
                                             type="number"
                                             min="0"
-                                            placeholder="40"
+                                            placeholder=""
                                             value={jobData.hourWork || ''}
                                             onChange={(e) => setJobData({ ...jobData, hourWork: Math.max(0, parseFloat(e.target.value)) })}
                                         />
