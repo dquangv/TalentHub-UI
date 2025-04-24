@@ -15,6 +15,7 @@ import {
   Plus,
   User2,
   AlertCircle,
+  Shield,
 } from "lucide-react";
 import { notification } from "antd";
 import userService, { User } from "@/api/userService";
@@ -23,6 +24,7 @@ import LocationSelector from "../freelancer/settings/LocationSelector";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CircleCheck, CircleAlert, CheckCircle2, Lock } from "lucide-react";
+import Security from "../freelancer/settings/Security";
 
 
 const ClientProfile = () => {
@@ -415,7 +417,7 @@ const ClientProfile = () => {
       {/* Company Information Section */}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 mb-8">
+        <TabsList className="grid grid-cols-3 mb-8">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User2 className="w-4 h-4" />
             <span>Thông tin cá nhân</span>
@@ -423,6 +425,10 @@ const ClientProfile = () => {
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building className="w-4 h-4" />
             <span>Thông tin công ty</span>
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            <span>Bảo mật</span>
           </TabsTrigger>
         </TabsList>
 
@@ -770,6 +776,9 @@ const ClientProfile = () => {
               </Button>
             </div>
           </Card>
+        </TabsContent>
+        <TabsContent value="security">
+          <Security />
         </TabsContent>
       </Tabs>
     </div>
