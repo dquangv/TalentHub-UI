@@ -269,6 +269,7 @@ const PostJob = () => {
                         description: 'Thêm công việc thành công'
                     });
                     console.log(response)
+                    api.post(`/v1/jobs/notify_by_email?jobId=${response.data.jobId}`)
                     navigate(`/jobs/${response.data.jobId}`)
                 }
 
