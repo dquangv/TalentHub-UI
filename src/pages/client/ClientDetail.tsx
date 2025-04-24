@@ -37,7 +37,8 @@ const ClientDetail = () => {
         setClient(response.data);
 
         // Fetch user data
-        const userResponse = await userService.getUserById(parseInt(id));
+        const userResponse = await userService.getUserById(parseInt(response.data.userId));
+
         setUser(userResponse.data);
       } catch (error) {
         console.error("Error fetching client detail: ", error);
