@@ -14,6 +14,7 @@ interface ActiveClient {
     image: string;
     email: string;
     averageRating: number;
+    userId: number;
     companies: {
         id: number;
         companyName: string;
@@ -35,7 +36,6 @@ interface ClientDetail extends ActiveClient {
         projectDuration: number;
         projectBudget: number;
         freelancerAvatar: string;
-
     }[];
 }
 
