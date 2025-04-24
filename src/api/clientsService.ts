@@ -30,6 +30,12 @@ interface ClientDetail extends ActiveClient {
         rating: number;
         note: string;
         reviewerName: string;
+        projectTitle: string;
+        projectStartDate: string;
+        projectDuration: number;
+        projectBudget: number;
+        freelancerAvatar: string;
+
     }[];
 }
 
