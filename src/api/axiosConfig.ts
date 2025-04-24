@@ -89,10 +89,7 @@ axiosInstance.interceptors.response.use(
                     break;
 
                 case 500:
-                    notification.error({
-                        message: 'Lỗi hệ thống',
-                        description: 'Đã có lỗi xảy ra, vui lòng thử lại sau'
-                    });
+                   
                     break;
 
                 case 417:
