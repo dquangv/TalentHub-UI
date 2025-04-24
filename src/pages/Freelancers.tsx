@@ -99,8 +99,9 @@ const Freelancers = () => {
       setLoading(true);
       try {
         const data = await fetchFreelancers();
-        setFreelancers(data.data);
-        setFilteredFreelancers(data.data);
+        const freelancersIsValid = data.data.filter(fr => fr.status == "Xác thực")
+        setFreelancers(freelancersIsValid);
+        setFilteredFreelancers(freelancersIsValid);
       } catch (error) {
         console.error('Error loading freelancers:', error);
       } finally {
