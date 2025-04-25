@@ -16,7 +16,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Helmet } from 'react-helmet';
-import { UserIcon, BriefcaseIcon, ChartPieIcon } from '@heroicons/react/solid';
+import { UserIcon, BriefcaseIcon, ChartPieIcon, CurrencyDollarIcon,LibraryIcon } from '@heroicons/react/solid';
 import SEO from '@/components/SEO';
 
 interface Banner {
@@ -76,8 +76,8 @@ const BenefitCard = ({ Icon, colorClass, gradientClass, title, description, dela
   <FadeInWhenVisible delay={delay}>
     <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
       <div className="relative w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-        <Icon 
-          className={`w-8 h-8 transition-transform duration-300 group-hover:scale-110 ${colorClass}`} 
+        <Icon
+          className={`w-8 h-8 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
           style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
         />
         <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
@@ -955,33 +955,30 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Đặc điểm nổi bật</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FadeInWhenVisible delay={0.1}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <Users className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Cộng đồng lớn mạnh</h3>
-                <p className="text-muted-foreground">Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <TrendingUp className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Thanh toán an toàn</h3>
-                <p className="text-muted-foreground">Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.3}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <CheckCircle className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ nhanh chóng</h3>
-                <p className="text-muted-foreground">Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
-              </div>
-            </FadeInWhenVisible>
+            <BenefitCard
+              Icon={Users}
+              colorClass="text-blue-600"
+              gradientClass="bg-gradient-to-r from-blue-600 to-blue-400"
+              title="Cộng đồng lớn mạnh"
+              description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
+              delay={0.1}
+            />
+            <BenefitCard
+              Icon={CurrencyDollarIcon}
+              colorClass="text-orange-600"
+              gradientClass="bg-gradient-to-r from-orange-600 to-orange-400"
+              title="Thanh toán an toàn"
+              description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
+              delay={0.2}
+            />
+            <BenefitCard
+              Icon={LibraryIcon}
+              colorClass="text-green-600"
+              gradientClass="bg-gradient-to-r from-green-600 to-green-400"
+              title="Hỗ trợ nhanh chóng"
+              description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
+              delay={0.3}
+            />
           </div>
         </div>
       </section>
