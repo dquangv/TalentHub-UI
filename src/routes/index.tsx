@@ -42,6 +42,7 @@ import PaymentResult from "@/pages/payment/payment-result";
 import ReportsOfJob from '@/pages/ReportsOfJob';
 import FreelancerReports from '@/pages/FreelancerReports';
 import Clients from '@/pages/Clients';
+import BannedAccountCallback from '@/pages/BannedAccountCallback';
 export const chatLayoutPaths = ['/messaging'];
 
 export const mainRoutes: RouteObject[] = [
@@ -84,6 +85,10 @@ export const mainRoutes: RouteObject[] = [
   {
     path: '/oauth2-callback',
     element: <OAuth2Callback />
+  },
+  {
+    path: '/banned-account-callback',
+    element: <BannedAccountCallback />
   },
   {
     path: '/choose-role',
