@@ -104,9 +104,9 @@ const AppointmentList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nhà tuyển dụng</TableHead>
-                  <TableHead>Chủ đề</TableHead>
-                  <TableHead>
+                  <TableHead className="min-w-[120px]">Nhà tuyển dụng</TableHead>
+                  <TableHead className="min-w-[120px]">Chủ đề</TableHead>
+                  <TableHead className="min-w-[120px]">
                     <button
                       className="flex items-center gap-2 hover:text-primary"
                       onClick={handleSort}
@@ -115,8 +115,9 @@ const AppointmentList = () => {
                       <ArrowUpDown className="w-4 h-4" />
                     </button>
                   </TableHead>
-                  <TableHead>Hình thức</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
+                  <TableHead className="min-w-[120px]">Hình thức</TableHead>
+                  <TableHead className="min-w-[120px]">Trạng thái</TableHead>
+                  <TableHead className="min-w-[120px] text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -179,6 +180,16 @@ const AppointmentList = () => {
                           </>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-md text-sm ${appointment.isCompleted
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                          }`}
+                      >
+                        {appointment.isCompleted ? "Hoàn thành" : "Sắp diễn ra"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
