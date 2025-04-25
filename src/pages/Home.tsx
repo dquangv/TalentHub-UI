@@ -72,6 +72,22 @@ const FeatureCard = ({ Icon, colorClass, gradientClass, title, description, dela
 );
 
 
+const BenefitCard = ({ Icon, colorClass, gradientClass, title, description, delay }: any) => (
+  <FadeInWhenVisible delay={delay}>
+    <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
+      <div className="relative w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+        <Icon 
+          className={`w-8 h-8 transition-transform duration-300 group-hover:scale-110 ${colorClass}`} 
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="text-xl font-semibold mb-4 text-primary-700">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  </FadeInWhenVisible>
+);
+
 const IconCard = ({ Icon, colorClass, gradientClass, title, value, loading, description }: any) => (
   <FadeInWhenVisible>
     <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors group">
