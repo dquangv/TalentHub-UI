@@ -21,6 +21,7 @@ import Applicants from '@/pages/Applicants';
 import PricingManagement from '@/pages/admin/PricingManagement';
 import SavedJobs from '@/pages/freelancer/SavedJobs';
 import ForgotPassword from '@/pages/ForgetPassword';
+import Appointment from '@/pages/Appointment';
 import ClientProfile from '@/pages/client/ClientProfile';
 import { BannersPage } from '@/pages/banners';
 import MessagingPage from '@/pages/MessagingPage';
