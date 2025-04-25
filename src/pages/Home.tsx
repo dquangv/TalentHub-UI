@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Helmet } from 'react-helmet';
+import { UserIcon, BriefcaseIcon, ChartPieIcon } from '@heroicons/react/solid';
 import SEO from '@/components/SEO';
 
 interface Banner {
@@ -53,6 +54,28 @@ interface Job {
   remainingTimeFormatted?: string;
   createdTimeFormatted?: string;
 }
+
+const IconCard = ({ Icon, colorClass, gradientClass, title, value, loading, description }) => (
+  <FadeInWhenVisible>
+    <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors group">
+      <div className="relative w-12 h-12 mx-auto mb-4">
+        <Icon
+          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="text-3xl font-bold mb-2 text-primary-700">
+        {loading ? (
+          <AnimatedNumber start={0} end={50000} />
+        ) : (
+          <AnimatedNumber start={0} end={value} />
+        )}
+      </h3>
+      <p className="text-gray-700">{description}</p>
+    </Card>
+  </FadeInWhenVisible>
+);
 
 // Breadcrumb Component
 const Breadcrumb = () => (
@@ -391,45 +414,30 @@ const Home = () => {
       <section className="py-16" id="statistics-section">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FadeInWhenVisible>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.totalFreelancers} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng ứng viên tài năng</p>
-              </Card>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <Briefcase className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.postedJobs} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng dự án đã đăng</p>
-              </Card>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.4}>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.approvedFreelancerJobs} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng hợp tác thành công</p>
-              </Card>
-            </FadeInWhenVisible>
+            <IconCard
+              Icon={UserIcon}
+              colorClass="text-blue-500"
+              title="Số lượng ứng viên tài năng"
+              value={stats.totalFreelancers}
+              loading={stats.loading}
+              description="Số lượng ứng viên tài năng"
+            />
+            <IconCard
+              Icon={BriefcaseIcon}
+              colorClass="text-green-500"
+              title="Số lượng dự án đã đăng"
+              value={stats.postedJobs}
+              loading={stats.loading}
+              description="Số lượng dự án đã đăng"
+            />
+            <IconCard
+              Icon={ChartPieIcon}
+              colorClass="text-purple-500"
+              title="Số lượng hợp tác thành công"
+              value={stats.approvedFreelancerJobs}
+              loading={stats.loading}
+              description="Số lượng hợp tác thành công"
+            />
           </div>
         </div>
       </section>
