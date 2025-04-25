@@ -71,9 +71,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     websocketService.disconnect();
     setIsLoggedIn(false);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userInfo');
-    localStorage.setItem('adminRole', "false");
+    localStorage.clear();
   };
 
   return (
