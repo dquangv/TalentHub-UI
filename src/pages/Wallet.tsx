@@ -882,25 +882,6 @@ const Wallet = () => {
                                 </div>
                               </div>
                             </Card>
-
-                            <Card
-                              className={`p-4 cursor-pointer border transition-all ${
-                                depositMethod === "ewallet"
-                                  ? "border-primary bg-primary/5"
-                                  : ""
-                              }`}
-                              onClick={() => setDepositMethod("ewallet")}
-                            >
-                              <div className="flex flex-col items-center gap-2 text-center">
-                                <Banknote className="w-8 h-8 text-primary" />
-                                <div>
-                                  <p className="font-medium">Ví điện tử</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    MoMo/ZaloPay
-                                  </p>
-                                </div>
-                              </div>
-                            </Card>
                           </div>
                         </div>
 
