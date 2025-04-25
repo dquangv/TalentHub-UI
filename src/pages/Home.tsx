@@ -55,7 +55,24 @@ interface Job {
   createdTimeFormatted?: string;
 }
 
-const IconCard = ({ Icon, colorClass, gradientClass, title, value, loading, description }) => (
+const FeatureCard = ({ Icon, colorClass, gradientClass, title, description, delay }: any) => (
+  <FadeInWhenVisible delay={delay}>
+    <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
+      <div className="relative w-12 h-12 mx-auto mb-4">
+        <Icon 
+          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`} 
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="font-semibold text-lg mb-3 text-gray-800">{title}</h3>
+      <p className="text-gray-600 text-sm">{description}</p>
+    </Card>
+  </FadeInWhenVisible>
+);
+
+
+const IconCard = ({ Icon, colorClass, gradientClass, title, value, loading, description }: any) => (
   <FadeInWhenVisible>
     <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors group">
       <div className="relative w-12 h-12 mx-auto mb-4">
