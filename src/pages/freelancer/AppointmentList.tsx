@@ -116,6 +116,7 @@ const AppointmentList = () => {
                     </button>
                   </TableHead>
                   <TableHead>Hình thức</TableHead>
+                  <TableHead>Trạng thái</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
@@ -179,6 +180,16 @@ const AppointmentList = () => {
                           </>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-md text-sm ${appointment.isCompleted
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                          }`}
+                      >
+                        {appointment.isCompleted ? "Hoàn thành" : "Sắp diễn ra"}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
