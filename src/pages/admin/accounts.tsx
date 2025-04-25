@@ -208,7 +208,7 @@ export default function AccountsPage() {
                 
                 return (
                   <div className="flex space-x-2">
-                    {status === 'Chưa xác thực' && (
+                    {status === 'Chưa xác thực' ? (
                       <Button
                         onClick={() => {
                           setSelectedAction({ type: "verify", email: email as string });
@@ -219,8 +219,7 @@ export default function AccountsPage() {
                       >
                         Xác thực
                       </Button>
-                    )}
-                    {isLocked ? (
+                    ) : isLocked ? (
                       <Button
                         onClick={() => {
                           setSelectedAction({ type: "unban", email: email as string });
@@ -243,6 +242,7 @@ export default function AccountsPage() {
                         Khóa
                       </Button>
                     )}
+               
                   </div>
                 );
               },
