@@ -47,7 +47,13 @@ export default function AccountsPage() {
       try {
         const response = await api.get("/v1/account/admin");
         if (response.status === 200) {
-          setAccounts(response.data);
+          const statusOrder: StatusAccount[] = ['Chưa xác thực', 'Xác thực', 'Khóa'];
+
+          const sortedAccounts = response.data.sort((a: any, b: any) => {
+            return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+          });
+          
+          setAccounts(sortedAccounts);
         }
       } catch (err) {
         console.error("Error fetching accounts:", err);
@@ -122,7 +128,7 @@ export default function AccountsPage() {
     const emailMatch = account.email.toLowerCase().includes(filters.email.toLowerCase());
     const roleMatch = filters.role === "all" || account.role === filters.role;
     const statusMatch = filters.status === "all" || account.status === filters.status;
-    
+
     return emailMatch && roleMatch && statusMatch;
   });
 
@@ -179,8 +185,8 @@ export default function AccountsPage() {
               {selectedAction?.type === "ban"
                 ? "Bạn có chắc chắn muốn khóa tài khoản này?"
                 : selectedAction?.type === "unban"
-                ? "Bạn có chắc chắn muốn mở khóa tài khoản này?"
-                : "Bạn có chắc chắn muốn xác thực tài khoản này?"}
+                  ? "Bạn có chắc chắn muốn mở khóa tài khoản này?"
+                  : "Bạn có chắc chắn muốn xác thực tài khoản này?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -205,7 +211,7 @@ export default function AccountsPage() {
                 const email = row.getValue("email");
                 const status = row.getValue("status") as StatusAccount;
                 const isLocked = status === 'Khóa';
-                
+
                 return (
                   <div className="flex space-x-2">
                     {status === 'Chưa xác thực' ? (
@@ -242,7 +248,7 @@ export default function AccountsPage() {
                         Khóa
                       </Button>
                     )}
-               
+
                   </div>
                 );
               },
