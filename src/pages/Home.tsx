@@ -446,7 +446,7 @@ const Home = () => {
       <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50" id="top-jobs">
         <div className="container mx-auto px-6">
           <FadeInWhenVisible>
-            <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent py-4">
               Top Dự Án Nổi Bật
             </h2>
           </FadeInWhenVisible>
@@ -646,7 +646,7 @@ const Home = () => {
         <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50" id="freelancer-section">
           <div className="container mx-auto px-6">
             <FadeInWhenVisible>
-              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent py-4">
                 Tìm Kiếm Ứng Viên Tài Năng
               </h2>
             </FadeInWhenVisible>
