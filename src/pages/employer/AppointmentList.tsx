@@ -215,15 +215,13 @@ const AppointmentList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Ứng viên</TableHead>
-                  <TableHead>Chủ đề</TableHead>
-                  <TableHead>Bài đăng</TableHead>
-                  <TableHead>
+                  <TableHead className="min-w-[120px]">Ứng viên</TableHead>
+                  <TableHead className="min-w-[120px]">Chủ đề</TableHead>
+                  <TableHead className="min-w-[120px]">Bài đăng</TableHead>
+                  <TableHead className="min-w-[120px]">
                     <div
                       className="flex items-center gap-1 cursor-pointer"
-                      onClick={() =>
-                        setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                      }
+                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                     >
                       Thời gian
                       {sortOrder === "asc" ? (
@@ -233,9 +231,9 @@ const AppointmentList = () => {
                       )}
                     </div>
                   </TableHead>
-                  <TableHead>Hình thức</TableHead>
-                  <TableHead>Trạng thái</TableHead>
-                  <TableHead className="text-right">Thao tác</TableHead>
+                  <TableHead className="min-w-[120px]">Hình thức</TableHead>
+                  <TableHead className="min-w-[120px]">Trạng thái</TableHead>
+                  <TableHead className="min-w-[120px] text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -318,8 +316,8 @@ const AppointmentList = () => {
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-md text-sm ${appointment.isCompleted
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
                           }`}
                       >
                         {appointment.isCompleted ? "Hoàn thành" : "Sắp diễn ra"}
