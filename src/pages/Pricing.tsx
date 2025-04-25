@@ -343,7 +343,7 @@ const Pricing = () => {
           setTimeout(() => {
             messageApi.open({
               type: "error",
-              content: "Số dư của bạn không đủ để đăng ký gói",
+              content: "Số dư của bạn không đủ để đăng ký gói. Vui lòng nạp thêm tiền vào ví.",
             });
           }, 0);
         }
