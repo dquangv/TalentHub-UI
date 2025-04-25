@@ -62,7 +62,8 @@ const Login = () => {
 
       console.log("Login successful:", response);
       const data = response.data;
-      login({
+
+      await login({
         accessToken: data?.accessToken,
         userId: data?.userId,
         role: data?.role,
@@ -74,12 +75,12 @@ const Login = () => {
       });
 
       navigate("/", { replace: true });
-      window.location.reload();
     } catch (err: any) {
       console.error("Error during login:", err);
       notification.error({
-        message: 'Lỗi đăng nhập',
-        description: err.response?.data?.message || 'Đăng nhập không thành công'
+        message: "Lỗi đăng nhập",
+        description:
+          err.response?.data?.message || "Đăng nhập không thành công",
       });
     } finally {
       setLoading(false);
@@ -190,7 +191,7 @@ const Login = () => {
                   to="/forgot-password"
                   className="text-primary hover:underline"
                 >
-                 Click vào đây
+                  Click vào đây
                 </Link>
               </p>
             </Card>
