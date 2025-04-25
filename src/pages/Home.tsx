@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Helmet } from 'react-helmet';
+import { UserIcon, BriefcaseIcon, ChartPieIcon, CurrencyDollarIcon,LibraryIcon } from '@heroicons/react/solid';
 import SEO from '@/components/SEO';
 
 interface Banner {
@@ -53,6 +54,61 @@ interface Job {
   remainingTimeFormatted?: string;
   createdTimeFormatted?: string;
 }
+
+const FeatureCard = ({ Icon, colorClass, gradientClass, title, description, delay }: any) => (
+  <FadeInWhenVisible delay={delay}>
+    <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
+      <div className="relative w-12 h-12 mx-auto mb-4">
+        <Icon
+          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="font-semibold text-lg mb-3 text-gray-800">{title}</h3>
+      <p className="text-gray-600 text-sm">{description}</p>
+    </Card>
+  </FadeInWhenVisible>
+);
+
+
+const BenefitCard = ({ Icon, colorClass, gradientClass, title, description, delay }: any) => (
+  <FadeInWhenVisible delay={delay}>
+    <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
+      <div className="relative w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+        <Icon
+          className={`w-8 h-8 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="text-xl font-semibold mb-4 text-primary-700">{title}</h3>
+      <p className="text-muted-foreground">{description}</p>
+    </div>
+  </FadeInWhenVisible>
+);
+
+const IconCard = ({ Icon, colorClass, gradientClass, title, value, loading, description }: any) => (
+  <FadeInWhenVisible>
+    <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors group">
+      <div className="relative w-12 h-12 mx-auto mb-4">
+        <Icon
+          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
+        />
+        <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
+      </div>
+      <h3 className="text-3xl font-bold mb-2 text-primary-700">
+        {loading ? (
+          <AnimatedNumber start={0} end={50000} />
+        ) : (
+          <AnimatedNumber start={0} end={value} />
+        )}
+      </h3>
+      <p className="text-gray-700">{description}</p>
+    </Card>
+  </FadeInWhenVisible>
+);
 
 // Breadcrumb Component
 const Breadcrumb = () => (
@@ -391,45 +447,30 @@ const Home = () => {
       <section className="py-16" id="statistics-section">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FadeInWhenVisible>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <Users className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.totalFreelancers} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng ứng viên tài năng</p>
-              </Card>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <Briefcase className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.postedJobs} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng dự án đã đăng</p>
-              </Card>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.4}>
-              <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors">
-                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-3xl font-bold mb-2 text-primary-700">
-                  {stats.loading ? (
-                    <AnimatedNumber start={0} end={50000} />
-                  ) : (
-                    <AnimatedNumber start={0} end={stats.approvedFreelancerJobs} />
-                  )}
-                </h3>
-                <p className="text-gray-700">Số lượng hợp tác thành công</p>
-              </Card>
-            </FadeInWhenVisible>
+            <IconCard
+              Icon={UserIcon}
+              colorClass="text-blue-500"
+              title="Số lượng ứng viên tài năng"
+              value={stats.totalFreelancers}
+              loading={stats.loading}
+              description="Số lượng ứng viên tài năng"
+            />
+            <IconCard
+              Icon={BriefcaseIcon}
+              colorClass="text-green-500"
+              title="Số lượng dự án đã đăng"
+              value={stats.postedJobs}
+              loading={stats.loading}
+              description="Số lượng dự án đã đăng"
+            />
+            <IconCard
+              Icon={ChartPieIcon}
+              colorClass="text-purple-500"
+              title="Số lượng hợp tác thành công"
+              value={stats.approvedFreelancerJobs}
+              loading={stats.loading}
+              description="Số lượng hợp tác thành công"
+            />
           </div>
         </div>
       </section>
@@ -438,7 +479,7 @@ const Home = () => {
       <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50" id="top-jobs">
         <div className="container mx-auto px-6">
           <FadeInWhenVisible>
-            <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent py-4">
               Top Dự Án Nổi Bật
             </h2>
           </FadeInWhenVisible>
@@ -638,7 +679,7 @@ const Home = () => {
         <section className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50" id="freelancer-section">
           <div className="container mx-auto px-6">
             <FadeInWhenVisible>
-              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent py-4">
                 Tìm Kiếm Ứng Viên Tài Năng
               </h2>
             </FadeInWhenVisible>
@@ -646,27 +687,27 @@ const Home = () => {
             <div className="text-center space-y-6">
               <p className="text-gray-600 text-lg mb-8">Đăng ký và đăng việc để tìm kiếm ứng viên phù hợp với dự án của bạn</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <FadeInWhenVisible delay={0.1}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <Users className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Ứng viên chất lượng cao</h3>
-                    <p className="text-gray-600 text-sm">Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia có kỹ năng phù hợp.</p>
-                  </Card>
-                </FadeInWhenVisible>
-                <FadeInWhenVisible delay={0.2}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <CheckCircle className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Đảm bảo chất lượng</h3>
-                    <p className="text-gray-600 text-sm">Các freelancer đã được xác minh kỹ năng và đánh giá bởi các khách hàng trước đó.</p>
-                  </Card>
-                </FadeInWhenVisible>
-                <FadeInWhenVisible delay={0.3}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <Code className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Đa dạng lĩnh vực</h3>
-                    <p className="text-gray-600 text-sm">Từ phát triển web, mobile đến AI, machine learning và thiết kế UX/UI.</p>
-                  </Card>
-                </FadeInWhenVisible>
+                <FeatureCard
+                  Icon={Users}
+                  colorClass="text-blue-600"
+                  title="Ứng viên chất lượng cao"
+                  description="Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia có kỹ năng phù hợp."
+                  delay={0.1}
+                />
+                <FeatureCard
+                  Icon={CheckCircle}
+                  colorClass="text-green-600"
+                  title="Đảm bảo chất lượng"
+                  description="Các freelancer đã được xác minh kỹ năng và đánh giá bởi các khách hàng trước đó."
+                  delay={0.2}
+                />
+                <FeatureCard
+                  Icon={Code}
+                  colorClass="text-purple-600"
+                  title="Đa dạng lĩnh vực"
+                  description="Từ phát triển web, mobile đến AI, machine learning và thiết kế UX/UI."
+                  delay={0.3}
+                />
               </div>
               <Button
                 onClick={() => navigate('/client/post-job')}
@@ -914,33 +955,30 @@ const Home = () => {
             <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">Đặc điểm nổi bật</h2>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FadeInWhenVisible delay={0.1}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <Users className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Cộng đồng lớn mạnh</h3>
-                <p className="text-muted-foreground">Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.2}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <TrendingUp className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Thanh toán an toàn</h3>
-                <p className="text-muted-foreground">Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả</p>
-              </div>
-            </FadeInWhenVisible>
-            <FadeInWhenVisible delay={0.3}>
-              <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
-                  <CheckCircle className="w-8 h-8 text-primary-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4 text-primary-700">Hỗ trợ nhanh chóng</h3>
-                <p className="text-muted-foreground">Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn</p>
-              </div>
-            </FadeInWhenVisible>
+            <BenefitCard
+              Icon={Users}
+              colorClass="text-blue-600"
+              gradientClass="bg-gradient-to-r from-blue-600 to-blue-400"
+              title="Cộng đồng lớn mạnh"
+              description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
+              delay={0.1}
+            />
+            <BenefitCard
+              Icon={CurrencyDollarIcon}
+              colorClass="text-orange-600"
+              gradientClass="bg-gradient-to-r from-orange-600 to-orange-400"
+              title="Thanh toán an toàn"
+              description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
+              delay={0.2}
+            />
+            <BenefitCard
+              Icon={LibraryIcon}
+              colorClass="text-green-600"
+              gradientClass="bg-gradient-to-r from-green-600 to-green-400"
+              title="Hỗ trợ nhanh chóng"
+              description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
+              delay={0.3}
+            />
           </div>
         </div>
       </section>
