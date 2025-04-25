@@ -59,8 +59,8 @@ const FeatureCard = ({ Icon, colorClass, gradientClass, title, description, dela
   <FadeInWhenVisible delay={delay}>
     <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
       <div className="relative w-12 h-12 mx-auto mb-4">
-        <Icon 
-          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`} 
+        <Icon
+          className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
           style={{ filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))' }}
         />
         <div className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`} />
@@ -671,27 +671,27 @@ const Home = () => {
             <div className="text-center space-y-6">
               <p className="text-gray-600 text-lg mb-8">Đăng ký và đăng việc để tìm kiếm ứng viên phù hợp với dự án của bạn</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <FadeInWhenVisible delay={0.1}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <Users className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Ứng viên chất lượng cao</h3>
-                    <p className="text-gray-600 text-sm">Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia có kỹ năng phù hợp.</p>
-                  </Card>
-                </FadeInWhenVisible>
-                <FadeInWhenVisible delay={0.2}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <CheckCircle className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Đảm bảo chất lượng</h3>
-                    <p className="text-gray-600 text-sm">Các freelancer đã được xác minh kỹ năng và đánh giá bởi các khách hàng trước đó.</p>
-                  </Card>
-                </FadeInWhenVisible>
-                <FadeInWhenVisible delay={0.3}>
-                  <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
-                    <Code className="w-12 h-12 text-blue-600 mb-4 mx-auto group-hover:text-blue-700" />
-                    <h3 className="font-semibold text-lg mb-3 text-gray-800">Đa dạng lĩnh vực</h3>
-                    <p className="text-gray-600 text-sm">Từ phát triển web, mobile đến AI, machine learning và thiết kế UX/UI.</p>
-                  </Card>
-                </FadeInWhenVisible>
+                <FeatureCard
+                  Icon={Users}
+                  colorClass="text-blue-600"
+                  title="Ứng viên chất lượng cao"
+                  description="Tiếp cận hàng ngàn lập trình viên, nhà thiết kế và chuyên gia có kỹ năng phù hợp."
+                  delay={0.1}
+                />
+                <FeatureCard
+                  Icon={CheckCircle}
+                  colorClass="text-green-600"
+                  title="Đảm bảo chất lượng"
+                  description="Các freelancer đã được xác minh kỹ năng và đánh giá bởi các khách hàng trước đó."
+                  delay={0.2}
+                />
+                <FeatureCard
+                  Icon={Code}
+                  colorClass="text-purple-600"
+                  title="Đa dạng lĩnh vực"
+                  description="Từ phát triển web, mobile đến AI, machine learning và thiết kế UX/UI."
+                  delay={0.3}
+                />
               </div>
               <Button
                 onClick={() => navigate('/client/post-job')}
