@@ -299,10 +299,17 @@ const PostJob = () => {
                 });
                 setSelectedSkills([]);
             }
-        } catch (error) {
+        } catch (error: any) {
+            // notification.error({
+            //     message: 'Lỗi',
+            //     description: isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.'
+            // });
+           
             notification.error({
                 message: 'Lỗi',
-                description: isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.'
+                description: error?.response?.data?.message ||(
+                    (isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.')
+                )
             });
             console.error('Error handling job:', error);
         } finally {
