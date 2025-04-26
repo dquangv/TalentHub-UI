@@ -21,6 +21,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import freelancerService from '@/api/freelancerService';
 import AutofillInput from '@/components/AutofillInput';
 import LocationSelector from './LocationSelector';
+import api from '@/api/axiosConfig';
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -45,7 +46,7 @@ const Profile = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(true);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
-
+  const [prevCategory, setPrevCategory] = useState<any>();
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
   const [freelancerSkills, setFreelancerSkills] = useState<FreelancerSkill[]>([]);
   const [selectedSkillId, setSelectedSkillId] = useState<number | null>(null);
@@ -86,6 +87,7 @@ const Profile = () => {
           setHourlyRate(response.data.hourlyRate);
           setRating(response.data.rating || 0);
           setCategoryName(response.data.categoryName || '');
+          setPrevCategory(response.data.categoryName || '')
         }
       } catch (error) {
         console.error('Error fetching freelancer data:', error);
@@ -242,6 +244,14 @@ const Profile = () => {
           message: 'Thành công',
           description: 'Cập nhật thông tin thành công!',
         });
+        console.log('prevCategory' ,prevCategory)
+        console.log('categoryName' ,categoryName)
+        if(prevCategory != categoryName){
+          const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+          console.log(userInfo?.freelancerId)
+          api.get("/v1/clients/notify-for-clients?freelancerId="+userInfo?.freelancerId)
+        }
+        setPrevCategory(categoryName)
       }
     } catch (error) {
       console.error('Error updating user data:', error);
