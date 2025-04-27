@@ -49,8 +49,10 @@ const ClientProfile = () => {
     fromPrice: 0,
     toPrice: 0,
     typePrice: "",
-    status: ""
+    status: "",
   });
+  const [phoneError, setPhoneError] = useState<string>("");
+  const [companyPhoneError, setCompanyPhoneError] = useState<string>("");
 
   const [company, setCompany] = useState<Company>({
     companyName: "",
