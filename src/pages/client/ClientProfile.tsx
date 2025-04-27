@@ -524,14 +524,26 @@ const ClientProfile = () => {
                   <div>
                     <h2 className="text-2xl font-bold">{fullName}</h2>
                     <p className="text-muted-foreground">{profile.title}</p>
-                    <div className={`text-sm mt-1 px-3 py-1 rounded-full inline-flex items-center gap-1.5 ${
-                      profile.status === "Xác thực" ? "bg-green-100 text-green-800" :
-                      profile.status === "Chưa xác thực" ? "bg-amber-100 text-amber-800" :
-                      profile.status === "Khóa" ? "bg-red-100 text-red-800" : ""
-                    }`}>
-                      {profile.status === "Xác thực" && <CheckCircle2 className="w-4 h-4" />}
-                      {profile.status === "Chưa xác thực" && <AlertCircle className="w-4 h-4" />}
-                      {profile.status === "Khóa" && <Lock className="w-4 h-4" />}
+                    <div
+                      className={`text-sm mt-1 px-3 py-1 rounded-full inline-flex items-center gap-1.5 ${
+                        profile.status === "Xác thực"
+                          ? "bg-green-100 text-green-800"
+                          : profile.status === "Chưa xác thực"
+                          ? "bg-amber-100 text-amber-800"
+                          : profile.status === "Khóa"
+                          ? "bg-red-100 text-red-800"
+                          : ""
+                      }`}
+                    >
+                      {profile.status === "Xác thực" && (
+                        <CheckCircle2 className="w-4 h-4" />
+                      )}
+                      {profile.status === "Chưa xác thực" && (
+                        <AlertCircle className="w-4 h-4" />
+                      )}
+                      {profile.status === "Khóa" && (
+                        <Lock className="w-4 h-4" />
+                      )}
                       {profile.status}
                     </div>
                   </div>
@@ -563,7 +575,6 @@ const ClientProfile = () => {
                   </div>
                 </FadeInWhenVisible>
 
-                
                 <FadeInWhenVisible delay={0.4}>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Số điện thoại</label>
@@ -571,16 +582,21 @@ const ClientProfile = () => {
                       <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="tel"
-                        className="pl-10"
+                        className={`pl-10 ${
+                          phoneError
+                            ? "border-red-500 focus-visible:ring-red-500"
+                            : ""
+                        }`}
                         value={profile.phoneNumber}
-                        onChange={(e) =>
-                          setProfile({
-                            ...profile,
-                            phoneNumber: e.target.value,
-                          })
-                        }
+                        onChange={handlePhoneNumberChange}
+                        placeholder="Nhập số điện thoại của bạn"
                       />
                     </div>
+                    {phoneError && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {phoneError}
+                      </div>
+                    )}
                   </div>
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.5}>
@@ -606,7 +622,9 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.3}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Chức danh (hiện tại)</label>
+                    <label className="text-sm font-medium">
+                      Chức danh (hiện tại)
+                    </label>
                     <Input
                       value={profile.title}
                       onChange={(e) =>
@@ -635,7 +653,9 @@ const ClientProfile = () => {
                 </FadeInWhenVisible>
                 <FadeInWhenVisible delay={0.7}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách từ (VNĐ)</label>
+                    <label className="text-sm font-medium">
+                      Ngân sách từ (VNĐ)
+                    </label>
                     <Input
                       type="number"
                       value={profile.fromPrice}
@@ -652,7 +672,9 @@ const ClientProfile = () => {
 
                 <FadeInWhenVisible delay={0.8}>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Ngân sách đến (VNĐ)</label>
+                    <label className="text-sm font-medium">
+                      Ngân sách đến (VNĐ)
+                    </label>
                     <Input
                       type="number"
                       value={profile.toPrice}
@@ -666,10 +688,6 @@ const ClientProfile = () => {
                     />
                   </div>
                 </FadeInWhenVisible>
-
-                
-
-                
 
                 <FadeInWhenVisible delay={0.6}>
                   <div className="space-y-2 md:col-span-2">
@@ -765,14 +783,21 @@ const ClientProfile = () => {
                     <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="tel"
-                      className="pl-10"
+                      className={`pl-10 ${
+                        companyPhoneError
+                          ? "border-red-500 focus-visible:ring-red-500"
+                          : ""
+                      }`}
                       value={company.phoneContact}
-                      onChange={(e) =>
-                        setCompany({ ...company, phoneContact: e.target.value })
-                      }
+                      onChange={handleCompanyPhoneChange}
                       placeholder="Nhập số điện thoại liên hệ"
                     />
                   </div>
+                  {companyPhoneError && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {companyPhoneError}
+                    </div>
+                  )}
                 </div>
               </FadeInWhenVisible>
 
