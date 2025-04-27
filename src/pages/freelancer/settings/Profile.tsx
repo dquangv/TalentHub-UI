@@ -1,65 +1,74 @@
-import { useState, useEffect, useRef } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState, useEffect, useRef } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Camera, Phone, MapPin, Loader2, Plus, X, Code, Star, Search } from 'lucide-react';
-import userService, { User } from '@/api/userService';
-import skillService, { Skill, FreelancerSkill } from '@/api/skillService';
-import { notification } from 'antd';
-import { useLanguage } from '@/contexts/LanguageContext';
-import freelancerService from '@/api/freelancerService';
-import AutofillInput from '@/components/AutofillInput';
-import LocationSelector from './LocationSelector';
-import api from '@/api/axiosConfig';
+  Camera,
+  Phone,
+  MapPin,
+  Loader2,
+  Plus,
+  X,
+  Code,
+  Star,
+  Search,
+} from "lucide-react";
+import userService, { User } from "@/api/userService";
+import skillService, { Skill, FreelancerSkill } from "@/api/skillService";
+import { notification } from "antd";
+import { useLanguage } from "@/contexts/LanguageContext";
+import freelancerService from "@/api/freelancerService";
+import AutofillInput from "@/components/AutofillInput";
+import LocationSelector from "./LocationSelector";
+import api from "@/api/axiosConfig";
 
 const Profile = () => {
   const { t } = useLanguage();
   const [profile, setProfile] = useState<User>({
     id: 0,
-    firstName: '',
-    lastName: '',
-    phoneNumber: '',
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
     country: null,
     province: null,
-    title: '',
-    introduction: '',
-    image: '',
-    role: '',
+    title: "",
+    introduction: "",
+    image: "",
+    role: "",
   });
   const [freelancerProfile, setFreelancerProfile] = useState<any>(null);
   const [hourlyRate, setHourlyRate] = useState<number>(0);
   const [rating, setRating] = useState<number>(0);
   const [categoryId, setCategoryId] = useState<number>(0);
-  const [categoryName, setCategoryName] = useState<string>('');
+  const [categoryName, setCategoryName] = useState<string>("");
   const [updatingCategory, setUpdatingCategory] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [fetching, setFetching] = useState<boolean>(true);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [prevCategory, setPrevCategory] = useState<any>();
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
-  const [freelancerSkills, setFreelancerSkills] = useState<FreelancerSkill[]>([]);
+  const [freelancerSkills, setFreelancerSkills] = useState<FreelancerSkill[]>(
+    []
+  );
   const [selectedSkillId, setSelectedSkillId] = useState<number | null>(null);
-  const [newSkillName, setNewSkillName] = useState<string>('');
+  const [newSkillName, setNewSkillName] = useState<string>("");
   const [isAddingNewSkill, setIsAddingNewSkill] = useState<boolean>(false);
   const [loadingSkills, setLoadingSkills] = useState<boolean>(false);
-  const [skillSearchValue, setSkillSearchValue] = useState<string>('');
+  const [skillInputKey, setSkillInputKey] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const userId = JSON.parse(localStorage.getItem('userInfo') || '{}').userId;
-  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;;
-  const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+  const userId = JSON.parse(localStorage.getItem("userInfo") || "{}").userId;
+  const freelancerId = JSON.parse(
+    localStorage.getItem("userInfo") || "{}"
+  ).freelancerId;
+  const fullName = `${profile.firstName || ""} ${
+    profile.lastName || ""
+  }`.trim();
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -69,10 +78,11 @@ const Profile = () => {
           setProfile(response.data);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể tải thông tin người dùng. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description:
+            "Không thể tải thông tin người dùng. Vui lòng thử lại sau.",
         });
       } finally {
         setFetching(false);
@@ -81,19 +91,22 @@ const Profile = () => {
 
     const fetchFreelancerData = async () => {
       try {
-        const response = await freelancerService.getFreelancerById(freelancerId);
+        const response = await freelancerService.getFreelancerById(
+          freelancerId
+        );
         if (response.status === 200 && response.data) {
           setFreelancerProfile(response.data);
           setHourlyRate(response.data.hourlyRate);
           setRating(response.data.rating || 0);
-          setCategoryName(response.data.categoryName || '');
-          setPrevCategory(response.data.categoryName || '')
+          setCategoryName(response.data.categoryName || "");
+          setPrevCategory(response.data.categoryName || "");
         }
       } catch (error) {
-        console.error('Error fetching freelancer data:', error);
+        console.error("Error fetching freelancer data:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể tải thông tin freelancer. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description:
+            "Không thể tải thông tin freelancer. Vui lòng thử lại sau.",
         });
       }
     };
@@ -105,15 +118,20 @@ const Profile = () => {
         if (allSkillsResponse.status === 200 && allSkillsResponse.data) {
           setAvailableSkills(allSkillsResponse.data);
         }
-        const freelancerSkillsResponse = await skillService.getFreelancerSkills(freelancerId);
-        if (freelancerSkillsResponse.status === 200 && freelancerSkillsResponse.data) {
+        const freelancerSkillsResponse = await skillService.getFreelancerSkills(
+          freelancerId
+        );
+        if (
+          freelancerSkillsResponse.status === 200 &&
+          freelancerSkillsResponse.data
+        ) {
           setFreelancerSkills(freelancerSkillsResponse.data);
         }
       } catch (error) {
-        console.error('Error fetching skills data:', error);
+        console.error("Error fetching skills data:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description: "Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.",
         });
       } finally {
         setLoadingSkills(false);
@@ -129,13 +147,16 @@ const Profile = () => {
     try {
       setLoading(true);
 
-      const response = await freelancerService.updateHourlyRate(freelancerId, hourlyRate);
-
+      const response = await freelancerService.updateHourlyRate(
+        freelancerId,
+        hourlyRate
+      );
     } catch (error) {
-      console.error('Error updating hourly rate:', error);
+      console.error("Error updating hourly rate:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể cập nhật lương mong muốn. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description:
+          "Không thể cập nhật lương mong muốn. Vui lòng thử lại sau.",
       });
     } finally {
       setLoading(false);
@@ -149,20 +170,23 @@ const Profile = () => {
         setCategoryId(id);
         setCategoryName(name);
 
-        const response = await freelancerService.updateFreelancerCategory(freelancerId, id);
+        const response = await freelancerService.updateFreelancerCategory(
+          freelancerId,
+          id
+        );
 
         if (response.status === 200 && response.data) {
           setCategoryName(response.data.categoryName);
           notification.success({
-            message: 'Thành công',
-            description: 'Cập nhật lĩnh vực thành công!',
+            message: "Thành công",
+            description: "Cập nhật lĩnh vực thành công!",
           });
         }
       } catch (error) {
-        console.error('Error updating category:', error);
+        console.error("Error updating category:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể cập nhật lĩnh vực. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description: "Không thể cập nhật lĩnh vực. Vui lòng thử lại sau.",
         });
       } finally {
         setUpdatingCategory(false);
@@ -179,10 +203,11 @@ const Profile = () => {
           setProfile(response.data);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error("Error fetching user data:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể tải thông tin người dùng. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description:
+            "Không thể tải thông tin người dùng. Vui lòng thử lại sau.",
         });
       } finally {
         setFetching(false);
@@ -196,15 +221,20 @@ const Profile = () => {
         if (allSkillsResponse.status === 200 && allSkillsResponse.data) {
           setAvailableSkills(allSkillsResponse.data);
         }
-        const freelancerSkillsResponse = await skillService.getFreelancerSkills(freelancerId);
-        if (freelancerSkillsResponse.status === 200 && freelancerSkillsResponse.data) {
+        const freelancerSkillsResponse = await skillService.getFreelancerSkills(
+          freelancerId
+        );
+        if (
+          freelancerSkillsResponse.status === 200 &&
+          freelancerSkillsResponse.data
+        ) {
           setFreelancerSkills(freelancerSkillsResponse.data);
         }
       } catch (error) {
-        console.error('Error fetching skills data:', error);
+        console.error("Error fetching skills data:", error);
         notification.error({
-          message: 'Lỗi',
-          description: 'Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.',
+          message: "Lỗi",
+          description: "Không thể tải thông tin kỹ năng. Vui lòng thử lại sau.",
         });
       } finally {
         setLoadingSkills(false);
@@ -215,7 +245,7 @@ const Profile = () => {
     fetchSkillsData();
   }, [userId, freelancerId]);
   const formatCurrency = (value: number): string => {
-    if (!value && value !== 0) return '';
+    if (!value && value !== 0) return "";
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -241,23 +271,26 @@ const Profile = () => {
 
       if (response.status === 200) {
         notification.success({
-          message: 'Thành công',
-          description: 'Cập nhật thông tin thành công!',
+          message: "Thành công",
+          description: "Cập nhật thông tin thành công!",
         });
-        console.log('prevCategory' ,prevCategory)
-        console.log('categoryName' ,categoryName)
-        if(prevCategory != categoryName){
+        console.log("prevCategory", prevCategory);
+        console.log("categoryName", categoryName);
+        if (prevCategory != categoryName) {
           const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-          console.log(userInfo?.freelancerId)
-          api.get("/v1/clients/notify-for-clients?freelancerId="+userInfo?.freelancerId)
+          console.log(userInfo?.freelancerId);
+          api.get(
+            "/v1/clients/notify-for-clients?freelancerId=" +
+              userInfo?.freelancerId
+          );
         }
-        setPrevCategory(categoryName)
+        setPrevCategory(categoryName);
       }
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.error("Error updating user data:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể cập nhật thông tin. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description: "Không thể cập nhật thông tin. Vui lòng thử lại sau.",
       });
     } finally {
       setLoading(false);
@@ -276,18 +309,18 @@ const Profile = () => {
 
     const file = files[0];
 
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.startsWith("image/")) {
       notification.error({
-        message: 'Lỗi',
-        description: 'Vui lòng chọn tệp hình ảnh hợp lệ.',
+        message: "Lỗi",
+        description: "Vui lòng chọn tệp hình ảnh hợp lệ.",
       });
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       notification.error({
-        message: 'Lỗi',
-        description: 'Kích thước ảnh không được vượt quá 5MB.',
+        message: "Lỗi",
+        description: "Kích thước ảnh không được vượt quá 5MB.",
       });
       return;
     }
@@ -295,27 +328,30 @@ const Profile = () => {
     try {
       setUploadingImage(true);
       const imageUrl = await userService.uploadImage(file);
-      const updateResponse = await userService.updateUserImage(userId, imageUrl);
+      const updateResponse = await userService.updateUserImage(
+        userId,
+        imageUrl
+      );
 
       if (updateResponse.status === 200) {
         setProfile((prev) => ({ ...prev, image: imageUrl }));
         notification.success({
-          message: 'Thành công',
-          description: 'Cập nhật ảnh đại diện thành công!',
+          message: "Thành công",
+          description: "Cập nhật ảnh đại diện thành công!",
         });
       } else {
-        throw new Error('Failed to update user profile with new image');
+        throw new Error("Failed to update user profile with new image");
       }
     } catch (error) {
-      console.error('Error uploading/updating image:', error);
+      console.error("Error uploading/updating image:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể cập nhật ảnh đại diện. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description: "Không thể cập nhật ảnh đại diện. Vui lòng thử lại sau.",
       });
     } finally {
       setUploadingImage(false);
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -324,21 +360,27 @@ const Profile = () => {
 
     try {
       setLoadingSkills(true);
-      const response = await skillService.addSkillToFreelancer(freelancerId, selectedSkillId);
+      const response = await skillService.addSkillToFreelancer(
+        freelancerId,
+        selectedSkillId
+      );
 
       if (response.status === 201 && response.data) {
         setFreelancerSkills([...freelancerSkills, response.data]);
         setSelectedSkillId(null);
+
+        setSkillInputKey((prev) => prev + 1);
+
         notification.success({
-          message: 'Thành công',
-          description: 'Thêm kỹ năng thành công!',
+          message: "Thành công",
+          description: "Thêm kỹ năng thành công!",
         });
       }
     } catch (error) {
-      console.error('Error adding skill:', error);
+      console.error("Error adding skill:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể thêm kỹ năng. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description: "Không thể thêm kỹ năng. Vui lòng thử lại sau.",
       });
     } finally {
       setLoadingSkills(false);
@@ -348,20 +390,25 @@ const Profile = () => {
   const handleRemoveSkill = async (skillId: number) => {
     try {
       setLoadingSkills(true);
-      const response = await skillService.removeSkillFromFreelancer(freelancerId, skillId);
+      const response = await skillService.removeSkillFromFreelancer(
+        freelancerId,
+        skillId
+      );
 
       if (response.status === 200) {
-        setFreelancerSkills(freelancerSkills.filter(skill => skill.skillId !== skillId));
+        setFreelancerSkills(
+          freelancerSkills.filter((skill) => skill.skillId !== skillId)
+        );
         notification.success({
-          message: 'Thành công',
-          description: 'Xóa kỹ năng thành công!',
+          message: "Thành công",
+          description: "Xóa kỹ năng thành công!",
         });
       }
     } catch (error) {
-      console.error('Error removing skill:', error);
+      console.error("Error removing skill:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể xóa kỹ năng. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description: "Không thể xóa kỹ năng. Vui lòng thử lại sau.",
       });
     } finally {
       setLoadingSkills(false);
@@ -377,19 +424,19 @@ const Profile = () => {
 
       if (response.status === 201 && response.data) {
         setAvailableSkills([...availableSkills, response.data]);
-        setNewSkillName('');
+        setNewSkillName("");
         setIsAddingNewSkill(false);
         notification.success({
-          message: 'Thành công',
-          description: 'Tạo kỹ năng mới thành công!',
+          message: "Thành công",
+          description: "Tạo kỹ năng mới thành công!",
         });
         setSelectedSkillId(response.data.id);
       }
     } catch (error) {
-      console.error('Error creating skill:', error);
+      console.error("Error creating skill:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể tạo kỹ năng mới. Vui lòng thử lại sau.',
+        message: "Lỗi",
+        description: "Không thể tạo kỹ năng mới. Vui lòng thử lại sau.",
       });
     } finally {
       setLoadingSkills(false);
@@ -409,9 +456,13 @@ const Profile = () => {
                   </div>
                 ) : (
                   <>
-                    <AvatarImage src={profile.image || '/placeholder-avatar.png'} alt={fullName} />
+                    <AvatarImage
+                      src={profile.image || "/placeholder-avatar.png"}
+                      alt={fullName}
+                    />
                     <AvatarFallback>
-                      {profile.firstName?.charAt(0) || ''}{profile.lastName?.charAt(0) || ''}
+                      {profile.firstName?.charAt(0) || ""}
+                      {profile.lastName?.charAt(0) || ""}
                     </AvatarFallback>
                   </>
                 )}
@@ -451,7 +502,7 @@ const Profile = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FadeInWhenVisible delay={0.1}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{'Họ'}</label>
+              <label className="text-sm font-medium">{"Họ"}</label>
               <Input
                 value={profile.firstName}
                 onChange={(e) =>
@@ -463,7 +514,7 @@ const Profile = () => {
 
           <FadeInWhenVisible delay={0.2}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{'Tên'}</label>
+              <label className="text-sm font-medium">{"Tên"}</label>
               <Input
                 value={profile.lastName}
                 onChange={(e) =>
@@ -477,7 +528,9 @@ const Profile = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Lĩnh vực</label>
-                {updatingCategory && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
+                {updatingCategory && (
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                )}
               </div>
               <AutofillInput
                 entityType="category"
@@ -493,19 +546,22 @@ const Profile = () => {
           <FadeInWhenVisible delay={0.25}>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Lương mong muốn (VNĐ/Giờ)</label>
+                <label className="text-sm font-medium">
+                  Lương mong muốn (VNĐ/Giờ)
+                </label>
               </div>
               <div className="relative">
                 <Input
                   type="text"
                   value={formatCurrency(hourlyRate)}
                   onChange={(e) => {
-                    const numericValue = e.target.value.replace(/[^\d]/g, '');
+                    const numericValue = e.target.value.replace(/[^\d]/g, "");
                     setHourlyRate(numericValue ? Number(numericValue) : 0);
                   }}
                   onBlur={() => {
                     const formatted = formatCurrency(hourlyRate);
-                    const inputElement = document.activeElement as HTMLInputElement;
+                    const inputElement =
+                      document.activeElement as HTMLInputElement;
                     if (inputElement) inputElement.value = formatted;
                   }}
                   placeholder="Nhập lương theo giờ"
@@ -527,7 +583,7 @@ const Profile = () => {
           )}
           <FadeInWhenVisible delay={0.3}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{'Chức danh'}</label>
+              <label className="text-sm font-medium">{"Chức danh"}</label>
               <Input
                 value={profile.title}
                 onChange={(e) =>
@@ -539,7 +595,9 @@ const Profile = () => {
 
           <FadeInWhenVisible delay={0.4}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t('Phone') || 'Số điện thoại'}</label>
+              <label className="text-sm font-medium">
+                {t("Phone") || "Số điện thoại"}
+              </label>
               <div className="relative">
                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -556,7 +614,7 @@ const Profile = () => {
 
           <FadeInWhenVisible delay={0.5}>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{'Vị trí'}</label>
+              <label className="text-sm font-medium">{"Vị trí"}</label>
               <LocationSelector
                 countryId={profile.country}
                 provinceId={profile.province}
@@ -575,10 +633,12 @@ const Profile = () => {
 
           <FadeInWhenVisible delay={0.6}>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium">{'Giới thiệu'}</label>
+              <label className="text-sm font-medium">{"Giới thiệu"}</label>
               <Textarea
                 value={profile.introduction}
-                onChange={(e) => setProfile({ ...profile, introduction: e.target.value })}
+                onChange={(e) =>
+                  setProfile({ ...profile, introduction: e.target.value })
+                }
                 rows={4}
               />
             </div>
@@ -589,7 +649,9 @@ const Profile = () => {
             <div className="space-y-4 md:col-span-2">
               <div className="flex items-center gap-3">
                 <Code className="w-5 h-5 text-primary" />
-                <label className="text-sm font-medium">Kỹ năng chuyên môn</label>
+                <label className="text-sm font-medium">
+                  Kỹ năng chuyên môn
+                </label>
               </div>
 
               <div className="mb-4">
@@ -597,8 +659,13 @@ const Profile = () => {
                   {freelancerSkills.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-4">
                       <Code className="h-8 w-8 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">Chưa có kỹ năng nào được thêm</p>
-                      <p className="text-xs text-muted-foreground mt-1">Thêm kỹ năng để tăng khả năng tìm kiếm của nhà tuyển dụng</p>
+                      <p className="text-sm text-muted-foreground">
+                        Chưa có kỹ năng nào được thêm
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Thêm kỹ năng để tăng khả năng tìm kiếm của nhà tuyển
+                        dụng
+                      </p>
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
@@ -630,6 +697,7 @@ const Profile = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <AutofillInput
+                    key={skillInputKey}
                     entityType="skill"
                     value={selectedSkillId || 0}
                     initialText=""
@@ -641,7 +709,7 @@ const Profile = () => {
                     }}
                     placeholder="Nhập hoặc chọn kỹ năng"
                     disabled={loadingSkills}
-                    excludeIds={freelancerSkills.map(skill => skill.skillId)}
+                    excludeIds={freelancerSkills.map((skill) => skill.skillId)}
                   />
                   <Button
                     type="button"
@@ -664,14 +732,17 @@ const Profile = () => {
         </div>
 
         <div className="mt-6 flex justify-end">
-          <Button type="submit" disabled={loading || uploadingImage || loadingSkills}>
+          <Button
+            type="submit"
+            disabled={loading || uploadingImage || loadingSkills}
+          >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {'Đang lưu...'}
+                {"Đang lưu..."}
               </>
             ) : (
-              'Lưu thay đổi'
+              "Lưu thay đổi"
             )}
           </Button>
         </div>
