@@ -197,7 +197,6 @@ export function useAutofillInput(props: AutofillInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const {
-        items,
         loading,
         createItem,
         getItemName,
