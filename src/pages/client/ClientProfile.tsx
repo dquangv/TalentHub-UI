@@ -174,7 +174,24 @@ const ClientProfile = () => {
       calculateProfileCompletion();
     }
   }, [profile, hasCompany, fullName, fetching]);
-  
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setProfile({ ...profile, phoneNumber: value });
+    if (value.trim() !== "") {
+      const validation = validatePhoneNumber(value, {
+        onlyVietnam: true,
+        acceptInternational: false,
+      });
+
+      if (!validation.isValid) {
+        setPhoneError(validation.message);
+      } else {
+        setPhoneError("");
+      }
+    } else {
+      setPhoneError("");
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -302,6 +319,27 @@ const ClientProfile = () => {
   const handleAvatarButtonClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+  // Thêm hàm xử lý số điện thoại công ty
+  const handleCompanyPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    setCompany({ ...company, phoneContact: value });
+
+    if (value.trim() !== "") {
+      const validation = validatePhoneNumber(value, {
+        onlyVietnam: true,
+        acceptInternational: false,
+      });
+
+      if (!validation.isValid) {
+        setCompanyPhoneError(validation.message);
+      } else {
+        setCompanyPhoneError("");
+      }
+    } else {
+      setCompanyPhoneError("");
     }
   };
 
