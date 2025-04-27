@@ -6,17 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import {
-  Camera,
-  Phone,
-  MapPin,
-  Loader2,
-  Plus,
-  X,
-  Code,
-  Star,
-  Search,
-} from "lucide-react";
+import { Camera, Phone, Loader2, Plus, X, Code, Star } from "lucide-react";
 import userService, { User } from "@/api/userService";
 import skillService, { Skill, FreelancerSkill } from "@/api/skillService";
 import { notification } from "antd";
@@ -25,6 +15,7 @@ import freelancerService from "@/api/freelancerService";
 import AutofillInput from "@/components/AutofillInput";
 import LocationSelector from "./LocationSelector";
 import api from "@/api/axiosConfig";
+import validatePhoneNumber from "@/utils/phoneValidator";
 
 const Profile = () => {
   const { t } = useLanguage();
@@ -54,6 +45,8 @@ const Profile = () => {
   const [freelancerSkills, setFreelancerSkills] = useState<FreelancerSkill[]>(
     []
   );
+  const [phoneError, setPhoneError] = useState<string>("");
+
   const [selectedSkillId, setSelectedSkillId] = useState<number | null>(null);
   const [newSkillName, setNewSkillName] = useState<string>("");
   const [isAddingNewSkill, setIsAddingNewSkill] = useState<boolean>(false);
@@ -250,7 +243,20 @@ const Profile = () => {
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (profile.phoneNumber.trim() !== "") {
+      const phoneValidation = validatePhoneNumber(profile.phoneNumber, {
+        onlyVietnam: true,
+      });
+      if (!phoneValidation.isValid) {
+        notification.error({
+          message: "Lỗi",
+          description: phoneValidation.message,
+        });
+        return;
+      }
 
+      profile.phoneNumber = phoneValidation.phoneNumber;
+    }
     try {
       setLoading(true);
 
@@ -414,32 +420,24 @@ const Profile = () => {
       setLoadingSkills(false);
     }
   };
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
 
-  const handleCreateSkill = async () => {
-    if (!newSkillName.trim()) return;
+    setProfile({ ...profile, phoneNumber: value });
 
-    try {
-      setLoadingSkills(true);
-      const response = await skillService.createSkill(newSkillName.trim());
-
-      if (response.status === 201 && response.data) {
-        setAvailableSkills([...availableSkills, response.data]);
-        setNewSkillName("");
-        setIsAddingNewSkill(false);
-        notification.success({
-          message: "Thành công",
-          description: "Tạo kỹ năng mới thành công!",
-        });
-        setSelectedSkillId(response.data.id);
-      }
-    } catch (error) {
-      console.error("Error creating skill:", error);
-      notification.error({
-        message: "Lỗi",
-        description: "Không thể tạo kỹ năng mới. Vui lòng thử lại sau.",
+    if (value.trim() !== "") {
+      const validation = validatePhoneNumber(value, {
+        onlyVietnam: true,
+        acceptInternational: false,
       });
-    } finally {
-      setLoadingSkills(false);
+
+      if (!validation.isValid) {
+        setPhoneError(validation.message);
+      } else {
+        setPhoneError("");
+      }
+    } else {
+      setPhoneError("");
     }
   };
 
@@ -602,13 +600,19 @@ const Profile = () => {
                 <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="tel"
-                  className="pl-10"
+                  className={`pl-10 ${
+                    phoneError
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }`}
                   value={profile.phoneNumber}
-                  onChange={(e) =>
-                    setProfile({ ...profile, phoneNumber: e.target.value })
-                  }
+                  onChange={handlePhoneNumberChange}
+                  placeholder="Nhập số điện thoại của bạn"
                 />
               </div>
+              {phoneError && (
+                <div className="text-red-500 text-xs mt-1">{phoneError}</div>
+              )}
             </div>
           </FadeInWhenVisible>
 
