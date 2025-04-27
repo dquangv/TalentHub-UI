@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axiosConfig";
 import { Input } from "../ui/input";
+// Không sử dụng notification từ antd nữa
 
 interface ReportDialogProps {
   itemId: string;
@@ -37,10 +38,13 @@ const ReportDialog = ({
   const [formData, setFormData] = useState({
     reason: "",
     details: "",
+    image: null as File | null,
   });
   const [errors, setErrors] = useState({
     reason: "",
     details: "",
+    image: "",
+    general: "",
   });
 
   const { userInfo } = useAuth();
@@ -61,14 +65,40 @@ const ReportDialog = ({
       ...prev,
       reason: value,
     }));
+
+    // Reset errors when changing reason
+    setErrors((prev) => ({
+      ...prev,
+      reason: "",
+    }));
+  };
+
+  const isOtherReason = () => {
+    return (
+      formData.reason === "Lý do khác" ||
+      formData.reason === "other" ||
+      formData.reason.toLowerCase().includes("khác")
+    );
   };
 
   const validateForm = () => {
     let valid = true;
-    let tempErrors = { reason: "", details: "" };
+    let tempErrors = { reason: "", details: "", image: "" };
 
     if (!formData.reason) {
       tempErrors.reason = "Vui lòng chọn lý do báo cáo";
+      valid = false;
+    }
+
+    // Chi tiết bổ sung trở thành bắt buộc nếu chọn "Lý do khác"
+    if (isOtherReason() && !formData.details.trim()) {
+      tempErrors.details = "Vui lòng cung cấp chi tiết khi chọn lý do khác";
+      valid = false;
+    }
+
+    // Kiểm tra hình ảnh (bắt buộc)
+    if (!formData.image) {
+      tempErrors.image = "Vui lòng tải lên hình ảnh minh chứng";
       valid = false;
     }
 
@@ -85,6 +115,7 @@ const ReportDialog = ({
 
     if (!userInfo?.freelancerId) {
       setIsSubmitting(false);
+      // Điều hướng về trang đăng nhập
       navigate("/");
       return;
     }
@@ -104,7 +135,7 @@ const ReportDialog = ({
     }
 
     try {
-      await api.post("/v1/reported-jobs", form,   {
+      await api.post("/v1/reported-jobs", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -118,6 +149,12 @@ const ReportDialog = ({
     } catch (error) {
       console.error("Error submitting report:", error);
       setIsSubmitting(false);
+
+      // Thêm thông báo lỗi chung cho form
+      setErrors((prev) => ({
+        ...prev,
+        general: "Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.",
+      }));
     }
   };
 
@@ -147,7 +184,7 @@ const ReportDialog = ({
   };
 
   const reasons = reportReasons[itemType];
-  
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -155,12 +192,36 @@ const ReportDialog = ({
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
         setFormData((prevData) => ({ ...prevData, image: file }));
+        // Reset error message when file is selected
+        setErrors((prev) => ({
+          ...prev,
+          image: "",
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setFormData({
+        reason: "",
+        details: "",
+        image: null,
+      });
+      setErrors({
+        reason: "",
+        details: "",
+        image: "",
+        general: "",
+      });
+      setImagePreview(null);
+      setIsSuccess(false);
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -179,61 +240,99 @@ const ReportDialog = ({
             </DialogHeader>
 
             <form onSubmit={onSubmit} className="space-y-6 pt-4">
+              {errors.general && (
+                <div className="p-3 rounded-md bg-red-100 border border-red-300 text-red-800 text-sm font-medium">
+                  <span className="flex items-center">
+                    <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
+                    {errors.general}
+                  </span>
+                </div>
+              )}
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium mb-3">Lý do báo cáo</h4>
-                  <RadioGroup
-                    value={formData.reason}
-                    onValueChange={handleRadioChange}
-                    className="space-y-2"
+                  <h4 className="text-sm font-medium mb-3">
+                    Lý do báo cáo <span className="text-destructive">*</span>
+                  </h4>
+                  <div
+                    className={`p-3 rounded-md ${
+                      errors.reason
+                        ? "bg-red-100 border border-red-300"
+                        : "bg-gray-50"
+                    }`}
                   >
-                    {reasons.map((reason) => (
-                      <div
-                        key={reason.value}
-                        className="flex items-center space-x-2"
-                      >
-                        <RadioGroupItem
-                          value={reason.value}
-                          id={reason.value}
-                        />
-                        <Label
-                          htmlFor={reason.value}
-                          className="cursor-pointer"
+                    <RadioGroup
+                      value={formData.reason}
+                      onValueChange={handleRadioChange}
+                      className="space-y-2"
+                    >
+                      {reasons.map((reason) => (
+                        <div
+                          key={reason.value}
+                          className="flex items-center space-x-2"
                         >
-                          {reason.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
+                          <RadioGroupItem
+                            value={reason.value}
+                            id={reason.value}
+                          />
+                          <Label
+                            htmlFor={reason.value}
+                            className="cursor-pointer"
+                          >
+                            {reason.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
                   {errors.reason && (
-                    <p className="text-sm text-destructive mt-1">
+                    <div className="text-sm text-red-600 font-medium mt-2 p-1 flex items-center bg-red-50 rounded-md">
+                      <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
                       {errors.reason}
-                    </p>
+                    </div>
                   )}
                 </div>
 
                 <div>
                   <Label htmlFor="details" className="text-sm font-medium">
-                    Chi tiết bổ sung (không bắt buộc)
+                    Chi tiết bổ sung{" "}
+                    {isOtherReason() ? (
+                      <span className="text-destructive">*</span>
+                    ) : (
+                      "(không bắt buộc)"
+                    )}
                   </Label>
                   <Textarea
                     id="details"
                     name="details"
-                    placeholder="Vui lòng cung cấp thêm thông tin chi tiết về vấn đề bạn gặp phải..."
-                    className="mt-1"
+                    placeholder={
+                      isOtherReason()
+                        ? "Vui lòng mô tả chi tiết lý do báo cáo của bạn..."
+                        : "Vui lòng cung cấp thêm thông tin chi tiết về vấn đề bạn gặp phải..."
+                    }
+                    className={`mt-1 ${
+                      errors.details ? "border-red-400 ring-1 ring-red-400" : ""
+                    }`}
                     rows={4}
                     value={formData.details}
                     onChange={handleInputChange}
                   />
                   {errors.details && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.details}
-                    </p>
+                    <div className="text-sm text-red-600 font-medium mt-1 p-2 bg-red-100 rounded border border-red-300">
+                      <span className="flex items-center">
+                        <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
+                        {errors.details}
+                      </span>
+                    </div>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="image">Hình ảnh</Label>
+                  <Label
+                    htmlFor="image"
+                    className={errors.image ? "text-red-600 font-medium" : ""}
+                  >
+                    Hình ảnh <span className="text-red-500">*</span>
+                  </Label>
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-4">
                       <Input
@@ -246,22 +345,43 @@ const ReportDialog = ({
                       <Button
                         type="button"
                         variant="outline"
-                        className="w-full"
+                        className={`w-full ${
+                          errors.image
+                            ? "border-red-500 text-red-600 hover:bg-red-50"
+                            : ""
+                        }`}
                         onClick={() =>
                           document.getElementById("image")?.click()
                         }
                       >
                         <Upload className="mr-2 h-4 w-4" />
-                        Tải ảnh lên
+                        {formData.image ? "Đổi ảnh khác" : "Tải ảnh lên"}
                       </Button>
                     </div>
-                    {imagePreview && (
+                    {imagePreview ? (
                       <div className="relative aspect-video w-full overflow-hidden rounded-lg border w-[100px]">
                         <img
                           src={imagePreview}
                           alt="Preview"
                           className="object-contain w-full h-full"
                         />
+                      </div>
+                    ) : (
+                      <div
+                        className={`rounded-md p-2 text-sm ${
+                          errors.image
+                            ? "bg-red-100 text-red-700 font-medium border border-red-300"
+                            : "bg-gray-50 text-gray-600"
+                        }`}
+                      >
+                        {errors.image ? (
+                          <span className="flex items-center">
+                            <AlertTriangle className="w-4 h-4 mr-2 text-red-600" />
+                            {errors.image}
+                          </span>
+                        ) : (
+                          "Vui lòng tải lên hình ảnh có liên quan đến báo cáo"
+                        )}
                       </div>
                     )}
                   </div>
