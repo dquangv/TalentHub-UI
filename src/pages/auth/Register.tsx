@@ -11,21 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, BriefcaseIcon, User, Phone, MapPin, FileText, Info, Home } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  BriefcaseIcon,
+  User,
+  Phone,
+  MapPin,
+  FileText,
+  Info,
+} from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
 import addressService, { Province, District, Ward } from "@/api/addressService";
+import validatePhoneNumber from "@/utils/phoneValidator";
 
 const Register = () => {
   const [activeTab, setActiveTab] = useState("basicInfo");
+  const [phoneError, setPhoneError] = useState("");
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,8 +49,12 @@ const Register = () => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [selectedProvince, setSelectedProvince] = useState<Province | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(null);
+  const [selectedProvince, setSelectedProvince] = useState<Province | null>(
+    null
+  );
+  const [selectedDistrict, setSelectedDistrict] = useState<District | null>(
+    null
+  );
   const [selectedWard, setSelectedWard] = useState<Ward | null>(null);
 
   const [location, setLocation] = useState({ lat: null, lng: null });
@@ -51,7 +62,19 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, phoneNumber: value });
+    const validation = validatePhoneNumber(value, {
+      acceptInternational: false,
+    });
 
+    if (!validation.isValid && value.trim() !== "") {
+      setPhoneError(validation.message);
+    } else {
+      setPhoneError("");
+    }
+  };
   useEffect(() => {
     const fetchProvinces = async () => {
       const data = await addressService.getProvinces();
@@ -64,7 +87,9 @@ const Register = () => {
   useEffect(() => {
     const fetchDistricts = async () => {
       if (selectedProvince) {
-        const provinceDetails = await addressService.getProvinceDetails(selectedProvince.code);
+        const provinceDetails = await addressService.getProvinceDetails(
+          selectedProvince.code
+        );
         if (provinceDetails && provinceDetails.districts) {
           setDistricts(provinceDetails.districts);
         }
@@ -82,7 +107,9 @@ const Register = () => {
   useEffect(() => {
     const fetchWards = async () => {
       if (selectedDistrict) {
-        const districtDetails = await addressService.getDistrictDetails(selectedDistrict.code);
+        const districtDetails = await addressService.getDistrictDetails(
+          selectedDistrict.code
+        );
         if (districtDetails && districtDetails.wards) {
           setWards(districtDetails.wards);
         }
@@ -107,31 +134,36 @@ const Register = () => {
         console.error("Error getting location: ", err);
         notification.warning({
           message: "Cảnh báo vị trí",
-          description: "Không thể truy cập vị trí của bạn. Điều này có thể ảnh hưởng đến một số tính năng.",
+          description:
+            "Không thể truy cập vị trí của bạn. Điều này có thể ảnh hưởng đến một số tính năng.",
         });
       }
     );
   }, []);
 
   const handleProvinceChange = async (provinceCode) => {
-    const province = provinces.find(p => p.code.toString() === provinceCode.toString());
+    const province = provinces.find(
+      (p) => p.code.toString() === provinceCode.toString()
+    );
     setSelectedProvince(province || null);
   };
 
   const handleDistrictChange = async (districtCode) => {
-    const district = districts.find(d => d.code.toString() === districtCode.toString());
+    const district = districts.find(
+      (d) => d.code.toString() === districtCode.toString()
+    );
     setSelectedDistrict(district || null);
-  };
-
-  const handleWardChange = (wardCode) => {
-    const ward = wards.find(w => w.code.toString() === wardCode.toString());
-    setSelectedWard(ward || null);
   };
 
   const handleNextTab = () => {
     if (activeTab === "basicInfo") {
-      // Validate basic info
-      if (!formData.email || !formData.password || !formData.confirmPassword || !formData.role) {
+      // Validation logic hiện có cho tab đầu tiên
+      if (
+        !formData.email ||
+        !formData.password ||
+        !formData.confirmPassword ||
+        !formData.role
+      ) {
         setError("Vui lòng điền đầy đủ thông tin cơ bản");
         return;
       }
@@ -142,14 +174,29 @@ const Register = () => {
       setError("");
       setActiveTab("personalInfo");
     } else if (activeTab === "personalInfo") {
-      if (!formData.firstName || !formData.lastName || !formData.phoneNumber) {
-        setError("Vui lòng điền đầy đủ thông tin cá nhân");
+      if (!formData.firstName || !formData.lastName) {
+        setError("Vui lòng điền đầy đủ họ và tên");
         return;
       }
+
+      if (!formData.phoneNumber) {
+        setError("Vui lòng nhập số điện thoại");
+        return;
+      }
+
+      const phoneValidation = validatePhoneNumber(formData.phoneNumber, {
+        onlyVietnam: true,
+      });
+      if (!phoneValidation.isValid) {
+        setError(phoneValidation.message);
+        return;
+      }
+
       if (!selectedProvince || !selectedDistrict) {
         setError("Vui lòng chọn đầy đủ địa chỉ");
         return;
       }
+
       setError("");
       setActiveTab("professionalInfo");
     }
@@ -187,10 +234,11 @@ const Register = () => {
 
     setError("");
     setLoading(true);
-    const status = formData.role === "FREELANCER" ? "Xác thực" : "Chưa xác thực";
+    const status =
+      formData.role === "FREELANCER" ? "Xác thực" : "Chưa xác thực";
     try {
-      const country = selectedProvince ? selectedProvince.name : '';
-      const province = selectedDistrict ? selectedDistrict.name : '';
+      const country = selectedProvince ? selectedProvince.name : "";
+      const province = selectedDistrict ? selectedDistrict.name : "";
       const { confirmPassword, ...dataToSend } = formData;
 
       const response = await api.post("/v1/account/register", {
@@ -220,19 +268,19 @@ const Register = () => {
       });
 
       if (formData.role === "FREELANCER") {
-        navigate("/settingsfreelancer")
+        navigate("/settingsfreelancer");
       } else {
-        navigate("/client/profile")
+        navigate("/client/profile");
         notification.info({
           message: "Thông báo",
-          description: "Vui lòng kiểm tra email để xác thực tài khoản"
+          description: "Vui lòng kiểm tra email để xác thực tài khoản",
         });
       }
     } catch (err: any) {
       console.error("Error during login:", err);
       notification.error({
-        message: 'Lỗi đăng ký',
-        description: err.response?.data?.message || 'Đăng ký không thành công'
+        message: "Lỗi đăng ký",
+        description: err.response?.data?.message || "Đăng ký không thành công",
       });
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
@@ -252,16 +300,24 @@ const Register = () => {
                   {formData.role === "FREELANCER"
                     ? "Tạo tài khoản để bắt đầu sự nghiệp freelance của bạn"
                     : formData.role === "CLIENT"
-                      ? "Tạo tài khoản để tìm kiếm freelancer cho dự án của bạn"
-                      : "Tạo tài khoản để bắt đầu"}
+                    ? "Tạo tài khoản để tìm kiếm freelancer cho dự án của bạn"
+                    : "Tạo tài khoản để bắt đầu"}
                 </p>
               </div>
 
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="grid grid-cols-3 mb-8">
                   <TabsTrigger value="basicInfo">Thông tin cơ bản</TabsTrigger>
-                  <TabsTrigger value="personalInfo">Thông tin cá nhân</TabsTrigger>
-                  <TabsTrigger value="professionalInfo">Thông tin chuyên môn</TabsTrigger>
+                  <TabsTrigger value="personalInfo">
+                    Thông tin cá nhân
+                  </TabsTrigger>
+                  <TabsTrigger value="professionalInfo">
+                    Thông tin chuyên môn
+                  </TabsTrigger>
                 </TabsList>
 
                 {/* Basic Information Tab */}
@@ -275,7 +331,9 @@ const Register = () => {
                           placeholder="Email"
                           className="pl-10"
                           value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, email: e.target.value })
+                          }
                         />
                       </div>
                     </div>
@@ -288,7 +346,12 @@ const Register = () => {
                           placeholder="Mật khẩu"
                           className="pl-10"
                           value={formData.password}
-                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              password: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -301,7 +364,12 @@ const Register = () => {
                           placeholder="Xác nhận mật khẩu"
                           className="pl-10"
                           value={formData.confirmPassword}
-                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              confirmPassword: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -311,20 +379,28 @@ const Register = () => {
                         <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Select
                           value={formData.role}
-                          onValueChange={(value) => setFormData({ ...formData, role: value })}
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, role: value })
+                          }
                         >
                           <SelectTrigger className="pl-10">
                             <SelectValue placeholder="Chọn vai trò" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="FREELANCER">Freelancer</SelectItem>
-                            <SelectItem value="CLIENT">Nhà tuyển dụng</SelectItem>
+                            <SelectItem value="FREELANCER">
+                              Freelancer
+                            </SelectItem>
+                            <SelectItem value="CLIENT">
+                              Nhà tuyển dụng
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {error && (
+                      <div className="text-red-500 text-sm">{error}</div>
+                    )}
 
                     <div className="flex justify-end">
                       <Button type="button" onClick={handleNextTab}>
@@ -345,7 +421,12 @@ const Register = () => {
                             placeholder="Họ"
                             className="pl-10"
                             value={formData.lastName}
-                            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                lastName: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -357,7 +438,12 @@ const Register = () => {
                             placeholder="Tên"
                             className="pl-10"
                             value={formData.firstName}
-                            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                firstName: e.target.value,
+                              })
+                            }
                           />
                         </div>
                       </div>
@@ -371,7 +457,12 @@ const Register = () => {
                           placeholder="Số điện thoại"
                           className="pl-10"
                           value={formData.phoneNumber}
-                          onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              phoneNumber: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -430,10 +521,16 @@ const Register = () => {
                       </div>
                     </div>
 
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {error && (
+                      <div className="text-red-500 text-sm">{error}</div>
+                    )}
 
                     <div className="flex justify-between">
-                      <Button type="button" variant="outline" onClick={handlePrevTab}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handlePrevTab}
+                      >
                         Quay lại
                       </Button>
                       <Button type="button" onClick={handleNextTab}>
@@ -453,7 +550,9 @@ const Register = () => {
                           placeholder="Tiêu đề chuyên môn"
                           className="pl-10"
                           value={formData.title}
-                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, title: e.target.value })
+                          }
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           {formData.role === "FREELANCER"
@@ -470,7 +569,12 @@ const Register = () => {
                           placeholder="Giới thiệu bản thân"
                           className="pl-10 min-h-[100px]"
                           value={formData.introduction}
-                          onChange={(e) => setFormData({ ...formData, introduction: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              introduction: e.target.value,
+                            })
+                          }
                         />
                         <p className="text-xs text-muted-foreground mt-1">
                           {formData.role === "FREELANCER"
@@ -480,13 +584,23 @@ const Register = () => {
                       </div>
                     </div>
 
-                    {error && <div className="text-red-500 text-sm">{error}</div>}
+                    {error && (
+                      <div className="text-red-500 text-sm">{error}</div>
+                    )}
 
                     <div className="flex justify-between">
-                      <Button type="button" variant="outline" onClick={handlePrevTab}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handlePrevTab}
+                      >
                         Quay lại
                       </Button>
-                      <Button type="submit" className="bg-primary" disabled={loading}>
+                      <Button
+                        type="submit"
+                        className="bg-primary"
+                        disabled={loading}
+                      >
                         {loading ? "Đang đăng ký..." : "Hoàn tất đăng ký"}
                       </Button>
                     </div>
