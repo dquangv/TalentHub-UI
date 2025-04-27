@@ -25,7 +25,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CircleCheck, CircleAlert, CheckCircle2, Lock } from "lucide-react";
 import Security from "../freelancer/settings/Security";
-
+import validatePhoneNumber from "@/utils/phoneValidator";
 
 const ClientProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
