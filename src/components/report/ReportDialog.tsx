@@ -17,7 +17,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "@/api/axiosConfig";
 import { Input } from "../ui/input";
-// Không sử dụng notification từ antd nữa
 
 interface ReportDialogProps {
   itemId: string;
