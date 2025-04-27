@@ -626,7 +626,7 @@ const ClientProfile = () => {
                       Chức danh (hiện tại)
                     </label>
                     <Input
-                      value={profile.title}
+                      value={profile.title || ""}
                       onChange={(e) =>
                         setProfile({ ...profile, title: e.target.value })
                       }
@@ -752,7 +752,7 @@ const ClientProfile = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tên công ty</label>
                   <Input
-                    value={company.companyName}
+                    value={company.companyName || ""}
                     onChange={(e) =>
                       setCompany({ ...company, companyName: e.target.value })
                     }
@@ -765,7 +765,7 @@ const ClientProfile = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Lĩnh vực</label>
                   <Input
-                    value={company.industry}
+                    value={company.industry || ""}
                     onChange={(e) =>
                       setCompany({ ...company, industry: e.target.value })
                     }
@@ -808,7 +808,7 @@ const ClientProfile = () => {
                     <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       className="pl-10"
-                      value={company.address}
+                      value={company.address || ""}
                       onChange={(e) =>
                         setCompany({ ...company, address: e.target.value })
                       }
