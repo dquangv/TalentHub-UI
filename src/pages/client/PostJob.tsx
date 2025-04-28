@@ -702,12 +702,13 @@ const PostJob = () => {
                         {isEditMode && <Button
                             type="button"
                             variant="outline"
+                            className='bg-red-500 text-white'
                             onClick={(e) => {
                                 e.preventDefault();
                                 handleSubmit({ ...jobData, statusJob: StatusJob.CLOSED });
                             }}
                             disabled={isSubmitting}
-                        >   
+                        >
                             {isSubmitting ? 'Đang xóa bản nháp...' : 'Xóa bản nháp'}
                         </Button>}
                         {(
