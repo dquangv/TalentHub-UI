@@ -196,7 +196,7 @@ const PostJob = () => {
             });
             return false;
         }
-        if(!data.hourWork){
+        if (!data.hourWork) {
             notification.error({
                 message: 'Lỗi',
                 description: 'Vui lòng nhập số giờ làm việc'
@@ -304,10 +304,10 @@ const PostJob = () => {
             //     message: 'Lỗi',
             //     description: isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.'
             // });
-           
+
             notification.error({
                 message: 'Lỗi',
-                description: error?.response?.data?.message ||(
+                description: error?.response?.data?.message || (
                     (isEditMode ? 'Không thể cập nhật công việc' : 'Không đủ điều kiện để đăng công việc mới.\nVui lòng kiểm tra lại gói dịch vụ của bạn.')
                 )
             });
@@ -699,7 +699,18 @@ const PostJob = () => {
                     </div>
 
                     <div className="flex justify-end gap-4">
-                        {!isEditMode && (
+                        {isEditMode && <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleSubmit({ ...jobData, statusJob: StatusJob.CLOSED });
+                            }}
+                            disabled={isSubmitting}
+                        >   
+                            {isSubmitting ? 'Đang xóa bản nháp...' : 'Xóa bản nháp'}
+                        </Button>}
+                        {(
                             <Button
                                 type="button"
                                 variant="outline"
@@ -709,7 +720,7 @@ const PostJob = () => {
                                 }}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
+                                {isSubmitting ? 'Đang lưu...' : !isEditMode ? 'Lưu nháp' : 'Tiếp tục lưu nháp'}
                             </Button>
                         )}
 
@@ -721,7 +732,7 @@ const PostJob = () => {
                                 handleSubmit({ ...jobData, statusJob: StatusJob.OPEN });
                             }}
                         >
-                            {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Đăng tin'}
+                            {isSubmitting ? 'Đang xử lý...' : 'Đăng tin'}
                         </Button>
                     </div>
                 </div>
