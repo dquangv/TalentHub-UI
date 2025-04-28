@@ -270,6 +270,12 @@ const PostJob = () => {
                         description: 'Lưu nháp thành công'
                     });
 
+                } else if (data.statusJob == StatusJob.CLOSED) {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Xóa bản nháp thành công'
+                    });
+                    navigate(`/jobs/${response.data.jobId}`)
                 } else {
                     notification.success({
                         message: 'Thành công',
