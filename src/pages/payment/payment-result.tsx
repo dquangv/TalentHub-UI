@@ -22,8 +22,9 @@ export default function PaymentResult() {
     errorCode: "",
   });
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
   const userId = userInfo.userId || "";
-  const userName = userInfo.fullName || userInfo.username || ""; // Get user name from local storage
+  const userName = userData.firstName + " " + userData.lastName || "";
   const [searchParams] = useSearchParams();
 
   const getPaymentStatus = (vnp_ResponseCode: string) => {
@@ -50,7 +51,7 @@ export default function PaymentResult() {
         setPaymentData({
           status: initialStatus,
           userId: userId,
-          userName: userName, // Initialize with local userName
+          userName: userName,
           amount: vnp_Amount,
           errorCode: vnp_ResponseCode,
         });
