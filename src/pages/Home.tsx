@@ -1014,7 +1014,7 @@ const Home = () => {
 
       <section className="py-16 bg-white" id="trusted-companies">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
             Đối Tác của TalentHub
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 items-center">
