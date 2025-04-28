@@ -100,29 +100,26 @@ const ReportsOfJob = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Người báo cáo</TableHead>
+                <TableHead>STT</TableHead>
                   <TableHead>Lý do</TableHead>
+                  <TableHead>Xử lý</TableHead>
                   <TableHead>Mô tả</TableHead>
                   <TableHead>Ngày báo cáo</TableHead>
                   <TableHead>Trạng thái</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {reports?.map((report) => (
+                {reports?.map((report, index) => (
                   <TableRow key={report.id}>
+                        
                     <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={report.image} alt={report.fullName} />
-                          <AvatarFallback>{report.fullName?.[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{report.fullName}</p>
-                        </div>
-                      </div>
+                      <p className="font-medium">{index + 1}</p>
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{report.reasonFreelancer}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="font-medium">{report.reasonAdmin}</p>
                     </TableCell>
                     <TableCell>
                       <p className="text-sm text-muted-foreground">

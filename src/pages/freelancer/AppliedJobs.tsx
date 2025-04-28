@@ -227,7 +227,7 @@ const AppliedJobs = () => {
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
                         <div className="flex items-center">
                           <Briefcase className="w-4 h-4 mr-2" />
-                          {job.companyName}
+                          {job.companyName ? job.companyName : "Không có công ty"}
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
