@@ -94,7 +94,7 @@ const PostJob = () => {
             const jobDetails = response.data;
             setJobData({
                 ...jobDetails,
-                scope: jobDetails.description,
+                scope: jobDetails.scope,
             });
             setSelectedSkills(jobDetails.skillId || []);
         } catch (error) {
