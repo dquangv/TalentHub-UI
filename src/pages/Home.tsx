@@ -326,7 +326,7 @@ const Home = () => {
     status: true
   }]);
 
-  const displayedCustomers = showAll ? customers : customers.slice(0, 3);
+  const displayedCustomers = showAll ? customers : customers.slice(0, 4);
   const homeJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -1017,7 +1017,7 @@ const Home = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
             Đối Tác của TalentHub
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 items-center">
             {displayedCustomers.map((customer) => (
               <div
                 key={customer.id}
@@ -1033,7 +1033,7 @@ const Home = () => {
                 ) : (
                   <div className="flex items-center gap-2 text-gray-700">
                     <img
-                      width={40}
+                      width={60}
                       src="/favicon.png"
                       alt="TalentHub logo"
                       className="favicon"
