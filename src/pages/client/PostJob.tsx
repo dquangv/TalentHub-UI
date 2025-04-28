@@ -257,10 +257,20 @@ const PostJob = () => {
         try {
             if (isEditMode) {
                 await api.put(`/v1/jobs/update/${jobId}`, submitData);
-                notification.success({
-                    message: 'Thành công',
-                    description: 'Cập nhật công việc thành công'
-                });
+                if (data.statusJob == StatusJob.CLOSED) {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Xóa bản nháp thành công'
+                    });
+                    window.location.href = '/client/post-job';
+                } else {
+                    notification.success({
+                        message: 'Thành công',
+                        description: 'Cập nhật công việc thành công'
+                    });
+                }
+
+
             } else {
                 console.log('submitDta ', submitData)
                 const response = await api.post('/v1/jobs/createJob', submitData);
@@ -270,12 +280,6 @@ const PostJob = () => {
                         description: 'Lưu nháp thành công'
                     });
 
-                } else if (data.statusJob == StatusJob.CLOSED) {
-                    notification.success({
-                        message: 'Thành công',
-                        description: 'Xóa bản nháp thành công'
-                    });
-                    navigate(`/jobs/${response.data.jobId}`)
                 } else {
                     notification.success({
                         message: 'Thành công',
