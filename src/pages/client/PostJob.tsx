@@ -758,7 +758,7 @@ const PostJob = () => {
                                 handleSubmit({ ...jobData, statusJob: StatusJob.OPEN });
                             }}
                         >
-                            {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Đăng tin'}
+                            {isSubmitting ? 'Đang xử lý...' : isEditMode && jobData.statusJob != StatusJob.DRAFT ? 'Cập nhật' : 'Đăng tin'}
                         </Button>
                     </div>
                 </div>
