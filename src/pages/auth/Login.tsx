@@ -60,6 +60,12 @@ const Login = () => {
       return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Địa chỉ email không hợp lệ");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -108,7 +114,7 @@ const Login = () => {
 
       // Display error message
       const errorMessage =
-        err.response?.data?.message || "Đăng nhập không thành công";
+        err.response?.data?.message || "Thông tin đăng nhập không chính xác";
       setError(errorMessage);
 
       notification.error({
@@ -210,14 +216,13 @@ const Login = () => {
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
-                        type="email"
+                        type="text"
                         placeholder="Email"
                         className="pl-10"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
                         }
-                        required
                       />
                     </div>
                   </div>
@@ -233,7 +238,6 @@ const Login = () => {
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
                         }
-                        required
                       />
                     </div>
                   </div>
