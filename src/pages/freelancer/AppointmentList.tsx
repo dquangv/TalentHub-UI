@@ -20,6 +20,7 @@ import {
   MapPin,
   BookUser,
   ArrowUpDown,
+  FileText,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 
@@ -69,6 +70,27 @@ const AppointmentList = () => {
       return sortOrder === "newest" ? timeB - timeA : timeA - timeB;
     });
 
+    const navigateToJob = (jobId) => {
+      navigate(`/jobs/${jobId}`);
+    };
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      return date.toLocaleDateString("vi-VN", options);
+    };
+
+    const formatTime = (dateString) => {
+      const date = new Date(dateString);
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    };
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -106,6 +128,7 @@ const AppointmentList = () => {
                 <TableRow>
                   <TableHead className="min-w-[120px]">Nhà tuyển dụng</TableHead>
                   <TableHead className="min-w-[120px]">Chủ đề</TableHead>
+                  <TableHead className="min-w-[120px]">Bài đăng</TableHead>
                   <TableHead className="min-w-[120px]">
                     <button
                       className="flex items-center gap-2 hover:text-primary"
@@ -152,16 +175,32 @@ const AppointmentList = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1">
+                      {appointment.jobId && appointment.jobTitle ? (
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                          onClick={() => navigateToJob(appointment.jobId)}
+                        >
+                          <FileText className="w-4 h-4" />
+                          {appointment.jobTitle}
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">Không có</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleDateString('vi-VN')}
+                          <Calendar className="w-4 h-4 mr-2 text-blue-500" />
+                          <span className="font-medium">
+                            {formatDate(appointment.startTime)}
+                          </span>
                         </div>
                         <div className="flex items-center">
-                          <Clock className="w-4 h-4 mr-2 text-muted-foreground" />
-                          {new Date(appointment.startTime).toLocaleTimeString('vi-VN')}
+                          <Clock className="w-4 h-4 mr-2 text-emerald-500" />
+                          <span>{formatTime(appointment.startTime)}</span>
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        <div className="ml-6 text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded-md inline-block">
                           {appointment.duration} phút
                         </div>
                       </div>
