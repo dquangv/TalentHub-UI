@@ -335,15 +335,6 @@ const Login = () => {
                         Click vào đây
                       </Link>
                     </p>
-                    <p className="text-center text-sm text-muted-foreground">
-                      Quản lý bảo mật tài khoản?{" "}
-                      <Link
-                        to="/security-settings"
-                        className="text-primary hover:underline"
-                      >
-                        Thiết lập 2FA
-                      </Link>
-                    </p>
                   </div>
                 </>
               )}
