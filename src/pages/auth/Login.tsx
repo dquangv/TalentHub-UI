@@ -53,6 +53,13 @@ const Login = () => {
     setLoading(true);
     setError("");
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Địa chỉ email không hợp lệ");
+      setLoading(false)
+      return;
+    }
+
     try {
       const response = await api.post("/v1/auth/login", {
         ...formData,
@@ -80,7 +87,7 @@ const Login = () => {
       notification.error({
         message: "Lỗi đăng nhập",
         description:
-          err.response?.data?.message || "Đăng nhập không thành công",
+          err.response?.data?.message || "Thông tin đăng nhập không chính xác",
       });
     } finally {
       setLoading(false);
@@ -110,8 +117,9 @@ const Login = () => {
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
-                      type="email"
+                      type="text"
                       placeholder="Email"
+                      required
                       className="pl-10"
                       value={formData.email}
                       onChange={(e) =>
@@ -126,6 +134,7 @@ const Login = () => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="password"
+                      required
                       placeholder="Mật khẩu"
                       className="pl-10"
                       value={formData.password}
