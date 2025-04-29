@@ -5,24 +5,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, Chrome, Facebook } from "lucide-react";
+import { Mail, Lock, Chrome, Facebook, ShieldCheck } from "lucide-react";
 import api from "@/api/axiosConfig";
 import config from "@/config";
 import { useAuth } from "@/contexts/AuthContext";
 import { notification } from "antd";
 
 const Login = () => {
+  // Form data for initial login
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
+  // 2FA related states
+  const [showMfaForm, setShowMfaForm] = useState(false);
+  const [mfaCode, setMfaCode] = useState("");
+  const [tempToken, setTempToken] = useState("");
+
+  // UI states
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [location, setLocation] = useState<{
-    lat: number | null;
-    lng: number | null;
-  }>({ lat: null, lng: null });
+
+  // User location
+  const [location, setLocation] = useState({
+    lat: null,
+    lng: null,
+  });
 
   const { login } = useAuth();
   const navigate = useNavigate();
