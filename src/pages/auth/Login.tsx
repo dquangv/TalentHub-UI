@@ -36,8 +36,8 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  // Get user location on component mount
   useEffect(() => {
-    // Get user location when component mounts
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setLocation({
@@ -47,17 +47,18 @@ const Login = () => {
       },
       (err) => {
         console.error("Error getting location: ", err);
-        // notification.error({
-        //   message: "Location Access Denied",
-        //   description:
-        //     "Please allow location access to proceed with registration.",
-        // });
       }
     );
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle initial login form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.email || !formData.password) {
+      setError("Vui lòng nhập đầy đủ email và mật khẩu");
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -65,13 +66,77 @@ const Login = () => {
     try {
       const response = await api.post("/v1/auth/login", {
         ...formData,
-        lat: location.lat,
-        lng: location.lng,
+        lat: location.lat || 0,
+        lng: location.lng || 0,
       });
 
-      console.log("Login successful:", response);
       const data = response.data;
 
+      // Check if 2FA is required
+      if (data.requiresMfa) {
+        // Store temporary token and email for 2FA verification
+        setTempToken(data.tempToken);
+        setShowMfaForm(true);
+        notification.info({
+          message: "Xác thực hai lớp",
+          description: "Vui lòng nhập mã xác thực từ ứng dụng xác thực của bạn",
+        });
+      } else {
+        // Login successful without 2FA
+        await login({
+          accessToken: data?.accessToken,
+          userId: data?.userId,
+          role: data?.role,
+          freelancerId: data?.freelancerId,
+          clientId: data?.clientId,
+          email: data?.email,
+          lat: data?.lat,
+          lng: data?.lng,
+        });
+
+        navigate("/", { replace: true });
+      }
+    } catch (err) {
+      console.error("Error during login:", err);
+
+      // Display error message
+      const errorMessage =
+        err.response?.data?.message || "Đăng nhập không thành công";
+      setError(errorMessage);
+
+      notification.error({
+        message: "Lỗi đăng nhập",
+        description: errorMessage,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle 2FA verification form submission
+  const handleMfaSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!mfaCode) {
+      setError("Vui lòng nhập mã xác thực");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await api.post("/v1/auth/verify-mfa", {
+        email: formData.email,
+        tempToken: tempToken,
+        mfaCode: mfaCode,
+        lat: location.lat || 0,
+        lng: location.lng || 0,
+      });
+
+      const data = response.data;
+
+      // Login successful after 2FA verification
       await login({
         accessToken: data?.accessToken,
         userId: data?.userId,
@@ -83,20 +148,37 @@ const Login = () => {
         lng: data?.lng,
       });
 
+      // Reset MFA form
+      setMfaCode("");
+      setTempToken("");
+      setShowMfaForm(false);
+
       navigate("/", { replace: true });
-    } catch (err: any) {
-      console.error("Error during login:", err);
+    } catch (err) {
+      console.error("Error during MFA verification:", err);
+
+      // Display error message
+      const errorMessage =
+        err.response?.data?.message || "Mã xác thực không đúng";
+      setError(errorMessage);
+
       notification.error({
-        message: "Lỗi đăng nhập",
-        description:
-          err.response?.data?.message || "Đăng nhập không thành công",
+        message: "Lỗi xác thực",
+        description: errorMessage,
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Lấy URLs OAuth từ config
+  // Reset form when switching between login and MFA form
+  const handleBackToLogin = () => {
+    setShowMfaForm(false);
+    setMfaCode("");
+    setError("");
+  };
+
+  // Get OAuth URLs from config
   const googleAuthUrl = `${config.current.OAUTH_BASE_URL}/google`;
   const facebookAuthUrl = `${config.current.OAUTH_BASE_URL}/facebook`;
 
@@ -113,96 +195,154 @@ const Login = () => {
                 </p>
               </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      className="pl-10"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                    />
+              {!showMfaForm ? (
+                // Regular login form
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="email"
+                        placeholder="Email"
+                        className="pl-10"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="password"
-                      placeholder="Mật khẩu"
-                      className="pl-10"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                    />
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        placeholder="Mật khẩu"
+                        className="pl-10"
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {/* <div className="flex items-center justify-between text-sm">
-                  <Link
-                    to="/forgot-password"
-                    className="text-primary hover:underline"
+                  {/* Submit Button */}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                  </Button>
+                </form>
+              ) : (
+                // 2FA Verification Form
+                <form onSubmit={handleMfaSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="relative">
+                      <ShieldCheck className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Mã xác thực 2FA"
+                        className="pl-10"
+                        value={mfaCode}
+                        onChange={(e) =>
+                          setMfaCode(
+                            e.target.value.replace(/\D/g, "").slice(0, 6)
+                          )
+                        }
+                        autoFocus
+                        maxLength={6}
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-muted-foreground">
+                    Nhập mã 6 số từ ứng dụng Google Authenticator hoặc Microsoft
+                    Authenticator
+                  </p>
+
+                  {/* Submit Button */}
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Đang xác thực..." : "Xác thực"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-2"
+                    onClick={handleBackToLogin}
+                    disabled={loading}
                   >
-                    Quên mật khẩu?
-                  </Link>
-                </div> */}
-
-                {/* Submit Button */}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-                </Button>
-              </form>
+                    Quay lại
+                  </Button>
+                </form>
+              )}
 
               {/* Error Message */}
               {error && (
                 <div className="text-red-500 text-center mt-4">{error}</div>
               )}
 
-              {/* Social Media Login */}
-              <div className="relative my-6">
-                <Separator />
-                <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-muted-foreground text-sm">
-                  Hoặc đăng nhập với
-                </span>
-              </div>
+              {/* Social Media Login - only shown in regular login form */}
+              {!showMfaForm && (
+                <>
+                  <div className="relative my-6">
+                    <Separator />
+                    <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-muted-foreground text-sm">
+                      Hoặc đăng nhập với
+                    </span>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <a href={googleAuthUrl} className="w-full">
-                  <Button variant="outline" className="w-full">
-                    <Chrome className="mr-2 h-4 w-4" />
-                    Google
-                  </Button>
-                </a>
-                <a href={facebookAuthUrl} className="w-full">
-                  <Button variant="outline" className="w-full">
-                    <Facebook className="mr-2 h-4 w-4" />
-                    Facebook
-                  </Button>
-                </a>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <a href={googleAuthUrl} className="w-full">
+                      <Button variant="outline" className="w-full">
+                        <Chrome className="mr-2 h-4 w-4" />
+                        Google
+                      </Button>
+                    </a>
+                    <a href={facebookAuthUrl} className="w-full">
+                      <Button variant="outline" className="w-full">
+                        <Facebook className="mr-2 h-4 w-4" />
+                        Facebook
+                      </Button>
+                    </a>
+                  </div>
 
-              <p className="text-center mt-6 text-sm text-muted-foreground">
-                Chưa có tài khoản?{" "}
-                <Link to="/register" className="text-primary hover:underline">
-                  Đăng ký ngay
-                </Link>
-              </p>
-              <p className="text-center mt-6 text-sm text-muted-foreground">
-                Bạn quên mật khẩu?{" "}
-                <Link
-                  to="/forgot-password"
-                  className="text-primary hover:underline"
-                >
-                  Click vào đây
-                </Link>
-              </p>
+                  <div className="mt-6 space-y-2">
+                    <p className="text-center text-sm text-muted-foreground">
+                      Chưa có tài khoản?{" "}
+                      <Link
+                        to="/register"
+                        className="text-primary hover:underline"
+                      >
+                        Đăng ký ngay
+                      </Link>
+                    </p>
+                    <p className="text-center text-sm text-muted-foreground">
+                      Bạn quên mật khẩu?{" "}
+                      <Link
+                        to="/forgot-password"
+                        className="text-primary hover:underline"
+                      >
+                        Click vào đây
+                      </Link>
+                    </p>
+                    <p className="text-center text-sm text-muted-foreground">
+                      Quản lý bảo mật tài khoản?{" "}
+                      <Link
+                        to="/security-settings"
+                        className="text-primary hover:underline"
+                      >
+                        Thiết lập 2FA
+                      </Link>
+                    </p>
+                  </div>
+                </>
+              )}
             </Card>
           </FadeInWhenVisible>
         </div>
