@@ -17,11 +17,14 @@ export default function PaymentResult() {
   const [paymentData, setPaymentData] = useState({
     status: "loading",
     userId: "",
+    userName: "", // Added userName field
     amount: 0,
     errorCode: "",
   });
-  const userId =
-    JSON.parse(localStorage.getItem("userInfo") || "{}").userId || "";
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+  const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  const userId = userInfo.userId || "";
+  const userName = userData.firstName + " " + userData.lastName || "";
   const [searchParams] = useSearchParams();
 
   const getPaymentStatus = (vnp_ResponseCode: string) => {
@@ -40,14 +43,15 @@ export default function PaymentResult() {
         const vnp_Amount = Number.parseFloat(params.vnp_Amount || "0") / 100;
 
         console.log("vnp_ResponseCode:", vnp_ResponseCode);
-        console.log("vnp_ResponseCode:", typeof vnp_ResponseCode);
         console.log("vnp_Amount:", vnp_Amount);
         console.log("userId:", userId);
+        console.log("userName:", userName);
 
         const initialStatus = getPaymentStatus(vnp_ResponseCode);
         setPaymentData({
           status: initialStatus,
           userId: userId,
+          userName: userName,
           amount: vnp_Amount,
           errorCode: vnp_ResponseCode,
         });
@@ -64,6 +68,9 @@ export default function PaymentResult() {
             ...prev,
             status: response.data.status,
             userId: response.data.userId || prev.userId,
+            // If API returns userName use it, otherwise keep the local one
+            userName:
+              response.data.userName || response.data.fullName || prev.userName,
             amount: response.data.amount || prev.amount,
             errorCode: vnp_ResponseCode,
           }));
@@ -81,7 +88,7 @@ export default function PaymentResult() {
     if (searchParams.has("vnp_ResponseCode")) {
       fetchPaymentResult();
     }
-  }, [searchParams, userId]);
+  }, [searchParams, userId, userName]);
 
   const handleRetry = () => {
     setIsLoading(true);
@@ -120,8 +127,10 @@ export default function PaymentResult() {
           content: (
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <span>Mã lỗi:</span>
-                <span className="font-medium">{paymentData.errorCode}</span>
+                <span>Người nạp tiền:</span>
+                <span className="font-medium">
+                  {paymentData.userName || "Khách hàng"}
+                </span>
               </div>
               <div className="flex justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <span>Số tiền đã thanh toán:</span>
