@@ -709,19 +709,34 @@ const PostJob = () => {
                     </div>
 
                     <div className="flex justify-end gap-4">
-                        {isEditMode && <Button
-                            type="button"
-                            variant="outline"
-                            className='bg-red-500 text-white'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleSubmit({ ...jobData, statusJob: StatusJob.CLOSED });
-                            }}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Đang xóa bản nháp...' : 'Xóa bản nháp'}
-                        </Button>}
-                        {(
+
+                        {((isEditMode && jobData.statusJob == StatusJob.DRAFT) &&
+                            <>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className='bg-red-500 text-white'
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleSubmit({ ...jobData, statusJob: StatusJob.CLOSED });
+                                    }}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Đang xóa bản nháp...' : 'Xóa bản nháp'}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleSubmit({ ...jobData, statusJob: StatusJob.DRAFT });
+                                    }}
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? 'Đang lưu...' : 'Tiếp tục lưu nháp'}
+                                </Button></>
+                        )}
+                        {((!isEditMode) &&
                             <Button
                                 type="button"
                                 variant="outline"
@@ -731,7 +746,7 @@ const PostJob = () => {
                                 }}
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Đang lưu...' : !isEditMode ? 'Lưu nháp' : 'Tiếp tục lưu nháp'}
+                                {isSubmitting ? 'Đang lưu...' : 'Lưu nháp'}
                             </Button>
                         )}
 
@@ -743,7 +758,7 @@ const PostJob = () => {
                                 handleSubmit({ ...jobData, statusJob: StatusJob.OPEN });
                             }}
                         >
-                            {isSubmitting ? 'Đang xử lý...' : 'Đăng tin'}
+                            {isSubmitting ? 'Đang xử lý...' : isEditMode && jobData.statusJob != StatusJob.DRAFT ? 'Cập nhật' : 'Đăng tin'}
                         </Button>
                     </div>
                 </div>
