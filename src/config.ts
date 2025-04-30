@@ -19,10 +19,10 @@ const config: Config = {
         OAUTH_BASE_URL: 'http://localhost:8080/oauth2/authorization'
     },
     production: {
-        API_URL: 'https://api.talenthub.io.vn/api',
-        WEBSOCKET_URL: 'https://api.talenthub.io.vn',
+        API_URL: 'https://api.bminhquang.name.vn/api',
+        WEBSOCKET_URL: 'https://api.bminhquang.name.vn',
         TIMEOUT: 30000,
-        OAUTH_BASE_URL: 'https://api.talenthub.io.vn/oauth2/authorization'
+        OAUTH_BASE_URL: 'https://api.bminhquang.name.vn/oauth2/authorization'
     },
     get current() {
         const env = process.env.NODE_ENV || 'development';
