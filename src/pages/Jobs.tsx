@@ -453,7 +453,7 @@ const Jobs = () => {
                         )}
                       </h3>
                     </div>
-                    <p className="text-muted-foreground mb-4">
+                    <p className="text-muted-foreground mb-4 line-clamp-2">
                       {job.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
