@@ -725,7 +725,7 @@ const Home = () => {
         <section className="py-20 bg-gradient-to-br from-primary-50 via-white to-gray-50" id="recommended-jobs">
           <div className="container mx-auto px-6">
             <FadeInWhenVisible>
-              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent py-4">
                 Công Việc Phù Hợp Với Bạn
               </h2>
             </FadeInWhenVisible>
