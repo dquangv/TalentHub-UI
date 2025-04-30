@@ -69,6 +69,13 @@ const Login = () => {
     setLoading(true);
     setError("");
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Địa chỉ email không hợp lệ");
+      setLoading(false)
+      return;
+    }
+
     try {
       const response = await api.post("/v1/auth/login", {
         ...formData,
@@ -169,8 +176,9 @@ const Login = () => {
       setError(errorMessage);
 
       notification.error({
-        message: "Lỗi xác thực",
-        description: errorMessage,
+        message: "Lỗi đăng nhập",
+        description:
+          err.response?.data?.message || "Thông tin đăng nhập không chính xác",
       });
     } finally {
       setLoading(false);
