@@ -403,16 +403,18 @@ const Freelancers = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading ? (
+        {loading ? (
+          <div className="w-full flex justify-center items-center py-12">
             <LoadingEffect />
-          ) : filteredFreelancers.length === 0 ? (
-            <div className="text-center text-gray-500">
-              {t("No Freelancers Available")}
-            </div>
-          ) : (
-            filteredFreelancers.map((freelancer, index) => (
-              <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
+          </div>
+        ) : filteredFreelancers.length === 0 ? (
+          <div className="w-full text-center text-gray-500 py-12">
+            {t("No Freelancers Available")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredFreelancers.map((freelancer, index) => (
+              <FadeInWhenVisible key={freelancer.id} delay={0}>
                 <Card className="p-6 h-full">
                   <div className="flex items-start gap-4 h-full">
                     <Avatar className="w-16 h-16 rounded-full">
@@ -436,11 +438,11 @@ const Freelancers = () => {
                         {freelancer.title}
                       </p>
                       {/* <div className="flex items-center text-sm text-muted-foreground mb-4">
-                        <MapPin className="w-4 h-4 mr-1" />
-                        {freelancer.province && freelancer.country
-                          ? `${freelancer.province}, ${freelancer.country}`
-                          : freelancer.province || freelancer.country || 'Chưa cập nhật'}
-                      </div> */}
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {freelancer.province && freelancer.country
+                        ? `${freelancer.province}, ${freelancer.country}`
+                        : freelancer.province || freelancer.country || 'Chưa cập nhật'}
+                    </div> */}
                       <div className="flex flex-wrap gap-2 mb-4">
                         {freelancer.skills.map((skill) => (
                           <Badge key={skill} variant="secondary">
@@ -465,9 +467,9 @@ const Freelancers = () => {
                   </div>
                 </Card>
               </FadeInWhenVisible>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <Button variant="outline" size="lg">
