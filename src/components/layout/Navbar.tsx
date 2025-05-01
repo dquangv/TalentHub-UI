@@ -93,21 +93,33 @@ const Navbar = () => {
   const location = useLocation();
   const [isClient, setIsClient] = useState(false);
   const userInfoString = localStorage.getItem("userInfo");
+  const [userInfoLoaded, setUserInfoLoaded] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (isLoggedIn) {
         try {
-          if (!userInfoString) return;
+          const userInfoString = localStorage.getItem("userInfo");
+          if (!userInfoString) {
+            setUserInfoLoaded(true);
+            return;
+          }
 
           const userInfo = JSON.parse(userInfoString);
-          if (!userInfo.userId) return;
+          if (!userInfo.userId) {
+            setUserInfoLoaded(true);
+            return;
+          }
 
           if (userInfo.clientId) {
             setIsClient(true);
           } else {
             setIsClient(false);
           }
+
+          // Set role here to ensure it's available when userInfo is loaded
+          setRole(userInfo?.role || "");
+
           const response = await userService.getUserById(userInfo.userId);
           if (response.data) {
             localStorage.setItem(
@@ -119,26 +131,18 @@ const Navbar = () => {
               })
             );
           }
+
+          setUserInfoLoaded(true);
         } catch (error) {
           console.error("Lỗi khi lấy thông tin người dùng:", error);
+          setUserInfoLoaded(true);
         }
+      } else {
+        setUserInfoLoaded(true);
       }
     };
 
     fetchUserData();
-  }, [isLoggedIn, userInfoString]);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      const userInfo = localStorage.getItem("userInfo");
-
-      if (userInfo) {
-        const parsedUserInfo = JSON.parse(userInfo);
-        setRole(parsedUserInfo?.role || "");
-      }
-    } else {
-      setRole("");
-    }
   }, [isLoggedIn]);
 
   const handleLogout = () => {
@@ -161,9 +165,7 @@ const Navbar = () => {
 
   const UserMenu = () => {
     const { t } = useLanguage();
-    const userInfoString = localStorage.getItem("userInfo");
-    const userInfo = userInfoString ? JSON.parse(userInfoString) : {};
-
+    const [userInfo, setUserInfo] = useState(null);
     const [userData, setUserData] = useState({
       firstName: "",
       lastName: "",
@@ -171,6 +173,16 @@ const Navbar = () => {
     });
 
     useEffect(() => {
+      const userInfoString = localStorage.getItem("userInfo");
+      if (userInfoString) {
+        try {
+          const parsedUserInfo = JSON.parse(userInfoString);
+          setUserInfo(parsedUserInfo);
+        } catch (error) {
+          console.error("Lỗi khi parse userInfo:", error);
+        }
+      }
+
       const storedUserData = localStorage.getItem("userData");
       if (storedUserData) {
         try {
@@ -181,6 +193,8 @@ const Navbar = () => {
         }
       }
     }, []);
+
+    if (!userInfo) return null;
 
     const fullName =
       userData.firstName && userData.lastName

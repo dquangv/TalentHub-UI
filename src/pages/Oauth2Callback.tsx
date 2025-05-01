@@ -21,7 +21,8 @@ export const OAuth2Callback = () => {
       const lat = urlParams.get("lat");
       const email = urlParams.get("email");
       const lng = urlParams.get("lng");
-      var data: any = {
+
+      var data = {
         userId: userId,
         role: role,
         freelancerId: freelancerId == "null" ? null : freelancerId,
@@ -30,7 +31,8 @@ export const OAuth2Callback = () => {
         email: email,
         lng: Number(lng),
       };
-      if (!accessToken || !role || !clientId || !freelancerId || !userId) {
+
+      if (!accessToken || !role || !userId) {
         setError("Missing required parameters.");
         return null;
       }
@@ -40,8 +42,16 @@ export const OAuth2Callback = () => {
 
     const data = getQueryParams();
     if (data) {
+      // Store user info in localStorage directly here before login
+      localStorage.setItem("userInfo", JSON.stringify(data));
+
+      // Then call login
       login(data);
-      window.location.href = "/";
+
+      // Use navigate instead of window.location.href to avoid full page reload
+      setTimeout(() => {
+        navigate("/");
+      }, 500); // Small delay to ensure localStorage is updated
     } else {
       notification.error({
         message: "Error",
@@ -50,7 +60,7 @@ export const OAuth2Callback = () => {
     }
 
     setLoading(false);
-  }, [navigate]);
+  }, [navigate, login]);
 
   if (loading) {
     return <LoadingEffect />;
