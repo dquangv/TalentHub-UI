@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import FadeInWhenVisible from '@/components/animations/FadeInWhenVisible';
-import { Plus, Link as LinkIcon, Trash2, Upload } from 'lucide-react';
-import { notification } from 'antd';
-import projectsService, { Project } from '@/api/projectsService';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
+import { Plus, Link as LinkIcon, Trash2, Upload } from "lucide-react";
+import { notification } from "antd";
+import projectsService, { Project } from "@/api/projectsService";
 
 const Portfolio = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const freelancerId = JSON.parse(localStorage.getItem('userInfo') || '{}').freelancerId;
+  const freelancerId = JSON.parse(
+    localStorage.getItem("userInfo") || "{}"
+  ).freelancerId;
 
   useEffect(() => {
     fetchProjects();
@@ -22,19 +24,21 @@ const Portfolio = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await projectsService.getProjectsByFreelancerId(freelancerId);
+      const response = await projectsService.getProjectsByFreelancerId(
+        freelancerId
+      );
       if (response.data) {
-        const transformedProjects = response.data.map(project => ({
+        const transformedProjects = response.data.map((project) => ({
           ...project,
-          technologies: project.tech.split(',').map(tech => tech.trim())
+          technologies: project.tech.split(",").map((tech) => tech.trim()),
         }));
         setProjects(transformedProjects);
       }
     } catch (error) {
-      console.error('Lỗi khi tải dự án:', error);
+      console.error("Lỗi khi tải dự án:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể tải dự án. Vui lòng thử lại.'
+        message: "Lỗi",
+        description: "Không thể tải dự án. Vui lòng thử lại.",
       });
     } finally {
       setLoading(false);
@@ -44,11 +48,11 @@ const Portfolio = () => {
   const addProject = () => {
     const newProject = {
       id: 0,
-      title: '',
-      description: '',
-      link: '',
-      tech: '',
-      image: '',
+      title: "",
+      description: "",
+      link: "",
+      tech: "",
+      image: "",
       freelancerId,
       technologies: [],
     };
@@ -60,16 +64,16 @@ const Portfolio = () => {
       if (id > 0) {
         await projectsService.deleteProject(id);
         notification.success({
-          message: 'Thành công',
-          description: 'Xóa dự án thành công'
+          message: "Thành công",
+          description: "Xóa dự án thành công",
         });
       }
       setProjects(projects.filter((project) => project.id !== id));
     } catch (error) {
-      console.error('Lỗi khi xóa dự án:', error);
+      console.error("Lỗi khi xóa dự án:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Có lỗi khi xóa dự án'
+        message: "Lỗi",
+        description: "Có lỗi khi xóa dự án",
       });
     }
   };
@@ -80,8 +84,8 @@ const Portfolio = () => {
         if (project.id === id) {
           const updatedProject = { ...project, [field]: value };
 
-          if (field === 'technologies' && Array.isArray(value)) {
-            updatedProject.tech = value.join(', ');
+          if (field === "technologies" && Array.isArray(value)) {
+            updatedProject.tech = value.join(", ");
           }
 
           return updatedProject;
@@ -94,7 +98,7 @@ const Portfolio = () => {
   const handleImageUpload = async (id, file) => {
     try {
       setSubmitting(true);
-      const project = projects.find(p => p.id === id);
+      const project = projects.find((p) => p.id === id);
 
       let imageUrl;
       if (project && project.image) {
@@ -103,17 +107,17 @@ const Portfolio = () => {
         imageUrl = await projectsService.uploadImage(file);
       }
 
-      updateProject(id, 'image', imageUrl);
+      updateProject(id, "image", imageUrl);
 
       notification.success({
-        message: 'Thành công',
-        description: 'Tải ảnh lên thành công'
+        message: "Thành công",
+        description: "Tải ảnh lên thành công",
       });
     } catch (error) {
-      console.error('Lỗi khi tải ảnh lên:', error);
+      console.error("Lỗi khi tải ảnh lên:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể tải ảnh lên. Vui lòng thử lại.'
+        message: "Lỗi",
+        description: "Không thể tải ảnh lên. Vui lòng thử lại.",
       });
     } finally {
       setSubmitting(false);
@@ -130,7 +134,7 @@ const Portfolio = () => {
         description: project.description,
         link: project.link,
         image: project.image,
-        freelancerId: project.freelancerId
+        freelancerId: project.freelancerId,
       };
 
       let response;
@@ -141,22 +145,24 @@ const Portfolio = () => {
 
         if (response.data) {
           setProjects(
-            projects.map(p =>
-              p.id === project.id ? { ...response.data, technologies: project.technologies } : p
+            projects.map((p) =>
+              p.id === project.id
+                ? { ...response.data, technologies: project.technologies }
+                : p
             )
           );
         }
       }
 
       notification.success({
-        message: 'Thành công',
-        description: 'Lưu dự án thành công'
+        message: "Thành công",
+        description: "Lưu dự án thành công",
       });
     } catch (error) {
-      console.error('Lỗi khi lưu dự án:', error);
+      console.error("Lỗi khi lưu dự án:", error);
       notification.error({
-        message: 'Lỗi',
-        description: 'Không thể lưu dự án. Vui lòng thử lại.'
+        message: "Lỗi",
+        description: "Không thể lưu dự án. Vui lòng thử lại.",
       });
     } finally {
       setSubmitting(false);
@@ -171,7 +177,9 @@ const Portfolio = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center p-8">Đang tải...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">Đang tải...</div>
+    );
   }
 
   return (
@@ -183,7 +191,8 @@ const Portfolio = () => {
           </div>
           <h3 className="text-lg font-medium mb-2">Chưa có dự án nào</h3>
           <p className="text-gray-500 mb-6 max-w-md mx-auto">
-            Bạn chưa có dự án nào trong danh mục. Hãy thêm dự án để giới thiệu năng lực và kinh nghiệm của bạn với nhà tuyển dụng.
+            Bạn chưa có dự án nào trong danh mục. Hãy thêm dự án để giới thiệu
+            năng lực và kinh nghiệm của bạn với nhà tuyển dụng.
           </p>
         </div>
       )}
@@ -194,7 +203,7 @@ const Portfolio = () => {
               <h3 className="text-lg font-semibold">Dự án</h3>
               <div className="flex space-x-2">
                 <Button
-                  className='bg-primary'
+                  className="bg-primary"
                   onClick={() => saveProject(project)}
                   disabled={submitting}
                 >
@@ -218,7 +227,7 @@ const Portfolio = () => {
                 <Input
                   value={project.title}
                   onChange={(e) =>
-                    updateProject(project.id, 'title', e.target.value)
+                    updateProject(project.id, "title", e.target.value)
                   }
                   placeholder="Tên dự án"
                 />
@@ -227,12 +236,12 @@ const Portfolio = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Công nghệ sử dụng</label>
                 <Input
-                  value={project.technologies.join(', ')}
+                  value={project.technologies.join(", ")}
                   onChange={(e) =>
                     updateProject(
                       project.id,
-                      'technologies',
-                      e.target.value.split(',').map((tech) => tech.trim())
+                      "technologies",
+                      e.target.value.split(",").map((tech) => tech.trim())
                     )
                   }
                   placeholder="React, Node.js, MongoDB,..."
@@ -247,7 +256,7 @@ const Portfolio = () => {
                     className="pl-10"
                     value={project.link}
                     onChange={(e) =>
-                      updateProject(project.id, 'link', e.target.value)
+                      updateProject(project.id, "link", e.target.value)
                     }
                     placeholder="https://..."
                   />
@@ -266,12 +275,16 @@ const Portfolio = () => {
                   />
                   <Button
                     variant="outline"
-                    onClick={() => document.getElementById(`project-image-${project.id}`)?.click()}
+                    onClick={() =>
+                      document
+                        .getElementById(`project-image-${project.id}`)
+                        ?.click()
+                    }
                     disabled={submitting}
                     className="flex-1"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    {project.image ? 'Thay đổi ảnh' : 'Tải ảnh lên'}
+                    {project.image ? "Thay đổi ảnh" : "Tải ảnh lên"}
                   </Button>
                   {project.image && (
                     <div className="h-10 w-10 overflow-hidden rounded border">
@@ -290,7 +303,7 @@ const Portfolio = () => {
                 <Textarea
                   value={project.description}
                   onChange={(e) =>
-                    updateProject(project.id, 'description', e.target.value)
+                    updateProject(project.id, "description", e.target.value)
                   }
                   placeholder="Mô tả chi tiết về dự án và vai trò của bạn"
                   rows={4}

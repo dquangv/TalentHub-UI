@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CircleCheck, CircleAlert, CheckCircle2, Lock } from "lucide-react";
 import Security from "../freelancer/settings/Security";
 import validatePhoneNumber from "@/utils/phoneValidator";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const ClientProfile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -399,8 +400,7 @@ const ClientProfile = () => {
   if (fetching) {
     return (
       <div className="flex justify-center items-center h-64 ">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <span className="ml-2">Đang tải thông tin...</span>
+        <LoadingEffect />
       </div>
     );
   }

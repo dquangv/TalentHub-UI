@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface JobDetailResponse {
   title: string;
@@ -45,13 +46,13 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
 }) => {
   const [job, setJob] = useState<JobDetailResponse | null>(null);
   const [error, setError] = useState("");
-  const [isBanned, setIsBanned] = useState(false); 
+  const [isBanned, setIsBanned] = useState(false);
 
   const fetchJobDetail = async () => {
     try {
       const response = await api.get(`/v1/jobs/detail-job/${jobId}`);
       setJob(response.data);
-      setIsBanned(response.data.status === "Bị cấm"); 
+      setIsBanned(response.data.status === "Bị cấm");
       setError("");
     } catch (error) {
       console.error("Error fetching job details:", error);
@@ -79,7 +80,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
   const handleUnHide = async () => {
     try {
       await api.post(`/v1/jobs/admin/unban?jobId=${jobId}`);
-      setIsBanned(false); 
+      setIsBanned(false);
     } catch (error) {
       console.error("Error unbanning job:", error);
     }
@@ -106,7 +107,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
             {error ? (
               <div className="text-center text-destructive p-4">{error}</div>
             ) : !job ? (
-              <div className="text-center p-4">Đang tải...</div>
+              <LoadingEffect />
             ) : (
               <div className="space-y-6">
                 <Card className="p-6">
@@ -179,7 +180,7 @@ const JobDetailPopup: React.FC<JobDetailPopupProps> = ({
                         !isBanned
                           ? "bg-red-500 text-white hover:bg-red-600"
                           : "bg-blue-500 text-white hover:bg-blue-600"
-                      } 
+                      }
                     >
                       {isBanned ? "Mở khóa bài đăng" : "Khóa bài đăng"}
                     </Button>

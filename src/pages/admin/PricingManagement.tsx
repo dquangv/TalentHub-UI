@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import api from "@/api/axiosConfig";
 import PackageForm from "./PackageForm";
 import { notification } from "antd";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface VoucherPackage {
   id: number;
@@ -40,7 +41,7 @@ const defaultPackage: Omit<VoucherPackage, "id"> = {
   status: true,
   numberPost: 0,
   description: "",
-  typePackage: "NORMAL"
+  typePackage: "NORMAL",
 };
 
 type TabType = "list" | "grid";
@@ -51,7 +52,8 @@ export default function PricingManagement() {
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [editPackage, setEditPackage] = useState<VoucherPackage | null>(null);
-  const [newPackage, setNewPackage] = useState<Omit<VoucherPackage, "id">>(defaultPackage);
+  const [newPackage, setNewPackage] =
+    useState<Omit<VoucherPackage, "id">>(defaultPackage);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("list");
 
@@ -73,7 +75,7 @@ export default function PricingManagement() {
         } else if (nameLower.includes("bạc")) {
           typePackage = "SILVER";
         }
-        return {...pkg, typePackage};
+        return { ...pkg, typePackage };
       });
       setVoucherPackages(packagesWithType);
     } catch (error) {
@@ -113,7 +115,7 @@ export default function PricingManagement() {
 
     setIsSubmitting(true);
     try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       const userId = userInfo.userId;
 
       const requestData = {
@@ -124,13 +126,10 @@ export default function PricingManagement() {
         status: editPackage.status,
         accountId: userId,
         typePackage: editPackage.typePackage,
-        numberPost: editPackage.numberPost
+        numberPost: editPackage.numberPost,
       };
 
-      const response = await api.put(
-        `/v1/voucher-packages`,
-        requestData
-      );
+      const response = await api.put(`/v1/voucher-packages`, requestData);
 
       console.log("Update successful:", response.data);
       await fetchVoucherPackages();
@@ -165,10 +164,7 @@ export default function PricingManagement() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Đang tải...</span>
-        </div>
+        <LoadingEffect />
       </div>
     );
   }
