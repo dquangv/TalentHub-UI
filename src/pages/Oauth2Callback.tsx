@@ -41,8 +41,7 @@ export const OAuth2Callback = () => {
     const data = getQueryParams();
     if (data) {
       login(data);
-
-      navigate("/");
+      window.location.href = "/";
     } else {
       notification.error({
         message: "Error",
