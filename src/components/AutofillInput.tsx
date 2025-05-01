@@ -8,6 +8,7 @@ import {
   entityConfigs,
 } from "@/services/autoFillService";
 import { Empty } from "antd";
+import LoadingEffect from "./ui/LoadingEffect";
 
 interface AutofillInputComponentProps extends AutofillInputProps {
   label?: string;
@@ -117,7 +118,7 @@ const AutofillInput: React.FC<AutofillInputComponentProps> = ({
               <div className="p-2 text-sm text-center">
                 <div className="text-muted-foreground mb-2">
                   {loading ? (
-                    "Đang tải..."
+                    <LoadingEffect />
                   ) : (
                     <Empty description="Không tìm thấy kết quả" />
                   )}

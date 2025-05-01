@@ -47,6 +47,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 // import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 export const trialFeatures = [
   "Đăng tin ưu tiên (2 tin)",
@@ -284,7 +285,7 @@ const Pricing = () => {
 
   const fetchVoucherPackageListByClientId = async (clientId?: string) => {
     if (!clientId) {
-      setIsLoading(false)
+      setIsLoading(false);
       return;
     }
     try {
@@ -343,7 +344,8 @@ const Pricing = () => {
           setTimeout(() => {
             messageApi.open({
               type: "error",
-              content: "Số dư của bạn không đủ để đăng ký gói. Vui lòng nạp thêm tiền vào ví.",
+              content:
+                "Số dư của bạn không đủ để đăng ký gói. Vui lòng nạp thêm tiền vào ví.",
             });
           }, 0);
         }
@@ -383,8 +385,7 @@ const Pricing = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Đang tải...</span>
+          <LoadingEffect />
         </div>
       </div>
     );
@@ -514,19 +515,19 @@ const Pricing = () => {
                         <div className="mt-auto">
                           {(plan.typePackage !== "NORMAL" ||
                             plan.myPackage) && (
-                              <Button
-                                className="w-full"
-                                variant={
-                                  plan.status && !plan.myPackage
-                                    ? "default"
-                                    : "outline"
-                                }
-                                disabled={plan.myPackage}
-                                onClick={() => handleSubscribe(plan)}
-                              >
-                                {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
-                              </Button>
-                            )}
+                            <Button
+                              className="w-full"
+                              variant={
+                                plan.status && !plan.myPackage
+                                  ? "default"
+                                  : "outline"
+                              }
+                              disabled={plan.myPackage}
+                              onClick={() => handleSubscribe(plan)}
+                            >
+                              {plan.myPackage ? "Đang sử dụng" : "Đăng ký ngay"}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </Card>
@@ -670,7 +671,8 @@ const Pricing = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận đăng ký gói mới</AlertDialogTitle>
             <AlertDialogDescription>
-              {selectedPlan?.typePackage !== "NORMAL" && !selectedPlan?.myPackage
+              {selectedPlan?.typePackage !== "NORMAL" &&
+              !selectedPlan?.myPackage
                 ? "Bạn có chắc chắn muốn mua gói này không?"
                 : "Gói bạn đang dùng vẫn còn hạn sử dụng. Nếu bạn đăng ký gói khác, gói cũ sẽ mất. Bạn đã chắc chắn chưa?"}
             </AlertDialogDescription>
@@ -746,7 +748,9 @@ const Pricing = () => {
                                   currentPackage.endDate
                                 ).toLocaleDateString("vi-VN")
                               ) : (
-                                <span className="text-primary font-semibold">Vô thời hạn</span>
+                                <span className="text-primary font-semibold">
+                                  Vô thời hạn
+                                </span>
                               )}
                             </span>
                           </div>
@@ -758,7 +762,9 @@ const Pricing = () => {
                               {currentPackage.endDate ? (
                                 currentPackage.remainingTimeFormatted
                               ) : (
-                                <span className="text-primary font-semibold">Vô thời hạn</span>
+                                <span className="text-primary font-semibold">
+                                  Vô thời hạn
+                                </span>
                               )}
                             </span>
                           </div>
@@ -813,7 +819,9 @@ const Pricing = () => {
                               <Progress
                                 value={
                                   (currentPackage.remainingTimeInHours /
-                                    ((new Date(currentPackage.endDate).getTime() -
+                                    ((new Date(
+                                      currentPackage.endDate
+                                    ).getTime() -
                                       new Date(
                                         currentPackage.startDate
                                       ).getTime()) /
