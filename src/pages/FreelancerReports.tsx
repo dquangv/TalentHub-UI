@@ -15,22 +15,25 @@ import { AlertTriangle, Calendar, Briefcase } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const FreelancerReports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { freelancerId } = useParams();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}")
+      const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
       if (!userInfo.freelancerId) {
-        navigate("/login")
-        return
+        navigate("/login");
+        return;
       }
-      const response = await api.get(`/v1/reported-jobs/by-freelancer/${userInfo.freelancerId}`);
+      const response = await api.get(
+        `/v1/reported-jobs/by-freelancer/${userInfo.freelancerId}`
+      );
       setReports(response.data);
       setError(null);
     } catch (err) {
@@ -43,7 +46,6 @@ const FreelancerReports = () => {
   useEffect(() => {
     fetchReports();
   }, [freelancerId]);
-
 
   const getStatusBadgeVariant = (status) => {
     switch (status) {
@@ -70,7 +72,7 @@ const FreelancerReports = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingEffect />;
   }
 
   if (error) {
@@ -96,7 +98,9 @@ const FreelancerReports = () => {
                 <AlertTriangle className="w-8 h-8 text-yellow-500" />
                 <div>
                   <p className="text-2xl font-bold">{reports?.length || 0}</p>
-                  <p className="text-sm text-muted-foreground">Tổng số báo cáo</p>
+                  <p className="text-sm text-muted-foreground">
+                    Tổng số báo cáo
+                  </p>
                 </div>
               </div>
             </Card>
@@ -105,7 +109,8 @@ const FreelancerReports = () => {
                 <Briefcase className="w-8 h-8 text-blue-500" />
                 <div>
                   <p className="text-2xl font-bold">
-                    {reports?.filter(report => report.status === "RESOLVED").length || 0}
+                    {reports?.filter((report) => report.status === "RESOLVED")
+                      .length || 0}
                   </p>
                   <p className="text-sm text-muted-foreground">Đã giải quyết</p>
                 </div>
@@ -148,7 +153,7 @@ const FreelancerReports = () => {
                     <TableCell>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                        {format(new Date(report.createdAt), 'dd/MM/yyyy')}
+                        {format(new Date(report.createdAt), "dd/MM/yyyy")}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -161,7 +166,9 @@ const FreelancerReports = () => {
                 {!reports?.length && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
-                      <p className="text-muted-foreground">Chưa có báo cáo nào</p>
+                      <p className="text-muted-foreground">
+                        Chưa có báo cáo nào
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}

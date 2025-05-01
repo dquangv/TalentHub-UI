@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 export const OAuth2Callback = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const {login} = useAuth()
+  const { login } = useAuth();
 
   useEffect(() => {
     const getQueryParams = () => {
@@ -25,8 +26,8 @@ export const OAuth2Callback = () => {
         freelancerId: freelancerId == "null" ? null : freelancerId,
         clientId: clientId == "null" ? null : clientId,
         lat: Number(lat),
-        lng: Number(lng)
-      }
+        lng: Number(lng),
+      };
       if (!accessToken || !role || !clientId || !freelancerId || !userId) {
         setError("Missing required parameters.");
         return null;
@@ -37,9 +38,9 @@ export const OAuth2Callback = () => {
 
     const data = getQueryParams();
     if (data) {
-      login(data)
+      login(data);
 
-      navigate("/"); 
+      navigate("/");
     } else {
       notification.error({
         message: "Error",
@@ -51,7 +52,7 @@ export const OAuth2Callback = () => {
   }, [navigate]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingEffect />;
   }
 
   if (error) {
