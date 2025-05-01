@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 export const BannedAccountCallback = () => {
   const [loading, setLoading] = useState(true);
@@ -18,7 +19,7 @@ export const BannedAccountCallback = () => {
   }, [navigate]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingEffect />;
   }
 
   if (error) {

@@ -3,7 +3,14 @@ import { freelancerColumns } from "@/components/admin/data-table/columns";
 import { useEffect, useState } from "react";
 import api from "@/api/axiosConfig";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface Freelancer {
   id: number;
@@ -23,7 +30,7 @@ export default function FreelancersPage() {
   const [filters, setFilters] = useState({
     search: "",
     category: "all",
-    priceRange: "all"
+    priceRange: "all",
   });
 
   useEffect(() => {
@@ -50,29 +57,37 @@ export default function FreelancersPage() {
     return "high";
   };
 
-  const filteredFreelancers = freelancers?.filter(freelancer => {
+  const filteredFreelancers = freelancers?.filter((freelancer) => {
     const searchTerm = filters.search.toLowerCase();
     const searchMatch =
-      (freelancer.name?.toLowerCase() || '').includes(searchTerm) ||
-      (freelancer.description?.toLowerCase() || '').includes(searchTerm) ||
-      (Array.isArray(freelancer.skills) && freelancer.skills.some(skill =>
-        (skill?.toLowerCase() || '').includes(searchTerm)
-      ));
+      (freelancer.name?.toLowerCase() || "").includes(searchTerm) ||
+      (freelancer.description?.toLowerCase() || "").includes(searchTerm) ||
+      (Array.isArray(freelancer.skills) &&
+        freelancer.skills.some((skill) =>
+          (skill?.toLowerCase() || "").includes(searchTerm)
+        ));
 
-    const categoryMatch = filters.category === "all" || freelancer.categoryName === filters.category;
+    const categoryMatch =
+      filters.category === "all" ||
+      freelancer.categoryName === filters.category;
 
-    const priceRangeMatch = filters.priceRange === "all" ||
+    const priceRangeMatch =
+      filters.priceRange === "all" ||
       getPriceRange(freelancer.hourlyRate) === filters.priceRange;
 
     return searchMatch && categoryMatch && priceRangeMatch;
   });
 
-  const uniqueCategories = Array.from(new Set(freelancers?.map(f => f.categoryName)));
+  const uniqueCategories = Array.from(
+    new Set(freelancers?.map((f) => f.categoryName))
+  );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Quản lý Freelancer</h2>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Quản lý Freelancer
+        </h2>
       </div>
 
       <div className="flex gap-4 items-center">
@@ -80,27 +95,35 @@ export default function FreelancersPage() {
           <Input
             placeholder="Tìm kiếm theo tên, mô tả hoặc kỹ năng..."
             value={filters.search}
-            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, search: e.target.value }))
+            }
             className="max-w-sm"
           />
         </div>
         <Select
           value={filters.category}
-          onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, category: value }))
+          }
         >
           <SelectTrigger className="w-[280px]">
             <SelectValue placeholder="Lọc theo danh mục" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả lĩnh vực</SelectItem>
-            {uniqueCategories.map(category => (
-              <SelectItem key={category} value={category}>{category}</SelectItem>
+            {uniqueCategories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select
           value={filters.priceRange}
-          onValueChange={(value) => setFilters(prev => ({ ...prev, priceRange: value }))}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, priceRange: value }))
+          }
         >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Lọc theo giá" />
@@ -115,12 +138,9 @@ export default function FreelancersPage() {
       </div>
 
       {loading ? (
-        <div className="text-center">Loading...</div>
+        <LoadingEffect />
       ) : (
-        <DataTable
-          columns={freelancerColumns}
-          data={filteredFreelancers}
-        />
+        <DataTable columns={freelancerColumns} data={filteredFreelancers} />
       )}
     </div>
   );

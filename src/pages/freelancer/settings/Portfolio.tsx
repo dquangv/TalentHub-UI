@@ -7,6 +7,7 @@ import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import { Plus, Link as LinkIcon, Trash2, Upload } from "lucide-react";
 import { notification } from "antd";
 import projectsService, { Project } from "@/api/projectsService";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const Portfolio = () => {
   const [projects, setProjects] = useState([]);
@@ -177,9 +178,7 @@ const Portfolio = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">Đang tải...</div>
-    );
+    return <LoadingEffect />;
   }
 
   return (

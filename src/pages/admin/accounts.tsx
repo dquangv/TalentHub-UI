@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import api from "@/api/axiosConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,8 +21,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
-type StatusAccount = 'Xác thực' | 'Chưa xác thực' | 'Khóa';
+type StatusAccount = "Xác thực" | "Chưa xác thực" | "Khóa";
 
 interface Account {
   id: number;
@@ -47,12 +54,18 @@ export default function AccountsPage() {
       try {
         const response = await api.get("/v1/account/admin");
         if (response.status === 200) {
-          const statusOrder: StatusAccount[] = ['Chưa xác thực', 'Xác thực', 'Khóa'];
+          const statusOrder: StatusAccount[] = [
+            "Chưa xác thực",
+            "Xác thực",
+            "Khóa",
+          ];
 
           const sortedAccounts = response.data.sort((a: any, b: any) => {
-            return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+            return (
+              statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
+            );
           });
-          
+
           setAccounts(sortedAccounts);
         }
       } catch (err) {
@@ -71,7 +84,7 @@ export default function AccountsPage() {
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
-            account.email === email ? { ...account, status: 'Khóa' } : account
+            account.email === email ? { ...account, status: "Khóa" } : account
           )
         );
       }
@@ -86,7 +99,9 @@ export default function AccountsPage() {
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
-            account.email === email ? { ...account, status: 'Xác thực' } : account
+            account.email === email
+              ? { ...account, status: "Xác thực" }
+              : account
           )
         );
       }
@@ -97,11 +112,15 @@ export default function AccountsPage() {
 
   const handleVerify = async (email: string) => {
     try {
-      const response = await api.post(`/v1/account/admin/verify?email=${email}`);
+      const response = await api.post(
+        `/v1/account/admin/verify?email=${email}`
+      );
       if (response.status === 200) {
         setAccounts((prevAccounts) =>
           prevAccounts.map((account) =>
-            account.email === email ? { ...account, status: 'Xác thực' } : account
+            account.email === email
+              ? { ...account, status: "Xác thực" }
+              : account
           )
         );
       }
@@ -124,10 +143,13 @@ export default function AccountsPage() {
     setSelectedAction(null);
   };
 
-  const filteredAccounts = accounts.filter(account => {
-    const emailMatch = account.email.toLowerCase().includes(filters.email.toLowerCase());
+  const filteredAccounts = accounts.filter((account) => {
+    const emailMatch = account.email
+      .toLowerCase()
+      .includes(filters.email.toLowerCase());
     const roleMatch = filters.role === "all" || account.role === filters.role;
-    const statusMatch = filters.status === "all" || account.status === filters.status;
+    const statusMatch =
+      filters.status === "all" || account.status === filters.status;
 
     return emailMatch && roleMatch && statusMatch;
   });
@@ -143,13 +165,17 @@ export default function AccountsPage() {
           <Input
             placeholder="Tìm kiếm theo email..."
             value={filters.email}
-            onChange={(e) => setFilters(prev => ({ ...prev, email: e.target.value }))}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, email: e.target.value }))
+            }
             className="max-w-sm"
           />
         </div>
         <Select
           value={filters.role}
-          onValueChange={(value) => setFilters(prev => ({ ...prev, role: value }))}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, role: value }))
+          }
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Lọc theo vai trò" />
@@ -163,7 +189,9 @@ export default function AccountsPage() {
         </Select>
         <Select
           value={filters.status}
-          onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
+          onValueChange={(value) =>
+            setFilters((prev) => ({ ...prev, status: value }))
+          }
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Lọc theo trạng thái" />
@@ -185,21 +213,25 @@ export default function AccountsPage() {
               {selectedAction?.type === "ban"
                 ? "Bạn có chắc chắn muốn khóa tài khoản này?"
                 : selectedAction?.type === "unban"
-                  ? "Bạn có chắc chắn muốn mở khóa tài khoản này?"
-                  : "Bạn có chắc chắn muốn xác thực tài khoản này?"}
+                ? "Bạn có chắc chắn muốn mở khóa tài khoản này?"
+                : "Bạn có chắc chắn muốn xác thực tài khoản này?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirm}>
-              {selectedAction?.type === "ban" ? "Khóa" : selectedAction?.type === "unban" ? "Mở khóa" : "Xác thực"}
+              {selectedAction?.type === "ban"
+                ? "Khóa"
+                : selectedAction?.type === "unban"
+                ? "Mở khóa"
+                : "Xác thực"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {loading ? (
-        <div className="text-center">Loading...</div>
+        <LoadingEffect />
       ) : (
         <DataTable
           columns={[
@@ -210,14 +242,17 @@ export default function AccountsPage() {
               cell: ({ row }) => {
                 const email = row.getValue("email");
                 const status = row.getValue("status") as StatusAccount;
-                const isLocked = status === 'Khóa';
+                const isLocked = status === "Khóa";
 
                 return (
                   <div className="flex space-x-2">
-                    {status === 'Chưa xác thực' ? (
+                    {status === "Chưa xác thực" ? (
                       <Button
                         onClick={() => {
-                          setSelectedAction({ type: "verify", email: email as string });
+                          setSelectedAction({
+                            type: "verify",
+                            email: email as string,
+                          });
                           setShowConfirmDialog(true);
                         }}
                         variant="outline"
@@ -228,7 +263,10 @@ export default function AccountsPage() {
                     ) : isLocked ? (
                       <Button
                         onClick={() => {
-                          setSelectedAction({ type: "unban", email: email as string });
+                          setSelectedAction({
+                            type: "unban",
+                            email: email as string,
+                          });
                           setShowConfirmDialog(true);
                         }}
                         variant="outline"
@@ -239,7 +277,10 @@ export default function AccountsPage() {
                     ) : (
                       <Button
                         onClick={() => {
-                          setSelectedAction({ type: "ban", email: email as string });
+                          setSelectedAction({
+                            type: "ban",
+                            email: email as string,
+                          });
                           setShowConfirmDialog(true);
                         }}
                         variant="outline"
@@ -248,7 +289,6 @@ export default function AccountsPage() {
                         Khóa
                       </Button>
                     )}
-
                   </div>
                 );
               },

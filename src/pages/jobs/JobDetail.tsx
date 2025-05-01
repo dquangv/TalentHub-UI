@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface JobDetailResponse {
   id: number;
@@ -266,7 +267,7 @@ const JobDetail = () => {
   };
 
   if (!job) {
-    return <div>Loading...</div>;
+    return <LoadingEffect />;
   }
 
   return (
@@ -319,8 +320,10 @@ const JobDetail = () => {
                       {!jobFreelancerInfo?.status
                         ? "Ứng tuyển ngay"
                         : jobFreelancerInfo?.status === "Applied"
-                          ? "Đã ứng tuyển"
-                          : jobFreelancerInfo?.status === "Approved" ? "Đã chấp thuận" : "Đã từ chối"}
+                        ? "Đã ứng tuyển"
+                        : jobFreelancerInfo?.status === "Approved"
+                        ? "Đã chấp thuận"
+                        : "Đã từ chối"}
                     </Button>
 
                     {/* Save/Unsave job button */}
@@ -506,10 +509,11 @@ const JobDetail = () => {
                       key={cv.id}
                       className={`
                   border rounded-lg p-4 cursor-pointer transition-all flex justify-between items-center
-                  ${selectedCvId === cv.id
-                          ? "border-primary bg-primary/10"
-                          : "hover:bg-gray-50"
-                        }
+                  ${
+                    selectedCvId === cv.id
+                      ? "border-primary bg-primary/10"
+                      : "hover:bg-gray-50"
+                  }
                 `}
                       onClick={() => setSelectedCvId(cv.id)}
                     >
@@ -579,9 +583,10 @@ const JobDetail = () => {
                         border: "none",
                         borderRadius: "8px",
                       }}
-                      title={`CV Preview: ${cvs.find((cv) => cv.id === selectedCvId)?.title ||
+                      title={`CV Preview: ${
+                        cvs.find((cv) => cv.id === selectedCvId)?.title ||
                         "Untitled"
-                        }`}
+                      }`}
                     />
                   ) : (
                     <div className="flex justify-center items-center h-full">

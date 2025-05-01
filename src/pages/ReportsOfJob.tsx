@@ -15,6 +15,7 @@ import { AlertTriangle, Calendar } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const ReportsOfJob = () => {
   const [reports, setReports] = useState([]);
@@ -64,7 +65,7 @@ const ReportsOfJob = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingEffect />;
   }
 
   if (error) {
@@ -100,7 +101,7 @@ const ReportsOfJob = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                <TableHead>STT</TableHead>
+                  <TableHead>STT</TableHead>
                   <TableHead>Lý do</TableHead>
                   <TableHead>Xử lý</TableHead>
                   <TableHead>Mô tả</TableHead>
@@ -111,7 +112,6 @@ const ReportsOfJob = () => {
               <TableBody>
                 {reports?.map((report, index) => (
                   <TableRow key={report.id}>
-                        
                     <TableCell>
                       <p className="font-medium">{index + 1}</p>
                     </TableCell>
@@ -129,7 +129,7 @@ const ReportsOfJob = () => {
                     <TableCell>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                        {format(new Date(report.createdAt), 'dd/MM/yyyy')}
+                        {format(new Date(report.createdAt), "dd/MM/yyyy")}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -142,7 +142,9 @@ const ReportsOfJob = () => {
                 {reports?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
-                      <p className="text-muted-foreground">Chưa có báo cáo nào</p>
+                      <p className="text-muted-foreground">
+                        Chưa có báo cáo nào
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}

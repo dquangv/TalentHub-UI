@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const AppliedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,9 +55,10 @@ const AppliedJobs = () => {
       const response = await api.get(
         `/v1/jobs/ApplyJobs/${data?.freelancerId}`
       );
-      const sortedJobs = response?.data?.sort((a: any, b: any) => 
-        new Date(b.applyDate) - new Date(a.applyDate)
-      ) || [];
+      const sortedJobs =
+        response?.data?.sort(
+          (a: any, b: any) => new Date(b.applyDate) - new Date(a.applyDate)
+        ) || [];
       setAppliedJobs(sortedJobs);
       setLoading(false);
     } catch (error) {
@@ -145,8 +147,9 @@ const AppliedJobs = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 cursor-pointer ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-              }`}
+            className={`w-6 h-6 cursor-pointer ${
+              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+            }`}
             onClick={() => setRating(star)}
           />
         ))}
@@ -211,7 +214,7 @@ const AppliedJobs = () => {
 
         <div className="space-y-6">
           {loading ? (
-            <div className="text-center py-12">Loading...</div>
+            <LoadingEffect />
           ) : filteredJobs.length > 0 ? (
             filteredJobs?.map((job, index) => (
               <FadeInWhenVisible key={job.id} delay={index * 0.1}>
@@ -219,15 +222,22 @@ const AppliedJobs = () => {
                   <div className="flex flex-col md:flex-row md:items-center gap-6">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <Link to={`/jobs/${job.id}`} className="hover:underline">
-                          <h3 className="text-xl font-semibold">{job.jobTitle}</h3>
+                        <Link
+                          to={`/jobs/${job.id}`}
+                          className="hover:underline"
+                        >
+                          <h3 className="text-xl font-semibold">
+                            {job.jobTitle}
+                          </h3>
                         </Link>
                       </div>
 
                       <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-4">
                         <div className="flex items-center">
                           <Briefcase className="w-4 h-4 mr-2" />
-                          {job.companyName ? job.companyName : "Không có công ty"}
+                          {job.companyName
+                            ? job.companyName
+                            : "Không có công ty"}
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2" />
@@ -239,11 +249,14 @@ const AppliedJobs = () => {
                         </div>
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2" />
-                          Đã ứng tuyển: {job.createdTimeFormatted || "Không xác định"}
+                          Đã ứng tuyển:{" "}
+                          {job.createdTimeFormatted || "Không xác định"}
                         </div>
                       </div>
 
-                      <p className="text-muted-foreground mb-4">{job.description}</p>
+                      <p className="text-muted-foreground mb-4">
+                        {job.description}
+                      </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         {job.skillNames?.map((skill) => (
