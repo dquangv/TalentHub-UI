@@ -5,7 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
-import { Mail, Lock, Chrome, Facebook, ShieldCheck } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Chrome,
+  Github,
+  ShieldCheck,
+  ArrowLeft,
+} from "lucide-react";
 import api from "@/api/axiosConfig";
 import config from "@/config";
 import { useAuth } from "@/contexts/AuthContext";
@@ -187,31 +194,35 @@ const Login = () => {
 
   // Get OAuth URLs from config
   const googleAuthUrl = `${config.current.OAUTH_BASE_URL}/google`;
-  const facebookAuthUrl = `${config.current.OAUTH_BASE_URL}/facebook`;
+  const githubAuthUrl = `${config.current.OAUTH_BASE_URL}/github`;
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/5 via-background to-background">
+    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/10 to-background flex items-center justify-center">
       <div className="container mx-auto px-4">
         <div className="max-w-md mx-auto">
           <FadeInWhenVisible>
-            <Card className="p-8">
+            <Card className="p-8 shadow-lg border-opacity-50 backdrop-blur-sm bg-background/80">
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold mb-2">Đăng nhập</h1>
+                <h2 className="text-2xl font-semibold mb-1">
+                  {showMfaForm ? "Xác thực hai lớp" : "Đăng nhập"}
+                </h2>
                 <p className="text-muted-foreground">
-                  Chào mừng bạn trở lại với TalentHub
+                  {showMfaForm
+                    ? "Vui lòng nhập mã xác thực"
+                    : "Chào mừng bạn trở lại với TalentHub"}
                 </p>
               </div>
 
               {!showMfaForm ? (
                 // Regular login form
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="space-y-3">
+                    <div className="relative group">
+                      <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         type="text"
                         placeholder="Email"
-                        className="pl-10"
+                        className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                         value={formData.email}
                         onChange={(e) =>
                           setFormData({ ...formData, email: e.target.value })
@@ -220,36 +231,48 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <div className="space-y-3">
+                    <div className="relative group">
+                      <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                       <Input
                         type="password"
                         placeholder="Mật khẩu"
-                        className="pl-10"
+                        className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                         value={formData.password}
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
                         }
                       />
                     </div>
+                    <div className="flex justify-end">
+                      <Link
+                        to="/forgot-password"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Quên mật khẩu?
+                      </Link>
+                    </div>
                   </div>
 
                   {/* Submit Button */}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-medium"
+                    disabled={loading}
+                  >
                     {loading ? "Đang đăng nhập..." : "Đăng nhập"}
                   </Button>
                 </form>
               ) : (
                 // 2FA Verification Form
-                <form onSubmit={handleMfaSubmit} className="space-y-4">
-                  <div className="space-y-2">
+                <form onSubmit={handleMfaSubmit} className="space-y-5">
+                  <div className="space-y-3">
                     <div className="relative">
-                      <ShieldCheck className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <ShieldCheck className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                       <Input
                         type="text"
                         placeholder="Mã xác thực 2FA"
-                        className="pl-10"
+                        className="pl-10 h-12 text-center text-lg tracking-wider rounded-md"
                         value={mfaCode}
                         onChange={(e) =>
                           setMfaCode(
@@ -265,13 +288,19 @@ const Login = () => {
                     </div>
                   </div>
 
-                  <p className="text-sm text-muted-foreground">
-                    Nhập mã 6 số từ ứng dụng Google Authenticator hoặc Microsoft
-                    Authenticator
-                  </p>
+                  <div className="bg-blue-50 text-blue-800 p-3 rounded-md">
+                    <p className="text-sm">
+                      Nhập mã 6 số từ ứng dụng Google Authenticator hoặc
+                      Microsoft Authenticator
+                    </p>
+                  </div>
 
                   {/* Submit Button */}
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-medium"
+                    disabled={loading}
+                  >
                     {loading ? "Đang xác thực..." : "Xác thực"}
                   </Button>
 
@@ -282,6 +311,7 @@ const Login = () => {
                     onClick={handleBackToLogin}
                     disabled={loading}
                   >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
                     Quay lại
                   </Button>
                 </form>
@@ -289,7 +319,9 @@ const Login = () => {
 
               {/* Error Message */}
               {error && (
-                <div className="text-red-500 text-center mt-4">{error}</div>
+                <div className="bg-red-50 text-red-600 p-3 rounded-md mt-4 text-sm">
+                  {error}
+                </div>
               )}
 
               {/* Social Media Login - only shown in regular login form */}
@@ -297,43 +329,40 @@ const Login = () => {
                 <>
                   <div className="relative my-6">
                     <Separator />
-                    <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-muted-foreground text-sm">
+                    <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-4 text-muted-foreground text-sm">
                       Hoặc đăng nhập với
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <a href={googleAuthUrl} className="w-full">
-                      <Button variant="outline" className="w-full">
-                        <Chrome className="mr-2 h-4 w-4" />
+                      <Button
+                        variant="outline"
+                        className="w-full h-11 border-gray-300 hover:bg-gray-50 hover:text-primary"
+                      >
+                        <Chrome className="mr-2 h-5 w-5" />
                         Google
                       </Button>
                     </a>
-                    <a href={facebookAuthUrl} className="w-full">
-                      <Button variant="outline" className="w-full">
-                        <Facebook className="mr-2 h-4 w-4" />
-                        Facebook
+                    <a href={githubAuthUrl} className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full h-11 border-gray-300 hover:bg-gray-50 hover:text-primary"
+                      >
+                        <Github className="mr-2 h-5 w-5" />
+                        GitHub
                       </Button>
                     </a>
                   </div>
 
-                  <div className="mt-6 space-y-2">
-                    <p className="text-center text-sm text-muted-foreground">
+                  <div className="mt-6">
+                    <p className="text-center text-muted-foreground">
                       Chưa có tài khoản?{" "}
                       <Link
                         to="/register"
-                        className="text-primary hover:underline"
+                        className="text-primary font-medium hover:underline"
                       >
                         Đăng ký ngay
-                      </Link>
-                    </p>
-                    <p className="text-center text-sm text-muted-foreground">
-                      Bạn quên mật khẩu?{" "}
-                      <Link
-                        to="/forgot-password"
-                        className="text-primary hover:underline"
-                      >
-                        Click vào đây
                       </Link>
                     </p>
                   </div>
