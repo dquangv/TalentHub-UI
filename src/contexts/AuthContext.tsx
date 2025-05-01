@@ -1,17 +1,17 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import websocketService from '@/pages/ChatComponents/websocketService';
+import { createContext, useContext, useState, useEffect } from "react";
+import websocketService from "@/pages/ChatComponents/websocketService";
 const AuthContext = createContext(undefined);
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<null | any>(null)
+  const [userInfo, setUserInfo] = useState<null | any>(null);
   useEffect(() => {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = localStorage.getItem("authToken");
     if (authToken) {
       setIsLoggedIn(true);
-      const storedUserInfo = localStorage.getItem('userInfo');
+      const storedUserInfo = localStorage.getItem("userInfo");
       if (storedUserInfo) {
         const userInfoData = JSON.parse(storedUserInfo);
         setUserInfo(userInfoData);
@@ -24,9 +24,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = (data) => {
     setIsLoggedIn(true);
-    localStorage.setItem('authToken', data.token);
-    if (data?.role == 'ADMIN') {
-      localStorage.setItem('adminRole', "true");
+    localStorage.setItem("authToken", data.token);
+    if (data?.role == "ADMIN") {
+      localStorage.setItem("adminRole", "true");
     }
 
     const userInfoData = {
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       clientId: data.clientId,
       email: data.email,
       lat: data.lat,
-      lng: data.lng
+      lng: data.lng,
     };
 
     setUserInfo(userInfoData);
@@ -48,20 +48,20 @@ export const AuthProvider = ({ children }) => {
     if (!websocketService.isConnected() && userId) {
       const callbacks = {
         onMessageReceived: (message) => {
-          console.log('Tin nhắn mới nhận được:', message);
+          console.log("Tin nhắn mới nhận được:", message);
         },
         onReadReceiptReceived: (receipt) => {
-          console.log('Xác nhận đã đọc:', receipt);
+          console.log("Xác nhận đã đọc:", receipt);
         },
         onStatusReceived: (status) => {
-          console.log('Cập nhật trạng thái người dùng:', status);
+          console.log("Cập nhật trạng thái người dùng:", status);
         },
         onConnectionEstablished: () => {
-          console.log('Kết nối WebSocket thành công');
+          console.log("Kết nối WebSocket thành công");
         },
         onConnectionLost: () => {
-          console.log('Mất kết nối WebSocket, đang thử kết nối lại...');
-        }
+          console.log("Mất kết nối WebSocket, đang thử kết nối lại...");
+        },
       };
 
       websocketService.connect(userId, callbacks);
@@ -69,9 +69,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    localStorage.clear();
     websocketService.disconnect();
     setIsLoggedIn(false);
-    localStorage.clear();
   };
 
   return (

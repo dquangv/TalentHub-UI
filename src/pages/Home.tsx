@@ -432,60 +432,67 @@ const Home = () => {
       </Helmet>
 
       <SchemaMarkup />
-
-      <header
-        className="relative py-[50px] bg-gradient-to-b from-primary-100 via-background to-background"
-        id="hero-section"
-      >
-        <div className="absolute inset-x-0 bottom-0 w-full h-96">
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
-            spaceBetween={20}
-            slidesPerView={1}
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="w-full h-full shadow-lg overflow-hidden"
-          >
-            {banners?.map((banner) => (
-              <SwiperSlide key={banner.id}>
+      <div className="w-full h-[400px] relative">
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={20}
+          slidesPerView={1}
+          pagination={{ clickable: true }}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          className="w-full h-full rounded-lg overflow-hidden"
+        >
+          {banners?.map((banner) => (
+            <SwiperSlide key={banner.id} className="w-full h-full">
+              <div className="relative w-full h-full">
                 <img
                   src={banner.image}
                   alt={`TalentHub - ${banner.title}`}
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
-              </SwiperSlide>
-            ))}
-            {banners?.length === 0 && (
-              <>
-                <SwiperSlide>
+              </div>
+            </SwiperSlide>
+          ))}
+          {banners?.length === 0 && (
+            <>
+              <SwiperSlide className="w-full h-full">
+                <div className="relative w-full h-full">
                   <img
                     src="https://cdn.pixabay.com/photo/2021/03/02/13/05/laptop-6062425_1280.jpg"
                     alt="TalentHub - Kết nối với các dự án"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                </SwiperSlide>
-                <SwiperSlide>
+                </div>
+              </SwiperSlide>
+              <SwiperSlide className="w-full h-full">
+                <div className="relative w-full h-full">
                   <img
                     src="https://www.hrmanagementapp.com/wp-content/uploads/2019/06/freelancer-2.jpg"
                     alt="TalentHub - Tìm freelancer chất lượng cao"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                </SwiperSlide>
-                <SwiperSlide>
+                </div>
+              </SwiperSlide>
+              <SwiperSlide className="w-full h-full">
+                <div className="relative w-full h-full">
                   <img
                     src="https://fthmb.tqn.com/f6uChwfNF8VyWQk02SvWhoJfnE0=/2121x1414/filters:fill(auto,1)/GettyImages-505095190-58ee7c925f9b582c4ddfc6a4.jpg"
                     alt="TalentHub - Thuê lập trình viên tự do"
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-                </SwiperSlide>
-              </>
-            )}
-          </Swiper>
-        </div>
+                </div>
+              </SwiperSlide>
+            </>
+          )}
+        </Swiper>
+      </div>
+      <header
+        className="relative py-[50px] bg-gradient-to-b from-primary-100 via-background to-background"
+        id="hero-section"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <FadeInWhenVisible>
