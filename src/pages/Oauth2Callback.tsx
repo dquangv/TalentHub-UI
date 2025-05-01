@@ -19,6 +19,7 @@ export const OAuth2Callback = () => {
       const freelancerId = urlParams.get("freelancerId");
       const userId = urlParams.get("userId");
       const lat = urlParams.get("lat");
+      const email = urlParams.get("email");
       const lng = urlParams.get("lng");
       var data: any = {
         userId: userId,
@@ -26,6 +27,7 @@ export const OAuth2Callback = () => {
         freelancerId: freelancerId == "null" ? null : freelancerId,
         clientId: clientId == "null" ? null : clientId,
         lat: Number(lat),
+        email: email,
         lng: Number(lng),
       };
       if (!accessToken || !role || !clientId || !freelancerId || !userId) {
