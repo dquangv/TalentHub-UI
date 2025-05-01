@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogOut, BookMarked, FileCheck2, Plus, Users, Building } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  BookMarked,
+  FileCheck2,
+  Plus,
+  Users,
+  Building,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationDropdown from "./NotificationDropdown";
@@ -24,8 +33,9 @@ const NavLink = ({ to, children, onClick }: any) => {
   return (
     <Link to={to} onClick={onClick} className="relative group">
       <span
-        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isActive ? "text-primary-700" : ""
-          }`}
+        className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+          isActive ? "text-primary-700" : ""
+        }`}
       >
         {children}
       </span>
@@ -49,8 +59,9 @@ const NavLinkDropdown = ({ children, menuItems }: any) => {
       <DropdownMenuTrigger asChild>
         <div className="relative group cursor-pointer">
           <span
-            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${isAnyActive ? "text-primary-700" : ""
-              }`}
+            className={`text-primary-600/70 hover:text-primary-700 transition-colors ${
+              isAnyActive ? "text-primary-700" : ""
+            }`}
           >
             {children}
           </span>
@@ -81,12 +92,12 @@ const Navbar = () => {
   const [role, setRole] = useState("");
   const location = useLocation();
   const [isClient, setIsClient] = useState(false);
+  const userInfoString = localStorage.getItem("userInfo");
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (isLoggedIn) {
         try {
-          const userInfoString = localStorage.getItem("userInfo");
           if (!userInfoString) return;
 
           const userInfo = JSON.parse(userInfoString);
@@ -115,7 +126,7 @@ const Navbar = () => {
     };
 
     fetchUserData();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, userInfoString]);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -131,8 +142,8 @@ const Navbar = () => {
   }, [isLoggedIn]);
 
   const handleLogout = () => {
-    window.location.href = "/login";
     logout();
+    window.location.href = "/login";
   };
 
   const clientMenuItems = [
@@ -195,10 +206,10 @@ const Navbar = () => {
       userInfo.role === "FREELANCER"
         ? "/settingsfreelancer"
         : userInfo.role === "CLIENT"
-          ? "/client/profile"
-          : userInfo.role === "ADMIN"
-            ? "/admin/dashboard"
-            : "/";
+        ? "/client/profile"
+        : userInfo.role === "ADMIN"
+        ? "/admin/dashboard"
+        : "/";
 
     return (
       <DropdownMenu>
@@ -266,9 +277,10 @@ const Navbar = () => {
       <Link
         to={to}
         className={`relative px-4 py-2 transition-colors duration-200
-          ${isActive
-            ? "text-primary-700 bg-primary-100/50"
-            : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
+          ${
+            isActive
+              ? "text-primary-700 bg-primary-100/50"
+              : "text-primary-600/70 hover:text-primary-700 hover:bg-primary-100/50"
           } rounded-md`}
         onClick={() => setIsOpen(false)}
       >
@@ -321,7 +333,6 @@ const Navbar = () => {
 
             <NavLink to="/about">{t("about")}</NavLink>
             <NavLink to="/contact">{t("contact")}</NavLink>
-          
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -383,21 +394,41 @@ const Navbar = () => {
                 <>
                   {role === "CLIENT" && (
                     <>
-                      <MobileNavLink to="/freelancers">{t("freelancers")}</MobileNavLink>
-                      <MobileNavLink to="/client/post-job">Đăng việc làm</MobileNavLink>
-                      <MobileNavLink to="/client/posted-jobs">Công việc đã đăng</MobileNavLink>
-                      <MobileNavLink to="/client/appointment">Lịch hẹn</MobileNavLink>
+                      <MobileNavLink to="/freelancers">
+                        {t("freelancers")}
+                      </MobileNavLink>
+                      <MobileNavLink to="/client/post-job">
+                        Đăng việc làm
+                      </MobileNavLink>
+                      <MobileNavLink to="/client/posted-jobs">
+                        Công việc đã đăng
+                      </MobileNavLink>
+                      <MobileNavLink to="/client/appointment">
+                        Lịch hẹn
+                      </MobileNavLink>
                     </>
                   )}
                   {role === "FREELANCER" && (
                     <>
-                      <MobileNavLink to="/freelancers">{t("freelancers")}</MobileNavLink>
-                      <MobileNavLink to="/clients">Nhà tuyển dụng</MobileNavLink>
+                      <MobileNavLink to="/freelancers">
+                        {t("freelancers")}
+                      </MobileNavLink>
+                      <MobileNavLink to="/clients">
+                        Nhà tuyển dụng
+                      </MobileNavLink>
                       <MobileNavLink to="/jobs">{t("jobs")}</MobileNavLink>
-                      <MobileNavLink to="/saved-jobs">Công việc đã lưu</MobileNavLink>
-                      <MobileNavLink to="/freelancer/applied-jobs">Đã ứng tuyển</MobileNavLink>
-                      <MobileNavLink to="/freelancer/appointment">Lịch hẹn</MobileNavLink>
-                      <MobileNavLink to="/reports-freelancer">Báo cáo</MobileNavLink>
+                      <MobileNavLink to="/saved-jobs">
+                        Công việc đã lưu
+                      </MobileNavLink>
+                      <MobileNavLink to="/freelancer/applied-jobs">
+                        Đã ứng tuyển
+                      </MobileNavLink>
+                      <MobileNavLink to="/freelancer/appointment">
+                        Lịch hẹn
+                      </MobileNavLink>
+                      <MobileNavLink to="/reports-freelancer">
+                        Báo cáo
+                      </MobileNavLink>
                     </>
                   )}
                 </>
