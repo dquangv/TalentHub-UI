@@ -9,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import experienceService, { Experience } from "@/api/experienceService";
 import { notification } from "antd";
 import { Checkbox } from "@/components/ui/checkbox";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const ExperienceComponent = () => {
   const { t } = useLanguage();
@@ -245,12 +246,7 @@ const ExperienceComponent = () => {
   };
 
   if (initialLoading) {
-    return (
-      <div className="flex justify-center items-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
-        <p>Đang tải dữ liệu...</p>
-      </div>
-    );
+    return <LoadingEffect />;
   }
 
   return (

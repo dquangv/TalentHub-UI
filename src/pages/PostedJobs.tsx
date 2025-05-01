@@ -42,7 +42,13 @@ import {
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
 import * as XLSX from "xlsx";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 const PostedJobs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,14 +67,18 @@ const PostedJobs = () => {
     BANNED: 0,
     DRAFT: 0,
   });
-  const clientId = JSON.parse(localStorage.getItem("userInfo") || "{}").clientId;
+  const clientId = JSON.parse(
+    localStorage.getItem("userInfo") || "{}"
+  ).clientId;
 
   const handleExportData = () => {
-    const exportData = sortedJobs.map(job => ({
+    const exportData = sortedJobs.map((job) => ({
       "Tiêu đề": job.title || "",
       "Loại công việc": job.type || "",
       "Số ứng viên": job.applicants || 0,
-      "Ngày đăng": job.postedDate ? new Date(job.postedDate).toLocaleDateString('vi-VN') : "",
+      "Ngày đăng": job.postedDate
+        ? new Date(job.postedDate).toLocaleDateString("vi-VN")
+        : "",
       "Thời gian còn lại": job.remainingTimeFormatted || "",
       "Trạng thái": getStatusText(job.status) || "",
       "Mô tả": job.description || "",
@@ -76,29 +86,30 @@ const PostedJobs = () => {
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-    worksheet['!cols'] = [
-      { wch: 30 }, 
-      { wch: 20 }, 
-      { wch: 15 }, 
-      { wch: 15 }, 
-      { wch: 20 }, 
-      { wch: 15 }, 
-      { wch: 50 }, 
+    worksheet["!cols"] = [
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 50 },
     ];
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Danh sách công việc");
 
-    const fileName = `Cong_Viec_Da_Dang_${new Date().toLocaleString('vi-VN').replace(/[:/]/g, '-')}.xlsx`;
+    const fileName = `Cong_Viec_Da_Dang_${new Date()
+      .toLocaleString("vi-VN")
+      .replace(/[:/]/g, "-")}.xlsx`;
 
     XLSX.writeFile(workbook, fileName);
 
     notification.success({
       message: "Xuất dữ liệu thành công",
-      description: "Danh sách công việc đã được xuất ra file Excel"
+      description: "Danh sách công việc đã được xuất ra file Excel",
     });
   };
-
 
   const fetchJobs = async () => {
     try {
@@ -107,7 +118,7 @@ const PostedJobs = () => {
 
       // Calculate stats, excluding DRAFT status for total count
       const newStats = {
-        total: response.data.filter(job => job.status !== "DRAFT").length,
+        total: response.data.filter((job) => job.status !== "DRAFT").length,
         OPEN: response.data.filter((job) => job.status === "OPEN").length,
         POSTED: response.data.filter((job) => job.status === "POSTED").length,
         CLOSED: response.data.filter((job) => job.status === "CLOSED").length,
@@ -166,7 +177,11 @@ const PostedJobs = () => {
       return { backgroundColor: "#ef4444", color: "white" }; // Red color for banned
     }
     if (status === "DRAFT") {
-      return { backgroundColor: "#f3f4f6", color: "#6b7280", borderColor: "#d1d5db" }; // Light gray for draft
+      return {
+        backgroundColor: "#f3f4f6",
+        color: "#6b7280",
+        borderColor: "#d1d5db",
+      }; // Light gray for draft
     }
     return {}; // Default styles for other statuses
   };
@@ -177,19 +192,17 @@ const PostedJobs = () => {
       if (a[key] === null) return 1;
       if (b[key] === null) return -1;
 
-      if (key === 'applicants' || key === 'remainingTimeInHours') {
-        return direction === 'asc'
-          ? a[key] - b[key]
-          : b[key] - a[key];
+      if (key === "applicants" || key === "remainingTimeInHours") {
+        return direction === "asc" ? a[key] - b[key] : b[key] - a[key];
       }
 
-      if (key === 'postedDate' || key === 'endDate') {
-        return direction === 'asc'
+      if (key === "postedDate" || key === "endDate") {
+        return direction === "asc"
           ? new Date(a[key]) - new Date(b[key])
           : new Date(b[key]) - new Date(a[key]);
       }
 
-      return direction === 'asc'
+      return direction === "asc"
         ? a[key].localeCompare(b[key])
         : b[key].localeCompare(a[key]);
     });
@@ -197,9 +210,9 @@ const PostedJobs = () => {
 
   // Hàm xử lý sắp xếp khi click vào header
   const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -210,9 +223,11 @@ const PostedJobs = () => {
       return null;
     }
 
-    return sortConfig.direction === 'asc'
-      ? <ArrowUp className="ml-1 w-4 h-4" />
-      : <ArrowDown className="ml-1 w-4 h-4" />;
+    return sortConfig.direction === "asc" ? (
+      <ArrowUp className="ml-1 w-4 h-4" />
+    ) : (
+      <ArrowDown className="ml-1 w-4 h-4" />
+    );
   };
 
   const filteredJobs = jobs.filter((job) => {
@@ -227,24 +242,27 @@ const PostedJobs = () => {
   });
 
   // Áp dụng sắp xếp vào dữ liệu đã lọc
-  const sortedJobs = sortData(filteredJobs, sortConfig.key, sortConfig.direction);
+  const sortedJobs = sortData(
+    filteredJobs,
+    sortConfig.key,
+    sortConfig.direction
+  );
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/v1/jobs/${id}`)
+      await api.delete(`/v1/jobs/${id}`);
       notification.success({
         message: "Thành công",
-        description: "Xóa thành công"
-      })
+        description: "Xóa thành công",
+      });
       fetchJobs();
-
     } catch (e) {
       notification.success({
         message: "Thất bại",
-        description: "Xóa thất bại"
-      })
+        description: "Xóa thất bại",
+      });
     }
-  }
+  };
 
   const statsCards = [
     {
@@ -311,7 +329,7 @@ const PostedJobs = () => {
 
         {loading && (
           <div className="text-center mb-8">
-            <p>Đang tải dữ liệu...</p>
+            <LoadingEffect />
           </div>
         )}
 
@@ -357,47 +375,47 @@ const PostedJobs = () => {
                 <TableRow>
                   <TableHead
                     className="cursor-pointer"
-                    onClick={() => requestSort('title')}
+                    onClick={() => requestSort("title")}
                   >
                     <div className="flex items-center">
                       Công việc
-                      {getSortIcon('title')}
+                      {getSortIcon("title")}
                     </div>
                   </TableHead>
                   <TableHead
                     className="cursor-pointer"
-                    onClick={() => requestSort('applicants')}
+                    onClick={() => requestSort("applicants")}
                   >
                     <div className="flex items-center">
                       Ứng viên
-                      {getSortIcon('applicants')}
+                      {getSortIcon("applicants")}
                     </div>
                   </TableHead>
                   <TableHead
                     className="cursor-pointer"
-                    onClick={() => requestSort('postedDate')}
+                    onClick={() => requestSort("postedDate")}
                   >
                     <div className="flex items-center">
                       Ngày đăng
-                      {getSortIcon('postedDate')}
+                      {getSortIcon("postedDate")}
                     </div>
                   </TableHead>
                   <TableHead
                     className="cursor-pointer"
-                    onClick={() => requestSort('remainingTimeInHours')}
+                    onClick={() => requestSort("remainingTimeInHours")}
                   >
                     <div className="flex items-center">
                       Thời gian còn lại
-                      {getSortIcon('remainingTimeInHours')}
+                      {getSortIcon("remainingTimeInHours")}
                     </div>
                   </TableHead>
                   <TableHead
                     className="cursor-pointer"
-                    onClick={() => requestSort('status')}
+                    onClick={() => requestSort("status")}
                   >
                     <div className="flex items-center">
                       Trạng thái
-                      {getSortIcon('status')}
+                      {getSortIcon("status")}
                     </div>
                   </TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
@@ -424,7 +442,7 @@ const PostedJobs = () => {
                     <TableCell>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
-                        {new Date(job.postedDate).toLocaleDateString('vi-VN')}
+                        {new Date(job.postedDate).toLocaleDateString("vi-VN")}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -450,11 +468,27 @@ const PostedJobs = () => {
                                 size="sm"
                                 variant="outline"
                                 className="text-amber-600"
-                                disabled={!["OPEN", "POSTED", "BANNED"].includes(job.status)}
+                                disabled={
+                                  !["OPEN", "POSTED", "BANNED"].includes(
+                                    job.status
+                                  )
+                                }
                               >
                                 <Link
-                                  to={["OPEN", "POSTED", "BANNED"].includes(job.status) ? `/reports-job/${job.id}` : "#"}
-                                  className={!["OPEN", "POSTED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                  to={
+                                    ["OPEN", "POSTED", "BANNED"].includes(
+                                      job.status
+                                    )
+                                      ? `/reports-job/${job.id}`
+                                      : "#"
+                                  }
+                                  className={
+                                    !["OPEN", "POSTED", "BANNED"].includes(
+                                      job.status
+                                    )
+                                      ? "pointer-events-none"
+                                      : ""
+                                  }
                                 >
                                   <AlertCircle className="w-4 h-4" />
                                 </Link>
@@ -498,11 +532,36 @@ const PostedJobs = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status)}
+                                disabled={
+                                  ![
+                                    "OPEN",
+                                    "POSTED",
+                                    "CLOSED",
+                                    "BANNED",
+                                  ].includes(job.status)
+                                }
                               >
                                 <Link
-                                  to={["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? `/jobs/${job.id}` : "#"}
-                                  className={!["OPEN", "POSTED", "CLOSED", "BANNED"].includes(job.status) ? "pointer-events-none" : ""}
+                                  to={
+                                    [
+                                      "OPEN",
+                                      "POSTED",
+                                      "CLOSED",
+                                      "BANNED",
+                                    ].includes(job.status)
+                                      ? `/jobs/${job.id}`
+                                      : "#"
+                                  }
+                                  className={
+                                    ![
+                                      "OPEN",
+                                      "POSTED",
+                                      "CLOSED",
+                                      "BANNED",
+                                    ].includes(job.status)
+                                      ? "pointer-events-none"
+                                      : ""
+                                  }
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Link>
@@ -521,11 +580,27 @@ const PostedJobs = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
+                                disabled={
+                                  !["OPEN", "POSTED", "DRAFT"].includes(
+                                    job.status
+                                  )
+                                }
                               >
                                 <Link
-                                  to={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? `/client/post-job?id=${job.id}` : "#"}
-                                  className={!["OPEN", "POSTED", "DRAFT"].includes(job.status) ? "pointer-events-none" : ""}
+                                  to={
+                                    ["OPEN", "POSTED", "DRAFT"].includes(
+                                      job.status
+                                    )
+                                      ? `/client/post-job?id=${job.id}`
+                                      : "#"
+                                  }
+                                  className={
+                                    !["OPEN", "POSTED", "DRAFT"].includes(
+                                      job.status
+                                    )
+                                      ? "pointer-events-none"
+                                      : ""
+                                  }
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </Link>
@@ -545,8 +620,18 @@ const PostedJobs = () => {
                                 size="sm"
                                 variant="outline"
                                 className="text-red-600"
-                                disabled={!["OPEN", "POSTED", "DRAFT"].includes(job.status)}
-                                onClick={["OPEN", "POSTED", "DRAFT"].includes(job.status) ? () => handleDelete(job.id) : undefined}
+                                disabled={
+                                  !["OPEN", "POSTED", "DRAFT"].includes(
+                                    job.status
+                                  )
+                                }
+                                onClick={
+                                  ["OPEN", "POSTED", "DRAFT"].includes(
+                                    job.status
+                                  )
+                                    ? () => handleDelete(job.id)
+                                    : undefined
+                                }
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
