@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -22,12 +23,18 @@ import {
   MapPin,
   FileText,
   Info,
+  Chrome,
+  Github,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { notification } from "antd";
 import { useAuth } from "@/contexts/AuthContext";
 import addressService, { Province, District, Ward } from "@/api/addressService";
 import validatePhoneNumber from "@/utils/phoneValidator";
+import config from "@/config";
 
 const Register = () => {
   const [activeTab, setActiveTab] = useState("basicInfo");
@@ -62,6 +69,11 @@ const Register = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  // Get OAuth URLs from config
+  const googleAuthUrl = `${config.current.OAUTH_BASE_URL}/google`;
+  const githubAuthUrl = `${config.current.OAUTH_BASE_URL}/github`;
+
   const handlePhoneNumberChange = (e) => {
     const value = e.target.value;
     setFormData({ ...formData, phoneNumber: value });
@@ -75,6 +87,7 @@ const Register = () => {
       setPhoneError("");
     }
   };
+
   useEffect(() => {
     const fetchProvinces = async () => {
       const data = await addressService.getProvinces();
@@ -289,13 +302,18 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/10 via-background to-background">
+    <div className="min-h-screen py-12 bg-gradient-to-b from-primary/10 to-background flex items-center justify-center">
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto">
           <FadeInWhenVisible>
-            <Card className="p-8">
+            <Card className="p-8 shadow-lg border-opacity-50 backdrop-blur-sm bg-background/80">
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-2">Đăng ký tài khoản</h1>
+                <h1 className="text-3xl font-bold mb-2 text-primary">
+                  TalentHub
+                </h1>
+                <h2 className="text-2xl font-semibold mb-1">
+                  Đăng ký tài khoản
+                </h2>
                 <p className="text-muted-foreground">
                   {formData.role === "FREELANCER"
                     ? "Tạo tài khoản để bắt đầu sự nghiệp freelance của bạn"
@@ -305,31 +323,106 @@ const Register = () => {
                 </p>
               </div>
 
+              {/* Social Media Registration - Top */}
+              <div className="mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <a href={googleAuthUrl} className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full h-11 border-gray-300 hover:bg-gray-50 hover:text-primary"
+                    >
+                      <Chrome className="mr-2 h-5 w-5" />
+                      Google
+                    </Button>
+                  </a>
+                  <a href={githubAuthUrl} className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full h-11 border-gray-300 hover:bg-gray-50 hover:text-primary"
+                    >
+                      <Github className="mr-2 h-5 w-5" />
+                      GitHub
+                    </Button>
+                  </a>
+                </div>
+                <div className="relative my-6">
+                  <Separator />
+                  <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-4 text-muted-foreground text-sm">
+                    Hoặc đăng ký với email
+                  </span>
+                </div>
+              </div>
+
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
                 className="w-full"
               >
                 <TabsList className="grid grid-cols-3 mb-8">
-                  <TabsTrigger value="basicInfo">Thông tin cơ bản</TabsTrigger>
-                  <TabsTrigger value="personalInfo">
+                  <TabsTrigger
+                    value="basicInfo"
+                    className={
+                      activeTab === "basicInfo"
+                        ? "border-b-2 border-primary"
+                        : ""
+                    }
+                  >
+                    <CheckCircle
+                      className={`mr-2 h-4 w-4 ${
+                        activeTab !== "basicInfo" &&
+                        activeTab !== "personalInfo" &&
+                        activeTab !== "professionalInfo"
+                          ? "opacity-40"
+                          : ""
+                      }`}
+                    />
+                    Thông tin cơ bản
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="personalInfo"
+                    className={
+                      activeTab === "personalInfo"
+                        ? "border-b-2 border-primary"
+                        : ""
+                    }
+                  >
+                    <CheckCircle
+                      className={`mr-2 h-4 w-4 ${
+                        activeTab !== "personalInfo" &&
+                        activeTab !== "professionalInfo"
+                          ? "opacity-40"
+                          : ""
+                      }`}
+                    />
                     Thông tin cá nhân
                   </TabsTrigger>
-                  <TabsTrigger value="professionalInfo">
+                  <TabsTrigger
+                    value="professionalInfo"
+                    className={
+                      activeTab === "professionalInfo"
+                        ? "border-b-2 border-primary"
+                        : ""
+                    }
+                  >
+                    <CheckCircle
+                      className={`mr-2 h-4 w-4 ${
+                        activeTab !== "professionalInfo" ? "opacity-40" : ""
+                      }`}
+                    />
                     Thông tin chuyên môn
                   </TabsTrigger>
                 </TabsList>
 
                 {/* Basic Information Tab */}
                 <TabsContent value="basicInfo">
-                  <form className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <form className="space-y-5">
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                           type="email"
                           placeholder="Email"
-                          className="pl-10"
+                          className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.email}
                           onChange={(e) =>
                             setFormData({ ...formData, email: e.target.value })
@@ -338,13 +431,13 @@ const Register = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                           type="password"
                           placeholder="Mật khẩu"
-                          className="pl-10"
+                          className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.password}
                           onChange={(e) =>
                             setFormData({
@@ -356,13 +449,13 @@ const Register = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                           type="password"
                           placeholder="Xác nhận mật khẩu"
-                          className="pl-10"
+                          className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.confirmPassword}
                           onChange={(e) =>
                             setFormData({
@@ -374,16 +467,16 @@ const Register = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <BriefcaseIcon className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Select
                           value={formData.role}
                           onValueChange={(value) =>
                             setFormData({ ...formData, role: value })
                           }
                         >
-                          <SelectTrigger className="pl-10">
+                          <SelectTrigger className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary">
                             <SelectValue placeholder="Chọn vai trò" />
                           </SelectTrigger>
                           <SelectContent>
@@ -399,12 +492,19 @@ const Register = () => {
                     </div>
 
                     {error && (
-                      <div className="text-red-500 text-sm">{error}</div>
+                      <div className="bg-red-50 text-red-600 p-3 rounded-md mt-4 text-sm">
+                        {error}
+                      </div>
                     )}
 
                     <div className="flex justify-end">
-                      <Button type="button" onClick={handleNextTab}>
+                      <Button
+                        type="button"
+                        onClick={handleNextTab}
+                        className="h-12 px-6 text-base font-medium"
+                      >
                         Tiếp theo
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </form>
@@ -412,14 +512,14 @@ const Register = () => {
 
                 {/* Personal Information Tab */}
                 <TabsContent value="personalInfo">
-                  <form className="space-y-4">
+                  <form className="space-y-5">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-3">
+                        <div className="relative group">
+                          <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
                             placeholder="Họ"
-                            className="pl-10"
+                            className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                             value={formData.lastName}
                             onChange={(e) =>
                               setFormData({
@@ -431,12 +531,12 @@ const Register = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-3">
+                        <div className="relative group">
+                          <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Input
                             placeholder="Tên"
-                            className="pl-10"
+                            className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                             value={formData.firstName}
                             onChange={(e) =>
                               setFormData({
@@ -449,36 +549,38 @@ const Register = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                           type="tel"
                           placeholder="Số điện thoại"
-                          className="pl-10"
+                          className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.phoneNumber}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              phoneNumber: e.target.value,
-                            })
-                          }
+                          onChange={handlePhoneNumberChange}
                         />
+                        {phoneError && (
+                          <p className="text-xs text-red-500 mt-1 ml-1">
+                            {phoneError}
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     {/* Address Selection */}
                     <div className="space-y-4">
-                      <p className="text-sm font-medium">Địa chỉ</p>
+                      <p className="text-sm font-medium text-primary">
+                        Địa chỉ
+                      </p>
 
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-3">
+                        <div className="relative group">
+                          <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Select
                             value={selectedProvince?.code?.toString() || ""}
                             onValueChange={handleProvinceChange}
                           >
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary">
                               <SelectValue placeholder="Chọn Tỉnh/Thành phố" />
                             </SelectTrigger>
                             <SelectContent className="max-h-80">
@@ -495,15 +597,15 @@ const Register = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="relative">
-                          <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <div className="space-y-3">
+                        <div className="relative group">
+                          <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                           <Select
                             value={selectedDistrict?.code?.toString() || ""}
                             onValueChange={handleDistrictChange}
                             disabled={!selectedProvince}
                           >
-                            <SelectTrigger className="pl-10">
+                            <SelectTrigger className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary">
                               <SelectValue placeholder="Chọn Quận/Huyện" />
                             </SelectTrigger>
                             <SelectContent className="max-h-80">
@@ -522,7 +624,9 @@ const Register = () => {
                     </div>
 
                     {error && (
-                      <div className="text-red-500 text-sm">{error}</div>
+                      <div className="bg-red-50 text-red-600 p-3 rounded-md mt-4 text-sm">
+                        {error}
+                      </div>
                     )}
 
                     <div className="flex justify-between">
@@ -530,11 +634,18 @@ const Register = () => {
                         type="button"
                         variant="outline"
                         onClick={handlePrevTab}
+                        className="h-12 px-6 text-base"
                       >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại
                       </Button>
-                      <Button type="button" onClick={handleNextTab}>
+                      <Button
+                        type="button"
+                        onClick={handleNextTab}
+                        className="h-12 px-6 text-base font-medium"
+                      >
                         Tiếp theo
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
                   </form>
@@ -542,19 +653,19 @@ const Register = () => {
 
                 {/* Professional Information Tab */}
                 <TabsContent value="professionalInfo">
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <FileText className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
                           placeholder="Tiêu đề chuyên môn"
-                          className="pl-10"
+                          className="pl-10 h-12 rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.title}
                           onChange={(e) =>
                             setFormData({ ...formData, title: e.target.value })
                           }
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1 ml-1">
                           {formData.role === "FREELANCER"
                             ? "Ví dụ: Lập trình viên Full-stack với 5 năm kinh nghiệm"
                             : "Ví dụ: CEO tại Công ty ABC"}
@@ -562,12 +673,12 @@ const Register = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="relative">
-                        <Info className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="space-y-3">
+                      <div className="relative group">
+                        <Info className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Textarea
                           placeholder="Giới thiệu bản thân"
-                          className="pl-10 min-h-[100px]"
+                          className="pl-10 min-h-[120px] rounded-md ring-offset-background focus-visible:ring-2 focus-visible:ring-primary"
                           value={formData.introduction}
                           onChange={(e) =>
                             setFormData({
@@ -576,7 +687,7 @@ const Register = () => {
                             })
                           }
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1 ml-1">
                           {formData.role === "FREELANCER"
                             ? "Mô tả ngắn gọn về kỹ năng và kinh nghiệm của bạn"
                             : "Mô tả ngắn gọn về công ty hoặc dự án của bạn"}
@@ -585,7 +696,9 @@ const Register = () => {
                     </div>
 
                     {error && (
-                      <div className="text-red-500 text-sm">{error}</div>
+                      <div className="bg-red-50 text-red-600 p-3 rounded-md mt-4 text-sm">
+                        {error}
+                      </div>
                     )}
 
                     <div className="flex justify-between">
@@ -593,12 +706,14 @@ const Register = () => {
                         type="button"
                         variant="outline"
                         onClick={handlePrevTab}
+                        className="h-12 px-6 text-base"
                       >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
                         Quay lại
                       </Button>
                       <Button
                         type="submit"
-                        className="bg-primary"
+                        className="h-12 px-6 text-base font-medium bg-primary"
                         disabled={loading}
                       >
                         {loading ? "Đang đăng ký..." : "Hoàn tất đăng ký"}
@@ -609,9 +724,12 @@ const Register = () => {
               </Tabs>
 
               {/* Login Link */}
-              <p className="text-center mt-6 text-sm text-muted-foreground">
+              <p className="text-center mt-6 text-muted-foreground">
                 Đã có tài khoản?{" "}
-                <Link to="/login" className="text-primary hover:underline">
+                <Link
+                  to="/login"
+                  className="text-primary font-medium hover:underline"
+                >
                   Đăng nhập
                 </Link>
               </p>
