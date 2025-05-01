@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { fetchFreelancers } from "../services/freelancerFetch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LoadingEffect from "@/components/ui/LoadingEffect";
 
 interface Freelancer {
   id: number;
@@ -404,7 +405,7 @@ const Freelancers = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
-            <div className="text-center">Loading...</div>
+            <LoadingEffect />
           ) : filteredFreelancers.length === 0 ? (
             <div className="text-center text-gray-500">
               {t("No Freelancers Available")}
