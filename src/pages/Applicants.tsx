@@ -253,9 +253,8 @@ const Applicants = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`w-6 h-6 cursor-pointer ${
-              star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
-            }`}
+            className={`w-6 h-6 cursor-pointer ${star <= rating ? "text-yellow-400 fill-current" : "text-gray-300"
+              }`}
             onClick={() => setRating(star)}
           />
         ))}
@@ -264,9 +263,8 @@ const Applicants = () => {
   };
 
   const filteredApplicants = applicants.filter((applicant) => {
-    const fullName = `${applicant?.firstName || ""} ${
-      applicant?.lastName || ""
-    }`
+    const fullName = `${applicant?.firstName || ""} ${applicant?.lastName || ""
+      }`
       .trim()
       .toLowerCase();
     const matchesSearch =
@@ -444,14 +442,12 @@ const Applicants = () => {
                             src={applicant.image}
                             alt={`${applicant.firstName} ${applicant.lastName}`}
                           />
-                          <AvatarFallback>{`${applicant.firstName?.[0] || ""}${
-                            applicant.lastName?.[0] || ""
-                          }`}</AvatarFallback>
+                          <AvatarFallback>{`${applicant.firstName?.[0] || ""}${applicant.lastName?.[0] || ""
+                            }`}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{`${
-                            applicant.firstName || ""
-                          } ${applicant.lastName || ""}`}</p>
+                          <p className="font-medium">{`${applicant.firstName || ""
+                            } ${applicant.lastName || ""}`}</p>
                           <p className="text-sm text-muted-foreground">
                             {applicant.email}
                           </p>
@@ -489,7 +485,7 @@ const Applicants = () => {
                           <Star className="w-4 h-4 text-yellow-400 fill-current" />
                           <span className="ml-1">
                             {!applicant.clientReviewRating ||
-                            applicant.clientReviewRating === 0
+                              applicant.clientReviewRating === 0
                               ? "Chưa đánh giá"
                               : applicant.clientReviewRating}
                           </span>
