@@ -104,7 +104,7 @@ const Security = () => {
     const checkPasswordStatus = async () => {
       try {
         const response = await api.get(
-          `/api/v1/account/is-password-set?email=${user.email}`
+          `/v1/account/is-password-set?email=${user.email}`
         );
         setHasPassword(response.data || false);
       } catch (err) {
