@@ -732,7 +732,7 @@ const Home = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {suitableFreelancers.map((freelancer, index) => (
                   <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
-                    <Card className="p-6 hover:shadow-md transition-shadow">
+                    <Card className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full">
                       <div className="flex items-start gap-4">
                         <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
                           <AvatarImage
