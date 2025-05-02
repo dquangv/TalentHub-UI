@@ -183,8 +183,8 @@ const ClientDetail = () => {
                   </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    <div className="bg-gray-50 p-4 rounded-lg dark:bg-background">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
                         Thông tin liên hệ
                       </h3>
                       <div className="space-y-3">
@@ -289,7 +289,7 @@ const ClientDetail = () => {
 
               <TabsContent value="reviews">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
                     Đánh giá từ Freelancer
                   </h2>
 
@@ -314,7 +314,7 @@ const ClientDetail = () => {
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <h3 className="font-semibold text-gray-900">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
                                   {review.reviewerName}
                                 </h3>
                                 <p className="text-sm text-gray-500">
@@ -328,7 +328,7 @@ const ClientDetail = () => {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center bg-amber-50 px-2 py-1 rounded-md">
+                            <div className="flex items-center px-2 py-1 rounded-md">
                               <Star className="w-5 h-5 text-yellow-400 fill-current" />
                               <span className="ml-1 font-semibold">
                                 {review.rating.toFixed(1)}
@@ -345,7 +345,7 @@ const ClientDetail = () => {
                             </p>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-3 rounded-lg">
+                          <div className="grid grid-cols-2 gap-4 text-sm bg-gray-50 p-3 rounded-lg dark:bg-background">
                             <div className="flex flex-col">
                               <span className="text-gray-500">
                                 Thời gian dự án
