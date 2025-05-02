@@ -902,7 +902,7 @@ const Home = () => {
           {recommendedJobs.map((job, index) => (
             <FadeInWhenVisible key={job.id} delay={index * 0.15}>
               <Card
-                className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
+                className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
                 style={{ height: "100%" }}
               >
                 {!job.seen && (
@@ -919,7 +919,7 @@ const Home = () => {
                     </Badge>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 transition-opacity duration-300" />
                 <div className="relative flex items-start gap-4 flex-grow h-full">
                   {job.categoryName.includes("Quản lý dự án") ? (
                     <Briefcase className="w-10 h-10 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors" />
@@ -929,7 +929,7 @@ const Home = () => {
                     <Code className="w-10 h-10 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors" />
                   )}
                   <div className="flex flex-col flex-grow h-full">
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors">
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
                       {job.title}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -991,7 +991,7 @@ const Home = () => {
                     <Link to={`/jobs/${job.id}`}>
                       <Button
                         variant="outline"
-                        className="w-full bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
+                        className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
                       >
                         {job.applied ? "Xem chi tiết" : "Ứng tuyển ngay"}
                       </Button>
@@ -1008,7 +1008,7 @@ const Home = () => {
           <Button
             onClick={() => navigate("/jobs")}
             size="lg"
-            className="bg-primary-600 dark:bg-primary-700 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
+            className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
           >
             Xem tất cả công việc
           </Button>
