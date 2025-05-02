@@ -54,7 +54,6 @@ const Freelancers = () => {
   const [filteredFreelancers, setFilteredFreelancers] = useState<Freelancer[]>(
     []
   );
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -67,17 +66,7 @@ const Freelancers = () => {
     minRating: 0,
     title: "",
   });
-  const authToken = localStorage.getItem("userInfo");
-  useEffect(() => {
-    if (authToken) {
-      setIsLoggedIn(true);
-    }
-  }, [authToken]);
-  useEffect(() => {
-    if (!isLoggedIn) {
-      window.location.href = "/login";
-    }
-  }, [isLoggedIn]);
+
   const uniqueProvinces: any = [];
   for (const f of freelancers) {
     if (f.province && !uniqueProvinces.includes(f.province)) {

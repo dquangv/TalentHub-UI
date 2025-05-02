@@ -19,7 +19,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Clock, Check, ChevronsUpDown, Plus, X } from "lucide-react";
+import {
+  Clock,
+  DollarSign,
+  Check,
+  ChevronsUpDown,
+  Plus,
+  X,
+} from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -54,9 +61,10 @@ const PostJob = () => {
   const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [skillOpen, setSkillOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [newSkill, setNewSkill] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const [jobData, setJobData] = useState<any>({
     title: "",
     description: "",
@@ -73,17 +81,7 @@ const PostJob = () => {
     categoryId: 0,
     skills: [],
   });
-  const authToken = localStorage.getItem("userInfo");
-  useEffect(() => {
-    if (authToken) {
-      setIsLoggedIn(true);
-    }
-  }, [authToken]);
-  useEffect(() => {
-    if (!isLoggedIn) {
-      window.location.href = "/login";
-    }
-  }, [isLoggedIn]);
+
   useEffect(() => {
     const initializeData = async () => {
       fetchCategories();
