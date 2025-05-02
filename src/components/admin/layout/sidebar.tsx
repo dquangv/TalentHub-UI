@@ -12,7 +12,7 @@ import {
   Building,
   Wrench,
   ChevronDown,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 import { ExitIcon } from "@radix-ui/react-icons";
 import { Button } from "antd";
@@ -89,7 +89,7 @@ const menuItems = [
         icon: Wrench,
         href: "/skills",
       },
-    ]
+    ],
   },
 ];
 
@@ -101,6 +101,7 @@ export function Sidebar() {
 
   const handleLogout = () => {
     logout();
+    localStorage.clear();
     navigate("/login");
   };
 
@@ -121,7 +122,9 @@ export function Sidebar() {
                       onClick={() => toggleSubmenu(item.title)}
                       className={cn(
                         "w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-                        openSubmenu === item.title ? "bg-accent text-accent-foreground" : "transparent"
+                        openSubmenu === item.title
+                          ? "bg-accent text-accent-foreground"
+                          : "transparent"
                       )}
                     >
                       <div className="flex items-center">
@@ -188,4 +191,4 @@ export function Sidebar() {
   );
 }
 
-export default Sidebar
+export default Sidebar;

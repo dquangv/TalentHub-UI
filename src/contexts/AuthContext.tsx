@@ -70,7 +70,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.clear();
-    websocketService.disconnect();
+    if (websocketService.isConnected()) {
+      websocketService.disconnect();
+    }
     setIsLoggedIn(false);
   };
 

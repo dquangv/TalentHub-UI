@@ -22,44 +22,60 @@ export const OAuth2Callback = () => {
       const email = urlParams.get("email");
       const lng = urlParams.get("lng");
 
-      var data = {
-        userId: userId,
-        role: role,
-        freelancerId: freelancerId == "null" ? null : freelancerId,
-        clientId: clientId == "null" ? null : clientId,
-        lat: Number(lat),
-        email: email,
-        lng: Number(lng),
-      };
-
+      // Kiểm tra các tham số bắt buộc
       if (!accessToken || !role || !userId) {
         setError("Missing required parameters.");
         return null;
       }
 
+      // Tạo đối tượng data với xử lý đúng
+      const data = {
+        userId: userId,
+        role: role,
+        freelancerId: freelancerId === "null" ? null : freelancerId,
+        clientId: clientId === "null" ? null : clientId,
+        lat: lat ? Number(lat) : null,
+        email: email || null,
+        lng: lng ? Number(lng) : null,
+        accessToken: accessToken, // Thêm accessToken vào data
+      };
+
       return data;
     };
 
-    const data = getQueryParams();
-    if (data) {
-      // Store user info in localStorage directly here before login
-      localStorage.setItem("userInfo", JSON.stringify(data));
+    const handleOAuth = async () => {
+      try {
+        const data = getQueryParams();
 
-      // Then call login
-      login(data);
+        if (data) {
+          // Lưu thông tin người dùng vào localStorage
+          localStorage.setItem("userInfo", JSON.stringify(data));
 
-      // Use navigate instead of window.location.href to avoid full page reload
-      setTimeout(() => {
-        navigate("/");
-      }, 500); // Small delay to ensure localStorage is updated
-    } else {
-      notification.error({
-        message: "Error",
-        description: "Failed to extract OAuth2 parameters.",
-      });
-    }
+          // Đăng nhập người dùng
+          await login(data);
 
-    setLoading(false);
+          // Chuyển hướng sau khi đăng nhập thành công
+          setTimeout(() => {
+            navigate("/");
+          }, 500); // Độ trễ nhỏ để đảm bảo localStorage được cập nhật
+        } else {
+          console.error("Invalid data received from OAuth2 callback.");
+        }
+      } catch (err) {
+        // Xử lý lỗi khi login thất bại
+        console.error("Login error:", err);
+        setError(`Đăng nhập thất bại: ${err.message || "Lỗi không xác định"}`);
+        notification.error({
+          message: "Lỗi đăng nhập",
+          description:
+            err.message || "Đã xảy ra lỗi trong quá trình đăng nhập.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleOAuth();
   }, [navigate, login]);
 
   if (loading) {
@@ -70,7 +86,7 @@ export const OAuth2Callback = () => {
     return <div>{error}</div>;
   }
 
-  return <div>Processing OAuth2 Callback...</div>;
+  return <div>Đang xử lý OAuth2 Callback...</div>;
 };
 
 export default OAuth2Callback;
