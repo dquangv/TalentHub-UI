@@ -206,8 +206,8 @@ const ClientDetail = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    <div className="bg-gray-50 p-4 rounded-lg dark:bg-background">
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
                         Ngân sách
                       </h3>
                       <div className="space-y-3">
