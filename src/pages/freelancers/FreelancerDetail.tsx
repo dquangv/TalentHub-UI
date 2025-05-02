@@ -366,7 +366,7 @@ const FreelancerDetail = () => {
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {job.projectName}
                             </h3>
                             <p className="text-gray-600 mt-1">{job.scope}</p>
@@ -398,13 +398,13 @@ const FreelancerDetail = () => {
                           )}
                           <div className="flex items-center text-gray-600">
                             <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>Khách hàng: {job.clientName}</span>
+                            <span>Khách hàng: <span className="dark:text-white italic">{job.clientName}</span></span>
                           </div>
                         </div>
 
                         {job.note && (
                           <div className="mt-4">
-                            <p className="text-gray-600 italic">{job.note}</p>
+                            <p className="text-gray-600 italic dark:text-white">{job.note}</p>
                           </div>
                         )}
                       </div>
