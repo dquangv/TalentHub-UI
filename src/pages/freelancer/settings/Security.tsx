@@ -98,6 +98,23 @@ const Security = () => {
     checkMfaStatus();
   }, []);
 
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const checkPasswordStatus = async () => {
+      try {
+        const response = await api.get(
+          `/api/v1/account/is-password-set?email=${user.email}`
+        );
+        setHasPassword(response.data || false);
+      } catch (err) {
+        console.error("Error checking password status:", err);
+        setHasPassword(true);
+      }
+    };
+
+    checkPasswordStatus();
+  }, [user?.email]);
   // Password change functions
   const handlePasswordChange = async (e) => {
     e.preventDefault();
