@@ -76,7 +76,7 @@ const ClientDetail = () => {
   const fullName = `${client.firstName} ${client.lastName}`;
 
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
+    <div className="py-12 min-h-screen">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <FadeInWhenVisible>
@@ -167,7 +167,7 @@ const ClientDetail = () => {
 
           <FadeInWhenVisible delay={0.2}>
             <Tabs defaultValue="overview" className="space-y-4">
-              <TabsList className="bg-white shadow-sm">
+              <TabsList className="">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="companies">Công ty</TabsTrigger>
                 <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
@@ -175,7 +175,7 @@ const ClientDetail = () => {
 
               <TabsContent value="overview">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
                     Giới thiệu
                   </h2>
                   <p className="text-gray-600 mb-8 leading-relaxed">
@@ -243,7 +243,7 @@ const ClientDetail = () => {
 
               <TabsContent value="companies">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
                     Thông tin công ty
                   </h2>
 
@@ -257,7 +257,7 @@ const ClientDetail = () => {
                             </div>
                           </div>
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {company.companyName}
                             </h3>
                             <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
