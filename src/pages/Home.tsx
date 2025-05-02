@@ -702,7 +702,7 @@ const Home = () => {
         >
           <div className="container mx-auto px-6">
             <FadeInWhenVisible>
-              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h2 className="py-8 text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Ứng Viên Phù Hợp Cho Dự Án Của Bạn
               </h2>
             </FadeInWhenVisible>
