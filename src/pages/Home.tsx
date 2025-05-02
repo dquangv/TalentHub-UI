@@ -81,7 +81,7 @@ const FeatureCard = ({
   delay,
 }: any) => (
   <FadeInWhenVisible delay={delay}>
-    <Card className="p-6 hover:shadow-lg transition-all group border-blue-100">
+    <Card className="p-6 text-center border-primary/10 dark:border-primary/20 hover:border-primary/20 dark:hover:border-primary/30 transition-colors group bg-white dark:bg-gray-800">
       <div className="relative w-12 h-12 mx-auto mb-4">
         <Icon
           className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
@@ -91,7 +91,7 @@ const FeatureCard = ({
           className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`}
         />
       </div>
-      <h3 className="font-semibold text-lg mb-3 text-gray-800">{title}</h3>
+      <h3 className="font-semibold text-lg mb-3 text-gray-800 dark:text-white">{title}</h3>
       <p className="text-gray-600 text-sm">{description}</p>
     </Card>
   </FadeInWhenVisible>
@@ -825,7 +825,7 @@ const Home = () => {
         </section>
       ) : userInfo ? null : (
         <section
-          className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50"
+          className="py-20"
           id="freelancer-section"
         >
           <div className="container mx-auto px-6">
