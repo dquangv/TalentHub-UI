@@ -3,30 +3,18 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Calendar } from "antd";
 import { notification } from "antd";
 import FadeInWhenVisible from "@/components/animations/FadeInWhenVisible";
 import {
   Video,
   MapPin,
-  Clock,
-  Users,
-  Link,
   Building2,
   CheckCircle,
 } from "lucide-react";
 import api from "@/api/axiosConfig";
 import { useNavigate, useParams } from "react-router-dom";
-type ValuePiece = Date | null;
 
-type Value = ValuePiece | [ValuePiece, ValuePiece];
 const Appointment = () => {
   const [appointmentType, setAppointmentType] = useState<"online" | "offline">(
     "online"
@@ -39,7 +27,6 @@ const Appointment = () => {
     location: "",
     meetingLink: "",
     selectedDate: new Date(),
-
   });
 
   const { id } = useParams();
@@ -54,7 +41,6 @@ const Appointment = () => {
       navigate("/login");
       return;
     }
-
 
     const timeParts = formData.time.split(":");
     const hour = parseInt(timeParts[0]);
@@ -86,8 +72,6 @@ const Appointment = () => {
       return;
     }
 
-    console.log("Appointment Data:", appointmentData);
-
     try {
       const response = await api.post(
         "/v1/appointments/client",
@@ -115,26 +99,6 @@ const Appointment = () => {
     }
   };
 
-
-
-
-  const timeSlots = [
-    "09:00",
-    "09:30",
-    "10:00",
-    "10:30",
-    "11:00",
-    "11:30",
-    "13:30",
-    "14:00",
-    "14:30",
-    "15:00",
-    "15:30",
-    "16:00",
-    "16:30",
-    "17:00",
-    "17:30",
-  ];
   const handleDateChange = (date: any) => {
     if (date) {
       const jsDate = date.toDate();
