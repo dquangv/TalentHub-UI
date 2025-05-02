@@ -433,7 +433,127 @@ const Security = () => {
   const handlePreviousStep = () => {
     setSetupStep(2);
   };
+  const renderInitialPasswordSetup = () => {
+    return (
+      <FadeInWhenVisible>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3">
+              <Key className="w-5 h-5 text-primary" />
+              <CardTitle>Thiết lập mật khẩu</CardTitle>
+            </div>
+            <CardDescription>
+              Bạn chưa thiết lập mật khẩu cho tài khoản. Vui lòng tạo mật khẩu
+              mới.
+            </CardDescription>
+          </CardHeader>
 
+          <CardContent>
+            {!isSettingInitialPassword ? (
+              <div className="flex flex-col items-center space-y-6 py-4">
+                <div className="rounded-full bg-primary/10 p-6">
+                  <Lock size={48} className="text-muted-foreground" />
+                </div>
+
+                <div className="text-center">
+                  <h3 className="text-xl font-medium mb-2">
+                    Bảo vệ tài khoản của bạn
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Thiết lập mật khẩu sẽ giúp bảo vệ tài khoản của bạn và cho
+                    phép bật xác thực 2 lớp.
+                  </p>
+                </div>
+
+                <Button onClick={() => setIsSettingInitialPassword(true)}>
+                  Thiết lập mật khẩu
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleSetInitialPassword} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Mật khẩu mới</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      className="pl-10"
+                      value={initialPassword.new}
+                      onChange={(e) =>
+                        setInitialPassword({
+                          ...initialPassword,
+                          new: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {initialPasswordErrors.new && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {initialPasswordErrors.new}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Xác nhận mật khẩu mới
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="password"
+                      className="pl-10"
+                      value={initialPassword.confirm}
+                      onChange={(e) =>
+                        setInitialPassword({
+                          ...initialPassword,
+                          confirm: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  {initialPasswordErrors.confirm && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {initialPasswordErrors.confirm}
+                    </p>
+                  )}
+                </div>
+
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Lưu ý quan trọng</AlertTitle>
+                  <AlertDescription>
+                    Hãy chọn mật khẩu mạnh và không sử dụng lại mật khẩu từ các
+                    tài khoản khác.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex items-center justify-between pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsSettingInitialPassword(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Đang xử lý...
+                      </>
+                    ) : (
+                      "Thiết lập mật khẩu"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </FadeInWhenVisible>
+    );
+  };
   // MFA UI render functions
   const renderMfaStatus = () => {
     return (
