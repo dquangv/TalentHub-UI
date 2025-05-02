@@ -207,7 +207,7 @@ const FreelancerDetail = () => {
                             </div>
                           </div>
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {exp.position}
                             </h3>
                             <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
@@ -269,7 +269,7 @@ const FreelancerDetail = () => {
                             )}
                           </div>
                           <div className="p-4">
-                            <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                            <h3 className="font-semibold text-lg text-gray-900 mb-2 dark:text-white">
                               {project.title}
                             </h3>
                             <div className="mb-3">
@@ -329,7 +329,7 @@ const FreelancerDetail = () => {
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-900">
+                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                             {edu.school.schoolName}
                           </h3>
                           <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
