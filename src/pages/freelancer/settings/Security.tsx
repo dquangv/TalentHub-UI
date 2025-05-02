@@ -210,7 +210,92 @@ const Security = () => {
       setLoading(false);
     }
   };
+  const handleSetInitialPassword = async (e) => {
+    e.preventDefault();
 
+    setInitialPasswordErrors({
+      new: "",
+      confirm: "",
+    });
+
+    const userEmail = user.email;
+    let hasError = false;
+
+    if (!userEmail) {
+      notification.error({
+        message: "Lỗi",
+        description:
+          "Không thể xác định email người dùng. Vui lòng đăng nhập lại.",
+      });
+      return;
+    }
+
+    if (!initialPassword.new) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        new: "Vui lòng nhập mật khẩu mới",
+      }));
+      hasError = true;
+    } else if (!PASSWORD_PATTERN.test(initialPassword.new)) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        new: "Mật khẩu phải có ít nhất 3 ký tự",
+      }));
+      hasError = true;
+    }
+
+    if (!initialPassword.confirm) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        confirm: "Vui lòng xác nhận mật khẩu",
+      }));
+      hasError = true;
+    } else if (initialPassword.new !== initialPassword.confirm) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        confirm: "Mật khẩu xác nhận không trùng khớp",
+      }));
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    try {
+      setLoading(true);
+
+      // We can use the same changePassword API but with empty currentPassword
+      const response = await userService.changePassword({
+        email: userEmail,
+        currentPassword: "", // Empty string as this is a new password setup
+        newPassword: initialPassword.new,
+      });
+
+      if (response.status === 200) {
+        notification.success({
+          message: "Thành công",
+          description: "Mật khẩu đã được thiết lập.",
+        });
+
+        // Set hasPassword to true so the UI updates
+        setHasPassword(true);
+        setIsSettingInitialPassword(false);
+
+        // Reset form
+        setInitialPassword({
+          new: "",
+          confirm: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error setting initial password:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Đã xảy ra lỗi khi thiết lập mật khẩu.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   // MFA functions
   const handleStartSetup = async () => {
     if (!user?.email) {
