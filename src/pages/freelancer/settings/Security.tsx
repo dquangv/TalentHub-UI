@@ -56,7 +56,17 @@ const Security = () => {
   const [secretKey, setSecretKey] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [setupStep, setSetupStep] = useState(1); // 1: initial, 2: scan QR, 3: verify code
-
+  const [hasPassword, setHasPassword] = useState(true);
+  const [isSettingInitialPassword, setIsSettingInitialPassword] =
+    useState(false);
+  const [initialPassword, setInitialPassword] = useState({
+    new: "",
+    confirm: "",
+  });
+  const [initialPasswordErrors, setInitialPasswordErrors] = useState({
+    new: "",
+    confirm: "",
+  });
   // Dialog state for MFA disable confirmation
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
 
@@ -88,6 +98,23 @@ const Security = () => {
     checkMfaStatus();
   }, []);
 
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const checkPasswordStatus = async () => {
+      try {
+        const response = await api.get(
+          `/api/v1/account/is-password-set?email=${user.email}`
+        );
+        setHasPassword(response.data || false);
+      } catch (err) {
+        console.error("Error checking password status:", err);
+        setHasPassword(true);
+      }
+    };
+
+    checkPasswordStatus();
+  }, [user?.email]);
   // Password change functions
   const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -183,7 +210,92 @@ const Security = () => {
       setLoading(false);
     }
   };
+  const handleSetInitialPassword = async (e) => {
+    e.preventDefault();
 
+    setInitialPasswordErrors({
+      new: "",
+      confirm: "",
+    });
+
+    const userEmail = user.email;
+    let hasError = false;
+
+    if (!userEmail) {
+      notification.error({
+        message: "Lỗi",
+        description:
+          "Không thể xác định email người dùng. Vui lòng đăng nhập lại.",
+      });
+      return;
+    }
+
+    if (!initialPassword.new) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        new: "Vui lòng nhập mật khẩu mới",
+      }));
+      hasError = true;
+    } else if (!PASSWORD_PATTERN.test(initialPassword.new)) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        new: "Mật khẩu phải có ít nhất 3 ký tự",
+      }));
+      hasError = true;
+    }
+
+    if (!initialPassword.confirm) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        confirm: "Vui lòng xác nhận mật khẩu",
+      }));
+      hasError = true;
+    } else if (initialPassword.new !== initialPassword.confirm) {
+      setInitialPasswordErrors((prev) => ({
+        ...prev,
+        confirm: "Mật khẩu xác nhận không trùng khớp",
+      }));
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    try {
+      setLoading(true);
+
+      // We can use the same changePassword API but with empty currentPassword
+      const response = await userService.changePassword({
+        email: userEmail,
+        currentPassword: "", // Empty string as this is a new password setup
+        newPassword: initialPassword.new,
+      });
+
+      if (response.status === 200) {
+        notification.success({
+          message: "Thành công",
+          description: "Mật khẩu đã được thiết lập.",
+        });
+
+        // Set hasPassword to true so the UI updates
+        setHasPassword(true);
+        setIsSettingInitialPassword(false);
+
+        // Reset form
+        setInitialPassword({
+          new: "",
+          confirm: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error setting initial password:", error);
+      notification.error({
+        message: "Lỗi",
+        description: "Đã xảy ra lỗi khi thiết lập mật khẩu.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   // MFA functions
   const handleStartSetup = async () => {
     if (!user?.email) {
@@ -537,124 +649,142 @@ const Security = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <FadeInWhenVisible>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="w-5 h-5 text-primary" />
-              <CardTitle>Xác thực hai lớp (2FA)</CardTitle>
-            </div>
-            <CardDescription>
-              Bảo vệ tài khoản của bạn bằng lớp bảo mật bổ sung
-            </CardDescription>
-          </CardHeader>
+      {!hasPassword && renderInitialPasswordSetup()}
 
-          <CardContent>
-            {!isSetupMode && renderMfaStatus()}
-            {isSetupMode && setupStep === 2 && renderScanQrStep()}
-            {isSetupMode && setupStep === 3 && renderVerifyCodeStep()}
-          </CardContent>
-
-          {!isSetupMode && (
-            <div className="px-6 pb-6">
-              <Separator className="mb-4" />
-              <div className="text-sm text-muted-foreground">
-                <p className="text-center">
-                  Xác thực hai lớp giúp bảo vệ tài khoản của bạn khỏi truy cập
-                  trái phép. Ngay cả khi mật khẩu bị lộ, kẻ tấn công vẫn cần mã
-                  xác thực từ thiết bị của bạn.
-                </p>
-              </div>
-            </div>
-          )}
-        </Card>
-      </FadeInWhenVisible>
-      <FadeInWhenVisible>
-        <Card className="shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-primary" />
-              <CardTitle>Đổi mật khẩu</CardTitle>
-            </div>
-            <CardDescription>
-              Cập nhật mật khẩu của bạn để bảo vệ tài khoản
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <form onSubmit={handlePasswordChange} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mật khẩu hiện tại</label>
-                <div className="relative">
-                  <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="password"
-                    className="pl-10"
-                    value={passwords.current}
-                    onChange={(e) =>
-                      setPasswords({ ...passwords, current: e.target.value })
-                    }
-                  />
+      {hasPassword && (
+        <>
+          <FadeInWhenVisible>
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className="w-5 h-5 text-primary" />
+                  <CardTitle>Xác thực hai lớp (2FA)</CardTitle>
                 </div>
-                {errors.current && (
-                  <p className="text-sm text-red-500 mt-1">{errors.current}</p>
-                )}
-              </div>
+                <CardDescription>
+                  Bảo vệ tài khoản của bạn bằng lớp bảo mật bổ sung
+                </CardDescription>
+              </CardHeader>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Mật khẩu mới</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="password"
-                    className="pl-10"
-                    value={passwords.new}
-                    onChange={(e) =>
-                      setPasswords({ ...passwords, new: e.target.value })
-                    }
-                  />
+              <CardContent>
+                {!isSetupMode && renderMfaStatus()}
+                {isSetupMode && setupStep === 2 && renderScanQrStep()}
+                {isSetupMode && setupStep === 3 && renderVerifyCodeStep()}
+              </CardContent>
+
+              {!isSetupMode && (
+                <div className="px-6 pb-6">
+                  <Separator className="mb-4" />
+                  <div className="text-sm text-muted-foreground">
+                    <p className="text-center">
+                      Xác thực hai lớp giúp bảo vệ tài khoản của bạn khỏi truy
+                      cập trái phép. Ngay cả khi mật khẩu bị lộ, kẻ tấn công vẫn
+                      cần mã xác thực từ thiết bị của bạn.
+                    </p>
+                  </div>
                 </div>
-                {errors.new && (
-                  <p className="text-sm text-red-500 mt-1">{errors.new}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  Xác nhận mật khẩu mới
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="password"
-                    className="pl-10"
-                    value={passwords.confirm}
-                    onChange={(e) =>
-                      setPasswords({ ...passwords, confirm: e.target.value })
-                    }
-                  />
+              )}
+            </Card>
+          </FadeInWhenVisible>
+          <FadeInWhenVisible>
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-primary" />
+                  <CardTitle>Đổi mật khẩu</CardTitle>
                 </div>
-                {errors.confirm && (
-                  <p className="text-sm text-red-500 mt-1">{errors.confirm}</p>
-                )}
-              </div>
+                <CardDescription>
+                  Cập nhật mật khẩu của bạn để bảo vệ tài khoản
+                </CardDescription>
+              </CardHeader>
 
-              <div className="flex items-center justify-end">
-                <Button type="submit" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Đang cập nhật...
-                    </>
-                  ) : (
-                    "Cập nhật mật khẩu"
-                  )}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </FadeInWhenVisible>
+              <CardContent>
+                <form onSubmit={handlePasswordChange} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Mật khẩu hiện tại
+                    </label>
+                    <div className="relative">
+                      <Key className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        className="pl-10"
+                        value={passwords.current}
+                        onChange={(e) =>
+                          setPasswords({
+                            ...passwords,
+                            current: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    {errors.current && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.current}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Mật khẩu mới</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        className="pl-10"
+                        value={passwords.new}
+                        onChange={(e) =>
+                          setPasswords({ ...passwords, new: e.target.value })
+                        }
+                      />
+                    </div>
+                    {errors.new && (
+                      <p className="text-sm text-red-500 mt-1">{errors.new}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Xác nhận mật khẩu mới
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        className="pl-10"
+                        value={passwords.confirm}
+                        onChange={(e) =>
+                          setPasswords({
+                            ...passwords,
+                            confirm: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    {errors.confirm && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.confirm}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end">
+                    <Button type="submit" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Đang cập nhật...
+                        </>
+                      ) : (
+                        "Cập nhật mật khẩu"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </FadeInWhenVisible>
+        </>
+      )}
     </div>
   );
 };
