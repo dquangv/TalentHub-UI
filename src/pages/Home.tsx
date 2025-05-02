@@ -1104,7 +1104,7 @@ const Home = () => {
                   <Link to={isLoggedIn ? `/jobs/${job.id}` : "/login"}>
                     <Button
                       variant="outline"
-                      className="w-full bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
+                      className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
                     >
                       Xem chi tiết
                     </Button>
@@ -1124,7 +1124,7 @@ const Home = () => {
             isLoggedIn ? navigate("/jobs") : navigate("/login")
           }
           size="lg"
-          className="bg-primary-600 dark:bg-primary-700 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
+          className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
         >
           Xem tất cả dự án
         </Button>
