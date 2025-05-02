@@ -1154,41 +1154,41 @@ const Home = () => {
         </div>
       </section> */}
 
-      <section className="py-16 bg-white" id="features">
-        <div className="container mx-auto px-4">
-          <FadeInWhenVisible>
-            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
-              Đặc điểm nổi bật
-            </h2>
-          </FadeInWhenVisible>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <BenefitCard
-              Icon={Users}
-              colorClass="text-blue-600"
-              gradientClass="bg-gradient-to-r from-blue-600 to-blue-400"
-              title="Cộng đồng lớn mạnh"
-              description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
-              delay={0.1}
-            />
-            <BenefitCard
-              Icon={CurrencyDollarIcon}
-              colorClass="text-orange-600"
-              gradientClass="bg-gradient-to-r from-orange-600 to-orange-400"
-              title="Thanh toán an toàn"
-              description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
-              delay={0.2}
-            />
-            <BenefitCard
-              Icon={LibraryIcon}
-              colorClass="text-green-600"
-              gradientClass="bg-gradient-to-r from-green-600 to-green-400"
-              title="Hỗ trợ nhanh chóng"
-              description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
-              delay={0.3}
-            />
-          </div>
-        </div>
-      </section>
+<section className="py-16 bg-white dark:bg-gray-800" id="features">
+  <div className="container mx-auto px-4">
+    <FadeInWhenVisible>
+      <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
+        Đặc điểm nổi bật
+      </h2>
+    </FadeInWhenVisible>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <BenefitCard
+        Icon={Users}
+        colorClass="text-blue-600 dark:text-blue-400"
+        gradientClass="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300"
+        title="Cộng đồng lớn mạnh"
+        description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
+        delay={0.1}
+      />
+      <BenefitCard
+        Icon={CurrencyDollarIcon}
+        colorClass="text-orange-600 dark:text-orange-400"
+        gradientClass="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-300"
+        title="Thanh toán an toàn"
+        description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
+        delay={0.2}
+      />
+      <BenefitCard
+        Icon={LibraryIcon}
+        colorClass="text-green-600 dark:text-green-400"
+        gradientClass="bg-gradient-to-r from-green-600 to-green-400 dark:from-green-500 dark:to-green-300"
+        title="Hỗ trợ nhanh chóng"
+        description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
+        delay={0.3}
+      />
+    </div>
+  </div>
+</section>
 
       <section
         className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative"
