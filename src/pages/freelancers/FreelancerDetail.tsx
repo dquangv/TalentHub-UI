@@ -154,7 +154,7 @@ const FreelancerDetail = () => {
 
           <FadeInWhenVisible delay={0.2}>
             <Tabs defaultValue={defaultTab} className="space-y-4">
-              <TabsList className="bg-white shadow-sm">
+              <TabsList className="shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
@@ -164,7 +164,7 @@ const FreelancerDetail = () => {
 
               <TabsContent value="overview">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
                     Giới thiệu
                   </h2>
                   <div className="mb-4">
