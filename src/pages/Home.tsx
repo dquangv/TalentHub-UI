@@ -541,7 +541,7 @@ const Home = () => {
         </div>
       </header>
 
-      <section className="py-16 bg-background dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="statistics-section">
+      <section className="py-16" id="statistics-section">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <IconCard
@@ -574,7 +574,7 @@ const Home = () => {
 
       {/* Jobs Premium */}
       <section
-        className="py-20 bg-gradient-to-br from-gray-50 via-white to-primary-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
+        className="py-20"
         id="top-jobs"
       >
         <div className="container mx-auto px-6">
@@ -877,7 +877,7 @@ const Home = () => {
 
 {userInfo && userInfo.freelancerId && (
   <section
-    className="py-20 bg-gradient-to-br from-primary-50 via-white to-gray-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"
+    className="py-20"
     id="recommended-jobs"
   >
     <div className="container mx-auto px-6">
@@ -1016,7 +1016,7 @@ const Home = () => {
     </div>
   </section>
 )}
-  <section className="py-16 bg-secondary-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="explore-projects">
+  <section className="py-16" id="explore-projects">
   <div className="container mx-auto px-4">
     <FadeInWhenVisible>
       <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
@@ -1153,7 +1153,7 @@ const Home = () => {
         </div>
       </section> */}
 
-<section className="py-16 bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="features">
+<section className="py-16" id="features">
   <div className="container mx-auto px-4">
     <FadeInWhenVisible>
       <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
@@ -1190,10 +1190,9 @@ const Home = () => {
 </section>
 
       <section
-        className="py-20 bg-gradient-to-br from-secondary-50 via-background to-primary-50 relative"
+        className="py-20 relative"
         id="cta-section"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-100/50 to-transparent"></div>
         <div className="container relative mx-auto px-4">
           <div className="text-center max-w-2xl mx-auto">
             <FadeInWhenVisible>
@@ -1220,7 +1219,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-white" id="trusted-companies">
+      <section className="py-16" id="trusted-companies">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-primary-800">
             Đối Tác của TalentHub
@@ -1249,7 +1248,7 @@ const Home = () => {
                     />
                   </div>
                 )}
-                <p className="mt-2 text-sm font-medium text-gray-600 text-center">
+                <p className="mt-2 text-sm font-medium text-gray-600 text-center dark:text-gray-300">
                   {customer.vendor}
                 </p>
               </div>
