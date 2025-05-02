@@ -733,7 +733,7 @@ const Home = () => {
                 {suitableFreelancers.map((freelancer, index) => (
                   <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
                     <Card className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full">
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-4 h-full">
                         <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
                           <AvatarImage
                             src={freelancer.avatar}
@@ -744,7 +744,7 @@ const Home = () => {
                             {freelancer.name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col">
+                        <div className="flex-1 flex flex-col h-full">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-semibold">{freelancer.name}</h3>
                             <div className="flex items-center">
