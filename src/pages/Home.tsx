@@ -697,12 +697,12 @@ const Home = () => {
 
       {userInfo && userInfo.clientId ? (
         <section
-          className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50"
+          className="py-20"
           id="suitable-freelancers"
         >
           <div className="container mx-auto px-6">
             <FadeInWhenVisible>
-              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h2 className="py-8 text-4xl font-extrabold text-center mb-16 text-gray-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 Ứng Viên Phù Hợp Cho Dự Án Của Bạn
               </h2>
             </FadeInWhenVisible>
@@ -732,8 +732,8 @@ const Home = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {suitableFreelancers.map((freelancer, index) => (
                   <FadeInWhenVisible key={freelancer.id} delay={index * 0.1}>
-                    <Card className="p-6 hover:shadow-md transition-shadow">
-                      <div className="flex items-start gap-4">
+                    <Card className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full">
+                      <div className="flex items-start gap-4 h-full">
                         <Avatar className="w-16 h-16 rounded-full border-2 border-blue-100">
                           <AvatarImage
                             src={freelancer.avatar}
@@ -744,7 +744,7 @@ const Home = () => {
                             {freelancer.name.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
+                        <div className="flex-1 flex flex-col h-full">
                           <div className="flex items-center justify-between mb-2">
                             <h3 className="font-semibold">{freelancer.name}</h3>
                             <div className="flex items-center">
@@ -779,6 +779,7 @@ const Home = () => {
                               </Badge>
                             ))}
                           </div>
+                          <div className="flex-1"></div>
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-medium text-blue-600">
                               ${freelancer.hourlyRate}/giờ
@@ -793,7 +794,7 @@ const Home = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                                className="hover:bg-blue-50 hover:border-blue-200 dark:bg-primary-500"
                               >
                                 Xem hồ sơ
                               </Button>
@@ -875,262 +876,262 @@ const Home = () => {
         </section>
       )}
 
-{userInfo && userInfo.freelancerId && (
-  <section
-    className="py-20"
-    id="recommended-jobs"
-  >
-    <div className="container mx-auto px-6">
-      <FadeInWhenVisible>
-        <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 dark:text-gray-200 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent dark:from-primary-400 dark:to-primary-600 py-4">
-          Công Việc Phù Hợp Với Bạn
-        </h2>
-      </FadeInWhenVisible>
-      {loadingRecommendedJobs ? (
-        <div className="text-center text-gray-500 dark:text-gray-400 text-lg">
-          <div className="col-span-3 min-h-[200px] flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 dark:border-primary-400"></div>
-          </div>
-        </div>
-      ) : recommendedJobs.length === 0 ? (
-        <div className="text-center text-gray-500 dark:text-gray-400 text-lg">
-          Không tìm thấy công việc phù hợp với kỹ năng của bạn.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {recommendedJobs.map((job, index) => (
-            <FadeInWhenVisible key={job.id} delay={index * 0.15}>
-              <Card
-                className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
-                style={{ height: "100%" }}
-              >
-                {!job.seen && (
-                  <div className="absolute top-3 right-3">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-700 dark:hover:to-indigo-700 transition-all duration-300">
-                      Mới
-                    </Badge>
-                  </div>
-                )}
-                {job.applied && (
-                  <div className="absolute top-3 right-16">
-                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-green-600 hover:to-emerald-600 dark:hover:from-green-700 dark:hover:to-emerald-700 transition-all duration-300">
-                      Đã ứng tuyển
-                    </Badge>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 transition-opacity duration-300" />
-                <div className="relative flex items-start gap-4 flex-grow h-full">
-                  {job.categoryName.includes("Quản lý dự án") ? (
-                    <Briefcase className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                  ) : job.categoryName.includes("Thiết kế") ? (
-                    <Paintbrush className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                  ) : (
-                    <Code className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                  )}
-                  <div className="flex flex-col flex-grow h-full">
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
-                      {job.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Đăng bởi:
-                      </span>{" "}
-                      <span className="text-gray-800 dark:text-gray-200">
-                        {job.companyName || "Ẩn danh"}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Ngân sách:
-                      </span>{" "}
-                      <span className="text-primary-600 dark:text-primary-400 font-medium">
-                        {formatCurrency(job.fromPrice)} -{" "}
-                        {formatCurrency(job.toPrice)}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Thời gian thực hiện dự án:
-                      </span>{" "}
-                      <span className="text-gray-800 dark:text-gray-200">
-                        {job.hourWork} giờ
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Hạn ứng tuyển:
-                      </span>{" "}
-                      <span className="text-primary-600 dark:text-primary-400 font-medium">
-                        Còn {job.remainingTimeFormatted}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <span className="font-semibold text-gray-700 dark:text-gray-300">
-                        Đăng:
-                      </span>{" "}
-                      <span className="text-gray-800 dark:text-gray-200">
-                        {job.createdTimeFormatted}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-2">
-                      {job.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {job.skillName.map((skill) => (
-                        <Badge
-                          key={skill}
-                          variant="secondary"
-                          className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-                        >
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex-1"></div>
-                    <Link to={`/jobs/${job.id}`}>
-                      <Button
-                        variant="outline"
-                        className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
-                      >
-                        {job.applied ? "Xem chi tiết" : "Ứng tuyển ngay"}
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
+      {userInfo && userInfo.freelancerId && (
+        <section
+          className="py-20"
+          id="recommended-jobs"
+        >
+          <div className="container mx-auto px-6">
+            <FadeInWhenVisible>
+              <h2 className="text-4xl font-extrabold text-center mb-16 text-gray-800 dark:text-gray-200 bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent dark:from-primary-400 dark:to-primary-600 py-4">
+                Công Việc Phù Hợp Với Bạn
+              </h2>
             </FadeInWhenVisible>
-          ))}
-        </div>
-      )}
-      {!loadingRecommendedJobs && recommendedJobs.length > 0 && (
-        <div className="text-center mt-10">
-          <Button
-            onClick={() => navigate("/jobs")}
-            size="lg"
-            className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
-          >
-            Xem tất cả công việc
-          </Button>
-        </div>
-      )}
-    </div>
-  </section>
-)}
-  <section className="py-16" id="explore-projects">
-  <div className="container mx-auto px-4">
-    <FadeInWhenVisible>
-      <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
-        Khám Phá Các Dự Án Hấp Dẫn
-      </h2>
-    </FadeInWhenVisible>
-    {loadingJobs ? (
-      <div className="col-span-3 min-h-[200px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 dark:border-primary-400"></div>
-      </div>
-    ) : jobs.length === 0 ? (
-      <div className="text-center text-muted-foreground dark:text-gray-400">
-        Không có công việc nào để hiển thị.
-      </div>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {jobs?.map((job, index) => (
-          <FadeInWhenVisible key={job.id} delay={index * 0.15}>
-            <Card
-              className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
-              style={{ height: "100%" }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 transition-opacity duration-300" />
-              <div className="relative flex items-start gap-4 flex-grow h-full">
-                {job.categoryName.includes("Quản lý dự án") ? (
-                  <Briefcase className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                ) : job.categoryName.includes("Thiết kế") ? (
-                  <Paintbrush className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                ) : (
-                  <Code className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
-                )}
-                <div className="flex flex-col flex-grow h-full">
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Đăng bởi:
-                    </span>{" "}
-                    <span className="text-gray-800 dark:text-gray-200">
-                      {job.companyName || "Ẩn danh"}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Ngân sách:
-                    </span>{" "}
-                    <span className="text-primary-600 dark:text-primary-400 font-medium">
-                      {formatCurrency(job.fromPrice)} -{" "}
-                      {formatCurrency(job.toPrice)}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Thời gian thực hiện dự án:
-                    </span>{" "}
-                    <span className="text-gray-800 dark:text-gray-200">
-                      {job.hourWork} giờ
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">
-                      Hạn ứng tuyển:
-                    </span>{" "}
-                    <span className="text-primary-600 dark:text-primary-400 font-medium">
-                      Còn {job.remainingTimeFormatted}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-3">
-                    {job.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {job.skillName.map((skill) => (
-                      <Badge
-                        key={skill}
-                        variant="secondary"
-                        className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
-                      >
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex-1"></div>
-                  <Link to={isLoggedIn ? `/jobs/${job.id}` : "/login"}>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
-                    >
-                      Xem chi tiết
-                    </Button>
-                  </Link>
+            {loadingRecommendedJobs ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 text-lg">
+                <div className="col-span-3 min-h-[200px] flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 dark:border-primary-400"></div>
                 </div>
               </div>
-            </Card>
+            ) : recommendedJobs.length === 0 ? (
+              <div className="text-center text-gray-500 dark:text-gray-400 text-lg">
+                Không tìm thấy công việc phù hợp với kỹ năng của bạn.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {recommendedJobs.map((job, index) => (
+                  <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+                    <Card
+                      className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
+                      style={{ height: "100%" }}
+                    >
+                      {!job.seen && (
+                        <div className="absolute top-3 right-3">
+                          <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-indigo-600 dark:hover:from-blue-700 dark:hover:to-indigo-700 transition-all duration-300">
+                            Mới
+                          </Badge>
+                        </div>
+                      )}
+                      {job.applied && (
+                        <div className="absolute top-3 right-16">
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-md hover:from-green-600 hover:to-emerald-600 dark:hover:from-green-700 dark:hover:to-emerald-700 transition-all duration-300">
+                            Đã ứng tuyển
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 transition-opacity duration-300" />
+                      <div className="relative flex items-start gap-4 flex-grow h-full">
+                        {job.categoryName.includes("Quản lý dự án") ? (
+                          <Briefcase className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                        ) : job.categoryName.includes("Thiết kế") ? (
+                          <Paintbrush className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                        ) : (
+                          <Code className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                        )}
+                        <div className="flex flex-col flex-grow h-full">
+                          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
+                            {job.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              Đăng bởi:
+                            </span>{" "}
+                            <span className="text-gray-800 dark:text-gray-200">
+                              {job.companyName || "Ẩn danh"}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              Ngân sách:
+                            </span>{" "}
+                            <span className="text-primary-600 dark:text-primary-400 font-medium">
+                              {formatCurrency(job.fromPrice)} -{" "}
+                              {formatCurrency(job.toPrice)}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              Thời gian thực hiện dự án:
+                            </span>{" "}
+                            <span className="text-gray-800 dark:text-gray-200">
+                              {job.hourWork} giờ
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              Hạn ứng tuyển:
+                            </span>{" "}
+                            <span className="text-primary-600 dark:text-primary-400 font-medium">
+                              Còn {job.remainingTimeFormatted}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">
+                              Đăng:
+                            </span>{" "}
+                            <span className="text-gray-800 dark:text-gray-200">
+                              {job.createdTimeFormatted}
+                            </span>
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-2">
+                            {job.description}
+                          </p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {job.skillName.map((skill) => (
+                              <Badge
+                                key={skill}
+                                variant="secondary"
+                                className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                          <div className="flex-1"></div>
+                          <Link to={`/jobs/${job.id}`}>
+                            <Button
+                              variant="outline"
+                              className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
+                            >
+                              {job.applied ? "Xem chi tiết" : "Ứng tuyển ngay"}
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </FadeInWhenVisible>
+                ))}
+              </div>
+            )}
+            {!loadingRecommendedJobs && recommendedJobs.length > 0 && (
+              <div className="text-center mt-10">
+                <Button
+                  onClick={() => navigate("/jobs")}
+                  size="lg"
+                  className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
+                >
+                  Xem tất cả công việc
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      <section className="py-16" id="explore-projects">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
+              Khám Phá Các Dự Án Hấp Dẫn
+            </h2>
           </FadeInWhenVisible>
-        ))}
-      </div>
-    )}
+          {loadingJobs ? (
+            <div className="col-span-3 min-h-[200px] flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600 dark:border-primary-400"></div>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center text-muted-foreground dark:text-gray-400">
+              Không có công việc nào để hiển thị.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {jobs?.map((job, index) => (
+                <FadeInWhenVisible key={job.id} delay={index * 0.15}>
+                  <Card
+                    className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden group h-full"
+                    style={{ height: "100%" }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary-50/0 via-primary-50/20 to-primary-50/50 dark:from-primary-900/0 dark:via-primary-900/20 dark:to-primary-900/50 opacity-0 transition-opacity duration-300" />
+                    <div className="relative flex items-start gap-4 flex-grow h-full">
+                      {job.categoryName.includes("Quản lý dự án") ? (
+                        <Briefcase className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                      ) : job.categoryName.includes("Thiết kế") ? (
+                        <Paintbrush className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                      ) : (
+                        <Code className="w-10 h-10 text-primary-600 dark:text-primary-400 transition-colors" />
+                      )}
+                      <div className="flex flex-col flex-grow h-full">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
+                          {job.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            Đăng bởi:
+                          </span>{" "}
+                          <span className="text-gray-800 dark:text-gray-200">
+                            {job.companyName || "Ẩn danh"}
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            Ngân sách:
+                          </span>{" "}
+                          <span className="text-primary-600 dark:text-primary-400 font-medium">
+                            {formatCurrency(job.fromPrice)} -{" "}
+                            {formatCurrency(job.toPrice)}
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            Thời gian thực hiện dự án:
+                          </span>{" "}
+                          <span className="text-gray-800 dark:text-gray-200">
+                            {job.hourWork} giờ
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <span className="font-semibold text-gray-700 dark:text-gray-300">
+                            Hạn ứng tuyển:
+                          </span>{" "}
+                          <span className="text-primary-600 dark:text-primary-400 font-medium">
+                            Còn {job.remainingTimeFormatted}
+                          </span>
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-3">
+                          {job.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {job.skillName.map((skill) => (
+                            <Badge
+                              key={skill}
+                              variant="secondary"
+                              className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-full text-xs font-medium hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors"
+                            >
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="flex-1"></div>
+                        <Link to={isLoggedIn ? `/jobs/${job.id}` : "/login"}>
+                          <Button
+                            variant="outline"
+                            className="w-full bg-primary-600 dark:bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
+                          >
+                            Xem chi tiết
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </Card>
+                </FadeInWhenVisible>
+              ))}
+            </div>
+          )}
 
-    {jobs && jobs.length > 0 && (
-      <div className="text-center mt-10">
-        <Button
-          onClick={() =>
-            isLoggedIn ? navigate("/jobs") : navigate("/login")
-          }
-          size="lg"
-          className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
-        >
-          Xem tất cả dự án
-        </Button>
-      </div>
-    )}
-  </div>
-</section>
+          {jobs && jobs.length > 0 && (
+            <div className="text-center mt-10">
+              <Button
+                onClick={() =>
+                  isLoggedIn ? navigate("/jobs") : navigate("/login")
+                }
+                size="lg"
+                className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
+              >
+                Xem tất cả dự án
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* <section className="py-16" id="how-it-works">
         <div className="container mx-auto px-4">
@@ -1153,41 +1154,41 @@ const Home = () => {
         </div>
       </section> */}
 
-<section className="py-16" id="features">
-  <div className="container mx-auto px-4">
-    <FadeInWhenVisible>
-      <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
-        Đặc điểm nổi bật
-      </h2>
-    </FadeInWhenVisible>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <BenefitCard
-        Icon={Users}
-        colorClass="text-blue-600 dark:text-blue-400"
-        gradientClass="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300"
-        title="Cộng đồng lớn mạnh"
-        description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
-        delay={0.1}
-      />
-      <BenefitCard
-        Icon={CurrencyDollarIcon}
-        colorClass="text-orange-600 dark:text-orange-400"
-        gradientClass="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-300"
-        title="Thanh toán an toàn"
-        description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
-        delay={0.2}
-      />
-      <BenefitCard
-        Icon={LibraryIcon}
-        colorClass="text-green-600 dark:text-green-400"
-        gradientClass="bg-gradient-to-r from-green-600 to-green-400 dark:from-green-500 dark:to-green-300"
-        title="Hỗ trợ nhanh chóng"
-        description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
-        delay={0.3}
-      />
-    </div>
-  </div>
-</section>
+      <section className="py-16" id="features">
+        <div className="container mx-auto px-4">
+          <FadeInWhenVisible>
+            <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
+              Đặc điểm nổi bật
+            </h2>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <BenefitCard
+              Icon={Users}
+              colorClass="text-blue-600 dark:text-blue-400"
+              gradientClass="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-300"
+              title="Cộng đồng lớn mạnh"
+              description="Tiếp cận hàng ngàn freelancer chất lượng cao và các doanh nghiệp hàng đầu"
+              delay={0.1}
+            />
+            <BenefitCard
+              Icon={CurrencyDollarIcon}
+              colorClass="text-orange-600 dark:text-orange-400"
+              gradientClass="bg-gradient-to-r from-orange-600 to-orange-400 dark:from-orange-500 dark:to-orange-300"
+              title="Thanh toán an toàn"
+              description="Hệ thống thanh toán bảo mật, giải ngân khi khách hàng hài lòng với kết quả"
+              delay={0.2}
+            />
+            <BenefitCard
+              Icon={LibraryIcon}
+              colorClass="text-green-600 dark:text-green-400"
+              gradientClass="bg-gradient-to-r from-green-600 to-green-400 dark:from-green-500 dark:to-green-300"
+              title="Hỗ trợ nhanh chóng"
+              description="Đội ngũ hỗ trợ chuyên nghiệp, sẵn sàng giải đáp mọi thắc mắc của bạn"
+              delay={0.3}
+            />
+          </div>
+        </div>
+      </section>
 
       <section
         className="py-20 relative"
