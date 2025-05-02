@@ -34,6 +34,7 @@ import {
   LibraryIcon,
 } from "@heroicons/react/solid";
 import SEO from "@/components/SEO";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Banner {
   id: number;
@@ -209,8 +210,15 @@ const Home = () => {
     []
   );
   const [loadingFreelancers, setLoadingFreelancers] = useState(true);
+  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
-
+  const handleNavigation = (path) => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    } else {
+      navigate(path);
+    }
+  };
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
     if (userInfoStr) {
@@ -511,7 +519,11 @@ const Home = () => {
                 <Button
                   size="lg"
                   className="text-lg bg-primary hover:bg-primary-600"
-                  onClick={() => navigate("/client/post-job")}
+                  onClick={() =>
+                    isLoggedIn
+                      ? navigate("/client/post-job")
+                      : navigate("/login")
+                  }
                 >
                   Đăng Việc Ngay
                 </Button>
@@ -519,7 +531,9 @@ const Home = () => {
                   size="lg"
                   variant="outline"
                   className="text-lg border-primary text-primary hover:bg-primary-50 hover:text-primary"
-                  onClick={() => navigate("/freelancers")}
+                  onClick={() =>
+                    isLoggedIn ? navigate("/freelancers") : navigate("/login")
+                  }
                 >
                   Tìm Freelancer
                 </Button>
@@ -672,7 +686,9 @@ const Home = () => {
           {jobsPremium && jobsPremium.length > 0 && (
             <div className="text-center mt-10">
               <Button
-                onClick={() => navigate("/jobs")}
+                onClick={() =>
+                  isLoggedIn ? navigate("/jobs") : navigate("/login")
+                }
                 size="lg"
                 className="bg-primary hover:bg-primary-600 text-white"
               >
@@ -705,7 +721,11 @@ const Home = () => {
                   Bạn chưa có dự án nào để gợi ý freelancer phù hợp.
                 </p>
                 <Button
-                  onClick={() => navigate("/client/post-job")}
+                  onClick={() =>
+                    isLoggedIn
+                      ? navigate("/client/post-job")
+                      : navigate("/login")
+                  }
                   size="lg"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
@@ -767,7 +787,13 @@ const Home = () => {
                             <span className="text-sm font-medium text-blue-600">
                               ${freelancer.hourlyRate}/giờ
                             </span>
-                            <Link to={`/freelancers/${freelancer.id}`}>
+                            <Link
+                              to={
+                                isLoggedIn
+                                  ? `/freelancers/${freelancer.id}`
+                                  : "/login"
+                              }
+                            >
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -788,7 +814,9 @@ const Home = () => {
             {!loadingFreelancers && suitableFreelancers.length > 0 && (
               <div className="text-center mt-12">
                 <Button
-                  onClick={() => navigate("/freelancers")}
+                  onClick={() =>
+                    isLoggedIn ? navigate("/freelancers") : navigate("/login")
+                  }
                   variant="outline"
                   size="lg"
                   className="hover:bg-blue-50 border-blue-200 text-blue-700"
@@ -1077,7 +1105,7 @@ const Home = () => {
                           ))}
                         </div>
                         <div className="flex-1"></div>
-                        <Link to={`/jobs/${job.id}`}>
+                        <Link to={isLoggedIn ? `/jobs/${job.id}` : "/login"}>
                           <Button
                             variant="outline"
                             className="w-full bg-primary-600 text-white hover:bg-primary-700 border-none rounded-lg shadow-sm transition-all duration-300"
@@ -1096,7 +1124,9 @@ const Home = () => {
           {jobs && jobs.length > 0 && (
             <div className="text-center mt-10">
               <Button
-                onClick={() => navigate("/jobs")}
+                onClick={() =>
+                  isLoggedIn ? navigate("/jobs") : navigate("/login")
+                }
                 size="lg"
                 className="bg-primary hover:bg-primary-600 text-white"
               >
