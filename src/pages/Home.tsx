@@ -96,7 +96,6 @@ const FeatureCard = ({
     </Card>
   </FadeInWhenVisible>
 );
-
 const BenefitCard = ({
   Icon,
   colorClass,
@@ -106,8 +105,8 @@ const BenefitCard = ({
   delay,
 }: any) => (
   <FadeInWhenVisible delay={delay}>
-    <div className="text-center group p-6 rounded-lg hover:bg-gray-50 transition-colors">
-      <div className="relative w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 transition-colors">
+    <div className="text-center group p-6 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+      <div className="relative w-16 h-16 rounded-full bg-primary-50 dark:bg-primary-900 flex items-center justify-center mx-auto mb-6 group-hover:bg-primary-100 dark:group-hover:bg-primary-800 transition-colors">
         <Icon
           className={`w-8 h-8 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
           style={{ filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))" }}
@@ -116,8 +115,8 @@ const BenefitCard = ({
           className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`}
         />
       </div>
-      <h3 className="text-xl font-semibold mb-4 text-primary-700">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
+      <h3 className="text-xl font-semibold mb-4 text-primary-700 dark:text-primary-300">{title}</h3>
+      <p className="text-muted-foreground dark:text-gray-400">{description}</p>
     </div>
   </FadeInWhenVisible>
 );
@@ -542,7 +541,7 @@ const Home = () => {
         </div>
       </header>
 
-      <section className="py-16 bg-background dark:bg-dark-background" id="statistics-section">
+      <section className="py-16 bg-background dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="statistics-section">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <IconCard
@@ -1017,7 +1016,7 @@ const Home = () => {
     </div>
   </section>
 )}
-  <section className="py-16 bg-secondary-50 dark:bg-gray-800" id="explore-projects">
+  <section className="py-16 bg-secondary-50 dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="explore-projects">
   <div className="container mx-auto px-4">
     <FadeInWhenVisible>
       <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
@@ -1154,7 +1153,7 @@ const Home = () => {
         </div>
       </section> */}
 
-<section className="py-16 bg-white dark:bg-gray-800" id="features">
+<section className="py-16 bg-white dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-900 dark:to-gray-800" id="features">
   <div className="container mx-auto px-4">
     <FadeInWhenVisible>
       <h2 className="text-3xl font-bold text-center mb-12 text-primary-800 dark:text-primary-300">
