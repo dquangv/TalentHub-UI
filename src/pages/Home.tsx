@@ -697,7 +697,7 @@ const Home = () => {
 
       {userInfo && userInfo.clientId ? (
         <section
-          className="py-20 bg-gradient-to-br from-blue-50 via-white to-gray-50"
+          className="py-20"
           id="suitable-freelancers"
         >
           <div className="container mx-auto px-6">
