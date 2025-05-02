@@ -56,7 +56,17 @@ const Security = () => {
   const [secretKey, setSecretKey] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [setupStep, setSetupStep] = useState(1); // 1: initial, 2: scan QR, 3: verify code
-
+  const [hasPassword, setHasPassword] = useState(true);
+  const [isSettingInitialPassword, setIsSettingInitialPassword] =
+    useState(false);
+  const [initialPassword, setInitialPassword] = useState({
+    new: "",
+    confirm: "",
+  });
+  const [initialPasswordErrors, setInitialPasswordErrors] = useState({
+    new: "",
+    confirm: "",
+  });
   // Dialog state for MFA disable confirmation
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
 
