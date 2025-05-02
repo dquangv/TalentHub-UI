@@ -75,7 +75,7 @@ const FreelancerDetail = () => {
   };
 
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
+    <div className="py-12 min-h-screen">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <FadeInWhenVisible>
