@@ -132,7 +132,7 @@ const IconCard = ({
   description,
 }: any) => (
   <FadeInWhenVisible>
-    <Card className="p-6 text-center border-primary/10 hover:border-primary/20 transition-colors group">
+    <Card className="p-6 text-center border-primary/10 dark:border-primary/20 hover:border-primary/20 dark:hover:border-primary/30 transition-colors group bg-white dark:bg-gray-800">
       <div className="relative w-12 h-12 mx-auto mb-4">
         <Icon
           className={`w-12 h-12 transition-transform duration-300 group-hover:scale-110 ${colorClass}`}
@@ -142,18 +142,17 @@ const IconCard = ({
           className={`absolute inset-0 rounded-full opacity-20 blur-lg ${gradientClass}`}
         />
       </div>
-      <h3 className="text-3xl font-bold mb-2 text-primary-700">
+      <h3 className="text-3xl font-bold mb-2 text-primary-700 dark:text-gray-300">
         {loading ? (
           <AnimatedNumber start={0} end={50000} />
         ) : (
           <AnimatedNumber start={0} end={value} />
         )}
       </h3>
-      <p className="text-gray-700">{description}</p>
+      <p className="text-gray-700 dark:text-gray-300">{description}</p>
     </Card>
   </FadeInWhenVisible>
-);
-
+);  
 // Breadcrumb Component
 const Breadcrumb = () => (
   <nav
@@ -543,12 +542,12 @@ const Home = () => {
         </div>
       </header>
 
-      <section className="py-16" id="statistics-section">
-        <div className="container mx-auto px-4">
+      <section className="py-16 bg-background dark:bg-dark-background" id="statistics-section">
+      <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <IconCard
               Icon={UserIcon}
-              colorClass="text-blue-500"
+              colorClass="text-blue-500 dark:text-blue-400"
               title="Số lượng ứng viên tài năng"
               value={stats.totalFreelancers}
               loading={stats.loading}
@@ -556,7 +555,7 @@ const Home = () => {
             />
             <IconCard
               Icon={BriefcaseIcon}
-              colorClass="text-green-500"
+              colorClass="text-green-500 dark:text-green-400"
               title="Số lượng dự án đã đăng"
               value={stats.postedJobs}
               loading={stats.loading}
@@ -564,7 +563,7 @@ const Home = () => {
             />
             <IconCard
               Icon={ChartPieIcon}
-              colorClass="text-purple-500"
+              colorClass="text-purple-500 dark:text-purple-400"
               title="Số lượng hợp tác thành công"
               value={stats.approvedFreelancerJobs}
               loading={stats.loading}
