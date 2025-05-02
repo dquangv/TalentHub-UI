@@ -152,7 +152,7 @@ const IconCard = ({
       <p className="text-gray-700 dark:text-gray-300">{description}</p>
     </Card>
   </FadeInWhenVisible>
-);  
+);
 // Breadcrumb Component
 const Breadcrumb = () => (
   <nav
@@ -543,7 +543,7 @@ const Home = () => {
       </header>
 
       <section className="py-16 bg-background dark:bg-dark-background" id="statistics-section">
-      <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <IconCard
               Icon={UserIcon}
@@ -669,7 +669,7 @@ const Home = () => {
                         <Link to={`/jobs/${job.id}`}>
                           <Button
                             variant="outline"
-                            className="w-full bg-primary-600 dark:bg-primary-700 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
+                            className="w-full bg-primary-500 text-white hover:bg-primary-700 dark:hover:bg-primary-800 border-none rounded-lg shadow-sm transition-all duration-300"
                           >
                             Xem chi tiết
                           </Button>
@@ -687,7 +687,7 @@ const Home = () => {
               <Button
                 onClick={() => navigate("/jobs")}
                 size="lg"
-                className="bg-primary-600 dark:bg-primary-700 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
+                className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
               >
                 Xem tất cả công việc
               </Button>
@@ -1267,9 +1267,8 @@ const Home = () => {
               >
                 {showAll ? "Thu gọn" : "Xem thêm"}
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-300 ${
-                    showAll ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 transition-transform duration-300 ${showAll ? "rotate-180" : ""
+                    }`}
                 />
               </button>
             </div>
