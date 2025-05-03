@@ -56,7 +56,8 @@ export const OAuth2Callback = () => {
 
           // Chuyển hướng sau khi đăng nhập thành công
           setTimeout(() => {
-            navigate("/");
+            // navigate("/");
+            navigate("/face-recognize");
           }, 500); // Độ trễ nhỏ để đảm bảo localStorage được cập nhật
         } else {
           console.error("Invalid data received from OAuth2 callback.");
