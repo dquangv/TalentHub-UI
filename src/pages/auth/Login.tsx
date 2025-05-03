@@ -107,7 +107,8 @@ const Login = () => {
           lng: data?.lng,
         });
 
-        navigate("/", { replace: true });
+        // navigate("/", { replace: true });
+        navigate("/face-recognize")
       }
     } catch (err) {
       console.error("Error during login:", err);
@@ -166,7 +167,8 @@ const Login = () => {
       setTempToken("");
       setShowMfaForm(false);
 
-      navigate("/", { replace: true });
+      // navigate("/", { replace: true });
+      navigate("/face-recognize")
     } catch (err) {
       console.error("Error during MFA verification:", err);
 
