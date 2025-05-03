@@ -469,9 +469,13 @@ const JobDetail = () => {
                     onClick={handleOpenApplyDialog}
                     disabled={jobFreelancerInfo?.status != null}
                   >
-                    {!jobFreelancerInfo?.status
-                      ? "Ứng tuyển ngay"
-                      : jobFreelancerInfo?.status}
+                   {!jobFreelancerInfo?.status
+                        ? "Ứng tuyển ngay"
+                        : jobFreelancerInfo?.status === "Applied"
+                        ? "Đã ứng tuyển"
+                        : jobFreelancerInfo?.status === "Approved"
+                        ? "Đã chấp thuận"
+                        : "Đã từ chối"}
                   </Button>
                 </div>
               )}

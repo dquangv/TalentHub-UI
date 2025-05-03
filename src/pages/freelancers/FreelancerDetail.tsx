@@ -75,7 +75,7 @@ const FreelancerDetail = () => {
   };
 
   return (
-    <div className="py-12 bg-gray-50 min-h-screen">
+    <div className="py-12 min-h-screen">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <FadeInWhenVisible>
@@ -154,7 +154,7 @@ const FreelancerDetail = () => {
 
           <FadeInWhenVisible delay={0.2}>
             <Tabs defaultValue={defaultTab} className="space-y-4">
-              <TabsList className="bg-white shadow-sm">
+              <TabsList className="shadow-sm">
                 <TabsTrigger value="overview">Tổng quan</TabsTrigger>
                 <TabsTrigger value="experience">Kinh nghiệm</TabsTrigger>
                 <TabsTrigger value="education">Học vấn</TabsTrigger>
@@ -164,7 +164,7 @@ const FreelancerDetail = () => {
 
               <TabsContent value="overview">
                 <Card className="p-8 hover:shadow-lg transition-shadow duration-300">
-                  <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                  <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
                     Giới thiệu
                   </h2>
                   <div className="mb-4">
@@ -207,7 +207,7 @@ const FreelancerDetail = () => {
                             </div>
                           </div>
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {exp.position}
                             </h3>
                             <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
@@ -269,7 +269,7 @@ const FreelancerDetail = () => {
                             )}
                           </div>
                           <div className="p-4">
-                            <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                            <h3 className="font-semibold text-lg text-gray-900 mb-2 dark:text-white">
                               {project.title}
                             </h3>
                             <div className="mb-3">
@@ -329,7 +329,7 @@ const FreelancerDetail = () => {
                           </div>
                         </div>
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-900">
+                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                             {edu.school.schoolName}
                           </h3>
                           <div className="flex items-center gap-2 text-gray-600 mb-3 mt-1">
@@ -366,7 +366,7 @@ const FreelancerDetail = () => {
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-900">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                               {job.projectName}
                             </h3>
                             <p className="text-gray-600 mt-1">{job.scope}</p>
@@ -398,13 +398,13 @@ const FreelancerDetail = () => {
                           )}
                           <div className="flex items-center text-gray-600">
                             <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>Khách hàng: {job.clientName}</span>
+                            <span>Khách hàng: <span className="dark:text-white italic">{job.clientName}</span></span>
                           </div>
                         </div>
 
                         {job.note && (
                           <div className="mt-4">
-                            <p className="text-gray-600 italic">{job.note}</p>
+                            <p className="text-gray-600 italic dark:text-white">{job.note}</p>
                           </div>
                         )}
                       </div>
