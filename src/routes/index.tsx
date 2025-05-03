@@ -44,6 +44,8 @@ import ReportsOfJob from '@/pages/ReportsOfJob';
 import FreelancerReports from '@/pages/FreelancerReports';
 import Clients from '@/pages/Clients';
 import BannedAccountCallback from '@/pages/BannedAccountCallback';
+import FaceCapture from '@/pages/auth/FaceCapture';
+import FaceRecognize from '@/pages/auth/FaceRecognize';
 export const chatLayoutPaths = ['/messaging'];
 
 export const mainRoutes: RouteObject[] = [
@@ -182,6 +184,14 @@ export const mainRoutes: RouteObject[] = [
   {
     path: '*',
     element: <div className='w-1/2 mx-auto'><NotFound /></div>
+  },
+  {
+    path: '/face-capture',
+    element: <FaceCapture/>
+  },
+  {
+    path: '/face-recognize',
+    element: <FaceRecognize/>
   }
 ];
 
