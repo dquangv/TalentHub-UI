@@ -275,20 +275,22 @@ const Register = () => {
         lng: data?.lng,
       });
 
-      notification.success({
-        message: "Đăng ký thành công",
-        description: "Chào mừng bạn đến với TalentHub!",
-      });
+      // notification.success({
+      //   message: "Đăng ký thành công",
+      //   description: "Chào mừng bạn đến với TalentHub!",
+      // });
 
-      if (formData.role === "FREELANCER") {
-        navigate("/settingsfreelancer");
-      } else {
-        navigate("/client/profile");
-        notification.info({
-          message: "Thông báo",
-          description: "Vui lòng kiểm tra email để xác thực tài khoản",
-        });
-      }
+      // if (formData.role === "FREELANCER") {
+      //   navigate("/settingsfreelancer");
+      // } else {
+      //   navigate("/client/profile");
+      //   notification.info({
+      //     message: "Thông báo",
+      //     description: "Vui lòng kiểm tra email để xác thực tài khoản",
+      //   });
+      // }
+
+      navigate("/face-capture")
     } catch (err: any) {
       console.error("Error during login:", err);
       notification.error({
