@@ -617,14 +617,7 @@ const Home = () => {
                         <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
                           {job.title}
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                          <span className="font-semibold text-gray-700 dark:text-gray-300">
-                            Đăng bởi:
-                          </span>{" "}
-                          <span className="text-gray-800 dark:text-gray-200">
-                            {job.companyName || "Ẩn danh"}
-                          </span>
-                        </p>
+                       
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                           <span className="font-semibold text-gray-700 dark:text-gray-300">
                             Ngân sách:
@@ -640,14 +633,6 @@ const Home = () => {
                           </span>{" "}
                           <span className="text-gray-800 dark:text-gray-200">
                             {job.hourWork} giờ
-                          </span>
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                          <span className="font-semibold text-gray-700 dark:text-gray-300">
-                            Hạn ứng tuyển:
-                          </span>{" "}
-                          <span className="text-primary-600 dark:text-primary-400 font-medium">
-                            Còn {job.remainingTimeFormatted}
                           </span>
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-2">
@@ -932,14 +917,7 @@ const Home = () => {
                           <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2 transition-colors">
                             {job.title}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">
-                              Đăng bởi:
-                            </span>{" "}
-                            <span className="text-gray-800 dark:text-gray-200">
-                              {job.companyName || "Ẩn danh"}
-                            </span>
-                          </p>
+                         
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                             <span className="font-semibold text-gray-700 dark:text-gray-300">
                               Ngân sách:
@@ -955,14 +933,6 @@ const Home = () => {
                             </span>{" "}
                             <span className="text-gray-800 dark:text-gray-200">
                               {job.hourWork} giờ
-                            </span>
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                            <span className="font-semibold text-gray-700 dark:text-gray-300">
-                              Hạn ứng tuyển:
-                            </span>{" "}
-                            <span className="text-primary-600 dark:text-primary-400 font-medium">
-                              Còn {job.remainingTimeFormatted}
                             </span>
                           </p>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -1078,14 +1048,7 @@ const Home = () => {
                             {job.hourWork} giờ
                           </span>
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                          <span className="font-semibold text-gray-700 dark:text-gray-300">
-                            Hạn ứng tuyển:
-                          </span>{" "}
-                          <span className="text-primary-600 dark:text-primary-400 font-medium">
-                            Còn {job.remainingTimeFormatted}
-                          </span>
-                        </p>
+                     
                         <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 leading-relaxed line-clamp-3">
                           {job.description}
                         </p>
