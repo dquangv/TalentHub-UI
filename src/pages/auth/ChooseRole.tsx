@@ -17,15 +17,18 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const ChooseRole = () => {
   const [formData, setFormData] = useState({
-    email: "",  
+    email: "",
     role: "",
   });
-  const [location, setLocation] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
+  const [location, setLocation] = useState<{
+    lat: number | null;
+    lng: number | null;
+  }>({ lat: null, lng: null });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const locationHook = useLocation(); 
-  const {login} = useAuth()
+  const locationHook = useLocation();
+  const { login } = useAuth();
   useEffect(() => {
     const queryParams = new URLSearchParams(locationHook.search);
     const emailFromUrl = queryParams.get("email");
@@ -72,23 +75,59 @@ const ChooseRole = () => {
         lng: location.lng?.toString() || "",
       });
 
-      const response = await api.post(`/v1/account/choose-role?${queryParams.toString()}`);
-      login(response.data)
-      if (formData.role == "FREELANCER"){
-       navigate("/settingsfreelancer")
-      }else {
-        navigate("/client/profile")
+      const response = await api.post(
+        `/v1/account/choose-role?${queryParams.toString()}`
+      );
+      login(response.data);
 
-        notification.info({
-          message: "Thông báo",
-          description: "Vui lòng kiểm tra email để xác thực tài khoản"
+      const userInfoStr = localStorage.getItem("userInfo");
+      if (!userInfoStr) {
+        notification.error({
+          message: "Lỗi",
+          description: "Không tìm thấy thông tin người dùng",
         });
+        return navigate("/login");
       }
 
-      notification.success({
-        message: "Đăng ký thành công",
-        description: "Chào mừng bạn đến với TalentHub!",
-      });
+      const userInfo = JSON.parse(userInfoStr);
+      const email = userInfo.email;
+
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/check-face-registered?userId=${email}`
+        );
+        const data = await res.json();
+
+        if (!data.registered) {
+          notification.info({
+            message: "Chưa đăng ký khuôn mặt",
+            description: "Vui lòng đăng ký khuôn mặt để xác thực.",
+          });
+          return navigate("/face-capture");
+        } else {
+          if (formData.role == "FREELANCER") {
+            navigate("/settingsfreelancer");
+          } else {
+            navigate("/client/profile");
+
+            notification.info({
+              message: "Thông báo",
+              description: "Vui lòng kiểm tra email để xác thực tài khoản",
+            });
+          }
+
+          notification.success({
+            message: "Đăng ký thành công",
+            description: "Chào mừng bạn đến với TalentHub!",
+          });
+        }
+      } catch (err) {
+        console.error("Lỗi kiểm tra đăng ký:", err);
+        notification.error({
+          message: "Lỗi kiểm tra khuôn mặt",
+          description: "Không thể kiểm tra thông tin đăng ký.",
+        });
+      }
     } catch (err: any) {
       setError("Đã xảy ra lỗi, vui lòng thử lại sau.");
     } finally {
@@ -112,7 +151,9 @@ const ChooseRole = () => {
                     <BriefcaseIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Select
                       value={formData.role}
-                      onValueChange={(value) => setFormData({ ...formData, role: value })}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, role: value })
+                      }
                     >
                       <SelectTrigger className="pl-10">
                         <SelectValue placeholder="Chọn vai trò" />
@@ -126,7 +167,9 @@ const ChooseRole = () => {
                 </div>
 
                 {/* Error message */}
-                {error && <div className="text-red-500 text-center">{error}</div>}
+                {error && (
+                  <div className="text-red-500 text-center">{error}</div>
+                )}
 
                 {/* Submit Button */}
                 <Button type="submit" className="w-full" disabled={loading}>
