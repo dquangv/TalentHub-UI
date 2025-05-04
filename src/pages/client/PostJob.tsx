@@ -291,7 +291,7 @@ const PostJob = () => {
         } else {
           notification.success({
             message: "Thành công",
-            description: "Thêm công việc thành công",
+            description: "Đăng công việc thành công",
           });
           console.log(response);
           api.post(`/v1/jobs/notify_by_email?jobId=${response.data.jobId}`);

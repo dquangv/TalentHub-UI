@@ -24,6 +24,8 @@ import {
   Calendar,
   History,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -62,6 +64,8 @@ const Jobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filteredJobs, setFilteredJobs] = useState<Job[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
   const { t } = useLanguage();
   const freelancerId = JSON.parse(
     localStorage.getItem("userInfo") || "{}"
@@ -262,7 +266,68 @@ const Jobs = () => {
     });
     setFilteredJobs(jobs);
   };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredJobs.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
+  const getJobCountInfo = () => {
+    let message = `Tổng cộng ${filteredJobs.length} công việc`;
+
+    if (filters.selectedCategories.length > 0) {
+      message += ` với danh mục: ${filters.selectedCategories.join(", ")}`;
+    }
+
+    if (filters.selectedSkills.length > 0) {
+      message += `, kỹ năng: ${filters.selectedSkills.join(", ")}`;
+    }
+
+    return message;
+  };
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-center gap-2 mt-6">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        <div className="flex items-center gap-1">
+          {[...Array(totalPages)].map((_, idx) => (
+            <Button
+              key={idx}
+              variant={currentPage === idx + 1 ? "default" : "outline"}
+              size="sm"
+              onClick={() => paginate(idx + 1)}
+              className="w-8 h-8 p-0"
+            >
+              {idx + 1}
+            </Button>
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
   return (
     <div className="py-12">
       <div className="container mx-auto px-4">
@@ -440,74 +505,82 @@ const Jobs = () => {
           {isLoading ? (
             <LoadingEffect />
           ) : filteredJobs.length > 0 ? (
-            filteredJobs.map((job, index) => (
-              <Card key={job.id} className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-2xl font-semibold">
-                        {job.title}
-                        &nbsp;
-                        {job?.jobOpportunity && (
-                          <Badge variant="default">Hợp tác lâu dài</Badge>
-                        )}
-                      </h3>
-                    </div>
-                    <p className="text-muted-foreground mb-4 line-clamp-2">
-                      {job.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {job.skillName.map((skill) => (
-                        <Badge key={skill} variant="outline">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                      <div className="flex items-center">
-                        <User className="w-4 h-4 mr-2" />{" "}
-                        {job?.client.firstName} {job?.client.lastName}
+            <>
+              <div className="text-sm font-medium mb-4">
+                <span className="bg-primary/10 px-2 py-1 rounded-md">
+                  {getJobCountInfo()}
+                </span>
+              </div>
+              {currentItems.map((job, index) => (
+                <Card key={job.id} className="p-6">
+                  <div className="flex flex-col md:flex-row md:items-center gap-6">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-2xl font-semibold">
+                          {job.title}
+                          &nbsp;
+                          {job?.jobOpportunity && (
+                            <Badge variant="default">Hợp tác lâu dài</Badge>
+                          )}
+                        </h3>
                       </div>
-                      {job.companyName && (
+                      <p className="text-muted-foreground mb-4 line-clamp-2">
+                        {job.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {job.skillName.map((skill) => (
+                          <Badge key={skill} variant="outline">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center">
-                          <Briefcase className="w-4 h-4 mr-2" />
-                          {job.companyName}
+                          <User className="w-4 h-4 mr-2" />{" "}
+                          {job?.client.firstName} {job?.client.lastName}
                         </div>
+                        {job.companyName && (
+                          <div className="flex items-center">
+                            <Briefcase className="w-4 h-4 mr-2" />
+                            {job.companyName}
+                          </div>
+                        )}
+                        <div className="flex items-center">
+                          <Tag className="w-4 h-4 mr-2" />
+                          {job.categoryName}
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-2" />
+                          {job.hourWork} giờ
+                        </div>
+                        <div className="flex items-center">
+                          <DollarSign className="w-4 h-4 mr-2" />
+                          {job.fromPrice.toLocaleString()} -{" "}
+                          {job.toPrice.toLocaleString()} VND
+                        </div>
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Còn lại {job.remainingTimeFormatted}
+                        </div>
+                        <div className="flex items-center">
+                          <History className="w-4 h-4 mr-2" />
+                          Đăng {job.createdTimeFormatted}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Button>
+                        <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
+                      </Button>
+                      {job.seen === true && (
+                        <div className="flex justify-center">Đã xem</div>
                       )}
-                      <div className="flex items-center">
-                        <Tag className="w-4 h-4 mr-2" />
-                        {job.categoryName}
-                      </div>
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-2" />
-                        {job.hourWork} giờ
-                      </div>
-                      <div className="flex items-center">
-                        <DollarSign className="w-4 h-4 mr-2" />
-                        {job.fromPrice.toLocaleString()} -{" "}
-                        {job.toPrice.toLocaleString()} VND
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        Còn lại {job.remainingTimeFormatted}
-                      </div>
-                      <div className="flex items-center">
-                        <History className="w-4 h-4 mr-2" />
-                        Đăng {job.createdTimeFormatted}
-                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <Button>
-                      <Link to={`/jobs/${job.id}`}>Xem chi tiết</Link>
-                    </Button>
-                    <div className="flex justify-center">
-                      {job.seen ? "Đã xem" : "Chưa xem"}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              ))}
+              <Pagination />
+            </>
           ) : (
             <div className="text-center py-10">
               <div className="text-2xl font-semibold">
@@ -518,11 +591,6 @@ const Jobs = () => {
               </p>
             </div>
           )}
-        </div>
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            {t("Seemorejobs")}
-          </Button>
         </div>
       </div>
     </div>

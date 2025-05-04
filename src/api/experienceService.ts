@@ -22,7 +22,7 @@ const experienceService = {
     getFreelancerExperiences: async (freelancerId: number): Promise<ApiResponse<Experience[]>> => {
         const response = await api.get(`/v1/experiences/${freelancerId}`);
         return {
-            message: response.message || "Success",
+            message: response.message || "Thành công!",
             status: response.status,
             data: response.data,
         };
@@ -31,7 +31,7 @@ const experienceService = {
     createExperience: async (experienceData: Experience): Promise<ApiResponse<Experience>> => {
         const response = await api.post('/v1/experiences', experienceData);
         return {
-            message: response.message || "Success",
+            message: response.message || "Thành công!",
             status: response.status,
             data: response.data,
         };
@@ -47,7 +47,7 @@ const experienceService = {
 
         const response = await api.put(`/v1/experiences/${experienceId}`, updateData);
         return {
-            message: response.message || "Success",
+            message: response.message || "Thành công!",
             status: response.status,
             data: response.data,
         };
@@ -56,7 +56,7 @@ const experienceService = {
     deleteExperience: async (experienceId: number): Promise<ApiResponse<boolean>> => {
         const response = await api.delete(`/v1/experiences/${experienceId}`);
         return {
-            message: response.message || "Success",
+            message: response.message || "Thành công!",
             status: response.status,
             data: response.data,
         };
