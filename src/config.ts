@@ -21,10 +21,10 @@ const config: Config = {
         PY_URL: 'http://localhost:5000'
     },
     production: {
-        API_URL: 'https://api.talenthub.io.vn.vn/api',
-        WEBSOCKET_URL: 'https://api.talenthub.io.vn.vn',
+        API_URL: 'https://api.talenthub.io.vn/api',
+        WEBSOCKET_URL: 'https://api.talenthub.io.vn',
         TIMEOUT: 30000,
-        OAUTH_BASE_URL: 'https://api.talenthub.io.vn.vn/oauth2/authorization',
+        OAUTH_BASE_URL: 'https://api.talenthub.io.vn/oauth2/authorization',
         PY_URL: 'https://1545-2405-4802-91be-cca0-58fe-ef93-50f9-fa49.ngrok-free.app'
     },
     get current() {
