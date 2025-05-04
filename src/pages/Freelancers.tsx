@@ -471,11 +471,7 @@ const Freelancers = () => {
           </div>
         )}
 
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            {t("Seemore")}
-          </Button>
-        </div>
+      
       </div>
     </div>
   );

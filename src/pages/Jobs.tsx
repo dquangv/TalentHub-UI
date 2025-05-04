@@ -519,11 +519,7 @@ const Jobs = () => {
             </div>
           )}
         </div>
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            {t("Seemorejobs")}
-          </Button>
-        </div>
+       
       </div>
     </div>
   );
