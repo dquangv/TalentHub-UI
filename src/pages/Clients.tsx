@@ -458,11 +458,7 @@ const Clients = () => {
           )}
         </div>
 
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            {t("Seemore") || "Xem thêm"}
-          </Button>
-        </div>
+       
       </div>
     </div>
   );

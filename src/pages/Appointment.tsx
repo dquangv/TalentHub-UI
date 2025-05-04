@@ -147,26 +147,7 @@ const Appointment = () => {
                 </div>
               </Card>
 
-              <Card
-                className={`p-6 cursor-pointer transition-all hover:shadow-lg ${appointmentType === "offline" ? "ring-2 ring-primary" : ""
-                  }`}
-                onClick={() => setAppointmentType("offline")}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-1">Gặp trực tiếp</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Tại văn phòng của chúng tôi
-                    </p>
-                  </div>
-                  {appointmentType === "offline" && (
-                    <CheckCircle className="w-5 h-5 text-primary ml-auto" />
-                  )}
-                </div>
-              </Card>
+             
             </div>
           </FadeInWhenVisible>
 
