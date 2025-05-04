@@ -468,26 +468,12 @@ const PostedJobs = () => {
                                 size="sm"
                                 variant="outline"
                                 className="text-amber-600"
-                                disabled={
-                                  !["OPEN", "POSTED", "BANNED"].includes(
-                                    job.status
-                                  )
-                                }
+                               
                               >
                                 <Link
                                   to={
-                                    ["OPEN", "POSTED", "BANNED"].includes(
-                                      job.status
-                                    )
-                                      ? `/reports-job/${job.id}`
-                                      : "#"
-                                  }
-                                  className={
-                                    !["OPEN", "POSTED", "BANNED"].includes(
-                                      job.status
-                                    )
-                                      ? "pointer-events-none"
-                                      : ""
+                                   
+                                    `/reports-job/${job.id}`
                                   }
                                 >
                                   <AlertCircle className="w-4 h-4" />
