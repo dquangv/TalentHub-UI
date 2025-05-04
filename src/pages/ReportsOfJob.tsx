@@ -103,7 +103,7 @@ const ReportsOfJob = () => {
                 <TableRow>
                   <TableHead>STT</TableHead>
                   <TableHead>Lý do</TableHead>
-                  <TableHead>Xử lý</TableHead>
+                  <TableHead>Hình ảnh chi tiêt</TableHead>
                   <TableHead>Mô tả</TableHead>
                   <TableHead>Ngày báo cáo</TableHead>
                   <TableHead>Trạng thái</TableHead>
@@ -119,7 +119,14 @@ const ReportsOfJob = () => {
                       <p className="font-medium">{report.reasonFreelancer}</p>
                     </TableCell>
                     <TableCell>
-                      <p className="font-medium">{report.reasonAdmin}</p>
+                      <a
+                        href={report.image}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-blue-600 hover:underline"
+                      >
+                        Xem chi tiết
+                      </a>
                     </TableCell>
                     <TableCell>
                       <p className="text-sm text-muted-foreground">
