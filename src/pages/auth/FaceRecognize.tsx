@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
 import { notification } from "antd";
 import { Card } from "@/components/ui/card";
+import config from "@/config";
 
 const videoConstraints = {
   width: 400,
@@ -17,7 +18,6 @@ const FaceVerification = () => {
   const navigate = useNavigate();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
-
 
   // ✅ Check đăng ký + camera
   useEffect(() => {
@@ -36,7 +36,7 @@ const FaceVerification = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/check-face-registered?userId=${email}`
+          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`
         );
         const data = await res.json();
 
@@ -90,7 +90,7 @@ const FaceVerification = () => {
 
       try {
         setVerifying(true);
-        const res = await fetch("http://localhost:5000/api/verify-face", {
+        const res = await fetch(`${config.current.PY_URL}/api/verify-face`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: imageSrc, userId: email }),
@@ -102,7 +102,9 @@ const FaceVerification = () => {
           clearInterval(intervalRef.current!);
           return navigate("/", { replace: true });
         } else {
-          setErrorMessage("Không xác thực được khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại.");
+          setErrorMessage(
+            "Không xác thực được khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại."
+          );
           console.log("Không khớp khuôn mặt, thử lại...");
         }
       } catch (err) {
