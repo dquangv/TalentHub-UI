@@ -14,6 +14,7 @@ import { BriefcaseIcon } from "lucide-react";
 import { notification } from "antd";
 import api from "@/api/axiosConfig";
 import { useAuth } from "@/contexts/AuthContext";
+import config from "@/config";
 
 const ChooseRole = () => {
   const [formData, setFormData] = useState({
@@ -94,7 +95,7 @@ const ChooseRole = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/check-face-registered?userId=${email}`
+          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`
         );
         const data = await res.json();
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "antd";
 import { notification } from "antd";
 import { Link, useNavigate } from "react-router-dom";
+import config from "@/config";
 
 const directions = ["front", "left", "right"] as const;
 type Direction = (typeof directions)[number];
@@ -146,20 +147,23 @@ const FaceCapture = () => {
 
       console.log(images);
 
-      const response = await fetch("http://localhost:5000/api/register-face", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: email,
-          images,
-        }),
-      });
+      const response = await fetch(
+        `${config.current.PY_URL}/api/register-face`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: email,
+            images,
+          }),
+        }
+      );
 
       console.log(response);
 
       const data = await response.json();
 
-      console.log(data)
+      console.log(data);
       if (data.success) {
         setMessage("Xác thực khuôn mặt thành công!");
 
