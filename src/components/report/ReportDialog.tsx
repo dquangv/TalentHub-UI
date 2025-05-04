@@ -275,7 +275,7 @@ const ReportDialog = ({
                           />
                           <Label
                             htmlFor={reason.value}
-                            className="cursor-pointer"
+                            className="cursor-pointer text-black"
                           >
                             {reason.label}
                           </Label>
