@@ -73,7 +73,7 @@ const Jobs = () => {
     minPrice: 0,
     maxPrice: 1000000000,
     minHours: 0,
-    maxHours: 168,
+    maxHours: 9999,
     selectedCategories: [],
   });
 
@@ -257,7 +257,7 @@ const Jobs = () => {
       minPrice: 0,
       maxPrice: 1000000000,
       minHours: 0,
-      maxHours: 168,
+      maxHours: 9999,
       selectedCategories: [],
     });
     setFilteredJobs(jobs);
@@ -408,7 +408,7 @@ const Jobs = () => {
                               onChange={(e) =>
                                 setFilters((prev) => ({
                                   ...prev,
-                                  maxHours: parseInt(e.target.value) || 168,
+                                  maxHours: parseInt(e.target.value) || 9999,
                                 }))
                               }
                               className="w-20"
