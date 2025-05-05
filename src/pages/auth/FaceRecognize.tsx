@@ -116,6 +116,12 @@ const FaceVerification = () => {
             "Không xác thực được khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại."
           );
           console.log("Không khớp khuôn mặt, thử lại...");
+          notification.warning({
+            message: "Không khớp khuôn mặt",
+            description: "Vui lòng điều chỉnh góc mặt và thử lại.",
+            key: "face-verification-warning",
+            duration: 3,
+          });
         }
       } catch (err) {
         setErrorMessage("Có lỗi xảy ra khi xác thực. Vui lòng thử lại.");
