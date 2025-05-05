@@ -112,9 +112,6 @@ const FaceVerification = () => {
           clearInterval(intervalRef.current!);
           return navigate("/", { replace: true });
         } else {
-          setErrorMessage(
-            "Không xác thực được khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại."
-          );
           console.log("Không khớp khuôn mặt, thử lại...");
           notification.warning({
             message: "Không khớp khuôn mặt",
