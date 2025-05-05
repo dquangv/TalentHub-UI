@@ -36,7 +36,13 @@ const FaceVerification = () => {
 
       try {
         const res = await fetch(
-          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`
+          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`,
+          {
+            headers: {
+              Accept: "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
         );
         const data = await res.json();
 
@@ -92,7 +98,10 @@ const FaceVerification = () => {
         setVerifying(true);
         const res = await fetch(`${config.current.PY_URL}/api/verify-face`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
           body: JSON.stringify({ image: imageSrc, userId: email }),
         });
 

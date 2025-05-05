@@ -95,8 +95,16 @@ const ChooseRole = () => {
 
       try {
         const res = await fetch(
-          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`
+          `${config.current.PY_URL}/api/check-face-registered?userId=${email}`,
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
         );
+
         const data = await res.json();
 
         if (!data.registered) {

@@ -151,7 +151,10 @@ const FaceCapture = () => {
         `${config.current.PY_URL}/api/register-face`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
           body: JSON.stringify({
             userId: email,
             images,
