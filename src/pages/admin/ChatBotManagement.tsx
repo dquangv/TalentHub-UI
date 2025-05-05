@@ -371,7 +371,7 @@ const ChatbotManagement: React.FC = () => {
     } catch (error) {
       notification.error({
         message: "Error",
-        description: "Failed to delete response",
+        description: "Failed to Xóa phản hồi",
       });
       console.error(error);
     }
@@ -1139,7 +1139,7 @@ const ChatbotManagement: React.FC = () => {
               </Button>
             </div>
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
+              {/* <div className="flex items-center space-x-2 ">
                 <Checkbox
                   id="newRequiresDbQuery"
                   checked={newIntent.requiresDbQuery}
@@ -1151,7 +1151,7 @@ const ChatbotManagement: React.FC = () => {
                   }
                 />
                 <Label htmlFor="newRequiresDbQuery">Truy vấn database</Label>
-              </div>
+              </div> */}
               {newIntent.requiresDbQuery && (
                 <Textarea
                   value={newIntent.dbQuery}
@@ -1355,7 +1355,7 @@ const ChatbotManagement: React.FC = () => {
                 rows={4}
               />
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="addRequiresDbQuery"
                 checked={editResponse.requiresDbQuery}
@@ -1367,7 +1367,7 @@ const ChatbotManagement: React.FC = () => {
                 }
               />
               <Label htmlFor="addRequiresDbQuery">Truy vấn database</Label>
-            </div>
+            </div> */}
             {editResponse.requiresDbQuery && (
               <div className="space-y-2">
                 <Label htmlFor="queryTemplate">SQL Query Template</Label>
@@ -1434,7 +1434,7 @@ const ChatbotManagement: React.FC = () => {
                 rows={4}
               />
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="editRequiresDbQuery"
                 checked={editResponse.requiresDbQuery}
@@ -1446,7 +1446,7 @@ const ChatbotManagement: React.FC = () => {
                 }
               />
               <Label htmlFor="editRequiresDbQuery">Truy vấn database</Label>
-            </div>
+            </div> */}
             {editResponse.requiresDbQuery && (
               <div className="space-y-2">
                 <Label htmlFor="editQueryTemplate">SQL Query Template</Label>
@@ -1485,26 +1485,25 @@ const ChatbotManagement: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Response Confirmation */}
+      {/* Xóa phản hồi Confirmation */}
       <AlertDialog
         open={deleteResponseDialogOpen}
         onOpenChange={setDeleteResponseDialogOpen}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Response</AlertDialogTitle>
+            <AlertDialogTitle>Xóa phản hồi</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this response? This action cannot
-              be undone.
+              Bạn có chắc chắn muốn xóa phản hồi này?{" "}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Đóng</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteResponse}
-              className="bg-destructive text-destructive-foreground"
+              className="bg-primary text-destructive-foreground"
             >
-              Delete
+              Xóa
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
