@@ -99,6 +99,7 @@ const FaceVerification = () => {
         const res = await fetch(`${config.current.PY_URL}/api/verify-face`, {
           method: "POST",
           headers: {
+            "Content-Type": "application/json",
             Accept: "application/json",
             "ngrok-skip-browser-warning": "true",
           },
