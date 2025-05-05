@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import Webcam from "react-webcam";
 import { Button } from "@/components/ui/button";
-import { Progress } from "antd";
-import { notification } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Progress, notification } from "antd";
+import { useNavigate } from "react-router-dom";
 import config from "@/config";
 
 const directions = ["front", "left", "right"] as const;
@@ -14,6 +13,13 @@ const videoConstraints = {
   width: 400,
   height: 400,
   facingMode: "user",
+};
+
+// Thông điệp hướng dẫn cho từng hướng
+const directionMessages = {
+  front: "Vui lòng nhìn thẳng vào camera",
+  left: "Vui lòng quay mặt sang phải",
+  right: "Vui lòng quay mặt sang trái",
 };
 
 const FaceCapture = () => {
@@ -27,22 +33,41 @@ const FaceCapture = () => {
     right: [],
   });
   const [currentDirection, setCurrentDirection] = useState<Direction>("front");
+  const [isCapturing, setIsCapturing] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const currentDirectionRef = useRef<Direction>("front");
   const navigate = useNavigate();
 
+  // Load models khi component mount
   useEffect(() => {
     const loadModels = async () => {
-      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
-      await faceapi.nets.faceLandmark68TinyNet.loadFromUri("/models");
-      setModelsLoaded(true);
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+        await faceapi.nets.faceLandmark68TinyNet.loadFromUri("/models");
+        setModelsLoaded(true);
+      } catch (error) {
+        console.error("Không thể tải models:", error);
+        notification.error({
+          message: "Lỗi khởi tạo",
+          description:
+            "Không thể tải mô hình nhận diện khuôn mặt. Vui lòng tải lại trang.",
+        });
+      }
     };
     loadModels();
+
+    // Cleanup khi unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
+  // Cập nhật progress bar
   useEffect(() => {
     const total = directions.reduce(
       (sum, dir) => sum + capturedImages[dir].length,
@@ -51,6 +76,13 @@ const FaceCapture = () => {
     setProgress(Math.min((total / 15) * 100, 100));
   }, [capturedImages]);
 
+  // Cập nhật ref khi currentDirection thay đổi
+  useEffect(() => {
+    currentDirectionRef.current = currentDirection;
+    setMessage(directionMessages[currentDirection]);
+  }, [currentDirection]);
+
+  // Xác định hướng khuôn mặt
   const getFaceDirection = async (
     video: HTMLVideoElement
   ): Promise<Direction | null> => {
@@ -78,26 +110,27 @@ const FaceCapture = () => {
     return null;
   };
 
-  const currentDirectionRef = useRef<Direction>("front");
-
-  useEffect(() => {
-    currentDirectionRef.current = currentDirection;
-  }, [currentDirection]);
-
+  // Bắt đầu quá trình chụp ảnh
   const handleStartCapture = () => {
-    if (!modelsLoaded || !webcamRef.current) return;
-    setLoading(true);
+    if (!modelsLoaded || !webcamRef.current) {
+      notification.warning({
+        message: "Chưa sẵn sàng",
+        description: "Camera hoặc mô hình nhận diện chưa được khởi tạo.",
+      });
+      return;
+    }
+
+    // Reset state và bắt đầu quá trình chụp
     setCapturedImages({ front: [], left: [], right: [] });
     setCurrentDirection("front");
-    setMessage("Vui lòng nhìn thẳng vào camera");
+    setMessage(directionMessages.front);
+    setIsCapturing(true);
 
     intervalRef.current = setInterval(async () => {
       if (!webcamRef.current?.video) return;
 
       const dir = await getFaceDirection(webcamRef.current.video);
       const currentDir = currentDirectionRef.current;
-
-      console.log(currentDir);
 
       if (dir !== currentDir) return;
 
@@ -113,30 +146,28 @@ const FaceCapture = () => {
           [currentDir]: [...currentImages, image],
         };
 
+        // Nếu đã chụp đủ 5 ảnh cho hướng hiện tại
         if (updated[currentDir].length === 5) {
           const nextIndex = directions.indexOf(currentDir) + 1;
           if (nextIndex < directions.length) {
+            // Chuyển sang hướng tiếp theo
             const nextDir = directions[nextIndex];
             setCurrentDirection(nextDir);
-            setMessage(
-              nextDir === "left"
-                ? "Vui lòng quay mặt sang phải"
-                : nextDir === "right"
-                ? "Vui lòng quay mặt sang trái"
-                : "Vui lòng nhìn thẳng vào camera"
-            );
           } else {
+            // Đã chụp đủ tất cả các hướng
             if (intervalRef.current) clearInterval(intervalRef.current);
             sendImagesToServer(updated);
           }
         }
-        setLoading(false);
+
         return updated;
       });
     }, 500);
   };
 
+  // Gửi ảnh lên server
   const sendImagesToServer = async (images: Record<Direction, string[]>) => {
+    setIsCapturing(false);
     setProcessing(true);
     setMessage("Đang xử lý...");
 
@@ -145,8 +176,6 @@ const FaceCapture = () => {
       if (!userInfoStr) throw new Error("User info not found");
       const userInfo = JSON.parse(userInfoStr);
       const email = userInfo.email;
-
-      console.log(images);
 
       const response = await fetch(
         `${config.current.PY_URL}/api/register-face`,
@@ -164,11 +193,8 @@ const FaceCapture = () => {
         }
       );
 
-      console.log(response);
-
       const data = await response.json();
 
-      console.log(data);
       if (data.success) {
         setMessage("Xác thực khuôn mặt thành công!");
 
@@ -177,6 +203,7 @@ const FaceCapture = () => {
           description: "Chào mừng bạn đến với TalentHub!",
         });
 
+        // Điều hướng dựa vào loại người dùng
         if (userInfo.freelancerId) {
           navigate("/settingsfreelancer");
         } else if (userInfo.clientId) {
@@ -197,45 +224,99 @@ const FaceCapture = () => {
     } catch (err) {
       console.error(err);
       setMessage("Không thể xác thực. Vui lòng thử lại.");
+      notification.error({
+        message: "Lỗi kết nối",
+        description: "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.",
+      });
     } finally {
       setProcessing(false);
     }
   };
 
+  // Hủy quá trình chụp
+  const handleCancelCapture = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setIsCapturing(false);
+    setMessage("");
+    setCapturedImages({ front: [], left: [], right: [] });
+  };
+
   return (
     <div className="min-h-screen bg-background py-10">
       <div className="container mx-auto max-w-2xl">
-        <h2 className="text-xl font-bold mb-4 text-center">
+        <h2 className="text-2xl font-bold mb-6 text-center">
           Xác thực Liveness Detection
         </h2>
-        <div className="flex justify-center mb-4">
-          <Webcam
-            ref={webcamRef}
-            width={400}
-            height={400}
-            screenshotFormat="image/jpeg"
-            videoConstraints={videoConstraints}
-            className="rounded-md shadow-md"
-          />
-        </div>
-        {message && (
-          <div className="text-center text-lg font-medium mb-4 text-blue-600">
-            {message}
+
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <div className="flex justify-center mb-6">
+            <Webcam
+              ref={webcamRef}
+              width={400}
+              height={400}
+              mirrored={true}
+              screenshotFormat="image/jpeg"
+              videoConstraints={videoConstraints}
+              className="rounded-lg shadow-md"
+            />
           </div>
-        )}
-        <div className="flex justify-center mb-4">
-          <Progress
-            percent={Math.round(progress)}
-            status={processing ? "active" : "normal"}
-          />
+
+          {message && (
+            <div className="text-center text-lg font-medium mb-4 text-blue-600">
+              {message}
+            </div>
+          )}
+
+          <div className="flex justify-center mb-6">
+            <Progress
+              percent={Math.round(progress)}
+              status={isCapturing || processing ? "active" : "normal"}
+              className="w-full"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+            />
+          </div>
+
+          <div className="flex justify-center gap-4">
+            {!isCapturing && !processing ? (
+              <Button
+                onClick={handleStartCapture}
+                disabled={!modelsLoaded}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Bắt đầu xác thực
+              </Button>
+            ) : (
+              <>
+                {isCapturing && (
+                  <Button
+                    onClick={handleCancelCapture}
+                    className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white"
+                  >
+                    Hủy
+                  </Button>
+                )}
+                <Button
+                  disabled
+                  className="px-6 py-2 bg-blue-600 text-white flex items-center gap-2"
+                >
+                  <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
+                  {isCapturing ? "Đang chụp..." : "Đang xử lý..."}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex justify-center">
-          <Button
-            onClick={handleStartCapture}
-            disabled={!modelsLoaded || processing}
-          >
-            {loading ? "Đang xác thực..." : "Bắt đầu xác thực"}
-          </Button>
+
+        <div className="mt-6 text-center text-gray-600 text-sm">
+          <p>
+            Vui lòng đảm bảo gương mặt của bạn được chiếu sáng đầy đủ và không
+            có vật cản
+          </p>
         </div>
       </div>
     </div>
