@@ -116,8 +116,20 @@ axiosInstance.interceptors.response.use(
 
 // API methods
 const api = {
-    get: (url: string, config = {}) => axiosInstance.get(url, config),
-    post: (url: string, data?: any, config = {}) => axiosInstance.post(url, data, config),
+    get: (url: string, config = {}) => axiosInstance.get(url, {
+        ...config,
+        headers: {
+            ...axiosInstance.defaults.headers,
+            ...config.headers
+        }
+    }),
+    post: (url: string, data?: any, config = {}) => axiosInstance.post(url, data, {
+        ...config,
+        headers: {
+            ...axiosInstance.defaults.headers,
+            ...config.headers
+        }
+    }),
     put: (url: string, data?: any, config = {}) => axiosInstance.put(url, data, config),
     delete: (url: string, config = {}) => axiosInstance.delete(url, config),
     patch: (url: string, data?: any, config = {}) => axiosInstance.patch(url, data, config)
