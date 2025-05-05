@@ -25,7 +25,7 @@ const config: Config = {
         WEBSOCKET_URL: 'https://api.talenthub.io.vn',
         TIMEOUT: 30000,
         OAUTH_BASE_URL: 'https://api.talenthub.io.vn/oauth2/authorization',
-        PY_URL: 'https://1545-2405-4802-91be-cca0-58fe-ef93-50f9-fa49.ngrok-free.app'
+        PY_URL: 'https://c919-113-161-50-174.ngrok-free.app'
     },
     get current() {
         const env = process.env.NODE_ENV || 'development';
