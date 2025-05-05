@@ -217,6 +217,8 @@ const Home = () => {
       navigate(path);
     }
   };
+
+  
   useEffect(() => {
     const userInfoStr = localStorage.getItem("userInfo");
     if (userInfoStr) {
@@ -669,7 +671,7 @@ const Home = () => {
           {jobsPremium && jobsPremium.length > 0 && (
             <div className="text-center mt-10">
               <Button
-                onClick={() => navigate("/jobs")}
+                onClick={() => handleNavigation("/jobs")}
                 size="lg"
                 className="bg-primary-600 dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-800 text-white"
               >
@@ -704,8 +706,8 @@ const Home = () => {
                 <Button
                   onClick={() =>
                     isLoggedIn
-                      ? navigate("/client/post-job")
-                      : navigate("/login")
+                      ? handleNavigation("/client/post-job")
+                      : handleNavigation("/login")
                   }
                   size="lg"
                   className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -850,7 +852,7 @@ const Home = () => {
                 />
               </div>
               <Button
-                onClick={() => navigate("/client/post-job")}
+                onClick={() => handleNavigation("/client/post-job")}
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
