@@ -30,6 +30,7 @@ const FaceCapture = () => {
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
@@ -85,7 +86,7 @@ const FaceCapture = () => {
 
   const handleStartCapture = () => {
     if (!modelsLoaded || !webcamRef.current) return;
-
+    setLoading(true);
     setCapturedImages({ front: [], left: [], right: [] });
     setCurrentDirection("front");
     setMessage("Vui lòng nhìn thẳng vào camera");
@@ -129,10 +130,10 @@ const FaceCapture = () => {
             sendImagesToServer(updated);
           }
         }
-
+        setLoading(false);
         return updated;
       });
-    }, 1000);
+    }, 500);
   };
 
   const sendImagesToServer = async (images: Record<Direction, string[]>) => {
@@ -233,7 +234,7 @@ const FaceCapture = () => {
             onClick={handleStartCapture}
             disabled={!modelsLoaded || processing}
           >
-            {processing ? "Đang xác thực..." : "Bắt đầu xác thực"}
+            {loading ? "Đang xác thực..." : "Bắt đầu xác thực"}
           </Button>
         </div>
       </div>
