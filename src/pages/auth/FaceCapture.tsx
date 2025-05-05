@@ -185,6 +185,12 @@ const FaceCapture = () => {
           data.message ||
             "Không khớp khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại."
         );
+        notification.warning({
+          message: "Lỗi xác thực",
+          description:
+            data.message ||
+            "Không khớp khuôn mặt. Vui lòng điều chỉnh góc mặt và thử lại.",
+        });
       }
     } catch (err) {
       console.error(err);
