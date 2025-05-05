@@ -119,9 +119,9 @@ const FaceCapture = () => {
             setCurrentDirection(nextDir);
             setMessage(
               nextDir === "left"
-                ? "Vui lòng quay mặt sang trái"
-                : nextDir === "right"
                 ? "Vui lòng quay mặt sang phải"
+                : nextDir === "right"
+                ? "Vui lòng quay mặt sang trái"
                 : "Vui lòng nhìn thẳng vào camera"
             );
           } else {
